@@ -3,8 +3,8 @@
     "rootNamespace": "Shears.UI",
     "references": [
         "GUID:b28a31c08beef024d83a7aa1ec3f2f6d",
-        "GUID:6d6cbe5236b70934db3878d2d60c4c73",
-        "GUID:47c78b473e92098469ae5153d34a31e6"
+        "GUID:47c78b473e92098469ae5153d34a31e6",
+        "GUID:624a85509f829424398b0fa44ae4b076"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
