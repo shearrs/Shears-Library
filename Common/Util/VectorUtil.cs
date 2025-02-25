@@ -12,5 +12,11 @@ namespace Shears
 
             return vector;
         }
+
+        public static void Deconstruct(this Vector2 self, out float x, out float y)
+        {
+            x = self.x;
+            y = self.y;
+        }
     }
 }

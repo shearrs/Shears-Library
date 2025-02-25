@@ -1,0 +1,75 @@
+using System;
+using UnityEngine;
+
+namespace Shears
+{
+    [Serializable]
+    public class SerializableSystemType
+    {
+        [SerializeField] private string name;
+        [SerializeField] private string assemblyQualifiedName;
+        [SerializeField] private string assemblyName;
+        private Type systemType;
+
+        public string Name => name;
+        public string AssemblyQualifiedName => assemblyQualifiedName;
+        public string AssemblyName => assemblyName;
+        public Type SystemType
+        {
+            get
+            {
+                if (systemType == null)
+                    GetSystemType();
+
+                return systemType;
+            }
+        }
+
+        private void GetSystemType()
+        {
+            systemType = Type.GetType(assemblyQualifiedName);
+        }
+
+        public SerializableSystemType(Type type)
+        {
+            systemType = type;
+            name = type.Name;
+            assemblyQualifiedName = type.AssemblyQualifiedName;
+            assemblyName = type.Assembly.FullName;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is not SerializableSystemType type)
+                return false;
+
+            return Equals(type);
+        }
+
+        public bool Equals(SerializableSystemType type)
+        {
+            return type.SystemType.Equals(SystemType);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(name, assemblyQualifiedName, assemblyName, systemType, Name, AssemblyQualifiedName, AssemblyName, SystemType);
+        }
+
+        public static bool operator==(SerializableSystemType a, SerializableSystemType b)
+        {
+            if (ReferenceEquals(a, b))
+                return true;
+
+            if (a == null || b == null)
+                return false;
+
+            return a.Equals(b);
+        }
+
+        public static bool operator!=(SerializableSystemType a, SerializableSystemType b)
+        {
+            return !(a == b);
+        }
+    }
+}
