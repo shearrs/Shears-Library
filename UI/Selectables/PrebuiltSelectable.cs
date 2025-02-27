@@ -31,7 +31,9 @@ namespace Shears.UI
 
         internal override void Unselect()
         {
-            PlayTween(hoverColor, defaultColor);
+            if (gameObject.activeSelf)
+                PlayTween(hoverColor, defaultColor);
+
             base.Unselect();
         }
 
@@ -56,7 +58,6 @@ namespace Shears.UI
 
         private void ClearTween()
         {
-            tween?.Stop();
             tween?.Dispose();
 
             tween = null;

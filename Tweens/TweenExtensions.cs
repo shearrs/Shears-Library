@@ -14,14 +14,14 @@ namespace Shears.Tweens
             return tween;
         }
 
-        private static ITween CreateAutoDisposeTween(Transform transform, Action<float> update, TweenData data)
+        private static ITween CreateAutoDisposeTween(UnityEngine.Object obj, Action<float> update, TweenData data)
         {
             var tween = CreateTween(update, data);
 
             bool disposeEvent()
             {
                 if (Application.isPlaying)
-                    return transform == null;
+                    return obj == null;
                 else
                     return false;
             }
@@ -113,9 +113,12 @@ namespace Shears.Tweens
         {
             Color start = image.color;
 
-            void update(float t) => image.color = Color.LerpUnclamped(start, targetColor, t);
+            void update(float t)
+            {
+                image.color = Color.LerpUnclamped(start, targetColor, t);
+            }
 
-            return CreateAutoDisposeTween(image.transform, update, data);
+            return CreateAutoDisposeTween(image, update, data);
         }
         #endregion
     }

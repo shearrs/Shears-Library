@@ -109,38 +109,44 @@ namespace Shears.Tweens
 
                 coroutines.Remove(updateCoroutine);
 
-                if (forceFinalValue)
+                if (IsPlaying && !EvaluateStopAndDisposeEvents())
                 {
-                    progress = GetEndValue();
-                    Update?.Invoke(progress);
+                    if (forceFinalValue)
+                    {
+                        progress = GetEndValue();
+                        Update?.Invoke(progress);
+                    }
+
+                    if (loopMode == LoopMode.PingPong)
+                        reversed = !reversed;
+
+                    if (loops > -1)
+                        loops--;
                 }
 
-                if (loopMode == LoopMode.PingPong)
-                    reversed = !reversed;
-
-                if (loops > -1)
-                    loops--;
+                if (loops > 1 || loops == -1)
+                    yield return null;
             }
-
-            IsPlaying = false;
 
             DoOnCompletes();
             onCompletes.Clear();
+
+            Stop();
         }
 
         private IEnumerator IEUpdate()
         {
-            while (progress < Duration)
+            while (progress <= Duration)
             {
                 while (Paused)
                 {
-                    if (EvaluateStopEvents())
+                    if (EvaluateStopAndDisposeEvents())
                         yield break;
 
                     yield return null;
                 }
 
-                if (EvaluateStopEvents())
+                if (EvaluateStopAndDisposeEvents())
                     yield break;
 
                 float t = progress / Duration;
@@ -177,7 +183,7 @@ namespace Shears.Tweens
                 action?.Invoke();
         }
 
-        private bool EvaluateStopEvents()
+        private bool EvaluateStopAndDisposeEvents()
         {
             bool stop = false;
 
@@ -227,7 +233,9 @@ namespace Shears.Tweens
 
             for (int i = 0; i < count; i++)
             {
-                CoroutineRunner.Stop(coroutines[0]);
+                if (coroutines[0] != null)
+                    CoroutineRunner.Stop(coroutines[0]);
+
                 coroutines.RemoveAt(0);
             }
         }
