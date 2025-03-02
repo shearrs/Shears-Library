@@ -38,6 +38,7 @@ namespace Shears
             assemblyName = type.Assembly.FullName;
         }
 
+        #region Operators
         public override bool Equals(object obj)
         {
             if (obj is not SerializableSystemType type)
@@ -56,6 +57,11 @@ namespace Shears
             return HashCode.Combine(name, assemblyQualifiedName, assemblyName, systemType, Name, AssemblyQualifiedName, AssemblyName, SystemType);
         }
 
+        public override string ToString()
+        {
+            return name;
+        }
+
         public static bool operator==(SerializableSystemType a, SerializableSystemType b)
         {
             if (ReferenceEquals(a, b))
@@ -71,5 +77,6 @@ namespace Shears
         {
             return !(a == b);
         }
+        #endregion
     }
 }
