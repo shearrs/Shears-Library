@@ -49,7 +49,7 @@ namespace Shears
     [System.Serializable]
     public class SerializableReferenceDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver
     {
-        [SerializeReference] private List<TKey> keys = new();
+        [SerializeField] private List<TKey> keys = new();
         [SerializeReference] private List<TValue> values = new();
 
         void ISerializationCallbackReceiver.OnBeforeSerialize()

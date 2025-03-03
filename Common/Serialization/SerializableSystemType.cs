@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Shears
 {
     [Serializable]
-    public class SerializableSystemType
+    public struct SerializableSystemType
     {
         [SerializeField] private string name;
         [SerializeField] private string assemblyQualifiedName;
@@ -38,6 +38,16 @@ namespace Shears
             assemblyName = type.Assembly.FullName;
         }
 
+        public SerializableSystemType(string assemblyQualifiedName)
+        {
+            Type type = Type.GetType(assemblyQualifiedName) ?? throw new Exception($"Invalid type {assemblyQualifiedName}!");
+
+            systemType = type;
+            name = type.Name;
+            this.assemblyQualifiedName = assemblyQualifiedName;
+            assemblyName = type.Assembly.FullName;
+        }
+
         #region Operators
         public override bool Equals(object obj)
         {
@@ -54,7 +64,7 @@ namespace Shears
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(name, assemblyQualifiedName, assemblyName, systemType, Name, AssemblyQualifiedName, AssemblyName, SystemType);
+            return HashCode.Combine(Name, AssemblyQualifiedName, AssemblyName, SystemType);
         }
 
         public override string ToString()
