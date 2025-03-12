@@ -87,6 +87,16 @@ namespace Shears
         {
             return !(a == b);
         }
+
+        public static implicit operator Type(SerializableSystemType t)
+        {
+            return t.SystemType;
+        }
+
+        public static implicit operator SerializableSystemType(Type t)
+        {
+            return new(t);
+        }
         #endregion
     }
 }

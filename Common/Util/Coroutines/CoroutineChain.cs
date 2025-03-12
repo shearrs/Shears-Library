@@ -8,8 +8,6 @@ namespace Shears
 {
     public class CoroutineChain
     {
-        private IEnumerator start;
-        private Func<Coroutine> coroutineStart;
         private bool isRunning = false;
 
         private readonly Queue<ChainElement> chainQueue = new();
@@ -65,20 +63,6 @@ namespace Shears
             return new();
         }
 
-        public CoroutineChain SetStart(IEnumerator action)
-        {
-            start = action;
-
-            return this;
-        }
-
-        public CoroutineChain SetStart(Func<Coroutine> action)
-        {
-            coroutineStart = action;
-
-            return this;
-        }
-
         public CoroutineChain Then(Action action)
         {
             chainQueue.Enqueue(new(action));
@@ -111,11 +95,6 @@ namespace Shears
         private IEnumerator IERun()
         {
             isRunning = true;
-
-            if (start != null)
-                yield return CoroutineRunner.Start(start);
-            else
-                yield return coroutineStart();
 
             foreach (var element in chainQueue)
             {
