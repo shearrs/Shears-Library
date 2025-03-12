@@ -57,9 +57,9 @@ namespace Shears
             return Equals(type);
         }
 
-        public bool Equals(SerializableSystemType type)
+        public bool Equals(SerializableSystemType type) 
         {
-            return type.SystemType.Equals(SystemType);
+            return SystemType == type.SystemType;
         }
 
         public override int GetHashCode()
