@@ -10,12 +10,15 @@ namespace Shears.Tweens
     {
         [SerializeField] private List<Tween> tweens = new();
         private ObjectPool<Tween> tweenPool;
+        private TweenData defaultTweenData;
 
         protected override void Awake()
         {
             base.Awake();
 
             tweenPool = new(PoolCreate, PoolGet);
+
+            defaultTweenData = Resources.Load<TweenData>("Tween Data/Default Tween Data");
         }
 
         #region Custom Tween
@@ -28,6 +31,10 @@ namespace Shears.Tweens
             tween.Update = update;
             tween.Release = Release;
             tween.IsActive = true;
+
+            if (data == null)
+                data = defaultTweenData;
+
             tween.SetData(data);
 
             return tween;
