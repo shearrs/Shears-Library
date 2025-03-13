@@ -63,8 +63,8 @@ namespace Shears.Tweens
                 {
                     TweenType.Move => rectTransform.GetMoveTween(position, data),
                     TweenType.LocalMove => rectTransform.GetMoveLocalTween(position, data),
-                    TweenType.Rotate => rectTransform.GetRotateTween(Quaternion.Euler(rotation), data),
-                    TweenType.LocalRotate => rectTransform.GetRotateLocalTween(Quaternion.Euler(rotation), data),
+                    TweenType.Rotate => rectTransform.GetRotateTween(Quaternion.Euler(rotation), false, data),
+                    TweenType.LocalRotate => rectTransform.GetRotateLocalTween(Quaternion.Euler(rotation), false, data),
                     TweenType.LocalScale => rectTransform.GetScaleLocalTween(scale, data),
                     _ => null,
                 };
@@ -75,8 +75,8 @@ namespace Shears.Tweens
                 {
                     TweenType.Move => transform.GetMoveTween(position, data),
                     TweenType.LocalMove => transform.GetMoveLocalTween(position, data),
-                    TweenType.Rotate => transform.GetRotateTween(Quaternion.Euler(rotation), data),
-                    TweenType.LocalRotate => transform.GetRotateLocalTween(Quaternion.Euler(rotation), data),
+                    TweenType.Rotate => transform.GetRotateTween(Quaternion.Euler(rotation), false, data),
+                    TweenType.LocalRotate => transform.GetRotateLocalTween(Quaternion.Euler(rotation), false, data),
                     TweenType.LocalScale => transform.GetScaleLocalTween(scale, data),
                     _ => null,
                 };

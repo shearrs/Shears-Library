@@ -57,24 +57,56 @@ namespace Shears.Tweens
         #endregion
 
         #region Rotate Tween
-        public static ITween DoRotateTween(this Transform transform, Quaternion targetRot, TweenData data) => Do(GetRotateTween(transform, targetRot, data));
-        public static ITween GetRotateTween(this Transform transform, Quaternion targetRot, TweenData data)
+        public static ITween DoRotateTween(this Transform transform, Quaternion targetRot, bool shortestPath, TweenData data) => Do(GetRotateTween(transform, targetRot, shortestPath, data));
+        public static ITween GetRotateTween(this Transform transform, Quaternion targetRot, bool shortestPath, TweenData data)
         {
             Quaternion start = transform.rotation;
 
-            void update(float t) => transform.rotation = Quaternion.LerpUnclamped(start, targetRot, t);
+            Action<float> update;
 
-            return CreateAutoDisposeTween(transform, update, data);
+            if (shortestPath)
+                update = (t) => transform.rotation = Quaternion.LerpUnclamped(start, targetRot, t);
+            else
+            {
+                update = (t) =>
+                {
+                    start.ToAngleAxis(out float sourceAngle, out Vector3 sourceAxis);
+                    targetRot.ToAngleAxis(out float targetAngle, out Vector3 targetAxis);
+
+                    float angle = Mathf.LerpUnclamped(sourceAngle, targetAngle, t);
+                    Vector3 axis = Vector3.SlerpUnclamped(sourceAxis, targetAxis, t);
+
+                    transform.rotation = Quaternion.AngleAxis(angle, axis);
+                };
+            }
+
+                return CreateAutoDisposeTween(transform, update, data);
         }
         #endregion
 
         #region Local Rotate Tween
-        public static ITween DoRotateLocalTween(this Transform transform, Quaternion targetRot, TweenData data) => Do(GetRotateLocalTween(transform, targetRot, data));
-        public static ITween GetRotateLocalTween(this Transform transform, Quaternion targetRot, TweenData data)
+        public static ITween DoRotateLocalTween(this Transform transform, Quaternion targetRot, bool shortestPath, TweenData data) => Do(GetRotateLocalTween(transform, targetRot, shortestPath, data));
+        public static ITween GetRotateLocalTween(this Transform transform, Quaternion targetRot, bool shortestPath, TweenData data)
         {
             Quaternion start = transform.localRotation;
 
-            void update(float t) => transform.localRotation = Quaternion.LerpUnclamped(start, targetRot, t);
+            Action<float> update;
+
+            if (shortestPath)
+                update = (t) => transform.localRotation = Quaternion.LerpUnclamped(start, targetRot, t);
+            else
+            {
+                update = (t) =>
+                {
+                    start.ToAngleAxis(out float sourceAngle, out Vector3 sourceAxis);
+                    targetRot.ToAngleAxis(out float targetAngle, out Vector3 targetAxis);
+
+                    float angle = Mathf.LerpUnclamped(sourceAngle, targetAngle, t);
+                    Vector3 axis = Vector3.SlerpUnclamped(sourceAxis, targetAxis, t);
+
+                    transform.localRotation = Quaternion.AngleAxis(angle, axis);
+                };
+            }
 
             return CreateAutoDisposeTween(transform, update, data);
         }
