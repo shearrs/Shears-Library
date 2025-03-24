@@ -65,7 +65,15 @@ namespace Shears.UI
         public static void Select(ManagedSelectable selectable) => Instance.InstSelect(selectable);
         private void InstSelect(ManagedSelectable selectable)
         {
-            if (selectable != null && !selectable.Interactable)
+            if (selectable == null)
+            {
+                eventSystem.SetSelectedGameObject(null);
+                UpdateSelection();
+
+                return;
+            }
+            
+            if (!selectable.Interactable)
                 return;
 
             eventSystem.SetSelectedGameObject(selectable.gameObject);
