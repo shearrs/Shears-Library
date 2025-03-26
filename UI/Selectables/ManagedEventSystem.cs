@@ -18,7 +18,13 @@ namespace Shears.UI
         public static event Action<ManagedSelectable> OnSelectionChanged
         {
             add => Instance.InstOnSelectionChanged += value;
-            remove => Instance.InstOnSelectionChanged -= value;
+            remove
+            {
+                if (instance == null)
+                    return;
+
+                Instance.InstOnSelectionChanged -= value;
+            }
         }
         private event Action<ManagedSelectable> InstOnSelectionChanged;
 

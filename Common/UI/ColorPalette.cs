@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace Shears.Common
 {
-    [CreateAssetMenu(fileName = "New Color Palette", menuName = "Color Palette")]
-    public class ColorPalette : ScriptableObject
+    [System.Serializable]
+    public class ColorPalette
     {
         [SerializeField] private List<Color> colors;
 
