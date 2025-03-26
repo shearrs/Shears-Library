@@ -1,5 +1,6 @@
 using Shears.Common;
 using Shears.Input;
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -12,8 +13,14 @@ namespace Shears.UI
         [SerializeField] private ManagedSelectable selection;
 
         private EventSystem eventSystem;
-
         private IManagedInput submitInput;
+
+        public static event Action<ManagedSelectable> OnSelectionChanged
+        {
+            add => Instance.InstOnSelectionChanged += value;
+            remove => Instance.InstOnSelectionChanged -= value;
+        }
+        private event Action<ManagedSelectable> InstOnSelectionChanged;
 
         private void OnEnable()
         {
@@ -31,31 +38,25 @@ namespace Shears.UI
 
         private void Update()
         {
-            UpdateSelection();
+            UpdateManagedSelection();
         }
 
         #region Selection
-        private void UpdateSelection()
+        private void UpdateManagedSelection()
         {
             var currentObject = eventSystem.currentSelectedGameObject;
 
-            if (currentObject != null && currentObject.TryGetComponent(out ManagedSelectable selectable))
-            {
-                if (!selectable.Interactable)
-                    ClearSelection();
-                else if (selection == selectable)
-                    return;
-                else
-                {
-                    ClearSelection();
+            if (currentObject == null || !currentObject.TryGetComponent(out ManagedSelectable selectable) || selection == selectable)
+                return;
 
-                    selection = selectable;
-                    selection.Select();
-                }
-            }
-            else
+            ClearSelection();
+
+            if (selectable.Interactable)
             {
-                ClearSelection();
+                selection = selectable;
+                selection.Select();
+
+                InstOnSelectionChanged?.Invoke(selection);
             }
         }
 
@@ -68,7 +69,7 @@ namespace Shears.UI
             if (selectable == null)
             {
                 eventSystem.SetSelectedGameObject(null);
-                UpdateSelection();
+                UpdateManagedSelection();
 
                 return;
             }
@@ -77,7 +78,7 @@ namespace Shears.UI
                 return;
 
             eventSystem.SetSelectedGameObject(selectable.gameObject);
-            UpdateSelection();
+            UpdateManagedSelection();
         }
 
         private void ClearSelection()
