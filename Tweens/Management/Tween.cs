@@ -149,7 +149,13 @@ namespace Shears.Tweens
                 if (EvaluateStopAndDisposeEvents())
                     yield break;
 
-                float t = progress / Duration;
+                float t;
+
+                if (Duration == 0)
+                    t = 1;
+                else
+                    t = progress / Duration;
+
                 float s = GetStartValue();
                 float e = GetEndValue();
 
