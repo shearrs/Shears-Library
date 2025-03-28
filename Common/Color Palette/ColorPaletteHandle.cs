@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Shears.UI
+namespace Shears.Common
 {
     [Serializable]
     public class ColorPaletteHandle : ISerializationCallbackReceiver

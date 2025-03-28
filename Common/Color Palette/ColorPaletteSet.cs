@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Shears.UI
+namespace Shears.Common
 {
     [CreateAssetMenu(fileName = "New Color Palette Set", menuName = "UI/Color Palette Set")]
     public class ColorPaletteSet : ScriptableObject
