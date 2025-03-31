@@ -12,8 +12,8 @@ namespace Shears.UI
         [SerializeField] private TweenData hoverTweenData;
 
         [Header("Colors")]
-        [SerializeField] private ColorPaletteHandle defaultColor;
-        [SerializeField] private ColorPaletteHandle hoverColor;
+        [SerializeField] private Color defaultColor;
+        [SerializeField] private Color hoverColor;
 
         private ITween tween;
 
@@ -21,19 +21,19 @@ namespace Shears.UI
         {
             base.OnEnable();
 
-            targetGraphic.color = defaultColor.GetColor();
+            targetGraphic.color = defaultColor;
         }
 
         internal override void Select()
         {
-            PlayTween(defaultColor.GetColor(), hoverColor.GetColor());
+            PlayTween(defaultColor, hoverColor);
             base.Select();
         }
 
         internal override void Unselect()
         {
             if (gameObject.activeSelf)
-                PlayTween(hoverColor.GetColor(), defaultColor.GetColor());
+                PlayTween(defaultColor, defaultColor);
 
             base.Unselect();
         }
