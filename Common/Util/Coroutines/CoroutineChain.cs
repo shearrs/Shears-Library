@@ -74,17 +74,37 @@ namespace Shears
 
             return this;
         }
-
         public CoroutineChain Then(IEnumerator action)
         {
             chainQueue.Enqueue(new(action));
 
             return this;
         }
-
         public CoroutineChain Then(Func<Coroutine> action)
         {
             chainQueue.Enqueue(new(action));
+
+            return this;
+        }
+
+        public CoroutineChain IfThen(bool condition, Action action)
+        {
+            if (condition)
+                chainQueue.Enqueue(new(action));
+
+            return this;
+        }
+        public CoroutineChain IfThen(bool condition, IEnumerator action)
+        {
+            if (condition)
+                chainQueue.Enqueue(new(action));
+
+            return this;
+        }
+        public CoroutineChain IfThen(bool condition, Func<Coroutine> action)
+        {
+            if (condition)
+                chainQueue.Enqueue(new(action));
 
             return this;
         }
@@ -101,8 +121,10 @@ namespace Shears
         {
             isRunning = true;
 
-            foreach (var element in chainQueue)
+            while (chainQueue.Count > 0)
             {
+                var element = chainQueue.Dequeue();
+
                 element.Run();
 
                 if (element.Coroutine != null)
