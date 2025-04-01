@@ -8,10 +8,11 @@ namespace Shears
 {
     public class CoroutineChain
     {
-        private bool isRunning = false;
-
         private readonly Queue<ChainElement> chainQueue = new();
 
+        private bool isRunning = false;
+
+        public int Count => chainQueue.Count;
         private struct ChainElement
         {
             private readonly Action action;
@@ -62,6 +63,10 @@ namespace Shears
         {
             return new();
         }
+
+        public void Enqueue(Action action) => chainQueue.Enqueue(new(action));
+        public void Enqueue(IEnumerator action) => chainQueue.Enqueue(new(action));
+        public void Enqueue(Func<Coroutine> action) => chainQueue.Enqueue(new(action));
 
         public CoroutineChain Then(Action action)
         {
