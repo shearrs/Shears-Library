@@ -1,4 +1,3 @@
-using Shears;
 using System.Collections;
 using System;
 using System.Collections.Generic;
@@ -8,7 +7,11 @@ namespace Shears.ActionQueues
 {
     public class ActionQueue : MonoBehaviour
     {
+#if UNITY_EDITOR
+        [SerializeField] private List<ActionEntry> entryDisplay;
+#endif
         [SerializeField] private List<GameObject> subjects;
+        [SerializeField] private List<ActionQueue> subQueues;
 
         private HashSet<GameObject> subjectSet;
         private readonly Queue<ActionEntry> queue = new();
@@ -29,48 +32,74 @@ namespace Shears.ActionQueues
             }
         }
 
+        public bool IsRunning { get; private set; }
+
         private void Awake()
         {
             StartCoroutine(IEExecuteActions());
         }
 
+        #region Get Functions
+        public static ActionQueue For(Component component) => For(component.gameObject);
+        public static ActionQueue For(GameObject gameObject) => ActionManager.GetQueueFor(gameObject);
+        public static ActionQueue WithTag(string name) => ActionManager.GetQueueWithTag(name);
+
         public bool HasSubject(Component component) => SubjectSet.Contains(component.gameObject);
         public bool HasSubject(GameObject subject) => SubjectSet.Contains(subject);
+        #endregion
 
-        public ActionEntry Enqueue(Action action)
+        #region Enqueues
+        public ActionEntry Enqueue(Action action) => EnqueueAction(new(action));
+        public ActionEntry Enqueue(IEnumerator action) => EnqueueAction(new(action));
+        public ActionEntry Enqueue(Func<Coroutine> action) => EnqueueAction(new(action));
+
+        public ActionEntry EnqueueAction(ActionEntry entry)
         {
-            var entry = new ActionEntry(action);
+            queue.Enqueue(entry);
+
+#if UNITY_EDITOR
+            entryDisplay.Add(entry);
+#endif
 
             return entry;
         }
-        
-        public ActionEntry Enqueue(IEnumerator action)
-        {
-            var entry = new ActionEntry(action);
-
-            return entry;
-        }
-
-        public ActionEntry Enqueue(Func<Coroutine> action)
-        {
-            var entry = new ActionEntry(action);
-
-            return entry;
-        }
-
-        public void EnqueueAction(ActionEntry entry) => queue.Enqueue(entry);
+        #endregion
 
         private IEnumerator IEExecuteActions()
         {
             while (true)
             {
                 while (queue.Count == 0)
+                {
                     yield return null;
+                }
 
                 var entry = queue.Dequeue();
 
-                yield return entry.Run();
+#if UNITY_EDITOR
+                entryDisplay.Remove(entry);
+#endif
+                IsRunning = true;
+
+                entry.Run();
+
+                if (entry.Coroutine != null)
+                    yield return entry.Coroutine;
+
+                while (IsSubQueueRunning())
+                    yield return null;
+
+                IsRunning = false;
             }
+        }
+
+        private bool IsSubQueueRunning()
+        {
+            foreach (var subQueue in subQueues)
+                if (subQueue.IsRunning)
+                    return true;
+
+            return false;
         }
     }
 }
