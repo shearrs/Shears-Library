@@ -32,7 +32,18 @@ namespace Shears.ActionQueues
             }
         }
 
-        public bool IsRunning { get; private set; }
+        public int Count
+        {
+            get
+            {
+                int count = queue.Count;
+
+                foreach (var subQueue in subQueues)
+                    count += subQueue.Count;
+
+                return count;
+            }
+        }
 
         private void Awake()
         {
@@ -74,29 +85,25 @@ namespace Shears.ActionQueues
                     yield return null;
                 }
 
+                while (IsSubQueueRunning())
+                    yield return null;
+
                 var entry = queue.Dequeue();
 
 #if UNITY_EDITOR
                 entryDisplay.Remove(entry);
 #endif
-                IsRunning = true;
-
                 entry.Run();
 
                 if (entry.Coroutine != null)
                     yield return entry.Coroutine;
-
-                while (IsSubQueueRunning())
-                    yield return null;
-
-                IsRunning = false;
             }
         }
 
         private bool IsSubQueueRunning()
         {
             foreach (var subQueue in subQueues)
-                if (subQueue.IsRunning)
+                if (subQueue.Count > 0)
                     return true;
 
             return false;

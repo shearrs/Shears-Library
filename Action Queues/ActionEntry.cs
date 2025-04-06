@@ -9,7 +9,7 @@ namespace Shears.ActionQueues
     [Serializable]
     public class ActionEntry : IActionEntryStatusHandle
     {
-        [SerializeField] private string name;
+        [SerializeField, ReadOnly] private string name;
 
         private readonly List<Func<bool>> conditionals = new();
         private readonly Action action;
@@ -22,6 +22,7 @@ namespace Shears.ActionQueues
         #region Constructors
         public ActionEntry(Action action)
         {
+#if UNITY_EDITOR
             string className = action.Method.DeclaringType.ToString();
             int classEnd = className.IndexOf('+');
 
@@ -36,20 +37,25 @@ namespace Shears.ActionQueues
                 methodName = methodName[methodStart..methodEnd];
 
             name = $"{className}.{methodName}";
+#endif
 
             this.action = action;
         }
 
         public ActionEntry(IEnumerator action)
         {
+#if UNITY_EDITOR
             name = action.ToString();
+#endif
 
             enumeratorAction = action;
         }
 
         public ActionEntry(Func<Coroutine> action)
         {
+#if UNITY_EDITOR
             name = action.ToString();
+#endif
 
             coroutineAction = action;
         }
