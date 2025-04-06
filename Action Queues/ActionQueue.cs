@@ -60,9 +60,9 @@ namespace Shears.ActionQueues
         #endregion
 
         #region Enqueues
-        public ActionEntry Enqueue(Action action) => EnqueueAction(new(action));
-        public ActionEntry Enqueue(IEnumerator action) => EnqueueAction(new(action));
-        public ActionEntry Enqueue(Func<Coroutine> action) => EnqueueAction(new(action));
+        public ActionEntry Enqueue(Action action, string name = "") => EnqueueAction(new(action, name));
+        public ActionEntry Enqueue(IEnumerator action, string name = "") => EnqueueAction(new(action, name));
+        public ActionEntry Enqueue(Func<Coroutine> action, string name = "") => EnqueueAction(new(action, name));
 
         public ActionEntry EnqueueAction(ActionEntry entry)
         {

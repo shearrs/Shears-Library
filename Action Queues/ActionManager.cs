@@ -8,7 +8,8 @@ namespace Shears.ActionQueues
     public class ActionManager : ProtectedSingleton<ActionManager>
     {
         [SerializeField] private List<ActionQueue> actionQueues;
-        private readonly Dictionary<GameObject, ActionQueue> actionQueueDictionary = new();
+        private readonly Dictionary<Component, ActionQueue> componentQueueDictionary = new();
+        private readonly Dictionary<GameObject, ActionQueue> gameObjectQueueDictionary = new();
 
         protected override void Awake()
         {
@@ -17,11 +18,19 @@ namespace Shears.ActionQueues
             actionQueues = FindObjectsByType<ActionQueue>(FindObjectsSortMode.None).ToList();
         }
 
-        internal static ActionQueue GetQueueFor(Component component) => GetQueueFor(component.gameObject);
+        internal static ActionQueue GetQueueFor(Component component) => Instance.InstGetQueueFor(component);
         internal static ActionQueue GetQueueFor(GameObject gameObject) => Instance.InstGetQueueFor(gameObject);
+
+        private ActionQueue InstGetQueueFor(Component component)
+        {
+            if (componentQueueDictionary.TryGetValue(component, out ActionQueue queue))
+                return queue;
+
+            return InstGetQueueFor(component.gameObject);
+        }
         private ActionQueue InstGetQueueFor(GameObject gameObject)
         {
-            if (actionQueueDictionary.TryGetValue(gameObject, out ActionQueue queue))
+            if (gameObjectQueueDictionary.TryGetValue(gameObject, out ActionQueue queue))
                 return queue;
 
             return FindActionQueue(gameObject);
@@ -46,7 +55,7 @@ namespace Shears.ActionQueues
             {
                 if (queue.HasSubject(gameObject))
                 {
-                    actionQueueDictionary.Add(gameObject, queue);
+                    gameObjectQueueDictionary.Add(gameObject, queue);
 
                     return queue;
                 }

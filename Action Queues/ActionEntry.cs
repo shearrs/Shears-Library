@@ -9,55 +9,68 @@ namespace Shears.ActionQueues
     [Serializable]
     public class ActionEntry : IActionEntryStatusHandle
     {
+#if UNITY_EDITOR
         [SerializeField, ReadOnly] private string name;
+#endif
 
         private readonly List<Func<bool>> conditionals = new();
         private readonly Action action;
         private readonly IEnumerator enumeratorAction;
-        private readonly Func<Coroutine> coroutineAction;
+        private readonly Func<Coroutine> funcAction;
 
         public bool Success { get; private set; } = false;
         public Coroutine Coroutine { get; private set; }
 
         #region Constructors
-        public ActionEntry(Action action)
+        public ActionEntry(Action action, string name = "")
         {
 #if UNITY_EDITOR
-            string className = action.Method.DeclaringType.ToString();
-            int classEnd = className.IndexOf('+');
+            if (name == "")
+            {
+                string className = action.Method.DeclaringType.ToString();
+                int classEnd = className.IndexOf('+');
 
-            if (classEnd > 0)
-                className = className[..classEnd];
+                if (classEnd > 0)
+                    className = className[..classEnd];
 
-            string methodName = action.Method.Name;
-            int methodStart = methodName.IndexOf('<') + 1; 
-            int methodEnd = methodName.IndexOf('>');
+                string methodName = action.Method.Name;
+                int methodStart = methodName.IndexOf('<') + 1;
+                int methodEnd = methodName.IndexOf('>');
 
-            if (methodEnd - methodStart > 0)
-                methodName = methodName[methodStart..methodEnd];
+                if (methodEnd - methodStart > 0)
+                    methodName = methodName[methodStart..methodEnd];
 
-            name = $"{className}.{methodName}";
+                this.name = $"{className}.{methodName}";
+            }
+            else
+                this.name = name;
 #endif
 
-            this.action = action;
+                this.action = action;
         }
 
-        public ActionEntry(IEnumerator action)
+        public ActionEntry(IEnumerator action, string name = "")
         {
 #if UNITY_EDITOR
-            name = action.ToString();
+            if (name == "")
+                this.name = action.ToString();
+            else
+                this.name = name;
 #endif
 
-            enumeratorAction = action;
+                enumeratorAction = action;
         }
 
-        public ActionEntry(Func<Coroutine> action)
+        public ActionEntry(Func<Coroutine> action, string name = "")
         {
 #if UNITY_EDITOR
-            name = action.ToString();
+            if (name == "")
+                this.name = action.ToString();
+            else
+                this.name = name;
 #endif
 
-            coroutineAction = action;
+                funcAction = action;
         }
         #endregion
 
@@ -93,7 +106,7 @@ namespace Shears.ActionQueues
                 if (enumeratorAction != null)
                     yield return CoroutineRunner.Start(enumeratorAction);
                 else
-                    yield return coroutineAction();
+                    yield return funcAction();
 
                 Success = true;
             }
