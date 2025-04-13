@@ -14,6 +14,7 @@ namespace Shears.UI
 
         private EventSystem eventSystem;
         private IManagedInput submitInput;
+        private bool isEnabled = false;
 
         public static event Action<ManagedSelectable> OnSelectionChanged
         {
@@ -35,16 +36,44 @@ namespace Shears.UI
             submitInput ??= inputProvider.GetInput("Submit");
 
             submitInput.Performed += SubmitSelection;
+
+            InstEnable();
         }
 
         private void OnDisable()
         {
             submitInput.Performed -= SubmitSelection;
+
+            InstDisable();
         }
 
         private void Update()
         {
             UpdateManagedSelection();
+        }
+
+        public static void Enable() => Instance.InstEnable();
+        private void InstEnable()
+        {
+            if (isEnabled)
+                return;
+
+            if (eventSystem.currentInputModule != null)
+                eventSystem.currentInputModule.enabled = true;
+
+            isEnabled = true;
+        }
+
+        public static void Disable() => Instance.InstDisable();
+        private void InstDisable()
+        {
+            if (!isEnabled)
+                return;
+
+            if (eventSystem.currentInputModule != null)
+                eventSystem.currentInputModule.enabled = false;
+
+            isEnabled = false;
         }
 
         #region Selection

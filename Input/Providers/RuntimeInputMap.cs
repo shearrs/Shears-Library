@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -34,6 +35,28 @@ namespace Shears.Input
             return null;
         }
 
+        public void GetInputs(params (string name, Action<IManagedInput> assignmentAction)[] inputs)
+        {
+            foreach (var input in inputs)
+                input.assignmentAction(GetInput(input.name));
+        }
+
+        public ManagedInputGroup GetInputGroup(params (string name, ManagedInputPhase phase, ManagedInputEvent action)[] bindings)
+        {
+            ManagedInputBindingInstance[] bindingInstances = new ManagedInputBindingInstance[bindings.Length];
+            
+            for (int i = 0; i < bindings.Length; i++)
+            {
+                var (name, phase, action) = bindings[i];
+                IManagedInput input = GetInput(name);
+
+                if (input != null)
+                    bindingInstances[i] = new(input, phase, action);
+            }
+
+            return new(bindingInstances);
+        }
+
         public void EnableAllInputs()
         {
             foreach (var input in managedInputs.Values)
@@ -46,19 +69,19 @@ namespace Shears.Input
                 input.Disable();
         }
 
-        public void DeregisterAllInputs(InputEvent action)
+        public void DeregisterAllInputs(ManagedInputEvent action)
         {
             foreach (var input in managedInputs.Values)
                 DeregisterAllPhases(input, action);
         }
 
-        private void DeregisterAllPhases(IManagedInput input, InputEvent action)
+        private void DeregisterAllPhases(IManagedInput input, ManagedInputEvent action)
         {
-            input.Deregister(ManagedInputPhase.Disabled, action);
-            input.Deregister(ManagedInputPhase.Waiting, action);
-            input.Deregister(ManagedInputPhase.Started, action);
-            input.Deregister(ManagedInputPhase.Performed, action);
-            input.Deregister(ManagedInputPhase.Canceled, action);
+            input.Unbind(ManagedInputPhase.Disabled, action);
+            input.Unbind(ManagedInputPhase.Waiting, action);
+            input.Unbind(ManagedInputPhase.Started, action);
+            input.Unbind(ManagedInputPhase.Performed, action);
+            input.Unbind(ManagedInputPhase.Canceled, action);
         }
 
         public void SetUser(ManagedInputUser newUser)

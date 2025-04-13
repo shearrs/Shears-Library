@@ -16,56 +16,47 @@ namespace Shears.Input
 
     public interface IManagedInput
     {
-        public event InputEvent Started;
-        public event InputEvent Performed;
-        public event InputEvent Canceled;
+        public event ManagedInputEvent Started;
+        public event ManagedInputEvent Performed;
+        public event ManagedInputEvent Canceled;
 
         public void Enable();
         public void Disable();
 
-        public void Register(ManagedInputPhase phase, InputEvent action);
-        public void Deregister(ManagedInputPhase phase, InputEvent action);
+        public void Bind(ManagedInputPhase phase, ManagedInputEvent action);
+        public void Unbind(ManagedInputPhase phase, ManagedInputEvent action);
 
         public T ReadValue<T>() where T : struct;
         public bool IsPressed();
         public bool WasPressedThisFrame();
     }
 
-    public delegate void InputEvent(ManagedInputInfo inputInfo);
+    public delegate void ManagedInputEvent(ManagedInputInfo inputInfo);
 
     public class ManagedInput : IManagedInput
     {
         private readonly InputAction inputAction;
-        private readonly Dictionary<InputRegistration, Action<InputAction.CallbackContext>> registry = new();
+        private readonly Dictionary<ManagedInputBinding, Action<InputAction.CallbackContext>> bindings = new();
 
         public string Name { get; private set; }
 
         #region Events
-        public event InputEvent Started
+        public event ManagedInputEvent Started
         {
-            add => Register(ManagedInputPhase.Started, value);
-            remove => Deregister(ManagedInputPhase.Started, value);
+            add => Bind(ManagedInputPhase.Started, value);
+            remove => Unbind(ManagedInputPhase.Started, value);
         }
-        public event InputEvent Performed
+        public event ManagedInputEvent Performed
         {
-            add => Register(ManagedInputPhase.Performed, value);
-            remove => Deregister(ManagedInputPhase.Performed, value);
+            add => Bind(ManagedInputPhase.Performed, value);
+            remove => Unbind(ManagedInputPhase.Performed, value);
         }
-        public event InputEvent Canceled
+        public event ManagedInputEvent Canceled
         {
-            add => Register(ManagedInputPhase.Canceled, value);
-            remove => Deregister(ManagedInputPhase.Canceled, value);
+            add => Bind(ManagedInputPhase.Canceled, value);
+            remove => Unbind(ManagedInputPhase.Canceled, value);
         }
         #endregion
-
-        private struct InputRegistration
-        {
-            public ManagedInputPhase Phase { get; private set; }
-            public InputEvent Action { get; private set; }
-
-            public InputRegistration(ManagedInputPhase phase, InputEvent action)
-                => (Phase, Action) = (phase, action);
-        }
 
         public ManagedInput(InputAction action)
         {
@@ -83,7 +74,7 @@ namespace Shears.Input
             inputAction.Disable();
         }
         
-        public void Register(ManagedInputPhase phase, InputEvent action)
+        public void Bind(ManagedInputPhase phase, ManagedInputEvent action)
         {
             void callback(InputAction.CallbackContext ctx)
             {
@@ -93,7 +84,7 @@ namespace Shears.Input
                 action?.Invoke(info);
             }
 
-            InputRegistration registration = new(phase, action);
+            ManagedInputBinding binding = new(phase, action);
 
             switch (phase)
             {
@@ -108,14 +99,14 @@ namespace Shears.Input
                     break;
             }
 
-            registry.Add(registration, callback);
+            bindings.Add(binding, callback);
         }
 
-        public void Deregister(ManagedInputPhase phase, InputEvent action)
+        public void Unbind(ManagedInputPhase phase, ManagedInputEvent action)
         {
-            InputRegistration registration = new(phase, action);
+            ManagedInputBinding binding = new(phase, action);
 
-            if (!registry.TryGetValue(registration, out var callback))
+            if (!bindings.TryGetValue(binding, out var callback))
                 return;
 
             switch (phase)
@@ -131,7 +122,7 @@ namespace Shears.Input
                     break;
             }
 
-            registry.Remove(registration);
+            bindings.Remove(binding);
         }
 
         public T ReadValue<T>() where T : struct
