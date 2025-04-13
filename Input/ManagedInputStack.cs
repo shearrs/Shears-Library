@@ -32,6 +32,9 @@ namespace Shears.Input
             if (inputMaps.Count == 0)
                 return;
 
+            foreach (var map in inputMaps)
+                map.DisableAllInputs();
+
             inputMaps[^1].EnableAllInputs();
         }
     }

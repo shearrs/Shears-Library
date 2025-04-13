@@ -11,13 +11,13 @@ namespace Shears.Input
             this.bindings = bindings;
         }
 
-        public void Enable()
+        public void Bind()
         {
             foreach (var binding in bindings)
                 binding.Bind();
         }
 
-        public void Disable()
+        public void Unbind()
         {
             foreach (var binding in bindings)
                 binding.Unbind();

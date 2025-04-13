@@ -16,6 +16,9 @@ namespace Shears.Input
 
     public interface IManagedInput
     {
+        public string Name { get; }
+        public bool Enabled { get; }
+
         public event ManagedInputEvent Started;
         public event ManagedInputEvent Performed;
         public event ManagedInputEvent Canceled;
@@ -39,6 +42,7 @@ namespace Shears.Input
         private readonly Dictionary<ManagedInputBinding, Action<InputAction.CallbackContext>> bindings = new();
 
         public string Name { get; private set; }
+        public bool Enabled => inputAction.enabled;
 
         #region Events
         public event ManagedInputEvent Started
