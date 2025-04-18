@@ -11,7 +11,7 @@ namespace Shears
 {
     [CustomPropertyDrawer(typeof(InterfaceReference<>))]
     [CustomPropertyDrawer(typeof(InterfaceReference<,>))]
-    public class InterfaceReferenceDrawer : PropertyDrawer
+    internal class InterfaceReferenceDrawer : PropertyDrawer
     {
         private const string ObjectValueFieldName = "objectValue";
 
@@ -112,7 +112,7 @@ namespace Shears
                 Debug.LogWarning(
                     @$"The {(interfaceName != null
                     ? $"GameObject '{componentNameOrType}'"
-                    : $"assigned object")} does not have a component that implements '{componentNameOrType}."
+                    : $"assigned object")} does not have a component that implements '{interfaceName}'."
                 );
 
                 property.objectReferenceValue = null;

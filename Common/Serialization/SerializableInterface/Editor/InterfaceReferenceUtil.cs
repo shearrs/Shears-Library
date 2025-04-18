@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Shears
 {
-    public class InterfaceReferenceUtil
+    internal class InterfaceReferenceUtil
     {
         private static GUIStyle labelStyle;
 
