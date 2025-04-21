@@ -12,6 +12,8 @@ namespace Shears.UI
         [SerializeField] private bool interactableOnEnable = true;
 
         [Header("Events")]
+        [SerializeField] private UnityEvent onHover;
+        [SerializeField] private UnityEvent onUnhover;
         [SerializeField] private UnityEvent onSelect;
         [SerializeField] private UnityEvent onUnselect;
 
@@ -47,6 +49,9 @@ namespace Shears.UI
             else
                 Interactable = false;
         }
+
+        internal virtual void Hover() => onHover?.Invoke();
+        internal virtual void Unhover() => onUnhover?.Invoke();
 
         internal virtual void Select() => onSelect?.Invoke();
         internal virtual void Unselect() => onUnselect?.Invoke();

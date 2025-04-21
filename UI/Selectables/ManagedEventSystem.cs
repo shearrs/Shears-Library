@@ -76,6 +76,20 @@ namespace Shears.UI
             isEnabled = false;
         }
 
+        #region Hover
+        public static void Hover(ManagedSelectable selectable) => Instance.InstHover(selectable);
+        private void InstHover(ManagedSelectable selectable)
+        {
+            selectable.Hover();
+        }
+
+        public static void Unhover(ManagedSelectable selectable) => Instance.InstUnhover(selectable);
+        private void InstUnhover(ManagedSelectable selectable)
+        {
+            selectable.Unhover();
+        }
+        #endregion
+
         #region Selection
         private void UpdateManagedSelection()
         {
