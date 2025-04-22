@@ -22,7 +22,8 @@ namespace Shears.UI
         {
             base.OnEnable();
 
-            targetGraphic.color = defaultColor;
+            if (targetGraphic != null)
+                targetGraphic.color = defaultColor;
         }
 
         internal override void Hover()
@@ -53,6 +54,9 @@ namespace Shears.UI
 
         private void PlayTween(Color start, Color end)
         {
+            if (targetGraphic == null)
+                return;
+
             ClearTween();
 
             targetGraphic.color = start;

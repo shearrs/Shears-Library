@@ -83,7 +83,7 @@ namespace Shears.Input
             void callback(InputAction.CallbackContext ctx)
             {
                 ManagedInputDevice device = new(ctx.control.device);
-                ManagedInputInfo info = new(this, device);
+                ManagedInputInfo info = new(this, GetManagedPhase(ctx.phase), device);
 
                 action?.Invoke(info);
             }
@@ -142,6 +142,19 @@ namespace Shears.Input
         public bool WasPressedThisFrame()
         {
             return inputAction.WasPressedThisFrame();
+        }
+
+        private ManagedInputPhase GetManagedPhase(InputActionPhase actionPhase)
+        {
+            return actionPhase switch
+            {
+                InputActionPhase.Started => ManagedInputPhase.Started,
+                InputActionPhase.Performed => ManagedInputPhase.Performed,
+                InputActionPhase.Canceled => ManagedInputPhase.Canceled,
+                InputActionPhase.Disabled => ManagedInputPhase.Disabled,
+                InputActionPhase.Waiting => ManagedInputPhase.Waiting,
+                _ => default,
+            };
         }
     }
 }

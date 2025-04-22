@@ -35,14 +35,14 @@ namespace Shears.UI
 
             submitInput ??= inputProvider.GetInput("Submit");
 
-            submitInput.Performed += SubmitSelection;
+            submitInput.Canceled += SubmitSelection;
 
             InstEnable();
         }
 
         private void OnDisable()
         {
-            submitInput.Performed -= SubmitSelection;
+            submitInput.Canceled -= SubmitSelection;
 
             InstDisable();
         }
