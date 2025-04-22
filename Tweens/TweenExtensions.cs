@@ -132,7 +132,7 @@ namespace Shears.Tweens
         {
             Vector3 start = transform.anchoredPosition;
 
-            void update(float t) => transform.anchoredPosition = Vector3.LerpUnclamped(start, targetPos, t);
+            void update(float t) => transform.anchoredPosition3D = Vector3.LerpUnclamped(start, targetPos, t);
 
             return CreateAutoDisposeTween(transform, update, data);
         }

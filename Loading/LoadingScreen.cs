@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Shears
+namespace Shears.Loading
 {
     public abstract class LoadingScreen : MonoBehaviour
     {
