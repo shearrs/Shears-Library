@@ -76,6 +76,11 @@ namespace Shears.ActionQueues
         }
         #endregion
 
+        public void Clear()
+        {
+            queue.Clear();
+        }
+
         private IEnumerator IEExecuteActions()
         {
             while (true)
