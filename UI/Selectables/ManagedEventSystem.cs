@@ -142,7 +142,7 @@ namespace Shears.UI
         {
             var selectable = GetSelection();
 
-            if (!selectable.TryGetComponent(out ManagedButton button))
+            if (selectable == null || !selectable.TryGetComponent(out ManagedButton button))
                 return;
 
             button.Click();
