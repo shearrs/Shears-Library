@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -17,6 +18,7 @@ namespace Shears.UI
         private ManagedSelectable selectable;
 
         public bool Clickable { get => clickable; set => clickable = value; }
+        public event Action OnClick;
 
         private void Awake()
         {
@@ -44,6 +46,7 @@ namespace Shears.UI
                 return;
 
             onClick.Invoke();
+            OnClick?.Invoke();
         }
     }
 }

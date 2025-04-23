@@ -3,7 +3,7 @@ using UnityEngine.Events;
 
 namespace Shears.UI
 {
-    public abstract class ManagedPanel : MonoBehaviour
+    public class ManagedPanel : MonoBehaviour
     {
         [Header("Events")]
         [SerializeField] private UnityEvent onEnable;
@@ -12,6 +12,14 @@ namespace Shears.UI
         private bool isEnabled = false;
 
         public bool IsEnabled => isEnabled;
+
+        protected virtual void Awake()
+        {
+            if (gameObject.activeSelf)
+                Enable();
+            else
+                Disable();
+        }
 
         public void Enable()
         {
@@ -39,7 +47,7 @@ namespace Shears.UI
             onDisable.Invoke();
         }
 
-        protected abstract void EnableInternal();
-        protected abstract void DisableInternal();
+        protected virtual void EnableInternal() { }
+        protected virtual void DisableInternal() { }
     }
 }
