@@ -25,11 +25,13 @@ namespace Shears.Input
 
             public readonly void Enable()
             {
+                Input.Enable();
                 Input.Performed += Invoke;
             }
 
             public readonly void Disable()
             {
+                Input.Disable();
                 Input.Performed -= Invoke;
             }
 

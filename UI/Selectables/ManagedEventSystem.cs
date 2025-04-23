@@ -115,6 +115,8 @@ namespace Shears.UI
         public static void Select(ManagedSelectable selectable) => Instance.InstSelect(selectable);
         private void InstSelect(ManagedSelectable selectable)
         {
+            Debug.Log("select");
+
             if (selectable == null)
             {
                 eventSystem.SetSelectedGameObject(null);

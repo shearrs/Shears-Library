@@ -26,8 +26,8 @@ namespace Shears.UI
             if (isEnabled)
                 return;
 
-            gameObject.SetActive(true);
             isEnabled = true;
+            gameObject.SetActive(true);
 
             EnableInternal();
 
