@@ -13,12 +13,14 @@ namespace Shears.Input
         
         public ManagedInputUser User { get => user; set => SetUser(value); }
 
-        public void Initialize(InputActionAsset inputActions, int actionMapIndex)
+        public void Initialize(InputActionAsset inputActions, string actionMapName)
         {
             this.inputActions = Instantiate(inputActions);
             managedInputs = new();
 
-            foreach (InputAction action in inputActions.actionMaps[actionMapIndex])
+            var actionMap = inputActions.FindActionMap(actionMapName, true);
+
+            foreach (InputAction action in actionMap)
             {
                 ManagedInput input = new(action);
 

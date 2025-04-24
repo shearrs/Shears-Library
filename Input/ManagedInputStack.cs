@@ -6,36 +6,36 @@ namespace Shears.Input
 {
     public class ManagedInputStack : MonoBehaviour
     {
-        [SerializeField, ReadOnly] private List<ManagedInputMap> inputMaps = new();
+        [SerializeField] private List<ManagedInputDispatcher> inputDispatchers = new();
 
-        public void Add(ManagedInputMap map)
+        public void Add(ManagedInputDispatcher dispatcher)
         {
-            if (inputMaps.Contains(map))
+            if (inputDispatchers.Contains(dispatcher))
                 return;
 
-            inputMaps.Add(map);
+            inputDispatchers.Add(dispatcher);
 
-            UpdateActiveMap();
+            UpdateActiveDispatcher();
         }
 
-        public void Remove(ManagedInputMap map)
+        public void Remove(ManagedInputDispatcher dispatcher)
         {
-            map.DisableAllInputs();
+            dispatcher.Disable();
 
-            inputMaps.Remove(map);
+            inputDispatchers.Remove(dispatcher);
 
-            UpdateActiveMap();
+            UpdateActiveDispatcher();
         }
 
-        private void UpdateActiveMap()
+        private void UpdateActiveDispatcher()
         {
-            if (inputMaps.Count == 0)
+            if (inputDispatchers.Count == 0)
                 return;
 
-            foreach (var map in inputMaps)
-                map.DisableAllInputs();
+            foreach (var dispatcher in inputDispatchers)
+                dispatcher.Disable();
 
-            inputMaps[^1].EnableAllInputs();
+            inputDispatchers[^1].Enable();
         }
     }
 }

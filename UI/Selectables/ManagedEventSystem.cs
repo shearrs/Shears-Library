@@ -3,6 +3,7 @@ using Shears.Input;
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Shears.UI
 {
@@ -32,7 +33,7 @@ namespace Shears.UI
         private void OnEnable()
         {
             eventSystem = EventSystem.current;
-
+            
             submitInput ??= inputProvider.GetInput("Submit");
 
             submitInput.Canceled += SubmitSelection;

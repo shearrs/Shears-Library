@@ -16,23 +16,27 @@ namespace Shears.Input
         private bool initialized = false;
 
         [System.Serializable]
-        private struct InputEvent
+        public struct InputEvent
         {
-            [field: SerializeField] public string Name { get; private set; }
+            [SerializeField] private string inputName;
+            [SerializeField] private ManagedInputPhase phase;
             [SerializeField] private UnityEvent onInput;
+
+            public readonly string InputName => inputName;
+            public readonly ManagedInputPhase Phase => phase;
 
             public IManagedInput Input { get; set; }
 
             public readonly void Enable()
             {
                 Input.Enable();
-                Input.Performed += Invoke;
+                Input.Bind(Phase, Invoke);
             }
 
             public readonly void Disable()
             {
                 Input.Disable();
-                Input.Performed -= Invoke;
+                Input.Unbind(Phase, Invoke);
             }
 
             private readonly void Invoke(ManagedInputInfo info)
@@ -49,7 +53,7 @@ namespace Shears.Input
             for (int i = 0; i < inputEvents.Count; i++)
             {
                 var evt = inputEvents[i];
-                evt.Input = inputProvider.GetInput(inputEvents[i].Name);
+                evt.Input = inputProvider.GetInput(inputEvents[i].InputName);
 
                 inputEvents[i] = evt;
             }

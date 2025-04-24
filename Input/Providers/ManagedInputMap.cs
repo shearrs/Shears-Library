@@ -9,7 +9,7 @@ namespace Shears.Input
     {
         [Header("Input Actions")]
         [SerializeField] private InputActionAsset inputActions;
-        [SerializeField] private int actionMapIndex = 0;
+        [SerializeField] private string actionMapName;
 
         private RuntimeInputMap runtimeMap;
 
@@ -47,7 +47,7 @@ namespace Shears.Input
                 };
                 runtimeMap = gameObject.AddComponent<RuntimeInputMap>();
 
-                runtimeMap.Initialize(inputActions, actionMapIndex);
+                runtimeMap.Initialize(inputActions, actionMapName);
             }
 
             return runtimeMap;
