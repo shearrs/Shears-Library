@@ -18,8 +18,12 @@ namespace Shears.Input
         [System.Serializable]
         public struct InputEvent
         {
+            [Header("Input")]
             [SerializeField] private string inputName;
             [SerializeField] private ManagedInputPhase phase;
+            [SerializeField] private bool isExpanded;
+
+            [Header("Events")]
             [SerializeField] private UnityEvent onInput;
 
             public readonly string InputName => inputName;

@@ -29,13 +29,18 @@ namespace Shears.Input.Editor
             var phaseField = CreatePhaseDropdown();
             var eventField = new PropertyField(property.FindPropertyRelative("onInput"));
 
-            root.Add(nameField);
-            root.Add(phaseField);
-            root.Add(eventField);
+            var foldout = CreateFoldout(nameField.value);
+
+            foldout.Add(nameField);
+            foldout.Add(phaseField);
+            foldout.Add(eventField);
+
+            root.Add(foldout);
 
             return root;
         }
 
+        #region Input Action Field
         private DropdownField CreateNameDropdown(List<string> inputActions)
         {
             var dropdown = new DropdownField("Input Name", inputActions, 0);
@@ -89,7 +94,9 @@ namespace Shears.Input.Editor
             property.serializedObject.ApplyModifiedProperties();
             property.serializedObject.Update();
         }
+        #endregion
 
+        #region Phase Field
         private DropdownField CreatePhaseDropdown()
         {
             List<string> phases = GetPhases();
@@ -134,5 +141,29 @@ namespace Shears.Input.Editor
             property.serializedObject.ApplyModifiedProperties();
             property.serializedObject.Update();
         }
+        #endregion
+
+        #region Foldout
+        private Foldout CreateFoldout(string name)
+        {
+            var isExpandedProp = property.FindPropertyRelative("isExpanded");
+
+            var foldout = new Foldout
+            {
+                text = name,
+                value = property.FindPropertyRelative("isExpanded").boolValue
+            };
+
+            foldout.RegisterValueChangedCallback(evt =>
+            {
+                isExpandedProp.boolValue = foldout.value;
+
+                property.serializedObject.ApplyModifiedProperties();
+                property.serializedObject.Update();
+            });
+
+            return foldout;
+        }
+        #endregion
     }
 }
