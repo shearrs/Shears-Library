@@ -39,6 +39,12 @@ namespace Shears.Common
                 Destroy(gameObject);
             }
         }
+        
+        protected virtual void OnApplicationQuit()
+        {
+            Instance = null;
+            Destroy(gameObject);
+        }
 
         private static T CreateInstance()
         {
@@ -48,11 +54,7 @@ namespace Shears.Common
             return component;
         }
 
-        protected virtual void OnApplicationQuit()
-        {
-            Instance = null;
-            Destroy(gameObject);
-        }
+        public static bool IsInstanceActive() => instance != null;
     }
 
     // overrides instance with new instances rather than destroying them

@@ -11,25 +11,25 @@ namespace Shears.Input.Editor
     [CustomPropertyDrawer(typeof(ManagedInputDispatcher.InputEvent))]
     public class ManagedInputDispatcherInputEventPropertyDrawer : PropertyDrawer
     {
-        private VisualElement root;
-        private SerializedProperty property;
-
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
-            root = new();
+            var root = new VisualElement();
 
-            this.property = property;
-
-            var inputActions = GetInputActions();
+            var inputActions = GetInputActions(property);
 
             if (inputActions.Count == 0)
                 return root;
 
-            var nameField = CreateNameDropdown(inputActions);
-            var phaseField = CreatePhaseDropdown();
+            var nameField = CreateNameDropdown(inputActions, property);
+            var phaseField = CreatePhaseDropdown(property);
             var eventField = new PropertyField(property.FindPropertyRelative("onInput"));
 
-            var foldout = CreateFoldout(nameField.value);
+            var foldout = CreateFoldout(nameField.value, property);
+
+            nameField.RegisterValueChangedCallback(evt =>
+            {
+                foldout.text = evt.newValue;
+            });
 
             foldout.Add(nameField);
             foldout.Add(phaseField);
@@ -41,20 +41,35 @@ namespace Shears.Input.Editor
         }
 
         #region Input Action Field
-        private DropdownField CreateNameDropdown(List<string> inputActions)
+        private DropdownField CreateNameDropdown(List<string> inputActions, SerializedProperty property)
         {
             var dropdown = new DropdownField("Input Name", inputActions, 0);
             string currentAction = property.FindPropertyRelative("inputName").stringValue;
 
-            dropdown.index = GetInputActionIndex(inputActions, currentAction);
+            int index = GetInputActionIndex(inputActions, currentAction);
 
-            dropdown.RegisterValueChangedCallback(OnNameValueChanged);
-            SetInputAction(currentAction);
+            if (index == -1)
+            {
+                currentAction = "MISSING ACTION";
+                dropdown.value = "MISSING ACTION";
+            }
+            else
+                dropdown.index = index;
+
+            void setInputAction(string newName)
+            {
+                property.FindPropertyRelative("inputName").stringValue = newName;
+                property.serializedObject.ApplyModifiedProperties();
+                property.serializedObject.Update();
+            }
+
+            dropdown.RegisterValueChangedCallback(evt => setInputAction(evt.newValue));
+            setInputAction(currentAction);
 
             return dropdown;
         }
 
-        private List<string> GetInputActions()
+        private List<string> GetInputActions(SerializedProperty property)
         {
             List<string> inputActions = new();
 
@@ -84,20 +99,15 @@ namespace Shears.Input.Editor
                     return i;
             }
 
-            return 0;
-        }
-
-        private void OnNameValueChanged(ChangeEvent<string> evt) => SetInputAction(evt.newValue);
-        private void SetInputAction(string newName)
-        {
-            property.FindPropertyRelative("inputName").stringValue = newName;
-            property.serializedObject.ApplyModifiedProperties();
-            property.serializedObject.Update();
+            if (name == string.Empty)
+                return 0;
+            else
+                return -1;
         }
         #endregion
 
         #region Phase Field
-        private DropdownField CreatePhaseDropdown()
+        private DropdownField CreatePhaseDropdown(SerializedProperty property)
         {
             List<string> phases = GetPhases();
             var dropdown = new DropdownField("Phase", phases, 0);
@@ -105,8 +115,15 @@ namespace Shears.Input.Editor
 
             dropdown.index = phases.IndexOf(currentPhase.ToString());
 
-            dropdown.RegisterValueChangedCallback(OnPhaseValueChanged);
-            SetPhase(currentPhase);
+            void setPhase(ManagedInputPhase phase)
+            {
+                property.FindPropertyRelative("phase").enumValueIndex = (int)phase;
+                property.serializedObject.ApplyModifiedProperties();
+                property.serializedObject.Update();
+            }
+
+            dropdown.RegisterValueChangedCallback(evt => setPhase(GetPhaseForName(evt.newValue)));
+            setPhase(currentPhase);
 
             return dropdown;
         }
@@ -133,18 +150,10 @@ namespace Shears.Input.Editor
 
             return default;
         }
-
-        private void OnPhaseValueChanged(ChangeEvent<string> evt) => SetPhase(GetPhaseForName(evt.newValue));
-        private void SetPhase(ManagedInputPhase phase)
-        {
-            property.FindPropertyRelative("phase").enumValueIndex = (int)phase;
-            property.serializedObject.ApplyModifiedProperties();
-            property.serializedObject.Update();
-        }
         #endregion
 
         #region Foldout
-        private Foldout CreateFoldout(string name)
+        private Foldout CreateFoldout(string name, SerializedProperty property)
         {
             var isExpandedProp = property.FindPropertyRelative("isExpanded");
 
