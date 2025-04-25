@@ -9,16 +9,25 @@ namespace Shears.UI
     public class ManagedEventSystem : ProtectedSingleton<ManagedEventSystem>
     {
         [SerializeField] private ManagedInputMap inputMap;
+        [SerializeField] private ManagedUIElement firstFocused;
 
         private ManagedInputGroup inputs;
+        private ManagedUIElement focus;
         private readonly Dictionary<string, ManagedUIElement> elements = new();
 
-        private event Action<IReadOnlyCollection<ManagedUIElement>> onNavigationChanged;
+        private event Action<IReadOnlyCollection<ManagedUIElement>> InstOnNavigationChanged;
 
         internal static event Action<IReadOnlyCollection<ManagedUIElement>> OnNavigationChanged
         {
-            add => Instance.onNavigationChanged += value;
-            remove => Instance.onNavigationChanged -= value;
+            add => Instance.InstOnNavigationChanged += value;
+            remove => Instance.InstOnNavigationChanged -= value;
+        }
+
+        protected override void Awake()
+        {
+            base.Awake();
+
+            Focus(firstFocused);
         }
 
         private void OnEnable()
@@ -37,6 +46,19 @@ namespace Shears.UI
             inputs.Unbind();
         }
 
+        #region Element Events
+        public void Focus(ManagedUIElement element)
+        {
+            if (focus != null && focus != element)
+                focus.EndFocus();
+
+            focus = element;
+
+            if (focus != null)
+                focus.BeginFocus();
+        }
+        #endregion
+
         #region Elements
         internal static void RegisterElement(ManagedUIElement element) => Instance.InstRegisterElement(element);
         private void InstRegisterElement(ManagedUIElement element)
@@ -49,7 +71,7 @@ namespace Shears.UI
 
             elements[element.ID] = element;
 
-            onNavigationChanged?.Invoke(elements.Values);
+            InstOnNavigationChanged?.Invoke(elements.Values);
         }
 
         internal static void DeregisterElement(ManagedUIElement element) => Instance.InstDeregisterElement(element);
@@ -61,7 +83,7 @@ namespace Shears.UI
                 return;
             }
             else
-                onNavigationChanged?.Invoke(elements.Values);
+                InstOnNavigationChanged?.Invoke(elements.Values);
         }
         #endregion
 
@@ -73,12 +95,19 @@ namespace Shears.UI
 
         private void BeginSelect(ManagedInputInfo info)
         {
-            Debug.Log("begin select");
+            if (focus == null)
+                return;
+
+            if (focus.Selectable)
+                focus.BeginSelect();
         }
 
         private void EndSelect(ManagedInputInfo info)
         {
-            Debug.Log("end select");
+            if (focus == null)
+                return;
+
+            focus.EndSelect();
         }
         #endregion
     }

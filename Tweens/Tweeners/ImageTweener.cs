@@ -8,38 +8,36 @@ namespace Shears.Tweens
         private enum TweenType { Color }
 
         [Header("Data")]
-        [SerializeField] private TweenData data;
-        [SerializeField] private TweenType type;
         [SerializeField] private bool playOnEnable;
+        [SerializeField] private TweenData data;
         [SerializeField] private Image image;
+        [SerializeField] private TweenType type;
         private ITween tween;
 
-        [Header("Input")]
-        [SerializeField] private Color color = Color.blue;
-
-        [Header("Initialization")]
-        [SerializeField] private bool initializeOnEnable;
-        [SerializeField] private Color initialColor = Color.white;
+        [Header("Colors")]
+        [SerializeField] private Color color1 = Color.white;
+        [SerializeField] private Color color2 = Color.gray;
 
         private void OnEnable()
         {
-            if (initializeOnEnable)
-                SetInitialValues();
-
             if (playOnEnable)
-                Play();
+                Play1To2();
         }
 
-        public void Play()
+        public void Play1To2() => Play(GetTween(color1, color2));
+        public void Play2To1() => Play(GetTween(color2, color1));
+
+        private void Play(ITween tween)
         {
             ClearTween();
 
-            SetInitialValues();
-            tween = GetTween();
+            this.tween = tween;
             tween.Play();
         }
 
-        public void ClearTween()
+        public void Stop() => ClearTween();
+
+        private void ClearTween()
         {
             tween?.Stop();
             tween?.Dispose();
@@ -47,25 +45,22 @@ namespace Shears.Tweens
             tween = null;
         }
 
-        private ITween GetTween()
+        private ITween GetTween(Color from, Color to)
         {
             ITween tween = null;
+
+            image.color = from;
 
             switch(type)
             {
                 case TweenType.Color: 
-                    tween = image.GetColorTween(color, data);
+                    tween = image.GetColorTween(to, data);
                     break;
             }
 
             tween.AddOnComplete(ClearTween);
 
             return tween;
-        }
-
-        public void SetInitialValues()
-        {
-            image.color = initialColor;
         }
     }
 }

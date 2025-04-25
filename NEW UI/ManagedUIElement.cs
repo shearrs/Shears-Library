@@ -12,6 +12,10 @@ namespace Shears.UI
         [SerializeField] private bool focusable = true;
         [SerializeField] private bool hoverable = true;
 
+        [Header("Activation")]
+        [SerializeField] private UnityEvent onEnabled;
+        [SerializeField] private UnityEvent onDisabled;
+
         [Header("Select")]
         [SerializeField] private UnityEvent onSelectBegin;
         [SerializeField] private UnityEvent onSelectEnd;
@@ -24,11 +28,15 @@ namespace Shears.UI
         [SerializeField] private UnityEvent onHoverBegin;
         [SerializeField] private UnityEvent onHoverEnd;
 
+        private bool isEnabled;
+
         public string ID { get; private set; }
         public bool Selectable { get => selectable; set => selectable = value; }
         public bool Focusable { get => focusable; set => focusable = value; }
         public bool Hoverable { get => hoverable; set => hoverable = value; }
 
+        public event Action OnEnabled;
+        public event Action OnDisabled;
         public event Action OnSelectBegin;
         public event Action OnSelectEnd;
         public event Action OnFocusBegin;
@@ -40,7 +48,6 @@ namespace Shears.UI
         {
             ID = Guid.NewGuid().ToString();
 
-            ManagedEventSystem.RegisterElement(this);
             ManagedEventSystem.OnNavigationChanged += UpdateNavigation;
         }
 
@@ -51,6 +58,32 @@ namespace Shears.UI
                 ManagedEventSystem.DeregisterElement(this);
                 ManagedEventSystem.OnNavigationChanged -= UpdateNavigation;
             }
+        }
+
+        public void Enable()
+        {
+            if (isEnabled)
+                return;
+
+            isEnabled = true;
+
+            ManagedEventSystem.RegisterElement(this);
+
+            onEnabled?.Invoke();
+            OnEnabled.Invoke();
+        }
+
+        public void Disable()
+        {
+            if (!isEnabled)
+                return;
+
+            isEnabled = false;
+
+            ManagedEventSystem.DeregisterElement(this);
+
+            onDisabled?.Invoke();
+            OnDisabled.Invoke();
         }
 
         #region Navigation
