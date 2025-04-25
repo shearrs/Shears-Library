@@ -7,11 +7,18 @@ namespace Shears.UI
 {
     public class ManagedUIElement : MonoBehaviour
     {
+        #region Flag Variables
         [Header("Flags")]
         [SerializeField] private bool selectable = true;
         [SerializeField] private bool focusable = true;
         [SerializeField] private bool hoverable = true;
 
+        public bool Selectable { get => selectable; set => selectable = value; }
+        public bool Focusable { get => focusable; set => focusable = value; }
+        public bool Hoverable { get => hoverable; set => hoverable = value; }
+        #endregion
+
+        #region Event Variables
         [Header("Activation")]
         [SerializeField] private UnityEvent onEnabled;
         [SerializeField] private UnityEvent onDisabled;
@@ -28,13 +35,6 @@ namespace Shears.UI
         [SerializeField] private UnityEvent onHoverBegin;
         [SerializeField] private UnityEvent onHoverEnd;
 
-        private bool isEnabled;
-
-        public string ID { get; private set; }
-        public bool Selectable { get => selectable; set => selectable = value; }
-        public bool Focusable { get => focusable; set => focusable = value; }
-        public bool Hoverable { get => hoverable; set => hoverable = value; }
-
         public event Action OnEnabled;
         public event Action OnDisabled;
         public event Action OnSelectBegin;
@@ -43,12 +43,20 @@ namespace Shears.UI
         public event Action OnFocusEnd;
         public event Action OnHoverBegin;
         public event Action OnHoverEnd;
+        #endregion
+
+        private bool isEnabled;
+        private ManagedUINavigation navigation;
+
+        public string ID { get; private set; }
 
         private void Awake()
         {
             ID = Guid.NewGuid().ToString();
 
             ManagedEventSystem.OnNavigationChanged += UpdateNavigation;
+
+            Enable();
         }
 
         private void OnDestroy()
@@ -69,8 +77,8 @@ namespace Shears.UI
 
             ManagedEventSystem.RegisterElement(this);
 
-            onEnabled?.Invoke();
-            OnEnabled.Invoke();
+            OnEnabled?.Invoke();
+            onEnabled.Invoke();
         }
 
         public void Disable()
@@ -82,19 +90,50 @@ namespace Shears.UI
 
             ManagedEventSystem.DeregisterElement(this);
 
-            onDisabled?.Invoke();
-            OnDisabled.Invoke();
+            OnDisabled?.Invoke();
+            onDisabled.Invoke();
         }
 
         #region Navigation
         private void UpdateNavigation(IReadOnlyCollection<ManagedUIElement> elements)
         {
-            // AUTOMATIC NAVIGATION
-            // sort the elements into what direction they are
-            //  - get the vector that points towards them
-            //  - get the angle of the vector
-            //  - use the angle to determine the quadrant (up, right, down, left)
-            // choose the closest element in each quadrant
+            var newNavigation = new ManagedUINavigation();
+            Vector3 position = transform.position;
+
+            foreach (var element in elements)
+            {
+                if (element == this)
+                    continue;
+
+                var direction = GetDirectionToElement(element);
+                var currentElement = navigation.GetElement(direction);
+
+                if (currentElement == null) // if we don't already have an element in this direction
+                    newNavigation.SetElement(element, direction);
+                else if (Vector2.Distance(position, element.transform.position) < Vector2.Distance(position, currentElement.transform.position)) // if this element is closer
+                    newNavigation.SetElement(element, direction);
+            }
+
+            navigation = newNavigation;
+        }
+
+        private ManagedUINavigation.Direction GetDirectionToElement(ManagedUIElement element)
+        {
+            Vector2 direction = (element.transform.position - transform.position).normalized;
+            Vector2 right = Vector2.right;
+
+            float angle = Vector2.SignedAngle(right, direction);
+
+            Debug.Log("angle: " + angle, this);
+
+            if (angle <= 135 && angle > 45)
+                return ManagedUINavigation.Direction.Up;
+            else if (angle <= 45 && angle > -45)
+                return ManagedUINavigation.Direction.Right;
+            else if (angle <= -45 && angle > -135)
+                return ManagedUINavigation.Direction.Down;
+            else
+                return ManagedUINavigation.Direction.Left;
         }
         #endregion
 
