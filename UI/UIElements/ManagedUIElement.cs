@@ -8,7 +8,6 @@ namespace Shears.UI
     public class ManagedUIElement : MonoBehaviour
     {
         #region Flag Variables
-        [Header("Flags")]
         [SerializeField] private bool enableOnAwake = true;
         [SerializeField] private bool selectable = true;
         [SerializeField] private bool focusable = true;
@@ -20,23 +19,18 @@ namespace Shears.UI
         #endregion
 
         #region Event Variables
-        [Header("Activation")]
         [SerializeField] private UnityEvent onEnabled;
         [SerializeField] private UnityEvent onDisabled;
 
-        [Header("Select")]
         [SerializeField] private UnityEvent onSelectBegin;
         [SerializeField] private UnityEvent onSelectEnd;
 
-        [Header("Click")]
         [SerializeField] private UnityEvent onClickBegin;
         [SerializeField] private UnityEvent onClickEnd;
 
-        [Header("Focus")]
         [SerializeField] private UnityEvent onFocusBegin;
         [SerializeField] private UnityEvent onFocusEnd;
 
-        [Header("Hover")]
         [SerializeField] private UnityEvent onHoverBegin;
         [SerializeField] private UnityEvent onHoverEnd;
         [SerializeField] private UnityEvent onHoverBeginClicked;
@@ -54,6 +48,22 @@ namespace Shears.UI
         public event Action OnHoverEnd;
         public event Action OnHoverBeginClicked;
         public event Action OnHoverEndClicked;
+        #endregion
+
+        #region Inspector Variables
+#if UNITY_EDITOR
+#pragma warning disable CS0414
+        [SerializeField] private bool flagsFoldout = false;
+        [SerializeField] private bool eventsFoldout = false;
+        [SerializeField] private bool activationFoldout = false;
+        [SerializeField] private bool selectFoldout = false;
+        [SerializeField] private bool clickFoldout = false;
+        [SerializeField] private bool focusFoldout = false;
+        [SerializeField] private bool hoverFoldout = false;
+        [SerializeField] private bool hoverClickedFoldout = false;
+        [SerializeField] private bool navigationFoldout = false;
+#pragma warning restore CS0414
+#endif
         #endregion
 
         [SerializeField] private ManagedUINavigation navigation;

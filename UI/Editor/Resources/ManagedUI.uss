@@ -1,0 +1,19 @@
+.foldout
+{
+	background-color: rgba(40, 40, 40, 0.5);
+	padding: 8px;
+	padding-left: 16px;
+	border-radius: 4px;
+	border-color: rgba(20, 20, 20, 0.5);
+	border-width: 1px;
+}
+
+.flagContainer
+{
+	background-color: rgba(40, 40, 40, 0.5);
+	margin-left: -24px;
+	padding: 4px;
+	border-radius: 4px;
+	border-color: rgba(20, 20, 20, 0.5);
+	border-width: 1px;
+}

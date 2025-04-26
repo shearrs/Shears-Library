@@ -58,9 +58,13 @@ namespace Shears.UI
         }
 
         #region Element Events
-        public void Focus(ManagedUIElement element)
+        public static void Focus(ManagedUIElement element) => Instance.InstFocus(element);
+        private void InstFocus(ManagedUIElement element)
         {
-            if (focusedElement != null && focusedElement != element)
+            if (element == focusedElement)
+                return;
+
+            if (focusedElement != null)
                 focusedElement.EndFocus();
 
             focusedElement = element;
@@ -177,6 +181,8 @@ namespace Shears.UI
 
             clickedElement = hoveredElement;
             clickedElement.BeginClick();
+
+            Focus(clickedElement);
         }
 
         private void EndClick(ManagedInputInfo info)

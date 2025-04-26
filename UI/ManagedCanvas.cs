@@ -9,8 +9,8 @@ namespace Shears.UI
     public class ManagedCanvas : MonoBehaviour
     {
         [Header("Selection")]
-        [SerializeField] private ManagedSelectable selectOnEnable;
-        [SerializeField] private ManagedSelectable selectOnDisable;
+        [SerializeField] private ManagedUIElement focusOnEnable;
+        [SerializeField] private ManagedUIElement focusOnDisable;
         [SerializeField] private bool clearOnDisable = false;
 
         [Header("Events")]
@@ -34,8 +34,8 @@ namespace Shears.UI
         {
             canvas.enabled = true;
 
-            if (selectOnEnable != null)
-                ManagedEventSystem.Select(selectOnEnable);
+            if (focusOnEnable != null)
+                ManagedEventSystem.Focus(focusOnEnable);
 
             OnEnable?.Invoke();
             onEnable.Invoke();
@@ -45,10 +45,10 @@ namespace Shears.UI
         {
             canvas.enabled = false;
 
-            if (selectOnDisable)
-                ManagedEventSystem.Select(selectOnDisable);
+            if (focusOnDisable)
+                ManagedEventSystem.Focus(focusOnDisable);
             else if (clearOnDisable)
-                ManagedEventSystem.Select(null);
+                ManagedEventSystem.Focus(null);
 
             OnDisable?.Invoke();
             onDisable.Invoke();

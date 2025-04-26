@@ -9,11 +9,21 @@ namespace Shears.UI
         public enum NavigationType { AutomaticStatic, AutomaticDynamic, Explicit }
         public enum Direction { Up, Right, Down, Left }
 
-        [field: SerializeField] public NavigationType Type { get; set; }
-        [field: SerializeField] public ManagedUIElement Up { get; set; }
-        [field: SerializeField] public ManagedUIElement Right { get; set; }
-        [field: SerializeField] public ManagedUIElement Down { get; set; }
-        [field: SerializeField] public ManagedUIElement Left { get; set; }
+        [Tooltip("The type of navigation to use for this element.\n" +
+                 "AutomaticStatic - Updates the navigation when the element is initialized.\n" +
+                 "AutomaticDynamic - Updates the navigation every frame.\n" +
+                 "Explicit - Uses the elements set in the inspector.")]
+        [SerializeField] private NavigationType type;
+        [SerializeField] private ManagedUIElement up;
+        [SerializeField] private ManagedUIElement right;
+        [SerializeField] private ManagedUIElement down;
+        [SerializeField] private ManagedUIElement left;
+
+        public NavigationType Type { get => type; set => type = value; }
+        public ManagedUIElement Up { get => up; set => up = value; }
+        public ManagedUIElement Right { get => right; set => right = value; }
+        public ManagedUIElement Down { get => down; set => down = value; }
+        public ManagedUIElement Left { get => left; set => left = value; }
 
         private ManagedUIElement element;
 
