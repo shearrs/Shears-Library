@@ -21,7 +21,7 @@ namespace Shears.UI.Editor
             var downField = new PropertyField(property.FindPropertyRelative("down"));
             var leftField = new PropertyField(property.FindPropertyRelative("left"));
 
-            IncludeOnFlag(!IsTypeAutomatic(type), root, upField, rightField, downField, leftField);
+            IncludeOnFlag(!IsTypeAutomatic(type), upField, rightField, downField, leftField);
 
             typeField.RegisterValueChangeCallback(evt =>
             {
@@ -29,7 +29,7 @@ namespace Shears.UI.Editor
 
                 bool isAutomatic = IsTypeAutomatic(type);
 
-                IncludeOnFlag(!isAutomatic, root, upField, rightField, downField, leftField);
+                IncludeOnFlag(!isAutomatic, upField, rightField, downField, leftField);
             });
 
             typeField.style.paddingBottom = 8;
@@ -43,14 +43,20 @@ namespace Shears.UI.Editor
             return root;
         }
 
-        private void IncludeOnFlag(bool flag, VisualElement parent, params VisualElement[] elements)
+        private void IncludeOnFlag(bool flag, params VisualElement[] elements)
         {
             foreach (var element in elements)
             {
                 if (flag)
-                    parent.Add(element);
+                {
+                    element.style.display = DisplayStyle.Flex;
+                    element.visible = true;
+                }
                 else
-                    parent.Remove(element);
+                {
+                    element.style.display = DisplayStyle.None;
+                    element.visible = false;
+                }
             }
         }
 

@@ -3,7 +3,9 @@
     "rootNamespace": "Shears.UI.Editor",
     "references": [
         "GUID:b8ce35fbba9686d4a8094487b762ff16",
-        "GUID:f407bcfcca25ec846a3710ecbfd18364"
+        "GUID:f407bcfcca25ec846a3710ecbfd18364",
+        "GUID:47c78b473e92098469ae5153d34a31e6",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
     ],
     "includePlatforms": [
         "Editor"
