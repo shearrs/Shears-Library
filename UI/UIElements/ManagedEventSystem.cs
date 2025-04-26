@@ -12,9 +12,11 @@ namespace Shears.UI
         [SerializeField] private ManagedUIElement firstFocused;
 
         private ManagedInputGroup inputs;
+        private Vector2 previousNavigationInput;
         private ManagedUIElement focusedElement;
         private ManagedUIElement hoveredElement;
         private ManagedUIElement clickedElement;
+        private ManagedUIElement selectedElement;
         private readonly Dictionary<string, ManagedUIElement> elements = new();
 
         private event Action InstOnNavigationChanged;
@@ -128,13 +130,30 @@ namespace Shears.UI
         }
         #endregion
 
+        // TODO:
+        // add focus clicked event
+        // we have more tween problems...
+
         #region Input
         private void Navigate(ManagedInputInfo info)
         {
-            if (focusedElement == null)
+            if (focusedElement == null || selectedElement != null)
                 return;
 
-            var direction = GetDirection(info.Input.ReadValue<Vector2>());
+            var originalInput = info.Input.ReadValue<Vector2>();
+            var input = originalInput;
+
+            if (Mathf.Abs(previousNavigationInput.x) > 0)
+                input.x = 0;
+            if (Mathf.Abs(previousNavigationInput.y) > 0)
+                input.y = 0;
+
+            previousNavigationInput = originalInput;
+
+            if (input == Vector2.zero)
+                return;
+
+            var direction = GetDirection(input);
             var newFocus = focusedElement.Navigate(direction);
 
             if (newFocus == null)
@@ -159,11 +178,11 @@ namespace Shears.UI
 
         private void BeginSelect(ManagedInputInfo info)
         {
-            if (focusedElement == null)
+            if (focusedElement == null || !focusedElement.Selectable)
                 return;
 
-            if (focusedElement.Selectable)
-                focusedElement.BeginSelect();
+            focusedElement.BeginSelect();
+            selectedElement = focusedElement;
         }
 
         private void EndSelect(ManagedInputInfo info)
@@ -172,6 +191,7 @@ namespace Shears.UI
                 return;
 
             focusedElement.EndSelect();
+            selectedElement = null;
         }
 
         private void BeginClick(ManagedInputInfo info)
@@ -180,6 +200,7 @@ namespace Shears.UI
                 return;
 
             clickedElement = hoveredElement;
+            selectedElement = clickedElement;
             clickedElement.BeginClick();
 
             Focus(clickedElement);
@@ -191,6 +212,7 @@ namespace Shears.UI
                 clickedElement.EndClick();
 
             clickedElement = null;
+            selectedElement = null;
         }
         #endregion
     }
