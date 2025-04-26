@@ -12,7 +12,9 @@ namespace Shears.UI
         [SerializeField] private ManagedUIElement firstFocused;
 
         private ManagedInputGroup inputs;
-        private ManagedUIElement focus;
+        private ManagedUIElement focusedElement;
+        private ManagedUIElement hoveredElement;
+        private ManagedUIElement clickedElement;
         private readonly Dictionary<string, ManagedUIElement> elements = new();
 
         private event Action InstOnNavigationChanged;
@@ -34,9 +36,11 @@ namespace Shears.UI
 
         private void OnEnable()
         {
-            inputs = inputMap.GetInputGroup(("Navigate",    ManagedInputPhase.Performed,    Navigate),
-                                            ("Select",      ManagedInputPhase.Started,      BeginSelect),
-                                            ("Select",      ManagedInputPhase.Canceled,     EndSelect));
+            inputs ??= inputMap.GetInputGroup(("Navigate",      ManagedInputPhase.Performed,    Navigate),
+                                              ("Select",        ManagedInputPhase.Started,      BeginSelect),
+                                              ("Select",        ManagedInputPhase.Canceled,     EndSelect),
+                                              ("Click",         ManagedInputPhase.Started,      BeginClick),
+                                              ("Click",         ManagedInputPhase.Canceled,     EndClick));
 
             inputMap.EnableAllInputs();
             inputs.Bind();
@@ -48,16 +52,47 @@ namespace Shears.UI
             inputs.Unbind();
         }
 
+        private void Update()
+        {
+            UpdateHoveredElement();
+        }
+
         #region Element Events
         public void Focus(ManagedUIElement element)
         {
-            if (focus != null && focus != element)
-                focus.EndFocus();
+            if (focusedElement != null && focusedElement != element)
+                focusedElement.EndFocus();
 
-            focus = element;
+            focusedElement = element;
 
-            if (focus != null)
-                focus.BeginFocus();
+            if (focusedElement != null)
+                focusedElement.BeginFocus();
+        }
+
+        private void UpdateHoveredElement()
+        {
+            Vector2 pointerPos = ManagedPointer.Current.Position;
+            ManagedUIElement newHoverTarget = null;
+
+            foreach (var element in elements.Values)
+            {
+                if (RectTransformUtility.RectangleContainsScreenPoint(element.RectTransform, pointerPos))
+                {
+                    newHoverTarget = element;
+                    break;
+                }
+            }
+
+            if (newHoverTarget == hoveredElement)
+                return;
+
+            if (hoveredElement != null)
+                hoveredElement.EndHover();
+
+            hoveredElement = newHoverTarget;
+
+            if (hoveredElement != null)
+                hoveredElement.BeginHover();
         }
         #endregion
 
@@ -92,11 +127,11 @@ namespace Shears.UI
         #region Input
         private void Navigate(ManagedInputInfo info)
         {
-            if (focus == null)
+            if (focusedElement == null)
                 return;
 
             var direction = GetDirection(info.Input.ReadValue<Vector2>());
-            var newFocus = focus.Navigate(direction);
+            var newFocus = focusedElement.Navigate(direction);
 
             if (newFocus == null)
                 return;
@@ -120,19 +155,36 @@ namespace Shears.UI
 
         private void BeginSelect(ManagedInputInfo info)
         {
-            if (focus == null)
+            if (focusedElement == null)
                 return;
 
-            if (focus.Selectable)
-                focus.BeginSelect();
+            if (focusedElement.Selectable)
+                focusedElement.BeginSelect();
         }
 
         private void EndSelect(ManagedInputInfo info)
         {
-            if (focus == null)
+            if (focusedElement == null)
                 return;
 
-            focus.EndSelect();
+            focusedElement.EndSelect();
+        }
+
+        private void BeginClick(ManagedInputInfo info)
+        {
+            if (hoveredElement == null)
+                return;
+
+            clickedElement = hoveredElement;
+            clickedElement.BeginClick();
+        }
+
+        private void EndClick(ManagedInputInfo info)
+        {
+            if (clickedElement != null)
+                clickedElement.EndClick();
+
+            clickedElement = null;
         }
         #endregion
     }

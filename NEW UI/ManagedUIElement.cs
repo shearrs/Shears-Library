@@ -9,6 +9,7 @@ namespace Shears.UI
     {
         #region Flag Variables
         [Header("Flags")]
+        [SerializeField] private bool enableOnAwake = true;
         [SerializeField] private bool selectable = true;
         [SerializeField] private bool focusable = true;
         [SerializeField] private bool hoverable = true;
@@ -27,6 +28,10 @@ namespace Shears.UI
         [SerializeField] private UnityEvent onSelectBegin;
         [SerializeField] private UnityEvent onSelectEnd;
 
+        [Header("Click")]
+        [SerializeField] private UnityEvent onClickBegin;
+        [SerializeField] private UnityEvent onClickEnd;
+
         [Header("Focus")]
         [SerializeField] private UnityEvent onFocusBegin;
         [SerializeField] private UnityEvent onFocusEnd;
@@ -34,30 +39,41 @@ namespace Shears.UI
         [Header("Hover")]
         [SerializeField] private UnityEvent onHoverBegin;
         [SerializeField] private UnityEvent onHoverEnd;
+        [SerializeField] private UnityEvent onHoverBeginClicked;
+        [SerializeField] private UnityEvent onHoverEndClicked;
 
         public event Action OnEnabled;
         public event Action OnDisabled;
         public event Action OnSelectBegin;
         public event Action OnSelectEnd;
+        public event Action OnClickBegin;
+        public event Action OnClickEnd;
         public event Action OnFocusBegin;
         public event Action OnFocusEnd;
         public event Action OnHoverBegin;
         public event Action OnHoverEnd;
+        public event Action OnHoverBeginClicked;
+        public event Action OnHoverEndClicked;
         #endregion
 
         [SerializeField] private ManagedUINavigation navigation;
         
         private bool isEnabled;
+        private bool isHovered;
+        private bool isClicked;
 
         public string ID { get; private set; }
+        public RectTransform RectTransform { get; private set; }
 
         private void Awake()
         {
             ID = Guid.NewGuid().ToString();
+            RectTransform = GetComponent<RectTransform>();
 
             navigation.Initialize(this);
 
-            Enable();
+            if (enableOnAwake)
+                Enable();
         }
 
         private void OnDestroy()
@@ -121,6 +137,28 @@ namespace Shears.UI
             onSelectEnd.Invoke();
         }
 
+        public void BeginClick()
+        {
+            if (!Selectable)
+                return;
+
+            isClicked = true;
+
+            OnClickBegin?.Invoke();
+            onClickBegin.Invoke();
+        }
+
+        public void EndClick()
+        {
+            isClicked = false;
+
+            if (!isHovered)
+                return;
+
+            OnClickEnd?.Invoke();
+            onClickEnd.Invoke();
+        }
+
         public void BeginFocus()
         {
             if (!Focusable)
@@ -141,14 +179,34 @@ namespace Shears.UI
             if (!Hoverable)
                 return;
 
-            OnHoverBegin?.Invoke();
-            onHoverBegin.Invoke();
+            isHovered = true;
+
+            if (isClicked)
+            {
+                OnHoverBeginClicked?.Invoke();
+                onHoverBeginClicked.Invoke();
+            }
+            else
+            {
+                OnHoverBegin?.Invoke();
+                onHoverBegin.Invoke();
+            }
         }
 
         public void EndHover()
         {
-            OnHoverEnd?.Invoke();
-            onHoverEnd.Invoke();
+            isHovered = false;
+
+            if (isClicked)
+            {
+                OnHoverEndClicked?.Invoke();
+                onHoverEndClicked.Invoke();
+            }
+            else
+            {
+                OnHoverEnd?.Invoke();
+                onHoverEnd.Invoke();
+            }
         }
         #endregion
     }
