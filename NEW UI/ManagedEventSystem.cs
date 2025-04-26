@@ -15,9 +15,11 @@ namespace Shears.UI
         private ManagedUIElement focus;
         private readonly Dictionary<string, ManagedUIElement> elements = new();
 
-        private event Action<IReadOnlyCollection<ManagedUIElement>> InstOnNavigationChanged;
+        private event Action InstOnNavigationChanged;
 
-        internal static event Action<IReadOnlyCollection<ManagedUIElement>> OnNavigationChanged
+        internal static IReadOnlyCollection<ManagedUIElement> Elements => Instance.elements.Values;
+
+        internal static event Action OnNavigationChanged
         {
             add => Instance.InstOnNavigationChanged += value;
             remove => Instance.InstOnNavigationChanged -= value;
@@ -32,7 +34,7 @@ namespace Shears.UI
 
         private void OnEnable()
         {
-            inputs = inputMap.GetInputGroup(("Navigate",    ManagedInputPhase.Performed,    UpdateNavigation),
+            inputs = inputMap.GetInputGroup(("Navigate",    ManagedInputPhase.Performed,    Navigate),
                                             ("Select",      ManagedInputPhase.Started,      BeginSelect),
                                             ("Select",      ManagedInputPhase.Canceled,     EndSelect));
 
@@ -71,7 +73,7 @@ namespace Shears.UI
 
             elements[element.ID] = element;
 
-            InstOnNavigationChanged?.Invoke(elements.Values);
+            InstOnNavigationChanged?.Invoke();
         }
 
         internal static void DeregisterElement(ManagedUIElement element) => Instance.InstDeregisterElement(element);
@@ -83,14 +85,37 @@ namespace Shears.UI
                 return;
             }
             else
-                InstOnNavigationChanged?.Invoke(elements.Values);
+                InstOnNavigationChanged?.Invoke();
         }
         #endregion
 
         #region Input
-        private void UpdateNavigation(ManagedInputInfo info)
+        private void Navigate(ManagedInputInfo info)
         {
-            Debug.Log("navigation: " + info.Input.ReadValue<Vector2>());
+            if (focus == null)
+                return;
+
+            var direction = GetDirection(info.Input.ReadValue<Vector2>());
+            var newFocus = focus.Navigate(direction);
+
+            if (newFocus == null)
+                return;
+
+            Focus(newFocus);
+        }
+
+        private ManagedUINavigation.Direction GetDirection(Vector2 input)
+        {
+            if (input.x > 0)
+                return ManagedUINavigation.Direction.Right;
+            else if (input.x < 0)
+                return ManagedUINavigation.Direction.Left;
+            else if (input.y > 0)
+                return ManagedUINavigation.Direction.Up;
+            else if (input.y < 0)
+                return ManagedUINavigation.Direction.Down;
+            else
+                return default;
         }
 
         private void BeginSelect(ManagedInputInfo info)

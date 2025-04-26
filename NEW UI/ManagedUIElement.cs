@@ -45,8 +45,9 @@ namespace Shears.UI
         public event Action OnHoverEnd;
         #endregion
 
+        [SerializeField] private ManagedUINavigation navigation;
+        
         private bool isEnabled;
-        private ManagedUINavigation navigation;
 
         public string ID { get; private set; }
 
@@ -54,7 +55,7 @@ namespace Shears.UI
         {
             ID = Guid.NewGuid().ToString();
 
-            ManagedEventSystem.OnNavigationChanged += UpdateNavigation;
+            navigation.Initialize(this);
 
             Enable();
         }
@@ -64,8 +65,13 @@ namespace Shears.UI
             if (ManagedEventSystem.IsInstanceActive())
             {
                 ManagedEventSystem.DeregisterElement(this);
-                ManagedEventSystem.OnNavigationChanged -= UpdateNavigation;
+                navigation.Uninitialize();
             }
+        }
+
+        private void Update()
+        {
+            navigation.Update();
         }
 
         public void Enable()
@@ -94,48 +100,10 @@ namespace Shears.UI
             onDisabled.Invoke();
         }
 
-        #region Navigation
-        private void UpdateNavigation(IReadOnlyCollection<ManagedUIElement> elements)
+        public ManagedUIElement Navigate(ManagedUINavigation.Direction direction)
         {
-            var newNavigation = new ManagedUINavigation();
-            Vector3 position = transform.position;
-
-            foreach (var element in elements)
-            {
-                if (element == this)
-                    continue;
-
-                var direction = GetDirectionToElement(element);
-                var currentElement = navigation.GetElement(direction);
-
-                if (currentElement == null) // if we don't already have an element in this direction
-                    newNavigation.SetElement(element, direction);
-                else if (Vector2.Distance(position, element.transform.position) < Vector2.Distance(position, currentElement.transform.position)) // if this element is closer
-                    newNavigation.SetElement(element, direction);
-            }
-
-            navigation = newNavigation;
+            return navigation.GetElement(direction);
         }
-
-        private ManagedUINavigation.Direction GetDirectionToElement(ManagedUIElement element)
-        {
-            Vector2 direction = (element.transform.position - transform.position).normalized;
-            Vector2 right = Vector2.right;
-
-            float angle = Vector2.SignedAngle(right, direction);
-
-            Debug.Log("angle: " + angle, this);
-
-            if (angle <= 135 && angle > 45)
-                return ManagedUINavigation.Direction.Up;
-            else if (angle <= 45 && angle > -45)
-                return ManagedUINavigation.Direction.Right;
-            else if (angle <= -45 && angle > -135)
-                return ManagedUINavigation.Direction.Down;
-            else
-                return ManagedUINavigation.Direction.Left;
-        }
-        #endregion
 
         #region Events
         public void BeginSelect()

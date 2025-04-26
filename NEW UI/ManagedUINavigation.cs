@@ -1,18 +1,55 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Shears.UI
 {
     [System.Serializable]
-    public struct ManagedUINavigation
+    public class ManagedUINavigation
     {
+        public enum NavigationType { AutomaticStatic, AutomaticDynamic, Explicit }
         public enum Direction { Up, Right, Down, Left }
 
+        [field: SerializeField] public NavigationType Type { get; set; }
         [field: SerializeField] public ManagedUIElement Up { get; set; }
         [field: SerializeField] public ManagedUIElement Right { get; set; }
         [field: SerializeField] public ManagedUIElement Down { get; set; }
         [field: SerializeField] public ManagedUIElement Left { get; set; }
 
-        public void SetElement(ManagedUIElement element, Direction direction)
+        private ManagedUIElement element;
+
+        public void Initialize(ManagedUIElement element)
+        {
+            this.element = element;
+
+            ManagedEventSystem.OnNavigationChanged += StaticUpdate;
+        }
+
+        public void Uninitialize()
+        {
+            ManagedEventSystem.OnNavigationChanged -= StaticUpdate;
+        }
+
+        public void Update()
+        {
+            if (Type != NavigationType.AutomaticDynamic)
+                return;
+
+            UpdateNavigation();
+        }
+
+        public ManagedUIElement GetElement(Direction direction)
+        {
+            return direction switch
+            {
+                Direction.Up => Up,
+                Direction.Right => Right,
+                Direction.Down => Down,
+                Direction.Left => Left,
+                _ => null,
+            };
+        }
+
+        public void SetElement(Direction direction, ManagedUIElement element)
         {
             switch (direction)
             {
@@ -31,16 +68,52 @@ namespace Shears.UI
             }
         }
 
-        public readonly ManagedUIElement GetElement(Direction direction)
+        public void UpdateNavigation()
         {
-            return direction switch
+            var elements = ManagedEventSystem.Elements;
+            Vector3 position = element.transform.position;
+
+            SetElement(Direction.Up, null);
+            SetElement(Direction.Right, null);
+            SetElement(Direction.Down, null);
+            SetElement(Direction.Left, null);
+
+            foreach (var element in elements)
             {
-                Direction.Up => Up,
-                Direction.Right => Right,
-                Direction.Down => Down,
-                Direction.Left => Left,
-                _ => null,
-            };
+                if (element == this.element)
+                    continue;
+
+                var direction = GetDirectionToElement(element);
+                var currentElement = GetElement(direction);
+
+                if (currentElement == null) // if we don't already have an element in this direction
+                    SetElement(direction, element);
+                else if (Vector2.SqrMagnitude(position - element.transform.position) < Vector2.SqrMagnitude(position - currentElement.transform.position)) // if this element is closer
+                    SetElement(direction, element);
+            }
+        }
+
+        private Direction GetDirectionToElement(ManagedUIElement otherElement)
+        {
+            Vector2 direction = (otherElement.transform.position - element.transform.position).normalized;
+            Vector2 right = Vector2.right;
+
+            float angle = Vector2.SignedAngle(right, direction);
+
+            if (angle <= 135 && angle > 45)
+                return Direction.Up;
+            else if (angle <= 45 && angle > -45)
+                return Direction.Right;
+            else if (angle <= -45 && angle > -135)
+                return Direction.Down;
+            else
+                return Direction.Left;
+        }
+
+        private void StaticUpdate()
+        {
+            if (Type == NavigationType.AutomaticStatic)
+                UpdateNavigation();
         }
     }
 }
