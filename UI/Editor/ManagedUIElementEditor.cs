@@ -9,6 +9,18 @@ namespace Shears.UI.Editor
     [CustomEditor(typeof(ManagedUIElement))]
     public class ManagedUIElementEditor : UnityEditor.Editor
     {
+        #region Tooltips
+        private static readonly string FlagsFoldoutTooltip = "Status flags for the UI Element.";
+        private static readonly string ActivationFoldoutTooltip = "Events for activation.\nOnEnabled - When 'Enable()' is called on this UIElement.\nOnDisabled - When 'Disable()' is called on this UIElement.";
+        private static readonly string SelectFoldoutTooltip = "Events for selection.\nOnSelectBegin - When user select input goes down while this UIElement is focused.\nOnSelectEnd - When user select input goes up while this UIElement is focused.";
+        private static readonly string ClickFoldoutTooltip = "Events for clicks.\nOnClickBegin - When user's pointer goes down on this UIElement.\nOnClickEnd - When user's pointer goes up after a registered click down.";
+        private static readonly string FocusFoldoutTooltip = "Events for focus.\nOnFocusBegin - When this UIElement becomes focused by the ManagedEventSystem.\nOnFocusEnd - When this UIElement goes out of focus by the ManagedEventSystem.";
+        private static readonly string HoverFoldoutTooltip = "Events for hovers.\nOnHoverBegin - When user's pointer begins hovering this UIElement.\nOnHoverEnd - When user's pointer ends hovering this UIElement.";
+        private static readonly string HoverClickedFoldoutTooltip = "Events for hovering during a registered click.\nOnHoverBeginClicked - When user's pointer begins hovering this UIElement while an ongoing click is occurring.\nOnHoverEndClicked - When user's pointer ends hovering this UIElement while an ongoing click is occuring.";
+        private static readonly string EventsFoldoutTooltip = "UI and Input events for this UIElement.";
+        private static readonly string NavigationFoldoutTooltip = "Navigation settings for this UIElement.";
+        #endregion
+
         public override VisualElement CreateInspectorGUI()
         {
             var root = new VisualElement();
@@ -46,7 +58,7 @@ namespace Shears.UI.Editor
             flagContainer.Add(focusableField);
             flagContainer.Add(hoverableField);
 
-            var flagFoldout = CreateBoundFoldout("Flags", "flagsFoldout", flagContainer);
+            var flagFoldout = CreateBoundFoldout("Flags", "flagsFoldout", FlagsFoldoutTooltip, flagContainer);
 
             return flagFoldout;
         }
@@ -66,13 +78,13 @@ namespace Shears.UI.Editor
             var onHoverBeginClickedField = new PropertyField(serializedObject.FindProperty("onHoverBeginClicked"));
             var onHoverEndClickedField = new PropertyField(serializedObject.FindProperty("onHoverEndClicked"));
 
-            var activationFoldout = CreateBoundFoldout("Activation", "activationFoldout", onEnabledField, onDisabledField);
-            var selectFoldout = CreateBoundFoldout("Select", "selectFoldout", onSelectBeginField, onSelectEndField);
-            var clickFoldout = CreateBoundFoldout("Click", "clickFoldout", onClickBeginField, onClickEndField);
-            var focusFoldout = CreateBoundFoldout("Focus", "focusFoldout", onFocusBeginField, onFocusEndField);
-            var hoverFoldout = CreateBoundFoldout("Hover", "hoverFoldout", onHoverBeginField, onHoverEndField);
-            var hoverClickedFoldout = CreateBoundFoldout("Hover Clicked", "hoverClickedFoldout", onHoverBeginClickedField, onHoverEndClickedField);
-            var eventsFoldout = CreateBoundFoldout("Events", "eventsFoldout", activationFoldout, selectFoldout, clickFoldout, focusFoldout, hoverFoldout, hoverClickedFoldout);
+            var activationFoldout = CreateBoundFoldout("Activation", "activationFoldout", ActivationFoldoutTooltip, onEnabledField, onDisabledField);
+            var selectFoldout = CreateBoundFoldout("Select", "selectFoldout", SelectFoldoutTooltip, onSelectBeginField, onSelectEndField);
+            var clickFoldout = CreateBoundFoldout("Click", "clickFoldout", ClickFoldoutTooltip, onClickBeginField, onClickEndField);
+            var focusFoldout = CreateBoundFoldout("Focus", "focusFoldout", FocusFoldoutTooltip, onFocusBeginField, onFocusEndField);
+            var hoverFoldout = CreateBoundFoldout("Hover", "hoverFoldout", HoverFoldoutTooltip, onHoverBeginField, onHoverEndField);
+            var hoverClickedFoldout = CreateBoundFoldout("Hover Clicked", "hoverClickedFoldout", HoverClickedFoldoutTooltip, onHoverBeginClickedField, onHoverEndClickedField);
+            var eventsFoldout = CreateBoundFoldout("Events", "eventsFoldout", EventsFoldoutTooltip, activationFoldout, selectFoldout, clickFoldout, focusFoldout, hoverFoldout, hoverClickedFoldout);
 
             return eventsFoldout;
         }
@@ -80,25 +92,21 @@ namespace Shears.UI.Editor
         private Foldout CreateNavigation()
         {
             var navigationField = new PropertyField(serializedObject.FindProperty("navigation"));
-            var navigationFoldout = CreateBoundFoldout("Navigation", "navigationFoldout", navigationField);
+            var navigationFoldout = CreateBoundFoldout("Navigation", "navigationFoldout", NavigationFoldoutTooltip, navigationField);
             
             return navigationFoldout;
         }
 
-        private Foldout CreateBoundFoldout(string name, string propertyName, params VisualElement[] children)
+        private Foldout CreateBoundFoldout(string name, string propertyName, string tooltip, params VisualElement[] children)
         {
-            var foldout = new Foldout()
+            var foldout = new Foldout
             {
                 text = name,
-                value = serializedObject.FindProperty(propertyName).boolValue
+                value = serializedObject.FindProperty(propertyName).boolValue,
+                tooltip = tooltip
             };
 
-            foldout.RegisterValueChangedCallback(evt =>
-            {
-                serializedObject.FindProperty(propertyName).boolValue = evt.newValue;
-                serializedObject.ApplyModifiedPropertiesWithoutUndo();
-                serializedObject.Update();
-            });
+            foldout.BindProperty(serializedObject.FindProperty(propertyName));
 
             foldout.AddToClassList("foldout");
 
