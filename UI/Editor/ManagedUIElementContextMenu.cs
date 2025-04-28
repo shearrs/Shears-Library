@@ -21,6 +21,42 @@ namespace Shears.UI.Editor
         private static readonly Color initialColor = Color.white;
         private static readonly Color hoverColor = new(0.78f, 0.78f, 0.78f);
         private static readonly Color selectedColor = new(0.5f, 0.5f, 0.5f);
+        private static readonly Color focusColor = Color.black;
+        private static readonly Color unfocusColor = new(0, 0, 0, 0);
+
+        private struct TweenerGroup
+        {
+            public ImageTweener SelectTweener { get; set; }
+            public ImageTweener ClickTweener { get; set; }
+            public ImageTweener FocusTweener { get; set; }
+            public ImageTweener HoverTweener { get; set; }
+            public ImageTweener HoverSelectTweener { get; set; }
+
+            public TweenerGroup(ImageTweener hoverTweener, ImageTweener clickTweener, ImageTweener focusTweener, ImageTweener selectTweener, ImageTweener hoverSelectTweener)
+            {
+                HoverTweener = hoverTweener;
+                ClickTweener = clickTweener;
+                FocusTweener = focusTweener;
+                SelectTweener = selectTweener;
+                HoverSelectTweener = hoverSelectTweener;
+            }
+        }
+
+        private class TweenerData
+        {
+            public string Name { get; set; }
+            public Transform Parent { get; set; }
+            public Image Image { get; set; }
+            public TweenData Data { get; set; }
+
+            public TweenerData(string name, Transform parent, Image image, TweenData data)
+            {
+                Name = name;
+                Parent = parent;
+                Image = image;
+                Data = data;
+            }
+        }
 
         [MenuItem("GameObject/ManagedUI/Simple Button", priority = 7)]
         private static void CreateSimpleButton(MenuCommand command)
@@ -28,6 +64,7 @@ namespace Shears.UI.Editor
             var button = CreateButton();
             var uiElement = button.AddComponent<ManagedUIElement>();
             var (backgroundImageChild, backgroundImage) = CreateBackgroundImage(button.transform);
+            var (focusImageChild, focusImage) = CreateFocusImage(button.transform);
 
             var tweenData = Resources.Load<TweenData>(defaultTweenPath);
 
@@ -37,12 +74,15 @@ namespace Shears.UI.Editor
                 return;
             }
 
-            var tweenerParent = new GameObject("Tweens");
-            tweenerParent.transform.SetParent(backgroundImageChild.transform, false);
+            var backgroundImageTweenerParent = new GameObject("Tweens");
+            backgroundImageTweenerParent.transform.SetParent(backgroundImageChild.transform, false);
 
-            var (hoverTweener, focusTweener, selectTweener, hoverSelectTweener) = CreateTweeners(tweenerParent.transform, backgroundImage, tweenData);
+            var focusImageTweenerParent = new GameObject("Tweens");
+            focusImageTweenerParent.transform.SetParent(focusImageChild.transform, false);
 
-            CreateEventBindings(uiElement, hoverTweener, focusTweener, selectTweener, hoverSelectTweener);
+            var tweeners = CreateTweeners(backgroundImageTweenerParent.transform, focusImageTweenerParent.transform, backgroundImage, focusImage, tweenData);
+
+            CreateEventBindings(uiElement, tweeners);
 
             var textGameObject = new GameObject("Text");
             textGameObject.transform.SetParent(button.transform, false);
@@ -88,25 +128,58 @@ namespace Shears.UI.Editor
             return (imageChild, image);
         }
 
-        private static (ImageTweener hoverTweener, ImageTweener focusTweener, ImageTweener selectTweener, ImageTweener hoverSelectTweener) CreateTweeners(Transform parent, Image image, TweenData data)
+        private static (GameObject focusImageChild, Image focusImage) CreateFocusImage(Transform parent)
         {
-            var hoverTweener = CreateTweener("Hover Tweener", parent, image, data, initialColor, hoverColor);
-            var focusTweener = CreateTweener("Focus Tweener", parent, image, data, initialColor, hoverColor);
-            var selectTweener = CreateTweener("Select Tweener", parent, image, data, hoverColor, selectedColor);
-            var hoverSelectTweener = CreateTweener("Hover Select Tweener", parent, image, data, initialColor, selectedColor);
+            var focusImageChild = new GameObject("Focus Highlight", typeof(RectTransform));
+            focusImageChild.transform.SetParent(parent, false);
 
-            return (hoverTweener, focusTweener, selectTweener, hoverSelectTweener);
+            var rectTransform = focusImageChild.GetComponent<RectTransform>();
+
+            rectTransform.anchorMin = Vector2.zero;
+            rectTransform.anchorMax = Vector2.one;
+            rectTransform.offsetMin = Vector2.zero;
+            rectTransform.offsetMax = Vector2.zero;
+
+            var focusImage = focusImageChild.AddComponent<Image>();
+            focusImage.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+            focusImage.type = Image.Type.Sliced;
+            focusImage.color = unfocusColor;
+            focusImage.fillCenter = false;
+
+            return (focusImageChild, focusImage);
         }
 
-        private static ImageTweener CreateTweener(string name, Transform parent, Image image, TweenData data, Color color1, Color color2)
+        private static TweenerGroup CreateTweeners(Transform backgroundParent, Transform focusParent, Image backgroundImage, Image focusHighlight, TweenData data)
         {
-            var gameObject = new GameObject(name);
-            gameObject.transform.SetParent(parent, false);
+            var mainImageData = new TweenerData("", backgroundParent, backgroundImage, data);
+            var focusImageData = new TweenerData("Focus Tweener", focusParent, focusHighlight, data);
+
+            mainImageData.Name = "Select Tweener";
+            var selectTweener = CreateTweener(mainImageData, initialColor, selectedColor);
+
+            mainImageData.Name = "Click Tweener";
+            var clickTweener = CreateTweener(mainImageData, hoverColor, selectedColor);
+
+            mainImageData.Name = "Hover Tweener";
+            var hoverTweener = CreateTweener(mainImageData, initialColor, hoverColor);
+
+            mainImageData.Name = "Hover Select Tweener";
+            var hoverSelectTweener = CreateTweener(mainImageData, initialColor, selectedColor);
+
+            var focusTweener = CreateTweener(focusImageData, unfocusColor, focusColor);
+
+            return new(hoverTweener, clickTweener, focusTweener, selectTweener, hoverSelectTweener);
+        }
+
+        private static ImageTweener CreateTweener(TweenerData data, Color color1, Color color2)
+        {
+            var gameObject = new GameObject(data.Name);
+            gameObject.transform.SetParent(data.Parent, false);
 
             var tweener = gameObject.AddComponent<ImageTweener>();
 
-            tweener.TweenData = data;
-            tweener.Image = image;
+            tweener.TweenData = data.Data;
+            tweener.Image = data.Image;
             tweener.Type = ImageTweener.TweenType.Color;
             tweener.Color1 = color1;
             tweener.Color2 = color2;
@@ -114,22 +187,22 @@ namespace Shears.UI.Editor
             return tweener;
         }
 
-        private static void CreateEventBindings(ManagedUIElement uiElement, ImageTweener hoverTweener, ImageTweener focusTweener, ImageTweener selectTweener, ImageTweener hoverSelectTweener)
+        private static void CreateEventBindings(ManagedUIElement uiElement, TweenerGroup tweeners)
         {
             // this is the most insane thing ever
             // I literally never use this SerializedObject, but if I don't create it, the UnityEvents will not be instantiated yet...
             SerializedObject uiElementSO = new(uiElement);
 
-            CreateEventBinding(uiElement, "onHoverBegin", hoverTweener, play1To2);
-            CreateEventBinding(uiElement, "onHoverEnd", hoverTweener, play2To1);
-            CreateEventBinding(uiElement, "onFocusBegin", focusTweener, play1To2);
-            CreateEventBinding(uiElement, "onFocusEnd", focusTweener, play2To1);
-            CreateEventBinding(uiElement, "onSelectBegin", selectTweener, play1To2);
-            CreateEventBinding(uiElement, "onSelectEnd", selectTweener, play2To1);
-            CreateEventBinding(uiElement, "onClickBegin", selectTweener, play1To2);
-            CreateEventBinding(uiElement, "onClickEnd", selectTweener, play2To1);
-            CreateEventBinding(uiElement, "onHoverBeginClicked", hoverSelectTweener, play1To2);
-            CreateEventBinding(uiElement, "onHoverEndClicked", hoverSelectTweener, play2To1);
+            CreateEventBinding(uiElement, "onHoverBegin", tweeners.HoverTweener, play1To2);
+            CreateEventBinding(uiElement, "onHoverEnd", tweeners.HoverTweener, play2To1);
+            CreateEventBinding(uiElement, "onFocusBegin", tweeners.FocusTweener, play1To2);
+            CreateEventBinding(uiElement, "onFocusEnd", tweeners.FocusTweener, play2To1);
+            CreateEventBinding(uiElement, "onSelectBegin", tweeners.SelectTweener, play1To2);
+            CreateEventBinding(uiElement, "onSelectEnd", tweeners.SelectTweener, play2To1);
+            CreateEventBinding(uiElement, "onClickBegin", tweeners.ClickTweener, play1To2);
+            CreateEventBinding(uiElement, "onClickEnd", tweeners.ClickTweener, play2To1);
+            CreateEventBinding(uiElement, "onHoverBeginClicked", tweeners.HoverSelectTweener, play1To2);
+            CreateEventBinding(uiElement, "onHoverEndClicked", tweeners.HoverSelectTweener, play2To1);
         }
 
         private static void CreateEventBinding(ManagedUIElement uiElement, string unityEventName, object target, string methodName)

@@ -69,10 +69,14 @@ namespace Shears.UI
             if (focusedElement != null)
                 focusedElement.EndFocus();
 
-            focusedElement = element;
+            if (element == null || !element.Focusable)
+            {
+                focusedElement = null;
+                return;
+            }
 
-            if (focusedElement != null)
-                focusedElement.BeginFocus();
+            focusedElement = element;
+            focusedElement.BeginFocus();
         }
 
         private void UpdateHoveredElement()
@@ -129,10 +133,6 @@ namespace Shears.UI
                 InstOnNavigationChanged?.Invoke();
         }
         #endregion
-
-        // TODO:
-        // add focus clicked event
-        // we have more tween problems...
 
         #region Input
         private void Navigate(ManagedInputInfo info)
