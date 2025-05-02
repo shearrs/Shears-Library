@@ -1,0 +1,18 @@
+{
+    "name": "Shears.Beziers.Editor",
+    "rootNamespace": "Shears.Beziers.Editor",
+    "references": [
+        "GUID:f05e9bece5c2d3e4e804d3bb8e43f738"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
