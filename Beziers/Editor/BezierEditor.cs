@@ -16,8 +16,6 @@ namespace Shears.Beziers.Editor
 
             foreach (var point in bezier.Points)
             {
-                Handles.DrawDottedLine(point.Tangent1, point.Tangent2, 2f);
-
                 EditorGUI.BeginChangeCheck();
 
                 CreateToolHandles(bezier, point);
@@ -26,6 +24,9 @@ namespace Shears.Beziers.Editor
 
         private void CreateToolHandles(Bezier bezier, BezierPoint point)
         {
+            Handles.color = Color.red;
+            Handles.DrawDottedLine(point.Tangent1, point.Tangent2, 2f);
+
             Handles.color = Color.cyan;
             Vector3 newPos = Handles.FreeMoveHandle(point.Position, HandleUtility.GetHandleSize(point.Position) * HANDLE_SIZE, Vector3.zero, Handles.CircleHandleCap);
 
@@ -51,19 +52,31 @@ namespace Shears.Beziers.Editor
             {
                 Undo.RecordObject(bezier, "Move Bezier Point");
 
-                point.Position = bezier.transform.InverseTransformPoint(newPos);
+                float dist = (point.Position - newPos).sqrMagnitude;
+
+                if (dist > float.Epsilon)
+                {
+                    point.Position = newPos;
+                    return;
+                }
 
                 float tangent1Dist = (point.Tangent1 - newTangent1).sqrMagnitude;
                 float tangent2Dist = (point.Tangent2 - newTangent2).sqrMagnitude;
 
                 if (tangent1Dist > float.Epsilon)
-                    point.Tangent1 = point.InverseTransformPoint(newTangent1);
+                {
+                    point.Tangent1 = newTangent1;
+                    return;
+                }
 
                 if (tangent2Dist > float.Epsilon)
-                    point.Tangent2 = point.InverseTransformPoint(newTangent2);
+                {
+                    point.Tangent2 = newTangent2;
+                    return;
+                }
 
                 if (Quaternion.Angle(point.Rotation, newRotation) > float.Epsilon)
-                    point.Rotation = Quaternion.Inverse(bezier.transform.rotation) * newRotation;
+                    point.Rotation = newRotation;
             }
         }
     }

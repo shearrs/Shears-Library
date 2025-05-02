@@ -9,7 +9,7 @@ namespace Shears.Beziers
         private const float DISTANCE_STEP = 0.001f;
 
         [Header("Gizmos")]
-        [SerializeField] private bool drawGizmos;
+        [SerializeField] private bool drawGizmos = true;
 
         [Header("Data")]
         [SerializeField] private bool closed = false;
