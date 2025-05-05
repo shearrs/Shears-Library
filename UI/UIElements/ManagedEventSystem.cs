@@ -3,6 +3,7 @@ using Shears.Input;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Shears.UI
 {
@@ -81,17 +82,7 @@ namespace Shears.UI
 
         private void UpdateHoveredElement()
         {
-            Vector2 pointerPos = ManagedPointer.Current.Position;
-            ManagedUIElement newHoverTarget = null;
-
-            foreach (var element in elements.Values)
-            {
-                if (RectTransformUtility.RectangleContainsScreenPoint(element.RectTransform, pointerPos))
-                {
-                    newHoverTarget = element;
-                    break;
-                }
-            }
+            ManagedUIElement newHoverTarget = Raycast();
 
             if (newHoverTarget == hoveredElement)
                 return;
@@ -103,6 +94,58 @@ namespace Shears.UI
 
             if (hoveredElement != null)
                 hoveredElement.BeginHover();
+        }
+
+        private ManagedUIElement Raycast()
+        {
+            Vector2 pointerPos = ManagedPointer.Current.Position;
+            List<Graphic> hitGraphics = new();
+            ManagedUIElement hitElement = null;
+
+            Canvas[] canvases = FindObjectsByType<Canvas>(FindObjectsSortMode.None);
+            // should know about all canvases
+            // should raycast using all canvas raycasters
+            // should choose the one with the greatest depth
+            foreach (var canvas in canvases)
+            {
+                if (!canvas.TryGetComponent<GraphicRaycaster>(out _))
+                    continue;
+
+                var raycastableGraphics = GraphicRegistry.GetRaycastableGraphicsForCanvas(canvas);
+                for (int i = 0; i < raycastableGraphics.Count; i++)
+                {
+                    var graphic = raycastableGraphics[i];
+
+                    if (graphic == null || !graphic.raycastTarget)
+                        continue;
+
+                    if (RectTransformUtility.RectangleContainsScreenPoint(graphic.rectTransform, pointerPos))
+                        hitGraphics.Add(graphic);
+                }
+            }
+
+            int greatestDepth = int.MinValue;
+
+            foreach (var graphic in hitGraphics)
+            {
+                if (graphic.depth > greatestDepth)
+                {
+                    greatestDepth = graphic.depth;
+                    hitElement = GetManagedUIElement(graphic.gameObject);
+                }
+            }
+
+            return hitElement;
+        }
+
+        private ManagedUIElement GetManagedUIElement(GameObject gameObject)
+        {
+            if (gameObject.TryGetComponent<ManagedUIElement>(out var element))
+                return element;
+            
+            element = gameObject.GetComponentInParent<ManagedUIElement>();
+
+            return element;
         }
         #endregion
 
@@ -201,6 +244,7 @@ namespace Shears.UI
 
             clickedElement = hoveredElement;
             selectedElement = clickedElement;
+
             clickedElement.BeginClick();
 
             Focus(clickedElement);

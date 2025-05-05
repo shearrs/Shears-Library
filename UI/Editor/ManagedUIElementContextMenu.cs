@@ -84,13 +84,7 @@ namespace Shears.UI.Editor
 
             CreateEventBindings(uiElement, tweeners);
 
-            var textGameObject = new GameObject("Text");
-            textGameObject.transform.SetParent(button.transform, false);
-
-            var textMesh = textGameObject.AddComponent<TextMeshProUGUI>();
-            textMesh.text = "Button";
-            textMesh.color = Color.black;
-            textMesh.alignment = TextAlignmentOptions.Center;
+            CreateText(button.transform);
 
             Selection.SetActiveObjectWithContext(button, null);
         }
@@ -145,8 +139,23 @@ namespace Shears.UI.Editor
             focusImage.type = Image.Type.Sliced;
             focusImage.color = unfocusColor;
             focusImage.fillCenter = false;
+            focusImage.raycastTarget = false;
 
             return (focusImageChild, focusImage);
+        }
+
+        private static GameObject CreateText(Transform parent)
+        {
+            var textGameObject = new GameObject("Text");
+            textGameObject.transform.SetParent(parent, false);
+
+            var textMesh = textGameObject.AddComponent<TextMeshProUGUI>();
+            textMesh.text = "Button";
+            textMesh.color = Color.black;
+            textMesh.alignment = TextAlignmentOptions.Center;
+            textMesh.raycastTarget = false;
+
+            return textGameObject;
         }
 
         private static TweenerGroup CreateTweeners(Transform backgroundParent, Transform focusParent, Image backgroundImage, Image focusHighlight, TweenData data)
