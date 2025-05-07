@@ -2,7 +2,6 @@ using Shears.Tweens;
 using System;
 using System.Reflection;
 using TMPro;
-using TreeEditor;
 using UnityEditor;
 using UnityEditor.Events;
 using UnityEngine;
@@ -96,6 +95,7 @@ namespace Shears.UI.Editor
             var button = new GameObject("Button", typeof(RectTransform));
             button.transform.SetParent(parent.transform);
             button.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            button.layer = LayerMask.NameToLayer("UI");
 
             var rectTransform = button.GetComponent<RectTransform>();
             rectTransform.sizeDelta = new Vector2(200, 100);
@@ -107,6 +107,7 @@ namespace Shears.UI.Editor
         {
             var imageChild = new GameObject("Background Image", typeof(RectTransform));
             imageChild.transform.SetParent(parent, false);
+            imageChild.layer = LayerMask.NameToLayer("UI");
 
             var rectTransform = imageChild.GetComponent<RectTransform>();
 
@@ -126,6 +127,7 @@ namespace Shears.UI.Editor
         {
             var focusImageChild = new GameObject("Focus Highlight", typeof(RectTransform));
             focusImageChild.transform.SetParent(parent, false);
+            focusImageChild.layer = LayerMask.NameToLayer("UI");
 
             var rectTransform = focusImageChild.GetComponent<RectTransform>();
 
@@ -148,6 +150,7 @@ namespace Shears.UI.Editor
         {
             var textGameObject = new GameObject("Text");
             textGameObject.transform.SetParent(parent, false);
+            textGameObject.layer = LayerMask.NameToLayer("UI");
 
             var textMesh = textGameObject.AddComponent<TextMeshProUGUI>();
             textMesh.text = "Button";
@@ -184,6 +187,7 @@ namespace Shears.UI.Editor
         {
             var gameObject = new GameObject(data.Name);
             gameObject.transform.SetParent(data.Parent, false);
+            gameObject.layer = LayerMask.NameToLayer("UI");
 
             var tweener = gameObject.AddComponent<ImageTweener>();
 
