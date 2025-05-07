@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Shears.Common
 {
     [DefaultExecutionOrder(-100)]
-    public class ProtectedSingleton<T> : MonoBehaviour where T :MonoBehaviour
+    public class ProtectedSingleton<T> : MonoBehaviour where T : MonoBehaviour
     {
         protected static T instance;
         protected static T Instance
