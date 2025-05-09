@@ -1,0 +1,18 @@
+{
+    "name": "InternProject.StateMachines.Editor",
+    "rootNamespace": "InternProject.StateMachines.Editor",
+    "references": [
+        "GUID:4dda845160e703f4095da45af3d45973"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
