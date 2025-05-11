@@ -40,6 +40,25 @@ namespace Shears.Tweens
             }
         }
 
+        public void SetColor1()
+        {
+            Color color = color1;
+
+            if (type == TweenType.Multiply)
+                color = Target.BaseColor * color1;
+
+            Target.CurrentColor = color;
+        }
+        public void SetColor2()
+        {
+            Color color = color1;
+
+            if (type == TweenType.Multiply)
+                color = Target.BaseColor * color2;
+
+            Target.CurrentColor = color;
+        }
+
         public void Play1To2()
         {
             Color initial = Target.BaseColor;

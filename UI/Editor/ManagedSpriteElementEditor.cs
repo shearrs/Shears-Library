@@ -43,6 +43,10 @@ namespace Shears.UI.Editor
 
         public override VisualElement CreateInspectorGUI()
         {
+            var wrappedValueSO = new SerializedObject(wrappedValue);
+            wrappedValueSO.FindProperty("m_ObjectHideFlags").intValue = (int)HideFlags.HideInInspector;
+            wrappedValueSO.ApplyModifiedPropertiesWithoutUndo();
+
             var root = new VisualElement();
             root.AddStyleSheetFromPath("ManagedElements/ManagedElements");
 
