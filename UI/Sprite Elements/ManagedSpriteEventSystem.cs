@@ -55,7 +55,7 @@ namespace Shears.UI
             if (hoveredElement != null)
                 hoveredElement.EndHover();
 
-            if (clickedElement != null)
+            if (clickedElement != null && newHoverTarget != clickedElement)
             {
                 hoveredElement = null;
                 return;

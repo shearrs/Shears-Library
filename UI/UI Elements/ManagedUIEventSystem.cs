@@ -91,7 +91,7 @@ namespace Shears.UI
                 hoveredElement.EndHover();
 
             // don't let us hover a new element if we are selecting something
-            if (selectedElement != null)
+            if (selectedElement != null && newHoverTarget != selectedElement)
             {
                 hoveredElement = null;
                 return;

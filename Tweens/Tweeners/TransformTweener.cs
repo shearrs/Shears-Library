@@ -4,103 +4,129 @@ namespace Shears.Tweens
 {
     public class TransformTweener : MonoBehaviour
     {
-        private enum TweenType { Move, LocalMove, Rotate, LocalRotate, LocalScale }
+        public enum OnEnableBehaviour { None, Play1To2, Play2To1 };
+        public enum TweenType { Move, LocalMove, Rotate, LocalRotate, LocalScale }
 
-        [Header("Data")]
-        [SerializeField] private TweenData data;
+        [Header("Settings")]
+        [SerializeField] private OnEnableBehaviour onEnableBehaviour;
         [SerializeField] private TweenType type;
-        [SerializeField] private bool playOnEnable;
-        [SerializeField] private bool useRectTransform;
+
+        [Header("References")]
+        [SerializeField] private Transform target;
+        [SerializeField] private TweenData data;
+
+        [Header("1")]
+        [SerializeField] private Vector3 position1;
+        [SerializeField] private Vector3 rotation1;
+        [SerializeField] private Vector3 scale1 = Vector3.one;
+
+        [Header("2")]
+        [SerializeField] private Vector3 position2;
+        [SerializeField] private Vector3 rotation2;
+        [SerializeField] private Vector3 scale2 = Vector3.one;
+
         private ITween tween;
-        private RectTransform rectTransform;
 
-        [Header("Input")]
-        [SerializeField] private Vector3 position;
-        [SerializeField] private Vector3 rotation;
-        [SerializeField] private Vector3 scale = Vector3.one;
+        private struct TransformTweenData
+        {
+            public Vector3 Position { get; set; }
+            public Vector3 Rotation { get; set; }
+            public Vector3 Scale { get; set; }
 
-        [Header("Initialization")]
-        [SerializeField] private bool initializeOnEnable;
-        [SerializeField] private bool localInitialization = true;
-        [SerializeField] private Vector3 initialPosition;
-        [SerializeField] private Vector3 initialRotation;
-        [SerializeField] private Vector3 initialScale = Vector3.one;
+            public TransformTweenData(Vector3 position, Vector3 rotation, Vector3 scale)
+            {
+                Position = position;
+                Rotation = rotation;
+                Scale = scale;
+            }
+        }
+
+        private void Awake()
+        {
+            if (target == null)
+                target = transform;
+        }
 
         private void OnEnable()
         {
-            if (useRectTransform)
-                rectTransform = GetComponent<RectTransform>();
-
-            if (initializeOnEnable)
-                SetInitialValues();
-
-            if (playOnEnable)
-                Play();
+            switch (onEnableBehaviour)
+            {
+                case OnEnableBehaviour.None:
+                    break;
+                case OnEnableBehaviour.Play1To2:
+                    Play1To2();
+                    break;
+                case OnEnableBehaviour.Play2To1:
+                    Play2To1();
+                    break;
+            }
         }
 
         private void OnDisable() => Stop();
 
-        public void Play()
+        public void Play1To2()
         {
-            Stop();
+            var from = new TransformTweenData(position1, rotation1, scale1);
+            var to = new TransformTweenData(position2, rotation2, scale2);
 
-            SetInitialValues();
-            tween = GetTween();
+            Play(GetTween(from, to));
+        }
+
+        public void Play2To1()
+        {
+            var from = new TransformTweenData(position2, rotation2, scale2);
+            var to = new TransformTweenData(position1, rotation1, scale1);
+
+            Play(GetTween(from, to));
+        }
+
+        private void Play(ITween tween)
+        {
+            ClearTween();
+
+            this.tween = tween;
             tween.Play();
         }
 
-        public void Stop()
+        public void Stop() => ClearTween();
+
+        private void ClearTween()
         {
             tween?.Stop();
             tween?.Dispose();
+
+            tween = null;
         }
 
-        private ITween GetTween()
+        private ITween GetTween(TransformTweenData fromData, TransformTweenData toData)
         {
-            if (useRectTransform)
-            {
-                return type switch
-                {
-                    TweenType.Move => rectTransform.GetMoveTween(position, data),
-                    TweenType.LocalMove => rectTransform.GetMoveLocalTween(position, data),
-                    TweenType.Rotate => rectTransform.GetRotateTween(Quaternion.Euler(rotation), false, data),
-                    TweenType.LocalRotate => rectTransform.GetRotateLocalTween(Quaternion.Euler(rotation), false, data),
-                    TweenType.LocalScale => rectTransform.GetScaleLocalTween(scale, data),
-                    _ => null,
-                };
-            }
-            else
-            {
-                return type switch
-                {
-                    TweenType.Move => transform.GetMoveTween(position, data),
-                    TweenType.LocalMove => transform.GetMoveLocalTween(position, data),
-                    TweenType.Rotate => transform.GetRotateTween(Quaternion.Euler(rotation), false, data),
-                    TweenType.LocalRotate => transform.GetRotateLocalTween(Quaternion.Euler(rotation), false, data),
-                    TweenType.LocalScale => transform.GetScaleLocalTween(scale, data),
-                    _ => null,
-                };
-            }
-        }
+            ITween tween = null;
 
-        public void SetInitialValues()
-        {
-            if (useRectTransform)
-                rectTransform.anchoredPosition = initialPosition;
-            else
+            switch (type)
             {
-                if (localInitialization)
-                    transform.localPosition = initialPosition;
-                else
-                    transform.position = initialPosition;
+                case TweenType.Move:
+                    target.position = fromData.Position;
+                    tween = target.GetMoveTween(toData.Position, data);
+                    break;
+                case TweenType.LocalMove:
+                    target.position = fromData.Position;
+                    tween = target.GetMoveLocalTween(toData.Position, data);
+                    break;
+                case TweenType.Rotate:
+                    target.rotation = Quaternion.Euler(fromData.Rotation);
+                    tween = target.GetRotateTween(Quaternion.Euler(toData.Rotation), true, data);
+                    break;
+                case TweenType.LocalRotate:
+                    target.rotation = Quaternion.Euler(fromData.Rotation);
+                    tween = target.GetRotateLocalTween(Quaternion.Euler(toData.Rotation), true, data);
+                    break;
+                case TweenType.LocalScale:
+                    target.localScale = fromData.Scale;
+                    tween = target.GetScaleLocalTween(toData.Scale, data);
+                    break;
             }
 
-            if (localInitialization)
-                transform.localRotation = Quaternion.Euler(initialRotation);
-            else
-                transform.rotation = Quaternion.Euler(initialRotation);
-
-            transform.localScale = initialScale;
+            return tween;
         }
     }
 }

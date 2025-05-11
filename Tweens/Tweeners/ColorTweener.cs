@@ -11,7 +11,7 @@ namespace Shears.Tweens
         [SerializeField] private OnEnableBehaviour onEnableBehaviour;
         [SerializeField] private TweenType type;
 
-        [Header("Data")]
+        [Header("References")]
         [SerializeField] private InterfaceReference<IColorTweenable> target;
         [SerializeField] private TweenData data;
         private ITween tween;
@@ -39,6 +39,8 @@ namespace Shears.Tweens
                     break;
             }
         }
+
+        private void OnDisable() => Stop();
 
         public void SetColor1()
         {
