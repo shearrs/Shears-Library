@@ -153,5 +153,52 @@ namespace Shears.Tweens
             return CreateAutoDisposeTween(image, update, data);
         }
         #endregion
+
+        #region SpriteRenderer Tweens
+        public static ITween DoColorTween(this SpriteRenderer spriteRenderer, Color targetColor, TweenData data = null) => Do(GetColorTween(spriteRenderer, targetColor, data));
+        public static ITween GetColorTween(this SpriteRenderer spriteRenderer, Color targetColor, TweenData data = null)
+        {
+            Color start = spriteRenderer.color;
+
+            void update(float t)
+            {
+                spriteRenderer.color = Color.LerpUnclamped(start, targetColor, t);
+            }
+
+            return CreateAutoDisposeTween(spriteRenderer, update, data);
+        }
+        #endregion
+
+        #region IColorTweenable Tweens
+        public static ITween DoColorTween(this IColorTweenable colorTweenable, Color targetColor, TweenData data = null) => Do(GetColorTween(colorTweenable, targetColor, data));
+        public static ITween GetColorTween(this IColorTweenable colorTweenable, Color targetColor, TweenData data = null)
+        {
+            Color start = colorTweenable.CurrentColor;
+
+            void update(float t)
+            {
+                colorTweenable.CurrentColor = Color.LerpUnclamped(start, targetColor, t);
+            }
+
+            if (colorTweenable is UnityEngine.Object unityObject)
+                return CreateAutoDisposeTween(unityObject, update, data);
+            else
+                return CreateTween(update, data);
+        }
+
+        public static ITween DoColorMultTween(this IColorTweenable colorTweenable, Color baseColor, Color startColor, Color endColor, TweenData data = null) => Do(GetColorMultTween(colorTweenable, baseColor, startColor, endColor, data));
+        public static ITween GetColorMultTween(this IColorTweenable colorTweenable, Color baseColor, Color startColor, Color endColor, TweenData data = null)
+        {
+            void update(float t)
+            {
+                colorTweenable.CurrentColor = baseColor * Color.LerpUnclamped(startColor, endColor, t);
+            }
+
+            if (colorTweenable is UnityEngine.Object unityObject)
+                return CreateAutoDisposeTween(unityObject, update, data);
+            else
+                return CreateTween(update, data);
+        }
+        #endregion
     }
 }

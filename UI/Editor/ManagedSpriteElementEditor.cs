@@ -1,3 +1,4 @@
+using System;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -19,6 +20,7 @@ namespace Shears.UI.Editor
         #endregion
 
         private SpriteRenderer spriteRenderer;
+        private PropertyField baseColorField;
         private ObjectField spriteField;
         private IntegerField sortingField;
 
@@ -42,7 +44,7 @@ namespace Shears.UI.Editor
         public override VisualElement CreateInspectorGUI()
         {
             var root = new VisualElement();
-            root.AddStyleSheetFromPath("ManagedUI/ManagedUI");
+            root.AddStyleSheetFromPath("ManagedElements/ManagedElements");
 
             var scriptField = new PropertyField(serializedObject.FindProperty("m_Script"))
             {
@@ -64,11 +66,15 @@ namespace Shears.UI.Editor
         private Foldout CreateSpriteFoldout()
         {
             spriteField = CreateSpriteField();
+            baseColorField = CreateBaseColorField();
+            var currentColorField = CreateCurrentColorField();
             sortingField = CreateSortingOrderField();
             var spriteContainer = new VisualElement();
 
             spriteContainer.AddToClassList("flagContainer");
             spriteContainer.Add(spriteField);
+            spriteContainer.Add(baseColorField);
+            spriteContainer.Add(currentColorField);
             spriteContainer.Add(sortingField);
 
             return CreateBoundFoldout("Sprite", "spriteFoldout", SpriteFoldoutTooltip, spriteContainer);
@@ -111,6 +117,7 @@ namespace Shears.UI.Editor
             return eventsFoldout;
         }
 
+        #region Sprite Fields
         private ObjectField CreateSpriteField()
         {
             var spriteField = new ObjectField("Sprite")
@@ -119,19 +126,46 @@ namespace Shears.UI.Editor
                 value = spriteRenderer.sprite,
             };
 
-            spriteField.RegisterValueChangedCallback(evt =>
-            {
-                if (spriteField.value == spriteRenderer.sprite)
-                    return;
-
-                Undo.RecordObject(spriteRenderer, "Change Sprite");
-
-                spriteRenderer.sprite = evt.newValue as Sprite;
-
-                EditorUtility.SetDirty(spriteRenderer);
-            });
+            BindField<ObjectField, UnityEngine.Object>(
+                spriteField, 
+                (value) => spriteRenderer.sprite = (Sprite)value, 
+                () => spriteRenderer.sprite == spriteField.value, 
+                "Change Sprite", spriteRenderer);
 
             return spriteField;
+        }
+
+        private PropertyField CreateBaseColorField()
+        {
+            var baseColorProp = serializedObject.FindProperty("baseColor");
+            var colorField = new PropertyField(baseColorProp);
+
+            colorField.RegisterValueChangeCallback(evt =>
+            {
+                if (Application.isPlaying)
+                    return;
+
+                spriteRenderer.color = baseColorProp.colorValue;
+            });
+
+            return colorField;
+        }
+
+        private ColorField CreateCurrentColorField()
+        {
+            var colorField = new ColorField("Current Color")
+            {
+                value = spriteRenderer.color,
+                enabledSelf = false
+            };
+
+            colorField.schedule.Execute(() =>
+            {
+                colorField.value = spriteRenderer.color;
+                Repaint();
+            }).Every(10);
+
+            return colorField;
         }
 
         private IntegerField CreateSortingOrderField()
@@ -141,20 +175,44 @@ namespace Shears.UI.Editor
                 value = spriteRenderer.sortingOrder,
             };
 
-            sortingField.RegisterValueChangedCallback(evt =>
-            {
-                if (sortingField.value == spriteRenderer.sortingOrder)
-                    return;
-
-                Undo.RecordObject(spriteRenderer, "Change Sorting Order");
-
-                spriteRenderer.sortingOrder = evt.newValue;
-
-                EditorUtility.SetDirty(spriteRenderer);
-            });
+            BindField<IntegerField, int>(sortingField, 
+                (value) => spriteRenderer.sortingOrder = value, 
+                () => spriteRenderer.sortingOrder == sortingField.value,
+                "Change Sorting Order", spriteRenderer);
 
             return sortingField;
         }
+
+        private TField BindField<TField, TValue>(
+            TField field,
+            Action<TValue> setTargetValue, Func<bool> valuesAreEqual,
+            string undoMessage, UnityEngine.Object dirtyTarget) 
+                where TField : BaseField<TValue>
+        {
+            field.RegisterValueChangedCallback(evt =>
+            {
+                if (valuesAreEqual())
+                    return;
+
+                Undo.RecordObject(dirtyTarget, undoMessage);
+
+                setTargetValue(evt.newValue);
+
+                EditorUtility.SetDirty(dirtyTarget);
+            });
+
+            return field;
+        }
+
+        private void SyncFields()
+        {
+            if (spriteField.value != spriteRenderer.sprite)
+                spriteField.value = spriteRenderer.sprite;
+
+            if (sortingField.value != spriteRenderer.sortingOrder)
+                sortingField.value = spriteRenderer.sortingOrder;
+        }
+        #endregion
 
         private Foldout CreateBoundFoldout(string foldoutName, string propertyName, string tooltip, params VisualElement[] children)
         {
@@ -173,12 +231,6 @@ namespace Shears.UI.Editor
                 foldout.Add(child);
 
             return foldout;
-        }
-
-        private void SyncFields()
-        {
-            if (spriteField.value != spriteRenderer.sprite)
-                spriteField.value = spriteRenderer.sprite;
         }
     }
 }

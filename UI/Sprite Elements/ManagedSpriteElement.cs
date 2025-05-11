@@ -1,12 +1,12 @@
+using Shears.Tweens;
 using System;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.UIElements;
 
 namespace Shears.UI
 {
     [RequireComponent(typeof(SpriteRenderer)), DisallowMultipleComponent]
-    public class ManagedSpriteElement : ManagedWrapper<SpriteRenderer>
+    public class ManagedSpriteElement : ManagedWrapper<SpriteRenderer>, IColorTweenable
     {
         #region Flag Variables
         [SerializeField] private bool enableOnAwake = true;
@@ -49,14 +49,30 @@ namespace Shears.UI
 #pragma warning restore CS0414
         #endregion
 
+        [SerializeField] private Color baseColor;
+
         private SpriteRenderer spriteRenderer;
         private bool isEnabled = false;
         private bool isHovered;
         private bool isClicked;
 
+        private SpriteRenderer SpriteRenderer
+        {
+            get
+            {
+                if (spriteRenderer == null)
+                    spriteRenderer = GetComponent<SpriteRenderer>();
+
+                return spriteRenderer;
+            }
+        }
+
+        public Color BaseColor { get => baseColor; set => baseColor = value; }
+        public Color CurrentColor { get => SpriteRenderer.color; set => SpriteRenderer.color = value; }
+
         private void Awake()
         {
-            spriteRenderer = GetComponent<SpriteRenderer>();
+            ManagedSpriteEventSystem.CreateInstanceIfNoneExists();
 
             if (enableOnAwake)
                 Enable();
@@ -69,7 +85,7 @@ namespace Shears.UI
             if (isEnabled)
                 return;
 
-            spriteRenderer.gameObject.SetActive(true);
+            SpriteRenderer.gameObject.SetActive(true);
 
             isEnabled = true;
 
@@ -82,7 +98,7 @@ namespace Shears.UI
             if (!isEnabled)
                 return;
 
-            spriteRenderer.gameObject.SetActive(false);
+            SpriteRenderer.gameObject.SetActive(false);
 
             isEnabled = false;
 
@@ -90,6 +106,7 @@ namespace Shears.UI
             onDisabled.Invoke();
         }
 
+        #region Events
         public void BeginClick()
         {
             if (!Selectable)
@@ -146,5 +163,6 @@ namespace Shears.UI
                 onHoverEnd.Invoke();
             }
         }
+        #endregion
     }
 }

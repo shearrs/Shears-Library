@@ -21,10 +21,11 @@ namespace Shears.UI.Editor
 
         protected virtual void OnDestroy()
         {
+            if (Application.isPlaying)
+                return;
+
             if (target == null && wrappedValue != null)
-            {
                 DestroyImmediate(wrappedValue);
-            }
         }
     }
 }

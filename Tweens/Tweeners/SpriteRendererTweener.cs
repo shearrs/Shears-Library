@@ -1,15 +1,14 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Shears.Tweens
 {
-    public class ImageTweener : MonoBehaviour
+    public class SpriteRendererTweener : MonoBehaviour
     {
         public enum TweenType { Color }
 
         [Header("Data")]
         [SerializeField] private bool playOnEnable;
-        [SerializeField] private Image image;
+        [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private TweenData data;
         [SerializeField] private TweenType type;
         private ITween tween;
@@ -19,7 +18,7 @@ namespace Shears.Tweens
         [SerializeField] private Color color2 = Color.gray;
 
         public TweenData TweenData { get => data; set => data = value; }
-        public Image Image { get => image; set => image = value; }
+        public SpriteRenderer SpriteRenderer { get => spriteRenderer; set => spriteRenderer = value; }
         public TweenType Type { get => type; set => type = value; }
         public Color Color1 { get => color1; set => color1 = value; }
         public Color Color2 { get => color2; set => color2 = value; }
@@ -55,12 +54,12 @@ namespace Shears.Tweens
         {
             ITween tween = null;
 
-            image.color = from;
+            spriteRenderer.color = from;
 
-            switch(type)
+            switch (type)
             {
-                case TweenType.Color: 
-                    tween = image.GetColorTween(to, data);
+                case TweenType.Color:
+                    tween = spriteRenderer.GetColorTween(to, data);
                     break;
             }
 

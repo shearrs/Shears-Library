@@ -25,7 +25,7 @@ namespace Shears.UI.Editor
         {
             var root = new VisualElement();
 
-            root.AddStyleSheetFromPath("ManagedUI/ManagedUI");
+            root.AddStyleSheetFromPath("ManagedElements/ManagedElements");
 
             var scriptField = new PropertyField(serializedObject.FindProperty("m_Script"))
             {

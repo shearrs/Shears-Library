@@ -12,7 +12,15 @@ namespace Shears.UI
         private ManagedSpriteElement hoveredElement;
 
         private IManagedInput clickInput;
-        private readonly RaycastHit[] raycastHits = new RaycastHit[100];
+        private readonly RaycastHit2D[] raycastHits = new RaycastHit2D[10];
+
+        protected override void Awake()
+        {
+            base.Awake();
+
+            if (inputMap == null)
+                inputMap = Resources.Load<ManagedInputMap>("ManagedElements/Shears_DefaultEventSystemInputMap");
+        }
 
         private void OnEnable()
         {
@@ -53,14 +61,17 @@ namespace Shears.UI
         {
             Vector2 pointerPos = ManagedPointer.Current.Position;
             var camera = Camera.main;
-            var ray = camera.ScreenPointToRay(pointerPos);
-
-            Physics.RaycastNonAlloc(ray, raycastHits, 100f, 0, QueryTriggerInteraction.Collide);
-
-            foreach (var hit in raycastHits)
+            var origin = camera.ScreenToWorldPoint(pointerPos);
+            var filter = new ContactFilter2D
             {
-                if (hit.collider == null)
-                    continue;
+                useTriggers = true
+            };
+
+            int hits = Physics2D.Raycast(origin, Vector2.zero, filter, raycastHits, 100f);
+
+            for (int i = 0; i < hits; i++)
+            {
+                var hit = raycastHits[i];
 
                 if (hit.collider.TryGetComponent<ManagedSpriteElement>(out var element))
                     return element;

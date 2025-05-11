@@ -1,13 +1,16 @@
+using Shears.Tweens;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Shears.UI
 {
-    public class ManagedImage : MonoBehaviour
+    public class ManagedImage : MonoBehaviour, IColorTweenable
     {
         [SerializeField] private Image image;
+        [SerializeField] private Color baseColor;
 
-        public Sprite Sprite { get => image.sprite; set => image.sprite = value; }
+        public Color BaseColor { get => baseColor; set => baseColor = value; }
+        public Color CurrentColor { get => image.color; set => image.color = value; }
 
         public void Enable()
         {
