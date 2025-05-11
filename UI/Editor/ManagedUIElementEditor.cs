@@ -25,7 +25,7 @@ namespace Shears.UI.Editor
         {
             var root = new VisualElement();
 
-            root.AddStyleSheet(Resources.Load<StyleSheet>("ManagedUI/ManagedUI"));
+            root.AddStyleSheetFromPath("ManagedUI/ManagedUI");
 
             var scriptField = new PropertyField(serializedObject.FindProperty("m_Script"))
             {
@@ -97,11 +97,11 @@ namespace Shears.UI.Editor
             return navigationFoldout;
         }
 
-        private Foldout CreateBoundFoldout(string name, string propertyName, string tooltip, params VisualElement[] children)
+        private Foldout CreateBoundFoldout(string foldoutName, string propertyName, string tooltip, params VisualElement[] children)
         {
             var foldout = new Foldout
             {
-                text = name,
+                text = foldoutName,
                 value = serializedObject.FindProperty(propertyName).boolValue,
                 tooltip = tooltip
             };

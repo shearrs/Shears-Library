@@ -35,7 +35,7 @@ namespace Shears.UI
             canvas.enabled = true;
 
             if (focusOnEnable != null)
-                ManagedEventSystem.Focus(focusOnEnable);
+                ManagedUIEventSystem.Focus(focusOnEnable);
 
             OnEnable?.Invoke();
             onEnable.Invoke();
@@ -46,9 +46,9 @@ namespace Shears.UI
             canvas.enabled = false;
 
             if (focusOnDisable)
-                ManagedEventSystem.Focus(focusOnDisable);
+                ManagedUIEventSystem.Focus(focusOnDisable);
             else if (clearOnDisable)
-                ManagedEventSystem.Focus(null);
+                ManagedUIEventSystem.Focus(null);
 
             OnDisable?.Invoke();
             onDisable.Invoke();

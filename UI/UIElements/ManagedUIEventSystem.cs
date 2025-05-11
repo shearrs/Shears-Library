@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace Shears.UI
 {
-    public class ManagedEventSystem : ProtectedSingleton<ManagedEventSystem>
+    public class ManagedUIEventSystem : ProtectedSingleton<ManagedUIEventSystem>
     {
         [SerializeField] private ManagedInputMap inputMap;
         [SerializeField] private ManagedUIElement firstFocused;
@@ -103,9 +103,7 @@ namespace Shears.UI
             ManagedUIElement hitElement = null;
 
             Canvas[] canvases = FindObjectsByType<Canvas>(FindObjectsSortMode.None);
-            // should know about all canvases
-            // should raycast using all canvas raycasters
-            // should choose the one with the greatest depth
+
             foreach (var canvas in canvases)
             {
                 if (!canvas.TryGetComponent<GraphicRaycaster>(out _))

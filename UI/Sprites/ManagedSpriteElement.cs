@@ -1,45 +1,32 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UIElements;
 
 namespace Shears.UI
 {
-    public class ManagedUIElement : MonoBehaviour
+    [RequireComponent(typeof(SpriteRenderer)), DisallowMultipleComponent]
+    public class ManagedSpriteElement : ManagedWrapper<SpriteRenderer>
     {
         #region Flag Variables
         [SerializeField] private bool enableOnAwake = true;
         [SerializeField] private bool selectable = true;
-        [SerializeField] private bool focusable = true;
         [SerializeField] private bool hoverable = true;
 
         public bool Selectable { get => selectable; set => selectable = value; }
-        public bool Focusable { get => focusable; set => focusable = value; }
         public bool Hoverable { get => hoverable; set => hoverable = value; }
         #endregion
 
         #region Event Variables
-        [SerializeField] private UnityEvent onEnabled;
-        [SerializeField] private UnityEvent onDisabled;
-        [SerializeField] private UnityEvent onSelectBegin;
-        [SerializeField] private UnityEvent onSelectEnd;
         [SerializeField] private UnityEvent onClickBegin;
         [SerializeField] private UnityEvent onClickEnd;
-        [SerializeField] private UnityEvent onFocusBegin;
-        [SerializeField] private UnityEvent onFocusEnd;
         [SerializeField] private UnityEvent onHoverBegin;
         [SerializeField] private UnityEvent onHoverEnd;
         [SerializeField] private UnityEvent onHoverBeginClicked;
         [SerializeField] private UnityEvent onHoverEndClicked;
 
-        public event Action OnEnabled;
-        public event Action OnDisabled;
-        public event Action OnSelectBegin;
-        public event Action OnSelectEnd;
         public event Action OnClickBegin;
         public event Action OnClickEnd;
-        public event Action OnFocusBegin;
-        public event Action OnFocusEnd;
         public event Action OnHoverBegin;
         public event Action OnHoverEnd;
         public event Action OnHoverBeginClicked;
@@ -47,53 +34,30 @@ namespace Shears.UI
         #endregion
 
         #region Inspector Variables
-#if UNITY_EDITOR
 #pragma warning disable CS0414
+        [SerializeField] private bool spriteFoldout = false;
         [SerializeField] private bool flagsFoldout = false;
         [SerializeField] private bool eventsFoldout = false;
         [SerializeField] private bool activationFoldout = false;
-        [SerializeField] private bool selectFoldout = false;
         [SerializeField] private bool clickFoldout = false;
-        [SerializeField] private bool focusFoldout = false;
         [SerializeField] private bool hoverFoldout = false;
         [SerializeField] private bool hoverClickedFoldout = false;
-        [SerializeField] private bool navigationFoldout = false;
 #pragma warning restore CS0414
-#endif
         #endregion
 
-        [SerializeField] private ManagedUINavigation navigation;
-        
-        private bool isEnabled;
+        private SpriteRenderer spriteRenderer;
+        private bool isEnabled = false;
         private bool isHovered;
         private bool isClicked;
 
-        public string ID { get; private set; }
-        public RectTransform RectTransform { get; private set; }
-
         private void Awake()
         {
-            ID = Guid.NewGuid().ToString();
-            RectTransform = GetComponent<RectTransform>();
-
-            navigation.Initialize(this);
+            spriteRenderer = GetComponent<SpriteRenderer>();
 
             if (enableOnAwake)
                 Enable();
-        }
-
-        private void OnDestroy()
-        {
-            if (ManagedUIEventSystem.IsInstanceActive())
-            {
-                ManagedUIEventSystem.DeregisterElement(this);
-                navigation.Uninitialize();
-            }
-        }
-
-        private void Update()
-        {
-            navigation.Update();
+            else
+                Disable();
         }
 
         public void Enable()
@@ -103,10 +67,7 @@ namespace Shears.UI
 
             isEnabled = true;
 
-            ManagedUIEventSystem.RegisterElement(this);
-
-            OnEnabled?.Invoke();
-            onEnabled.Invoke();
+            spriteRenderer.gameObject.SetActive(true);
         }
 
         public void Disable()
@@ -116,31 +77,7 @@ namespace Shears.UI
 
             isEnabled = false;
 
-            ManagedUIEventSystem.DeregisterElement(this);
-
-            OnDisabled?.Invoke();
-            onDisabled.Invoke();
-        }
-
-        public ManagedUIElement Navigate(ManagedUINavigation.Direction direction)
-        {
-            return navigation.GetElement(direction);
-        }
-
-        #region Events
-        public void BeginSelect()
-        {
-            if (!Selectable)
-                return;
-
-            OnSelectBegin?.Invoke();
-            onSelectBegin.Invoke();
-        }
-
-        public void EndSelect()
-        {
-            OnSelectEnd?.Invoke();
-            onSelectEnd.Invoke();
+            spriteRenderer.gameObject.SetActive(false);
         }
 
         public void BeginClick()
@@ -163,21 +100,6 @@ namespace Shears.UI
 
             OnClickEnd?.Invoke();
             onClickEnd.Invoke();
-        }
-
-        public void BeginFocus()
-        {
-            if (!Focusable)
-                return;
-
-            OnFocusBegin?.Invoke();
-            onFocusBegin.Invoke();
-        }
-
-        public void EndFocus()
-        {
-            OnFocusEnd?.Invoke();
-            onFocusEnd.Invoke();
         }
 
         public void BeginHover()
@@ -214,6 +136,5 @@ namespace Shears.UI
                 onHoverEnd.Invoke();
             }
         }
-        #endregion
     }
 }

@@ -31,12 +31,12 @@ namespace Shears.UI
         {
             this.element = element;
 
-            ManagedEventSystem.OnNavigationChanged += StaticUpdate;
+            ManagedUIEventSystem.OnNavigationChanged += StaticUpdate;
         }
 
         public void Uninitialize()
         {
-            ManagedEventSystem.OnNavigationChanged -= StaticUpdate;
+            ManagedUIEventSystem.OnNavigationChanged -= StaticUpdate;
         }
 
         public void Update()
@@ -80,7 +80,7 @@ namespace Shears.UI
 
         public void UpdateNavigation()
         {
-            var elements = ManagedEventSystem.Elements;
+            var elements = ManagedUIEventSystem.Elements;
             Vector3 position = element.transform.position;
 
             SetElement(Direction.Up, null);
