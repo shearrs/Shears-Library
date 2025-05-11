@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace InternProject.StateMachines
+namespace Shears.StateMachines
 {
     public class StateMachine : MonoBehaviour
     {

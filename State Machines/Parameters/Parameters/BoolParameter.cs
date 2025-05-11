@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace InternProject.StateMachines
+namespace Shears.StateMachines
 {
     public class BoolParameter : Parameter<bool>
     {

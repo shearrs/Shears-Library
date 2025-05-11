@@ -65,8 +65,13 @@ namespace Shears.UI.Editor
         {
             spriteField = CreateSpriteField();
             sortingField = CreateSortingOrderField();
+            var spriteContainer = new VisualElement();
 
-            return CreateBoundFoldout("Sprite", "spriteFoldout", SpriteFoldoutTooltip, spriteField, sortingField);
+            spriteContainer.AddToClassList("flagContainer");
+            spriteContainer.Add(spriteField);
+            spriteContainer.Add(sortingField);
+
+            return CreateBoundFoldout("Sprite", "spriteFoldout", SpriteFoldoutTooltip, spriteContainer);
         }
 
         private Foldout CreateFlags()

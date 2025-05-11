@@ -2,7 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace InternProject.StateMachines.Editor
+namespace Shears.StateMachines.Editor
 {
     [CustomPropertyDrawer(typeof(TriggerParameterComparison))]
     public class TriggerParameterComparisonPropertyDrawer : ParameterComparisonPropertyDrawer

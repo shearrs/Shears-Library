@@ -1,0 +1,16 @@
+{
+    "name": "Shears.StateMachines",
+    "rootNamespace": "Shears.StateMachines",
+    "references": [
+        "GUID:b28a31c08beef024d83a7aa1ec3f2f6d"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

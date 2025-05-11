@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace InternProject.StateMachines
+namespace Shears.StateMachines
 {
     /// <summary>
     /// A base class for a comparison between a parameter and a value.

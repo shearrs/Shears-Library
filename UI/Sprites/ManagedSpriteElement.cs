@@ -18,6 +18,8 @@ namespace Shears.UI
         #endregion
 
         #region Event Variables
+        [SerializeField] private UnityEvent onEnabled;
+        [SerializeField] private UnityEvent onDisabled;
         [SerializeField] private UnityEvent onClickBegin;
         [SerializeField] private UnityEvent onClickEnd;
         [SerializeField] private UnityEvent onHoverBegin;
@@ -25,6 +27,8 @@ namespace Shears.UI
         [SerializeField] private UnityEvent onHoverBeginClicked;
         [SerializeField] private UnityEvent onHoverEndClicked;
 
+        public event Action OnEnabled;
+        public event Action OnDisabled;
         public event Action OnClickBegin;
         public event Action OnClickEnd;
         public event Action OnHoverBegin;
@@ -65,9 +69,12 @@ namespace Shears.UI
             if (isEnabled)
                 return;
 
+            spriteRenderer.gameObject.SetActive(true);
+
             isEnabled = true;
 
-            spriteRenderer.gameObject.SetActive(true);
+            OnEnabled?.Invoke();
+            onEnabled.Invoke();
         }
 
         public void Disable()
@@ -75,9 +82,12 @@ namespace Shears.UI
             if (!isEnabled)
                 return;
 
+            spriteRenderer.gameObject.SetActive(false);
+
             isEnabled = false;
 
-            spriteRenderer.gameObject.SetActive(false);
+            OnDisabled?.Invoke();
+            onDisabled.Invoke();
         }
 
         public void BeginClick()

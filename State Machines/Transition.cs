@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace InternProject.StateMachines
+namespace Shears.StateMachines
 {
     /// <summary>
     /// Represents a transition between two states in a state machine.

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace InternProject.StateMachines
+namespace Shears.StateMachines
 {
     [System.Serializable]
     public abstract class Parameter

@@ -55,6 +55,12 @@ namespace Shears.Common
         }
 
         public static bool IsInstanceActive() => instance != null;
+
+        public static void CreateInstanceIfNoneExists()
+        {
+            if (instance == null)
+                instance = CreateInstance();
+        }
     }
 
     // overrides instance with new instances rather than destroying them

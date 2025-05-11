@@ -3,7 +3,7 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace InternProject.StateMachines.Editor
+namespace Shears.StateMachines.Editor
 {
     [CustomEditor(typeof(StateMachine))]
     public class StateMachineEditor : UnityEditor.Editor
