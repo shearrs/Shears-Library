@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 
 namespace Shears.Input
 {
-    [CreateAssetMenu(fileName = "New Managed Input Map", menuName = "Managed Input/Map")]
+    [CreateAssetMenu(fileName = "New Managed Input Map", menuName = "Shears Library/Managed Input/Map")]
     public class ManagedInputMap : ManagedInputProvider
     {
         [Header("Input Actions")]

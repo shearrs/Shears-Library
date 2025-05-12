@@ -3,7 +3,7 @@ using static Shears.Tweens.EasingFunction;
 
 namespace Shears.Tweens
 {
-    [CreateAssetMenu(fileName = "New Tween Data", menuName = "Tween/Data")]
+    [CreateAssetMenu(fileName = "New Tween Data", menuName = "Shears Library/Tween/Data")]
     public class TweenData : ScriptableObject
     {
         [field: Header("Playing")]

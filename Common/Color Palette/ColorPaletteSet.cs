@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Shears.Common
 {
-    [CreateAssetMenu(fileName = "New Color Palette Set", menuName = "UI/Color Palette Set")]
+    [CreateAssetMenu(fileName = "New Color Palette Set", menuName = "Shears Library/UI/Color Palette Set")]
     public class ColorPaletteSet : ScriptableObject
     {
         [SerializeField] private List<ColorPalette> colorPalettes = new();
