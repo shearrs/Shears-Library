@@ -54,7 +54,10 @@ namespace Shears.Input.Editor
                 dropdown.value = "MISSING ACTION";
             }
             else
+            {
                 dropdown.index = index;
+                currentAction = dropdown.value;
+            }
 
             void setInputAction(string newName)
             {
