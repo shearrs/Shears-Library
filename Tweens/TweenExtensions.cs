@@ -18,6 +18,13 @@ namespace Shears.Tweens
         {
             var tween = CreateTween(update, data);
 
+            tween.AddDisposeEvent(GetAutoDisposeEvent(obj));
+
+            return tween;
+        }
+
+        public static TweenStopEvent GetAutoDisposeEvent(UnityEngine.Object obj)
+        {
             bool disposeEvent()
             {
                 if (Application.isPlaying)
@@ -26,9 +33,7 @@ namespace Shears.Tweens
                     return false;
             }
 
-            tween.AddDisposeEvent(disposeEvent);
-
-            return tween;
+            return disposeEvent;
         }
 
         #region Transform Tweens
