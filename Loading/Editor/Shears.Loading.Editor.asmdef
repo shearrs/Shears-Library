@@ -1,0 +1,18 @@
+{
+    "name": "Shears.Loading.Editor",
+    "rootNamespace": "Shears.Loading.Editor",
+    "references": [
+        "GUID:3e436645a60f2174ea0a4927642639f5"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

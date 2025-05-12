@@ -3,7 +3,7 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Shears.Loading
+namespace Shears.Loading.Editor
 {
     [CustomPropertyDrawer(typeof(LoadRequest))]
     public class LoadRequestPropertyDrawer : PropertyDrawer
