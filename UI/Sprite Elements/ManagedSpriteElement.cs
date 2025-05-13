@@ -49,7 +49,7 @@ namespace Shears.UI
 #pragma warning restore CS0414
         #endregion
 
-        [SerializeField] private Color baseColor;
+        [SerializeField] private Color baseColor = Color.white;
 
         private SpriteRenderer spriteRenderer;
         private bool isEnabled = false;

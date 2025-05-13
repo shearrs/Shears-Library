@@ -22,6 +22,7 @@ namespace Shears.Input.Editor
 
             var nameField = CreateNameDropdown(inputActions, property);
             var phaseField = CreatePhaseDropdown(property);
+            var emptyEventField = new PropertyField(property.FindPropertyRelative("onInputEmpty"));
             var eventField = new PropertyField(property.FindPropertyRelative("onInput"));
 
             var foldout = CreateFoldout(nameField.value, property);
@@ -33,6 +34,7 @@ namespace Shears.Input.Editor
 
             foldout.Add(nameField);
             foldout.Add(phaseField);
+            foldout.Add(emptyEventField);
             foldout.Add(eventField);
 
             root.Add(foldout);

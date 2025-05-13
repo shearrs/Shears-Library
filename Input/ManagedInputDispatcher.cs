@@ -24,6 +24,9 @@ namespace Shears.Input
             [SerializeField] private bool isExpanded;
 
             [Header("Events")]
+            [SerializeField] private UnityEvent onInputEmpty;
+
+            [Header("Input Events")]
             [SerializeField] private UnityEvent<ManagedInputInfo> onInput;
 
             public readonly string InputName => inputName;
@@ -45,6 +48,7 @@ namespace Shears.Input
 
             private readonly void Invoke(ManagedInputInfo info)
             {
+                onInputEmpty.Invoke();
                 onInput.Invoke(info);
             }
         }
