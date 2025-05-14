@@ -1,0 +1,33 @@
+using UnityEngine;
+
+namespace InternProject.Logging
+{
+    /// <summary>
+    /// Represents a logger that is usable by the <see cref="KBLogger"/>.
+    /// </summary>
+    public interface IKBLogger
+    {
+        /// <summary>
+        /// The default formatter for this logger.
+        /// </summary>
+        public IKBLogFormatter Formatter { get; }
+
+        /// <summary>
+        /// Log a message with default formatting.
+        /// </summary>
+        /// <param name="log">The log to log.</param>
+        public void Log(KBLog log);
+
+        /// <summary>
+        /// Log a message with explicit formatting.
+        /// </summary>
+        /// <param name="log">The log to log.</param>
+        /// <param name="formatter">The formatter to format the log with.</param>
+        public void Log(KBLog log, IKBLogFormatter formatter);
+
+        /// <summary>
+        /// Clear the contents of this log.
+        /// </summary>
+        public void Clear();
+    }
+}
