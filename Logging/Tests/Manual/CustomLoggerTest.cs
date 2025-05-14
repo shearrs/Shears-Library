@@ -1,23 +1,23 @@
 using UnityEngine;
 
-namespace InternProject.Logging
+namespace Shears.Logging
 {
-    public class CustomLoggerTest : MonoBehaviour, IKBLogger
+    public class CustomLoggerTest : MonoBehaviour, ISHLogger
     {
-        public IKBLogFormatter Formatter => new KBLogFormatter(
-                                                    KBLogFormats.NoPrefix, 
-                                                    KBLogFormats.DefaultMessage, 
+        public ISHLogFormatter Formatter => new SHLogFormatter(
+                                                    SHLogFormats.NoPrefix, 
+                                                    SHLogFormats.DefaultMessage, 
                                                     (log, message) => $"({log.Color}) {message}",
                                                     (log, formatter) => formatter.SetColor(log, $"{formatter.FormatMessage(log)} - {formatter.FormatPrefix(log)}")
                                                 );
             
 
-        public void Log(KBLog log)
+        public void Log(SHLog log)
         {
             Log(log, Formatter);
         }
 
-        public void Log(KBLog log, IKBLogFormatter formatter)
+        public void Log(SHLog log, ISHLogFormatter formatter)
         {
             string message = formatter.Format(log);
 

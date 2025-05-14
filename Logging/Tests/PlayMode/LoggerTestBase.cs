@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using UnityEngine;
 
-namespace InternProject.Logging.Tests
+namespace Shears.Logging.Tests
 {
     public abstract class LoggerTestBase
     {
@@ -12,10 +12,10 @@ namespace InternProject.Logging.Tests
         public virtual void LogLevelTest()
         {
             LogFancyText("------------LOG LEVEL TEST------------\n");
-            ValidateOutput(new("Hello World!", level: KBLogLevel.Log));
-            ValidateOutput(new("Hello World", level: KBLogLevel.Verbose));
-            ValidateOutput(new("Hello World!", level: KBLogLevel.Warning));
-            ValidateOutput(new("Hello World!", level: KBLogLevel.Error));
+            ValidateOutput(new("Hello World!", level: SHLogLevel.Log));
+            ValidateOutput(new("Hello World", level: SHLogLevel.Verbose));
+            ValidateOutput(new("Hello World!", level: SHLogLevel.Warning));
+            ValidateOutput(new("Hello World!", level: SHLogLevel.Error));
             LogFancyText("\n");
         }
 
@@ -23,10 +23,10 @@ namespace InternProject.Logging.Tests
         public virtual void PrefixTest()
         {
             LogFancyText("------------PREFIX TEST------------\n");
-            ValidateOutput(new("Hello World!", prefix: "Custom Prefix", level: KBLogLevel.Log));
-            ValidateOutput(new("Hello World!", prefix: "Custom Prefix", level: KBLogLevel.Verbose));
-            ValidateOutput(new("Hello World!", prefix: "Custom Prefix", level: KBLogLevel.Warning));
-            ValidateOutput(new("Hello World!", prefix: "Custom Prefix", level: KBLogLevel.Error));
+            ValidateOutput(new("Hello World!", prefix: "Custom Prefix", level: SHLogLevel.Log));
+            ValidateOutput(new("Hello World!", prefix: "Custom Prefix", level: SHLogLevel.Verbose));
+            ValidateOutput(new("Hello World!", prefix: "Custom Prefix", level: SHLogLevel.Warning));
+            ValidateOutput(new("Hello World!", prefix: "Custom Prefix", level: SHLogLevel.Error));
             LogFancyText("\n");
         }
 
@@ -34,7 +34,7 @@ namespace InternProject.Logging.Tests
         public virtual void ColorTest()
         {
             LogFancyText("------------COLOR TEST------------\n");
-            ValidateOutput(new("Hello World!", color: Color.green, level: KBLogLevel.Log));
+            ValidateOutput(new("Hello World!", color: Color.green, level: SHLogLevel.Log));
             LogFancyText("\n");
         }
 
@@ -43,23 +43,23 @@ namespace InternProject.Logging.Tests
         {
             LogFancyText("------------KBFORMATTER TEST------------\n");
 
-            string formatPrefixPart(KBLog log) => $"prefix: {log.Prefix}";
-            var formatPrefix = KBLogFormats.CombinePrefixes(" ", KBLogFormats.ContextPrefix, formatPrefixPart);
-            string formatMessage(KBLog log) => $"message: {log.Message}";
-            string setColor(KBLog log, string message) => $"({log.Color}) {message}";
-            string compositor(KBLog log, KBLogFormatter formatter)
+            string formatPrefixPart(SHLog log) => $"prefix: {log.Prefix}";
+            var formatPrefix = SHLogFormats.CombinePrefixes(" ", SHLogFormats.ContextPrefix, formatPrefixPart);
+            string formatMessage(SHLog log) => $"message: {log.Message}";
+            string setColor(SHLog log, string message) => $"({log.Color}) {message}";
+            string compositor(SHLog log, SHLogFormatter formatter)
             {
                 string message = formatter.FormatMessage(log) + formatter.FormatPrefix(log) + "\n";
 
                 return formatter.SetColor(log, message);
             }
 
-            var customFormatter = new KBLogFormatter(formatPrefix, formatMessage, setColor, compositor);
+            var customFormatter = new SHLogFormatter(formatPrefix, formatMessage, setColor, compositor);
             var contextGO = new GameObject("Context Object");
 
-            ValidateOutput(new("Hello World!"), KBLogFormats.Default);
-            ValidateOutput(new("Hello World!"), KBLogFormats.DefaultWithTimestamp);
-            ValidateOutput(new("Hello World!"), KBLogFormats.DefaultWithLongTimestamp);
+            ValidateOutput(new("Hello World!"), SHLogFormats.Default);
+            ValidateOutput(new("Hello World!"), SHLogFormats.DefaultWithTimestamp);
+            ValidateOutput(new("Hello World!"), SHLogFormats.DefaultWithLongTimestamp);
             ValidateOutput(new("Hello World!", context: contextGO), customFormatter);
 
             LogFancyText("\n");
@@ -72,14 +72,14 @@ namespace InternProject.Logging.Tests
         {
             LogFancyText("------------IKBFORMATTER TEST------------\n");
 
-            var formatter = ScriptableObject.CreateInstance<KBLogFormatterData>();
+            var formatter = ScriptableObject.CreateInstance<SHLogFormatterData>();
 
-            formatter.PrefixFormatter = KBLogFormats.TimestampPrefix;
-            formatter.MessageFormatter = KBLogFormats.DefaultMessage;
-            formatter.ColorSetter = KBLogFormats.DefaultColor;
-            formatter.CompositorFunction = KBLogFormats.DefaultCompositor;
+            formatter.PrefixFormatter = SHLogFormats.TimestampPrefix;
+            formatter.MessageFormatter = SHLogFormats.DefaultMessage;
+            formatter.ColorSetter = SHLogFormats.DefaultColor;
+            formatter.CompositorFunction = SHLogFormats.DefaultCompositor;
 
-            KBLogger.FormatterOverride = formatter;
+            SHLogger.FormatterOverride = formatter;
 
             ValidateOutput(new("Hello World"));
 
@@ -94,9 +94,9 @@ namespace InternProject.Logging.Tests
 
             LogFancyText("------------CLEAR TEST------------\n");
 
-            KBLogger.Log("Clear me!");
+            SHLogger.Log("Clear me!");
 
-            KBLogger.Clear();
+            SHLogger.Clear();
 
             string message = GetMostRecentMessage("");
 
@@ -108,19 +108,19 @@ namespace InternProject.Logging.Tests
         [TearDown]
         public virtual void TearDown()
         {
-            var loggers = Object.FindObjectsByType<KBLogger>(FindObjectsSortMode.None);
+            var loggers = Object.FindObjectsByType<SHLogger>(FindObjectsSortMode.None);
 
             for (int i = 0; i < loggers.Length; i++)
                 Object.Destroy(loggers[i]);
         }
 
-        private void ValidateOutput(KBLog log, IKBLogFormatter formatter = null)
+        private void ValidateOutput(SHLog log, ISHLogFormatter formatter = null)
         {
             string targetMessage;
 
             if (formatter == null || !formatter.IsValid())
             {
-                var newFormatter = KBLogger.CurrentFormatter;
+                var newFormatter = SHLogger.CurrentFormatter;
 
                 Assert.IsNotNull(newFormatter);
                 Assert.IsTrue(newFormatter.IsValid());
@@ -129,12 +129,12 @@ namespace InternProject.Logging.Tests
                 formatter = newFormatter;
 
                 targetMessage = formatter.Format(log);
-                KBLogger.Log(log);
+                SHLogger.Log(log);
             }
             else
             {
                 targetMessage = formatter.Format(log);
-                KBLogger.Log(log, formatter);
+                SHLogger.Log(log, formatter);
             }
 
             string message = GetMostRecentMessage(targetMessage);
@@ -146,7 +146,7 @@ namespace InternProject.Logging.Tests
 
         // This is because while calling formatter.Format() does give us a line number, 
         // its the line above the actual KBLogger.Log() call, and in a real situation they would be the same
-        protected string FormatPrefixWithIncrementedLineNumber(KBLog log, KBLogFormatter.PrefixFormatter prefixFormatter)
+        protected string FormatPrefixWithIncrementedLineNumber(SHLog log, SHLogFormatter.PrefixFormatter prefixFormatter)
         {
             string defaultPrefix = prefixFormatter(log);
 
@@ -173,19 +173,19 @@ namespace InternProject.Logging.Tests
             if (!IncludeFancyText)
                 return;
 
-            KBLogger.Log(message, KBLogFormats.RawMessage);
+            SHLogger.Log(message, SHLogFormats.RawMessage);
         }
 
-        private IKBLogFormatter FixLineNumberPrefix(IKBLogFormatter formatter)
+        private ISHLogFormatter FixLineNumberPrefix(ISHLogFormatter formatter)
         {
-            if (formatter is KBLogFormatter structFormatter)
+            if (formatter is SHLogFormatter structFormatter)
             {
                 var currentPrefixFormatter = structFormatter.FormatPrefix;
                 structFormatter.FormatPrefix = (log) => FormatPrefixWithIncrementedLineNumber(log, currentPrefixFormatter);
 
                 return structFormatter;
             }
-            else if (formatter is KBLogFormatterData dataFormatter)
+            else if (formatter is SHLogFormatterData dataFormatter)
             {
                 var currentPrefixFormatter = dataFormatter.PrefixFormatter;
                 dataFormatter.PrefixFormatter = (log) => FormatPrefixWithIncrementedLineNumber(log, currentPrefixFormatter);

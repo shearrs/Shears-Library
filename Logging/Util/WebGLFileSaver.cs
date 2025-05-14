@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Runtime.InteropServices;
 
-namespace InternProject.Logging
+namespace Shears.Logging
 {
     public class WebGLFileSaver
     {

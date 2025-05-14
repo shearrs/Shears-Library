@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using UnityEngine;
 
-namespace InternProject.Logging.Tests
+namespace Shears.Logging.Tests
 {
     public class UIConsoleTests : LoggerTestBase
     {
@@ -11,15 +11,15 @@ namespace InternProject.Logging.Tests
         [SetUp]
         public void SetUp()
         {
-            KBLogger.LoggingType = KBLogger.LogType.UIConsole;
-            KBLogger.Log("Create UIConsole");
+            SHLogger.LoggingType = SHLogger.LogType.UIConsole;
+            SHLogger.Log("Create UIConsole");
         }
 
         [Test]
         public void CreationTest()
         {
             LogFancyText("------------CREATION TEST------------\n");
-            KBLogger.Log("Create log");
+            SHLogger.Log("Create log");
 
             var uiConsole = GetUIConsole();
 
@@ -38,9 +38,9 @@ namespace InternProject.Logging.Tests
                 return text;
         }
 
-        private KBUIConsoleLogger GetUIConsole()
+        private SHUIConsoleLogger GetUIConsole()
         {
-            return Object.FindAnyObjectByType<KBUIConsoleLogger>();
+            return Object.FindAnyObjectByType<SHUIConsoleLogger>();
         }
 
         [TearDown]
@@ -48,7 +48,7 @@ namespace InternProject.Logging.Tests
         {
             base.TearDown();
 
-            var consoles = Object.FindObjectsByType<KBUIConsoleLogger>(FindObjectsSortMode.None);
+            var consoles = Object.FindObjectsByType<SHUIConsoleLogger>(FindObjectsSortMode.None);
 
             for (int i = 0; i < consoles.Length; i++)
                 Object.Destroy(consoles[i]);

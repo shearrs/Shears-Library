@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace Shears.Common
+namespace Shears
 {
     [DefaultExecutionOrder(-100)]
     public class ProtectedSingleton<T> : MonoBehaviour where T : MonoBehaviour

@@ -1,7 +1,7 @@
 using System.IO;
 using NUnit.Framework;
 
-namespace InternProject.Logging.Tests
+namespace Shears.Logging.Tests
 {
     public class FileLoggerTests : LoggerTestBase
     {
@@ -11,16 +11,16 @@ namespace InternProject.Logging.Tests
         [SetUp]
         public void SetUp()
         {
-            KBLogger.LoggingType = KBLogger.LogType.File;
+            SHLogger.LoggingType = SHLogger.LogType.File;
         }
 
         [Test]
         public void FileCreationTest()
         {
             LogFancyText("------------CREATION TEST------------\n");
-            KBLogger.Log("Create log");
+            SHLogger.Log("Create log");
 
-            string filePath = KBLogger.LogFilePath;
+            string filePath = SHLogger.LogFilePath;
             Assert.IsTrue(Directory.Exists(Path.GetDirectoryName(filePath)));
 
             LogFancyText("\n");
@@ -33,7 +33,7 @@ namespace InternProject.Logging.Tests
             PrefixTest();
             LogLevelTest();
 
-            KBLogger.SaveLogFile();
+            SHLogger.SaveLogFile();
         }
 
         protected override string GetMostRecentMessage(string targetMessage)
@@ -44,7 +44,7 @@ namespace InternProject.Logging.Tests
             byte[] textBytes = File.ReadAllBytes(KBLogger.LogFilePath);
             text = System.Text.Encoding.UTF8.GetString(textBytes);
 #else
-            text = File.ReadAllText(KBLogger.LogFilePath);
+            text = File.ReadAllText(SHLogger.LogFilePath);
 #endif
 
             if (text.Length > 0 && targetMessage.Length > 0)

@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using UnityEngine;
 
-namespace InternProject.Logging.Tests
+namespace Shears.Logging.Tests
 {
     public class UnityConsoleTests : LoggerTestBase
     {
@@ -13,7 +13,7 @@ namespace InternProject.Logging.Tests
         [SetUp]
         public void SetUp()
         {
-            KBLogger.LoggingType = KBLogger.LogType.UnityConsole;
+            SHLogger.LoggingType = SHLogger.LogType.UnityConsole;
 
             Application.logMessageReceived += ReceiveLogMessage;
         }

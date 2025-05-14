@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Shears.Common
+namespace Shears
 {
     public class Pauser : MonoBehaviour
     {

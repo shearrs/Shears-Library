@@ -1,10 +1,11 @@
 {
     "name": "PlayMode",
-    "rootNamespace": "InternProject.Logging.Tests",
+    "rootNamespace": "Shears.Logging.Tests",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "InternProject.Logging"
+        "Shears.Common",
+        "Shears.Logging"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

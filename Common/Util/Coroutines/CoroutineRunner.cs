@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace Shears.Common
+namespace Shears
 {
     public class CoroutineRunner : PersistentProtectedSingleton<CoroutineRunner>
     {

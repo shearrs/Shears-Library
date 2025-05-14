@@ -1,21 +1,21 @@
 using System.Collections;
 using UnityEngine;
 
-namespace InternProject.Logging
+namespace Shears.Logging
 {
     [ExecuteInEditMode]
-    public class LoggerSamples : MonoBehaviour, IKBLoggable
+    public class LoggerSamples : MonoBehaviour, ISHLoggable
     {
         [SerializeField]
         private bool _run;
 
         [SerializeField]
-        private KBLog _log;
+        private SHLog _log;
 
         [SerializeField]
-        private KBLogLevel _logLevels;
+        private SHLogLevel _logLevels;
 
-        public KBLogLevel LogLevels { get => _logLevels; set => _logLevels = value; }
+        public SHLogLevel LogLevels { get => _logLevels; set => _logLevels = value; }
 
         private void Start()
         {
