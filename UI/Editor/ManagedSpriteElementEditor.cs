@@ -33,6 +33,11 @@ namespace Shears.UI.Editor
 
             var managedSpriteRenderer = target as ManagedSpriteElement;
             spriteRenderer = managedSpriteRenderer.TypedWrappedValue;
+
+            var wrappedValueSO = new SerializedObject(wrappedValue);
+            wrappedValueSO.FindProperty("m_ObjectHideFlags").intValue = (int)HideFlags.HideInInspector;
+            wrappedValueSO.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(wrappedValueSO.targetObject);
         }
 
         private void OnDisable()
@@ -43,10 +48,6 @@ namespace Shears.UI.Editor
 
         public override VisualElement CreateInspectorGUI()
         {
-            var wrappedValueSO = new SerializedObject(wrappedValue);
-            wrappedValueSO.FindProperty("m_ObjectHideFlags").intValue = (int)HideFlags.HideInInspector;
-            wrappedValueSO.ApplyModifiedPropertiesWithoutUndo();
-
             var root = new VisualElement();
             root.AddStyleSheetFromPath("ManagedElements/ManagedElements");
 
@@ -165,6 +166,9 @@ namespace Shears.UI.Editor
 
             colorField.schedule.Execute(() =>
             {
+                if (spriteRenderer == null)
+                    return;
+
                 colorField.value = spriteRenderer.color;
                 Repaint();
             }).Every(10);
