@@ -92,6 +92,9 @@ namespace Shears.UI.Editor
         {
             var parent = Selection.activeGameObject;
 
+            if (parent == null || parent.GetComponent<Canvas>() == null)
+                parent = CreateCanvas();
+
             var button = new GameObject("Button", typeof(RectTransform));
             button.transform.SetParent(parent.transform);
             button.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
@@ -101,6 +104,24 @@ namespace Shears.UI.Editor
             rectTransform.sizeDelta = new Vector2(200, 100);
 
             return button;
+        }
+
+        private static GameObject CreateCanvas()
+        {
+            var canvasGO = new GameObject("Canvas");
+
+            var canvas = canvasGO.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.vertexColorAlwaysGammaSpace = true;
+            canvas.additionalShaderChannels = AdditionalCanvasShaderChannels.TexCoord1;
+
+            canvasGO.AddComponent<CanvasScaler>();
+            canvasGO.AddComponent<GraphicRaycaster>();
+            canvasGO.AddComponent<ManagedCanvas>();
+
+            ManagedUIEventSystem.CreateInstanceIfNoneExists();
+
+            return canvasGO;
         }
 
         private static (GameObject imageChild, Image image) CreateBackgroundImage(Transform parent)

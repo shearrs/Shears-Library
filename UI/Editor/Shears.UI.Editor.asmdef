@@ -2,6 +2,7 @@
     "name": "Shears.UI.Editor",
     "rootNamespace": "Shears.UI.Editor",
     "references": [
+        "GUID:b28a31c08beef024d83a7aa1ec3f2f6d",
         "GUID:b8ce35fbba9686d4a8094487b762ff16",
         "GUID:f407bcfcca25ec846a3710ecbfd18364",
         "GUID:47c78b473e92098469ae5153d34a31e6",

@@ -109,6 +109,12 @@ namespace Shears.UI
             onEnabled.Invoke();
         }
 
+        public void SetActiveAndEnable()
+        {
+            gameObject.SetActive(true);
+            Enable();
+        }
+
         public void Disable()
         {
             if (!isEnabled)
@@ -120,6 +126,12 @@ namespace Shears.UI
 
             OnDisabled?.Invoke();
             onDisabled.Invoke();
+        }
+
+        public void SetInactiveAndDisable()
+        {
+            Disable();
+            gameObject.SetActive(false);
         }
 
         public ManagedUIElement Navigate(ManagedUINavigation.Direction direction)

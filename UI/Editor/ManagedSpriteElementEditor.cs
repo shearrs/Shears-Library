@@ -87,13 +87,15 @@ namespace Shears.UI.Editor
 
         private Foldout CreateFlags()
         {
-            var enableOnAwakeField = new PropertyField(serializedObject.FindProperty("enableOnAwake"));
+            var awakeBehaviourField = new PropertyField(serializedObject.FindProperty("awakeBehaviour"));
+            var isEnabledField = new PropertyField(serializedObject.FindProperty("isEnabled"));
             var selectableField = new PropertyField(serializedObject.FindProperty("selectable"));
             var hoverableField = new PropertyField(serializedObject.FindProperty("hoverable"));
             var flagContainer = new VisualElement();
 
             flagContainer.AddToClassList("flagContainer");
-            flagContainer.Add(enableOnAwakeField);
+            flagContainer.Add(awakeBehaviourField);
+            flagContainer.Add(isEnabledField);
             flagContainer.Add(selectableField);
             flagContainer.Add(hoverableField);
 

@@ -8,8 +8,11 @@ namespace Shears.UI
     [RequireComponent(typeof(SpriteRenderer)), DisallowMultipleComponent]
     public class ManagedSpriteElement : ManagedWrapper<SpriteRenderer>, IColorTweenable
     {
+        private enum AwakeBehaviour { None, Enable, Disable }
+
         #region Flag Variables
-        [SerializeField] private bool enableOnAwake = true;
+        [SerializeField] private AwakeBehaviour awakeBehaviour;
+        [SerializeField, ReadOnly] private bool isEnabled = false;
         [SerializeField] private bool selectable = true;
         [SerializeField] private bool hoverable = true;
 
@@ -52,7 +55,6 @@ namespace Shears.UI
         [SerializeField] private Color baseColor = Color.white;
 
         private SpriteRenderer spriteRenderer;
-        private bool isEnabled = false;
         private bool isHovered;
         private bool isClicked;
 
@@ -74,10 +76,18 @@ namespace Shears.UI
         {
             ManagedSpriteEventSystem.CreateInstanceIfNoneExists();
 
-            if (enableOnAwake)
-                Enable();
-            else
-                Disable();
+            switch (awakeBehaviour)
+            {
+                case AwakeBehaviour.Enable:
+                    Enable();
+                    break;
+                case AwakeBehaviour.Disable:
+                    isEnabled = true;
+                    Disable();
+                    break;
+                case AwakeBehaviour.None:
+                    break;
+            }
         }
 
         public void Enable()
