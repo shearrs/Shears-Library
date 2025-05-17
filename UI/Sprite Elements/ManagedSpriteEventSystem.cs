@@ -67,6 +67,9 @@ namespace Shears.UI
                 hoveredElement.BeginHover();
         }
 
+        // make a flag for elements to block raycast/not block
+        // if not block, we continue looking
+        // we still send events to all of the results up until a blocking one though
         private ManagedSpriteElement Raycast()
         {
             Vector2 pointerPos = ManagedPointer.Current.Position;
