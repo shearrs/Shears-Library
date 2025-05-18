@@ -16,6 +16,8 @@ namespace Shears.Logging
     [Flags]
     public enum SHLogLevel 
     { 
+        Everything = -1,
+        Nothing = 0,
         Log = 1, 
         Verbose = 2, 
         Warning = 4,

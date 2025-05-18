@@ -29,7 +29,7 @@ namespace Shears.Logging
         private LogType _logType;
 
         [SerializeField, Tooltip("Specifies which log levels will be logged. Anything not selected will be stripped.")]
-        private SHLogLevel _logLevels;
+        private SHLogLevel _logLevels = (SHLogLevel)(-1);
 
         [SerializeField, Tooltip("The custom logger to output to when LogType is set to Custom.")]
         private InterfaceReference<ISHLogger> _customLogger = new();
