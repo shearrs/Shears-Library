@@ -6,7 +6,7 @@ namespace Shears.Logging
     /// <summary>
     /// A <see cref="ScriptableObject"/> that defines which colors are used by each <see cref="SHLogLevel"/>.
     /// </summary>
-    [CreateAssetMenu(fileName = "Default Log Colors", menuName = "Logging/Colors")]
+    [CreateAssetMenu(fileName = "Default Log Colors", menuName = "Shears Library/Logging/Colors")]
     public class SHLogColors : ScriptableObject
     {
         [field: SerializeField, Tooltip("The color displayed for SHLogLevel.Log.")]

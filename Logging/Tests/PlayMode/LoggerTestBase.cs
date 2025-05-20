@@ -105,15 +105,6 @@ namespace Shears.Logging.Tests
             LogFancyText("\n");
         }
 
-        [TearDown]
-        public virtual void TearDown()
-        {
-            var loggers = Object.FindObjectsByType<SHLogger>(FindObjectsSortMode.None);
-
-            for (int i = 0; i < loggers.Length; i++)
-                Object.Destroy(loggers[i]);
-        }
-
         private void ValidateOutput(SHLog log, ISHLogFormatter formatter = null)
         {
             string targetMessage;
@@ -173,7 +164,7 @@ namespace Shears.Logging.Tests
             if (!IncludeFancyText)
                 return;
 
-            SHLogger.Log(message, SHLogFormats.RawMessage);
+            SHLogger.Log(message, formatter: SHLogFormats.RawMessage);
         }
 
         private ISHLogFormatter FixLineNumberPrefix(ISHLogFormatter formatter)

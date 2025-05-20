@@ -44,10 +44,8 @@ namespace Shears.Logging.Tests
         }
 
         [TearDown]
-        public override void TearDown()
+        public void TearDown()
         {
-            base.TearDown();
-
             var consoles = Object.FindObjectsByType<SHUIConsoleLogger>(FindObjectsSortMode.None);
 
             for (int i = 0; i < consoles.Length; i++)

@@ -7,7 +7,7 @@ namespace Shears.Logging
     /// <summary>
     /// A ScriptableObject formatter for creating formats code-free.
     /// </summary>
-    [CreateAssetMenu(fileName = "New Log Formatter", menuName = "Shears/Logging/Formatter")]
+    [CreateAssetMenu(fileName = "New Log Formatter", menuName = "Shears Library/Logging/Formatter")]
     public class SHLogFormatterData : ScriptableObject, ISHLogFormatter
     {
         #region Enum Definitions

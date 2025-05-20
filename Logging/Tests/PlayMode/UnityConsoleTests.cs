@@ -27,9 +27,8 @@ namespace Shears.Logging.Tests
         => receivedMessage = condition;
 
         [TearDown]
-        public override void TearDown()
+        public void TearDown()
         {
-            base.TearDown();
             Application.logMessageReceived -= ReceiveLogMessage;
         }
     }
