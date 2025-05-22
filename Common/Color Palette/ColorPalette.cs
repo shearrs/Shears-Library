@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Shears.Common
+namespace Shears
 {
     [System.Serializable]
     public class ColorPalette
