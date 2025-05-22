@@ -1,4 +1,3 @@
-using Shears.Common;
 using Shears.Input;
 using System;
 using System.Collections.Generic;

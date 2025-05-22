@@ -1,4 +1,3 @@
-using Shears.Common;
 using UnityEngine;
 using UnityEngine.UI;
 
