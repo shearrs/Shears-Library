@@ -94,7 +94,7 @@ namespace Shears.Beziers
 
         public Vector3 MoveAlong(float speed, ref float currentDistance)
         {
-            currentDistance += speed;
+            currentDistance += speed * Time.deltaTime;
 
             Vector3 position = SampleDistance(currentDistance);
 
