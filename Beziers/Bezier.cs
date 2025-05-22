@@ -23,6 +23,12 @@ namespace Shears.Beziers
                 point.Parent = transform;
         }
 
+        private void Awake()
+        {
+            foreach (var point in points)
+                point.Parent = transform;
+        }
+
         public Vector3 Sample(float t)
         {
             if (points.Count < 2)
