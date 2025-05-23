@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace SH.Combat.HitDetection
+namespace Shears.HitDetection
 {
-    public class HitBox : HitBody
+    public class HitBox3D : HitBody3D
     {
         [Header("Gizmos")]
         [SerializeField] private bool drawGizmos = true;
@@ -20,7 +20,6 @@ namespace SH.Combat.HitDetection
         private readonly RaycastHit[] results = new RaycastHit[10];
 
         #region Shortcut Properties
-        // hitbox
         private Vector3 HalfExtents => Vector3.Scale(halfExtents, transform.lossyScale);
         private Quaternion Orientation => transform.localRotation * orientation;
         #endregion
@@ -65,7 +64,7 @@ namespace SH.Combat.HitDetection
         private void BoxCastHits(Vector3 offset, Vector3 halfExtents, Vector3 direction, float distance)
         {
             Matrix4x4 matrix = Matrix4x4.TRS(transform.position, Orientation, transform.lossyScale);
-            int hits = Physics.BoxCastNonAlloc(matrix.MultiplyPoint(center + offset), halfExtents, direction, results, Orientation, distance, collisionMask, QueryTriggerInteraction.Collide);
+            int hits = Physics.BoxCastNonAlloc(matrix.MultiplyPoint3x4(center + offset), halfExtents, direction, results, Orientation, distance, collisionMask, QueryTriggerInteraction.Collide);
 
             AddValidHits(hits);
         }
@@ -77,7 +76,7 @@ namespace SH.Combat.HitDetection
                 RaycastHit result = results[i];
 
                 if (result.point != Vector3.zero && !finalHits.Contains(result))
-                    finalHits.Add(results[i]);
+                    finalHits.Add(result);
             }
         }
 

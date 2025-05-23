@@ -1,23 +1,22 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SH.Combat.HitDetection
+namespace Shears.HitDetection
 {
-    public abstract class HitBody : MonoBehaviour
+    public abstract class HitBody2D : MonoBehaviour, IHitBody
     {
         [Header("Hit Settings")]
         [SerializeField] private bool _fixedUpdate = false;
         [SerializeField] private bool multiHits;
         [SerializeField] protected LayerMask collisionMask;
-        [SerializeField] protected List<Collider> ignoreList;
+        [SerializeField] protected List<Collider2D> ignoreList;
 
         private IHitDeliverer deliverer;
         private readonly List<IHitReceiver> unclearedHits = new(10);
-        protected readonly List<RaycastHit> finalHits = new(10);
+        protected readonly List<RaycastHit2D> finalHits = new(10);
 
         public int ValidHitCount { get; private set; }
-        public List<Collider> IgnoreList { get => ignoreList; set => ignoreList = value; }
+        public List<Collider2D> IgnoreList { get => ignoreList; set => ignoreList = value; }
 
         private void Reset()
         {
@@ -52,9 +51,9 @@ namespace SH.Combat.HitDetection
             finalHits.Clear();
             Sweep();
 
-            foreach (RaycastHit hit in finalHits)
+            foreach (RaycastHit2D hit in finalHits)
             {
-                HurtBody hurtbody = GetHurtBodyForCollider(hit.collider, hit.collider.transform);
+                HurtBody2D hurtbody = GetHurtBodyForCollider(hit.collider, hit.collider.transform);
 
                 if (hurtbody == null)
                     continue;
@@ -63,7 +62,7 @@ namespace SH.Combat.HitDetection
 
                 if (multiHits || !unclearedHits.Contains(receiver))
                 {
-                    HitData hitData = new(deliverer, receiver, this, hurtbody, hit);
+                    HitData2D hitData = new(deliverer, receiver, this, hurtbody, new(hit));
 
                     if (deliverer == null)
                     {
@@ -89,14 +88,14 @@ namespace SH.Combat.HitDetection
 
         protected abstract void Sweep();
 
-        private HurtBody GetHurtBodyForCollider(Collider collider, Transform transform)
+        private HurtBody2D GetHurtBodyForCollider(Collider2D collider, Transform transform)
         {
             if (transform == null || collider == null)
                 return null;
 
-            HurtBody[] hurtbodies = transform.GetComponents<HurtBody>();
+            var hurtbodies = transform.GetComponents<HurtBody2D>();
 
-            foreach (HurtBody hurtbody in hurtbodies)
+            foreach (HurtBody2D hurtbody in hurtbodies)
             {
                 if (ignoreList.Contains(hurtbody.Collider))
                 {

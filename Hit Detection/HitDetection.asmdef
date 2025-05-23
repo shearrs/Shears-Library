@@ -1,3 +1,14 @@
 {
-	"name": "HitDetection"
+    "name": "HitDetection",
+    "rootNamespace": "Shears.HitDetection",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace SH.Combat.HitDetection
+namespace Shears.HitDetection
 {
-    public class HitSphere : HitBody
+    public class HitSphere : HitBody3D
     {
         [Header("Gizmo Settings")]
         [SerializeField] private bool drawGizmos = true;

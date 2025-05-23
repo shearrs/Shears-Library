@@ -1,22 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace SH.Combat.HitDetection
+namespace Shears.HitDetection
 {
-    public class HurtBody : MonoBehaviour
+    public class HurtBody2D : MonoBehaviour, IHurtBody
     {
-        [SerializeField] private Collider col;
+        [SerializeField] private Collider2D col;
 
         public IHitReceiver Receiver { get; private set; }
-        public Collider Collider => col;
+        public Collider2D Collider => col;
 
         private void Start()
         {
             Receiver = GetComponentInParent<IHitReceiver>();
         }
 
-        public void Hit(HitData hitData)
+        public void Hit(IHitData hitData)
         {
             Receiver.OnHitReceived(hitData);
         }
