@@ -6,22 +6,17 @@ namespace Shears.HitDetection
     public abstract class HitBody2D : MonoBehaviour, IHitBody
     {
         [Header("Hit Settings")]
-        [SerializeField] private bool _fixedUpdate = false;
+        [SerializeField] private bool fixedUpdate = false;
         [SerializeField] private bool multiHits;
-        [SerializeField] protected LayerMask collisionMask;
+        [SerializeField] protected LayerMask collisionMask = 1;
         [SerializeField] protected List<Collider2D> ignoreList;
 
         private IHitDeliverer deliverer;
         private readonly List<IHitReceiver> unclearedHits = new(10);
-        protected readonly List<RaycastHit2D> finalHits = new(10);
+        protected readonly Dictionary<Collider2D, RaycastHit2D> finalHits = new(10);
 
         public int ValidHitCount { get; private set; }
         public List<Collider2D> IgnoreList { get => ignoreList; set => ignoreList = value; }
-
-        private void Reset()
-        {
-            collisionMask = 1;
-        }
 
         protected virtual void OnEnable()
         {
@@ -36,13 +31,13 @@ namespace Shears.HitDetection
 
         private void Update()
         {
-            if (!_fixedUpdate)
+            if (!fixedUpdate)
                 CheckForHits();
         }
 
         private void FixedUpdate()
         {
-            if (_fixedUpdate)
+            if (fixedUpdate)
                 CheckForHits();
         }
 
@@ -51,7 +46,7 @@ namespace Shears.HitDetection
             finalHits.Clear();
             Sweep();
 
-            foreach (RaycastHit2D hit in finalHits)
+            foreach (RaycastHit2D hit in finalHits.Values)
             {
                 HurtBody2D hurtbody = GetHurtBodyForCollider(hit.collider, hit.collider.transform);
 

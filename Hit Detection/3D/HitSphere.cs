@@ -34,7 +34,7 @@ namespace Shears.HitDetection
             {
                 Collider result = results[i];
 
-                if (ignoreList.Contains(result))
+                if (ignoreList.Contains(result) || finalHits.ContainsKey(result))
                     continue;
 
                 Vector3 closestPoint = result.ClosestPoint(Center);
@@ -53,7 +53,7 @@ namespace Shears.HitDetection
                 if (hit.transform != null)
                 {
                     debugHitThisFrame = true;
-                    finalHits.Add(hit);
+                    finalHits.Add(hit.collider, hit);
                 }
             }
         }
