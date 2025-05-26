@@ -1,10 +1,14 @@
+using Shears.Logging;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Shears.HitDetection
 {
-    public abstract class HitBody3D : MonoBehaviour, IHitBody<HitData3D>
+    public abstract class HitBody3D : MonoBehaviour, IHitBody<HitData3D>, ISHLoggable
     {
+        [field: Header("Logging")]
+        [field: SerializeField] public SHLogLevel LogLevels { get; set; } = SHLogLevel.Everything;
+
         [Header("Hit Settings")]
         [SerializeField] private bool fixedUpdate = false;
         [SerializeField] private bool multiHits;
@@ -62,12 +66,12 @@ namespace Shears.HitDetection
 
                     if (deliverer == null)
                     {
-                        Debug.LogError("No deliverer found!");
+                        this.Log("No deliverer found!", SHLogLevel.Error);
                         return;
                     }
                     else if (receiver == null)
                     {
-                        Debug.LogError("No receiver found!");
+                        this.Log("No receiver found!", SHLogLevel.Error);
                         return;
                     }
 
@@ -94,7 +98,10 @@ namespace Shears.HitDetection
             foreach (HurtBody3D hurtbody in hurtbodies)
             {
                 if (ignoreList.Contains(hurtbody.Collider))
+                {
+                    this.Log("Ignore List object detected: " + hurtbody.Collider.transform.name, SHLogLevel.Verbose);
                     continue;
+                }
 
                 if (hurtbody.Collider == collider)
                     return hurtbody;
