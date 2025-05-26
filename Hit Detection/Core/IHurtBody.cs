@@ -4,8 +4,10 @@ namespace Shears.HitDetection
 {
     public interface IHurtBody
     {
-        public IHitReceiver Receiver { get; }
+    }
 
-        public void Hit(IHitData data);
+    public interface IHurtBody<T> : IHurtBody where T : IHitData
+    {
+        public IHitReceiver<T> Receiver { get; }
     }
 }

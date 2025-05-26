@@ -11,8 +11,8 @@ namespace Shears.HitDetection
         private readonly Transform transform;
         private readonly Collider2D collider;
 
-        readonly Vector3 IHitResult.Point => point;
-        readonly Vector3 IHitResult.Normal => normal;
+        public readonly Vector3 Point => point;
+        public readonly Vector3 Normal => normal;
         public readonly Vector2 Centroid => centroid;
         public readonly float Distance => distance;
         public readonly Transform Transform => transform;

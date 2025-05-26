@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Shears.HitDetection
 {
-    public abstract class HitBody3D : MonoBehaviour, IHitBody
+    public abstract class HitBody3D : MonoBehaviour, IHitBody<HitData3D>
     {
         [Header("Hit Settings")]
         [SerializeField] private bool fixedUpdate = false;
@@ -11,10 +11,11 @@ namespace Shears.HitDetection
         [SerializeField] protected LayerMask collisionMask = 1;
         [SerializeField] protected List<Collider> ignoreList;
 
-        private IHitDeliverer deliverer;
-        private readonly List<IHitReceiver> unclearedHits = new(10);
+        private IHitDeliverer<HitData3D> deliverer;
+        private readonly List<IHitReceiver<HitData3D>> unclearedHits = new(10);
         protected readonly Dictionary<Collider, RaycastHit> finalHits = new(10);
 
+        public IHitDeliverer<HitData3D> Deliverer => deliverer;
         public int ValidHitCount { get; private set; }
         public List<Collider> IgnoreList { get => ignoreList; set => ignoreList = value; }
 
@@ -26,7 +27,7 @@ namespace Shears.HitDetection
 
         protected virtual void Start()
         {
-            deliverer = GetComponentInParent<IHitDeliverer>();
+            deliverer = GetComponentInParent<IHitDeliverer<HitData3D>>();
         }
 
         private void Update()
@@ -48,12 +49,12 @@ namespace Shears.HitDetection
 
             foreach (RaycastHit hit in finalHits.Values)
             {
-                HurtBody3D hurtbody = GetHurtBodyForCollider(hit.collider, hit.collider.transform);
+                var hurtbody = GetHurtBodyForCollider(hit.collider, hit.collider.transform);
 
                 if (hurtbody == null)
                     continue;
 
-                IHitReceiver receiver = hurtbody.Receiver;
+                IHitReceiver<HitData3D> receiver = hurtbody.Receiver;
 
                 if (multiHits || !unclearedHits.Contains(receiver))
                 {
@@ -83,7 +84,7 @@ namespace Shears.HitDetection
 
         protected abstract void Sweep();
 
-        private HurtBody3D GetHurtBodyForCollider(Collider collider, Transform transform)
+        private IHurtBody<HitData3D> GetHurtBodyForCollider(Collider collider, Transform transform)
         {
             if (transform == null || collider == null)
                 return null;
@@ -93,10 +94,7 @@ namespace Shears.HitDetection
             foreach (HurtBody3D hurtbody in hurtbodies)
             {
                 if (ignoreList.Contains(hurtbody.Collider))
-                {
-                    Debug.Log("ignore list: " + hurtbody.Collider.transform.name);
                     continue;
-                }
 
                 if (hurtbody.Collider == collider)
                     return hurtbody;

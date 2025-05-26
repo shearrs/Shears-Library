@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Shears.HitDetection
 {
-    public abstract class HitBody2D : MonoBehaviour, IHitBody
+    public abstract class HitBody2D : MonoBehaviour, IHitBody<HitData2D>
     {
         [Header("Hit Settings")]
         [SerializeField] private bool fixedUpdate = false;
@@ -11,10 +11,11 @@ namespace Shears.HitDetection
         [SerializeField] protected LayerMask collisionMask = 1;
         [SerializeField] protected List<Collider2D> ignoreList;
 
-        private IHitDeliverer deliverer;
+        private IHitDeliverer<HitData2D> deliverer;
         private readonly List<IHitReceiver> unclearedHits = new(10);
         protected readonly Dictionary<Collider2D, RaycastHit2D> finalHits = new(10);
 
+        public IHitDeliverer<HitData2D> Deliverer => deliverer;
         public int ValidHitCount { get; private set; }
         public List<Collider2D> IgnoreList { get => ignoreList; set => ignoreList = value; }
 
@@ -26,7 +27,7 @@ namespace Shears.HitDetection
 
         protected virtual void Start()
         {
-            deliverer = GetComponentInParent<IHitDeliverer>();
+            deliverer = GetComponentInParent<IHitDeliverer<HitData2D>>();
         }
 
         private void Update()
@@ -48,12 +49,12 @@ namespace Shears.HitDetection
 
             foreach (RaycastHit2D hit in finalHits.Values)
             {
-                HurtBody2D hurtbody = GetHurtBodyForCollider(hit.collider, hit.collider.transform);
+                IHurtBody<HitData2D> hurtbody = GetHurtBodyForCollider(hit.collider, hit.collider.transform);
 
                 if (hurtbody == null)
                     continue;
 
-                IHitReceiver receiver = hurtbody.Receiver;
+                IHitReceiver<HitData2D> receiver = hurtbody.Receiver;
 
                 if (multiHits || !unclearedHits.Contains(receiver))
                 {

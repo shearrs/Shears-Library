@@ -5,8 +5,10 @@ namespace Shears.HitDetection
     public interface IHitReceiver
     {
         public Transform Transform { get; }
-
-        public void OnHitReceived(IHitData hitData);
     }
 
+    public interface IHitReceiver<T> : IHitReceiver where T : IHitData
+    {
+        public void OnHitReceived(T hitData);
+    }
 }

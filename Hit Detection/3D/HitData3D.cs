@@ -8,23 +8,26 @@ namespace Shears.HitDetection
     {
         public static HitData3D Empty = new(null, null, null, null, default);
 
-        private readonly IHitDeliverer deliverer;
-        private readonly IHitReceiver receiver;
-        private readonly HitBody3D hitBody;
-        private readonly HurtBody3D hurtBody;
+        private readonly IHitDeliverer<HitData3D> deliverer;
+        private readonly IHitReceiver<HitData3D> receiver;
+        private readonly IHitBody<HitData3D> hitBody;
+        private readonly IHurtBody<HitData3D> hurtBody;
         private readonly HitResult3D result;
 
-        public readonly IHitDeliverer Deliverer => deliverer;
-        public readonly IHitReceiver Receiver => receiver;
-        public readonly HitBody3D HitBody => hitBody;
-        public readonly HurtBody3D HurtBody => hurtBody;
+        public readonly IHitDeliverer<HitData3D> Deliverer => deliverer;
+        public readonly IHitReceiver<HitData3D> Receiver => receiver;
+        public readonly IHitBody<HitData3D> HitBody => hitBody;
+        public readonly IHurtBody<HitData3D> HurtBody => hurtBody;
         public readonly HitResult3D Result => result;
 
         readonly IHitBody IHitData.HitBody => hitBody;
         readonly IHurtBody IHitData.HurtBody => hurtBody;
         readonly IHitResult IHitData.Result => result;
 
-        public HitData3D(IHitDeliverer deliverer, IHitReceiver receiver, HitBody3D hitBody, HurtBody3D hurtBody, HitResult3D result)
+        readonly IHitDeliverer IHitData.Deliverer => Deliverer;
+        readonly IHitReceiver IHitData.Receiver => Receiver;
+
+        public HitData3D(IHitDeliverer<HitData3D> deliverer, IHitReceiver<HitData3D> receiver, IHitBody<HitData3D> hitBody, IHurtBody<HitData3D> hurtBody, HitResult3D result)
         {
             this.deliverer = deliverer;
             this.receiver = receiver;
@@ -36,10 +39,10 @@ namespace Shears.HitDetection
         public readonly override bool Equals(object obj)
         {
             return obj is HitData3D data &&
-                   EqualityComparer<IHitDeliverer>.Default.Equals(Deliverer, data.Deliverer) &&
-                   EqualityComparer<IHitReceiver>.Default.Equals(Receiver, data.Receiver) &&
-                   EqualityComparer<HitBody3D>.Default.Equals(HitBody, data.HitBody) &&
-                   EqualityComparer<HurtBody3D>.Default.Equals(HurtBody, data.HurtBody) &&
+                   EqualityComparer<IHitDeliverer<HitData3D>>.Default.Equals(Deliverer, data.Deliverer) &&
+                   EqualityComparer<IHitReceiver<HitData3D>>.Default.Equals(Receiver, data.Receiver) &&
+                   EqualityComparer<IHitBody<HitData3D>>.Default.Equals(HitBody, data.HitBody) &&
+                   EqualityComparer<IHurtBody<HitData3D>>.Default.Equals(HurtBody, data.HurtBody) &&
                    EqualityComparer<HitResult3D>.Default.Equals(Result, data.Result);
         }
 
