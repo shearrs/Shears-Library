@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,12 +6,20 @@ namespace Shears.HitDetection
 {
     public class HitBox3D : HitBody3D
     {
+        [Flags]
+        private enum GizmoMode
+        {
+            Everything = -1,
+            None = 0,
+            Hitbox = 1 << 0,
+            Rays = 1 << 1,
+            Hits = 1 << 2,
+            HitAverages = 1 << 3,
+            Activity = 1 << 4
+        }
+
         [Header("Gizmos")]
-        [SerializeField] private bool drawGizmos = true;
-        [SerializeField] private bool drawRays = false;
-        [SerializeField] private bool drawHits = false;
-        [SerializeField] private bool drawHitAverage = false;
-        [SerializeField] private bool drawActivity = false;
+        [SerializeField] private GizmoMode gizmoMode = GizmoMode.Everything & ~GizmoMode.Activity;
         private bool activityDrawTick = false;
 
         [Header("Collision Settings")]
@@ -19,16 +28,82 @@ namespace Shears.HitDetection
         [SerializeField] private Vector3 orientation = Vector3.zero;
         [SerializeField] private Vector3 size = Vector3.one;
 
-        private readonly List<RaycastHit> recentHits = new();
-        private readonly RaycastHit[] results = new RaycastHit[10];
+        private readonly Dictionary<Collider, List<RaycastHit>> recentHits = new();
+        private readonly RaycastHit[] results = new RaycastHit[100];
 
         private Vector3 Center => transform.position + center;
-        private Quaternion Orientation => transform.localRotation * Quaternion.Euler(orientation);
+        private Quaternion Orientation => transform.rotation * Quaternion.Euler(orientation);
         private Vector3 Size => Vector3.Scale(size, transform.lossyScale);
+
+        public Vector3 GetAverageHitPosition(Collider collider)
+        {
+            if (!recentHits.ContainsKey(collider) || recentHits[collider].Count == 0)
+                return Vector3.zero;
+
+            Vector3 averageHitPosition = Vector3.zero;
+
+            foreach (var hit in recentHits[collider])
+                averageHitPosition += hit.point;
+
+            averageHitPosition /= recentHits[collider].Count;
+
+            return averageHitPosition;
+        }
+
+        public Vector3 GetAverageSurfacePosition(Collider collider)
+        {
+            if (!recentHits.ContainsKey(collider) || recentHits[collider].Count == 0)
+                return Vector3.zero;
+
+            var noScaleMatrix = Matrix4x4.TRS(Center, Orientation, Vector3.one).inverse;
+            var fullMatrix = Matrix4x4.TRS(Center, Orientation, Size).inverse;
+
+            Vector3 averagePosition = GetAverageHitPosition(collider);
+
+            Vector3 positionDistances = noScaleMatrix.MultiplyPoint3x4(averagePosition);
+            positionDistances = new Vector3(Mathf.Abs(positionDistances.x), Mathf.Abs(positionDistances.y), Mathf.Abs(positionDistances.z));
+            positionDistances = new((size.x * 0.5f) - positionDistances.x, (size.y * 0.5f) - positionDistances.y, (size.z * 0.5f) - positionDistances.z);
+
+            Vector3 localAveragePosition = fullMatrix.MultiplyPoint3x4(averagePosition);
+            Vector3 localAbsAveragePosition = new(Mathf.Abs(localAveragePosition.x), Mathf.Abs(localAveragePosition.y), Mathf.Abs(localAveragePosition.z));
+            Vector3 surfacePosition;
+
+            float min = Mathf.Min(positionDistances.x, positionDistances.y, positionDistances.z);
+
+            if (min == positionDistances.x)
+                surfacePosition = localAveragePosition + (Vector3.right * ((.5f - localAbsAveragePosition.x) * Mathf.Sign(localAveragePosition.x)));
+            else if (min == positionDistances.y)
+                surfacePosition = localAveragePosition + (Vector3.up * ((.5f - localAbsAveragePosition.y) * Mathf.Sign(localAveragePosition.y)));
+            else
+                surfacePosition = localAveragePosition + (Vector3.forward * ((.5f - localAbsAveragePosition.z) * Mathf.Sign(localAveragePosition.z)));
+
+            return fullMatrix.inverse.MultiplyPoint3x4(surfacePosition);
+        }
+
+        public Vector3 GetAverageSurfaceNormal(Collider collider)
+        {
+            if (!recentHits.ContainsKey(collider) || recentHits[collider].Count == 0)
+                return Vector3.zero;
+
+            var matrix = Matrix4x4.TRS(Center, Orientation, Size).inverse;
+            var surfacePosition = matrix.MultiplyPoint3x4(GetAverageSurfacePosition(collider));
+            var absSurfacePosition = new Vector3(Mathf.Abs(surfacePosition.x), Mathf.Abs(surfacePosition.y), Mathf.Abs(surfacePosition.z));
+            float max = Mathf.Max(absSurfacePosition.x, absSurfacePosition.y, absSurfacePosition.z);
+            Vector3 normal;
+
+            if (max == absSurfacePosition.x)
+                normal = new Vector3(Mathf.Sign(surfacePosition.x), 0, 0);
+            else if (max == absSurfacePosition.y)
+                normal = new Vector3(0, Mathf.Sign(surfacePosition.y), 0);
+            else
+                normal = new Vector3(0, 0, Mathf.Sign(surfacePosition.z));
+
+            return matrix.inverse.MultiplyPoint3x4(normal).normalized;
+        }
 
         protected override void Sweep()
         {
-            if (drawActivity)
+            if ((gizmoMode & GizmoMode.Activity) != 0)
                 activityDrawTick = true;
 
             recentHits.Clear();
@@ -95,7 +170,10 @@ namespace Shears.HitDetection
                 if (result.collider == null)
                     continue;
 
-                recentHits.Add(result);
+                if (recentHits.TryGetValue(result.collider, out var recentHitsForCollider))
+                    recentHitsForCollider.Add(result);
+                else
+                    recentHits.Add(result.collider, new List<RaycastHit> { result });
 
                 if (finalHits.TryGetValue(result.collider, out var oldHit))
                 {
@@ -105,26 +183,29 @@ namespace Shears.HitDetection
                 else
                     finalHits.Add(result.collider, result);
 
-                if (drawHits)
+                if ((gizmoMode & GizmoMode.Hits) != 0)
                     Debug.DrawLine(Center, result.point, Color.red);
             }
         }
 
         private void OnDrawGizmos()
         {
-            if (!isActiveAndEnabled || !drawGizmos)
+            if (!isActiveAndEnabled)
                 return;
 
-            var originalMatrix = Gizmos.matrix;
-            var newMatrix = Matrix4x4.TRS(transform.position, transform.rotation, transform.lossyScale);
-            newMatrix *= Matrix4x4.TRS(center, Quaternion.Euler(orientation), Vector3.one);
+            if ((gizmoMode & GizmoMode.Hitbox) != 0)
+            {
+                var originalMatrix = Gizmos.matrix;
+                var newMatrix = Matrix4x4.TRS(transform.position, transform.rotation, transform.lossyScale);
+                newMatrix *= Matrix4x4.TRS(center, Quaternion.Euler(orientation), Vector3.one);
 
-            Gizmos.matrix = newMatrix;
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireCube(Vector3.zero, size);
-            Gizmos.matrix = originalMatrix;
+                Gizmos.matrix = newMatrix;
+                Gizmos.color = Color.red;
+                Gizmos.DrawWireCube(Vector3.zero, size);
+                Gizmos.matrix = originalMatrix;
+            }
 
-            if (drawRays)
+            if ((gizmoMode & GizmoMode.Rays) != 0)
             {
                 Vector3 halfSize = Size * 0.5f;
                 Vector3 forward = Orientation * Vector3.forward;
@@ -160,7 +241,7 @@ namespace Shears.HitDetection
                 DrawArrayCast(bottomStart, bottomEnd, right, Size.x, up, Size.y);
             }
 
-            if (drawActivity && activityDrawTick)
+            if ((gizmoMode & GizmoMode.Activity) != 0 && activityDrawTick)
             {
                 Gizmos.color = Color.red;
                 Gizmos.DrawCube(Center, Size);
@@ -168,17 +249,26 @@ namespace Shears.HitDetection
                 activityDrawTick = false;
             }
 
-            if (drawHitAverage)
+            if ((gizmoMode & GizmoMode.HitAverages) != 0)
             {
-                Vector3 averageHitPosition = Vector3.zero;
+                const float radius = 0.05f;
 
-                foreach (var hit in recentHits)
-                    averageHitPosition += hit.point;
+                foreach (var collider in recentHits.Keys)
+                {
+                    var averagePosition = GetAverageHitPosition(collider);
+                    var averageSurfacePosition = GetAverageSurfacePosition(collider);
+                    var averageNormal = GetAverageSurfaceNormal(collider);
+                    var normalOrigin = averageSurfacePosition + (radius * averageNormal);
 
-                averageHitPosition /= recentHits.Count;
+                    Gizmos.color = Color.magenta;
+                    Gizmos.DrawWireSphere(averagePosition, radius);
 
-                Gizmos.color = Color.magenta;
-                Gizmos.DrawWireSphere(averageHitPosition, 0.25f);
+                    Gizmos.color = Color.cyan;
+                    Gizmos.DrawWireSphere(averageSurfacePosition, radius);
+
+                    Gizmos.color = Color.green;
+                    Gizmos.DrawRay(normalOrigin, 2f * radius * averageNormal);
+                }
             }
         }
 
