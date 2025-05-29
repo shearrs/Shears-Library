@@ -2,6 +2,8 @@ using Shears.Logging;
 using System.Collections.Generic;
 using UnityEngine;
 
+using HitData3D = Shears.HitDetection.HitData<Shears.HitDetection.HitResult3D>;
+
 namespace Shears.HitDetection
 {
     public abstract class HitBody3D : MonoBehaviour, IHitBody<HitData3D>, ISHLoggable
@@ -29,7 +31,7 @@ namespace Shears.HitDetection
             unclearedHits.Clear();
         }
 
-        protected virtual void Start()
+        private void Awake()
         {
             deliverer = GetComponentInParent<IHitDeliverer<HitData3D>>();
         }
@@ -62,7 +64,7 @@ namespace Shears.HitDetection
 
                 if (multiHits || !unclearedHits.Contains(receiver))
                 {
-                    HitData3D hitData = new(deliverer, receiver, this, hurtbody, new(hit));
+                    HitData3D hitData = new(deliverer, receiver, this, hurtbody, new(hit), deliverer.GetCustomData());
 
                     if (deliverer == null)
                     {
@@ -88,12 +90,12 @@ namespace Shears.HitDetection
 
         protected abstract void Sweep();
 
-        private IHurtBody<HitData3D> GetHurtBodyForCollider(Collider collider, Transform transform)
+        private HurtBody3D GetHurtBodyForCollider(Collider collider, Transform transform)
         {
             if (transform == null || collider == null)
                 return null;
 
-            HurtBody3D[] hurtbodies = transform.GetComponents<HurtBody3D>();
+            var hurtbodies = transform.GetComponents<HurtBody3D>();
 
             foreach (HurtBody3D hurtbody in hurtbodies)
             {

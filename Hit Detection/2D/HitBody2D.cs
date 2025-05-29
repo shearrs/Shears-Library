@@ -2,6 +2,8 @@ using Shears.Logging;
 using System.Collections.Generic;
 using UnityEngine;
 
+using HitData2D = Shears.HitDetection.HitData<Shears.HitDetection.HitResult2D>;
+
 namespace Shears.HitDetection
 {
     public abstract class HitBody2D : MonoBehaviour, IHitBody<HitData2D>, ISHLoggable
@@ -16,7 +18,7 @@ namespace Shears.HitDetection
         [SerializeField] protected List<Collider2D> ignoreList;
 
         private IHitDeliverer<HitData2D> deliverer;
-        private readonly List<IHitReceiver> unclearedHits = new(10);
+        private readonly List<IHitReceiver<HitData2D>> unclearedHits = new(10);
         protected readonly Dictionary<Collider2D, RaycastHit2D> finalHits = new(10);
 
         public IHitDeliverer<HitData2D> Deliverer => deliverer;
@@ -29,7 +31,7 @@ namespace Shears.HitDetection
             unclearedHits.Clear();
         }
 
-        protected virtual void Start()
+        private void Awake()
         {
             deliverer = GetComponentInParent<IHitDeliverer<HitData2D>>();
         }
@@ -59,10 +61,10 @@ namespace Shears.HitDetection
                     continue;
 
                 IHitReceiver<HitData2D> receiver = hurtbody.Receiver;
-
+                
                 if (multiHits || !unclearedHits.Contains(receiver))
                 {
-                    HitData2D hitData = new(deliverer, receiver, this, hurtbody, new(hit));
+                    HitData2D hitData = new(deliverer, receiver, this, hurtbody, new(hit), deliverer.GetCustomData());
 
                     if (deliverer == null)
                     {

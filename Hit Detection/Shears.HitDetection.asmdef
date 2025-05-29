@@ -1,5 +1,5 @@
 {
-    "name": "HitDetection",
+    "name": "Shears.HitDetection",
     "rootNamespace": "Shears.HitDetection",
     "references": [
         "GUID:f9343658ba9f34f40af4f1a7b0c76be7"

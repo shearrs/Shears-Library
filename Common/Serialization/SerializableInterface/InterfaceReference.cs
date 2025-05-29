@@ -15,7 +15,7 @@ namespace Shears
             {
                 null => null,
                 TInterface @interface => @interface,
-                _ => throw new InvalidOperationException($"{objectValue} needs to implement interface {typeof(TInterface).Name}.")
+                _ => null
             };
             set => objectValue = value switch
             {

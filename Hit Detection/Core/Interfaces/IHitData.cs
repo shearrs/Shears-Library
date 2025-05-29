@@ -9,5 +9,7 @@ namespace Shears.HitDetection
         public IHitBody HitBody { get; }
         public IHurtBody HurtBody { get; }
         public IHitResult Result { get; }
+
+        public bool TryGetData<T>(out T data);
     }
 }

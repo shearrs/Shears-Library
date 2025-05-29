@@ -106,14 +106,14 @@ namespace Shears.UI.Editor
 
         private Foldout CreateEvents()
         {
-            var onEnabledField = new PropertyField(serializedObject.FindProperty("onEnabled"));
-            var onDisabledField = new PropertyField(serializedObject.FindProperty("onDisabled"));
-            var onClickBeginField = new PropertyField(serializedObject.FindProperty("onClickBegin"));
-            var onClickEndField = new PropertyField(serializedObject.FindProperty("onClickEnd"));
-            var onHoverBeginField = new PropertyField(serializedObject.FindProperty("onHoverBegin"));
-            var onHoverEndField = new PropertyField(serializedObject.FindProperty("onHoverEnd"));
-            var onHoverBeginClickedField = new PropertyField(serializedObject.FindProperty("onHoverBeginClicked"));
-            var onHoverEndClickedField = new PropertyField(serializedObject.FindProperty("onHoverEndClicked"));
+            var onEnabledField = new PropertyField(serializedObject.FindProperty("enabledEvent"));
+            var onDisabledField = new PropertyField(serializedObject.FindProperty("disabledEvent"));
+            var onClickBeginField = new PropertyField(serializedObject.FindProperty("clickBegan"));
+            var onClickEndField = new PropertyField(serializedObject.FindProperty("clickEnded"));
+            var onHoverBeginField = new PropertyField(serializedObject.FindProperty("hoverBegan"));
+            var onHoverEndField = new PropertyField(serializedObject.FindProperty("hoverEnded"));
+            var onHoverBeginClickedField = new PropertyField(serializedObject.FindProperty("hoverBeganClicked"));
+            var onHoverEndClickedField = new PropertyField(serializedObject.FindProperty("hoverEndedClicked"));
 
             var activationFoldout = CreateBoundFoldout("Activation", "activationFoldout", ActivationFoldoutTooltip, onEnabledField, onDisabledField);
             var clickFoldout = CreateBoundFoldout("Click", "clickFoldout", ClickFoldoutTooltip, onClickBeginField, onClickEndField);

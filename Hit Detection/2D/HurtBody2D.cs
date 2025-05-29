@@ -1,5 +1,7 @@
 using UnityEngine;
 
+using HitData2D = Shears.HitDetection.HitData<Shears.HitDetection.HitResult2D>;
+
 namespace Shears.HitDetection
 {
     public class HurtBody2D : MonoBehaviour, IHurtBody<HitData2D>

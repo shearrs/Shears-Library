@@ -25,7 +25,7 @@ namespace Shears.HitDetection
         [Header("Collision Settings")]
         [SerializeField, Range(2, 32)] private int raysPerSide = 8;
         [SerializeField] private Vector2 center;
-        [SerializeField] private float angle = 0f;
+        [SerializeField, Range(0, 360)] private float angle = 0f;
         [SerializeField] private Vector2 size = Vector2.one;
 
         private readonly Dictionary<Collider2D, List<RaycastHit2D>> recentHits = new();
@@ -178,9 +178,6 @@ namespace Shears.HitDetection
 
         private void OnDrawGizmos()
         {
-            if (!isActiveAndEnabled)
-                return;
-
             if ((gizmoMode & GizmoMode.Hitbox) != 0)
             {
                 var originalMatrix = Gizmos.matrix;

@@ -2,6 +2,8 @@ using System;
 using UnityEngine;
 using UnityEngine.Events;
 
+using HitData3D = Shears.HitDetection.HitData<Shears.HitDetection.HitResult3D>;
+
 namespace Shears.HitDetection
 {
     public class HitReceiver3D : MonoBehaviour, IHitReceiver<HitData3D>

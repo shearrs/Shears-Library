@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.Events;
 
+using HitData3D = Shears.HitDetection.HitData<Shears.HitDetection.HitResult3D>;
+
 namespace Shears.HitDetection
 {
     public class HitDeliverer3D : MonoBehaviour, IHitDeliverer<HitData3D>

@@ -190,9 +190,6 @@ namespace Shears.HitDetection
 
         private void OnDrawGizmos()
         {
-            if (!isActiveAndEnabled)
-                return;
-
             if ((gizmoMode & GizmoMode.Hitbox) != 0)
             {
                 var originalMatrix = Gizmos.matrix;

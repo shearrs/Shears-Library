@@ -21,22 +21,22 @@ namespace Shears.UI
         #endregion
 
         #region Event Variables
-        [SerializeField] private UnityEvent onEnabled;
-        [SerializeField] private UnityEvent onDisabled;
-        [SerializeField] private UnityEvent onClickBegin;
-        [SerializeField] private UnityEvent onClickEnd;
-        [SerializeField] private UnityEvent onHoverBegin;
-        [SerializeField] private UnityEvent onHoverEnd;
-        [SerializeField] private UnityEvent onHoverBeginClicked;
-        [SerializeField] private UnityEvent onHoverEndClicked;
+        [SerializeField] private UnityEvent enabledEvent;
+        [SerializeField] private UnityEvent disabledEvent;
+        [SerializeField] private UnityEvent clickBegan;
+        [SerializeField] private UnityEvent clickEnded;
+        [SerializeField] private UnityEvent hoverBegan;
+        [SerializeField] private UnityEvent hoverEnded;
+        [SerializeField] private UnityEvent hoverBeganClicked;
+        [SerializeField] private UnityEvent hoverEndedClicked;
 
-        public event Action OnEnabled;
-        public event Action OnDisabled;
-        public event Action OnClickBegin;
-        public event Action OnClickEnd;
-        public event Action OnHoverBegin;
-        public event Action OnHoverEnd;
-        public event Action OnHoverBeginClicked;
+        public event Action Enabled;
+        public event Action Disabled;
+        public event Action ClickBegan;
+        public event Action ClickEnded;
+        public event Action HoverBegan;
+        public event Action HoverEnded;
+        public event Action HoverBeganClicked;
         public event Action OnHoverEndClicked;
         #endregion
 
@@ -69,8 +69,10 @@ namespace Shears.UI
             }
         }
 
+        public Sprite Sprite { get => SpriteRenderer.sprite; set => SpriteRenderer.sprite = value; }
         public Color BaseColor { get => baseColor; set => baseColor = value; }
         public Color CurrentColor { get => SpriteRenderer.color; set => SpriteRenderer.color = value; }
+        public int SortingOrder { get => SpriteRenderer.sortingOrder; set => SpriteRenderer.sortingOrder = value; }
 
         private void Awake()
         {
@@ -99,8 +101,8 @@ namespace Shears.UI
 
             isEnabled = true;
 
-            OnEnabled?.Invoke();
-            onEnabled.Invoke();
+            Enabled?.Invoke();
+            enabledEvent.Invoke();
         }
 
         public void Disable()
@@ -112,8 +114,8 @@ namespace Shears.UI
 
             isEnabled = false;
 
-            OnDisabled?.Invoke();
-            onDisabled.Invoke();
+            Disabled?.Invoke();
+            disabledEvent.Invoke();
         }
 
         #region Events
@@ -124,8 +126,8 @@ namespace Shears.UI
 
             isClicked = true;
 
-            OnClickBegin?.Invoke();
-            onClickBegin.Invoke();
+            ClickBegan?.Invoke();
+            clickBegan.Invoke();
         }
 
         public void EndClick()
@@ -135,8 +137,8 @@ namespace Shears.UI
             if (!isHovered)
                 return;
 
-            OnClickEnd?.Invoke();
-            onClickEnd.Invoke();
+            ClickEnded?.Invoke();
+            clickEnded.Invoke();
         }
 
         public void BeginHover()
@@ -148,13 +150,13 @@ namespace Shears.UI
 
             if (isClicked)
             {
-                OnHoverBeginClicked?.Invoke();
-                onHoverBeginClicked.Invoke();
+                HoverBeganClicked?.Invoke();
+                hoverBeganClicked.Invoke();
             }
             else
             {
-                OnHoverBegin?.Invoke();
-                onHoverBegin.Invoke();
+                HoverBegan?.Invoke();
+                hoverBegan.Invoke();
             }
         }
 
@@ -165,12 +167,12 @@ namespace Shears.UI
             if (isClicked)
             {
                 OnHoverEndClicked?.Invoke();
-                onHoverEndClicked.Invoke();
+                hoverEndedClicked.Invoke();
             }
             else
             {
-                OnHoverEnd?.Invoke();
-                onHoverEnd.Invoke();
+                HoverEnded?.Invoke();
+                hoverEnded.Invoke();
             }
         }
         #endregion

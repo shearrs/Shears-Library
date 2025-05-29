@@ -17,16 +17,19 @@ namespace Shears
             private readonly Action action;
             private readonly IEnumerator enumeratorAction;
             private readonly Func<Coroutine> coroutineAction;
+            private Coroutine coroutine;
+            private readonly YieldInstruction yieldInstruction;
 
-            public Coroutine Coroutine { get; private set; }
+            public readonly Coroutine Coroutine => coroutine;
+            public readonly YieldInstruction YieldInstruction => yieldInstruction;
 
             public ChainElement(Action action)
             {
                 this.action = action;
                 enumeratorAction = null;
                 coroutineAction = null;
-
-                Coroutine = null;
+                coroutine = null;
+                yieldInstruction = null;
             }
 
             public ChainElement(IEnumerator action)
@@ -34,8 +37,8 @@ namespace Shears
                 enumeratorAction = action;
                 this.action = null;
                 coroutineAction = null;
-
-                Coroutine = null;
+                coroutine = null;
+                yieldInstruction = null;
             }
 
             public ChainElement(Func<Coroutine> action)
@@ -43,18 +46,29 @@ namespace Shears
                 coroutineAction = action;
                 this.action = null;
                 enumeratorAction = null;
+                coroutine = null;
+                yieldInstruction = null;
+            }
 
-                Coroutine = null;
+            public ChainElement(YieldInstruction yieldInstruction)
+            {
+                this.yieldInstruction = yieldInstruction;
+                action = null;
+                enumeratorAction = null;
+                coroutineAction = null;
+                coroutine = null;
             }
 
             public void Run()
             {
                 if (action != null)
-                    action();
+                    action?.Invoke();
                 else if (enumeratorAction != null)
-                    Coroutine = CoroutineRunner.Start(enumeratorAction);
-                else
-                    Coroutine = coroutineAction();
+                    coroutine = CoroutineRunner.Start(enumeratorAction);
+                else if (coroutineAction != null)
+                    coroutine = coroutineAction();
+
+                // yield instruction doesn't run anything
             }
         }
 
@@ -66,6 +80,7 @@ namespace Shears
         public void Enqueue(Action action) => chainQueue.Enqueue(new(action));
         public void Enqueue(IEnumerator action) => chainQueue.Enqueue(new(action));
         public void Enqueue(Func<Coroutine> action) => chainQueue.Enqueue(new(action));
+        public void Enqueue(YieldInstruction yieldInstruction) => chainQueue.Enqueue(new(yieldInstruction));
 
         public CoroutineChain Then(Action action)
         {
@@ -108,6 +123,16 @@ namespace Shears
             return this;
         }
 
+        public CoroutineChain WaitForSeconds(float seconds)
+        {
+            if (seconds <= 0)
+                return this;
+
+            chainQueue.Enqueue(new(CoroutineUtil.WaitForSeconds(seconds)));
+
+            return this;
+        }
+
         public Coroutine Run()
         {
             if (isRunning)
@@ -128,6 +153,8 @@ namespace Shears
 
                 if (element.Coroutine != null)
                     yield return element.Coroutine;
+                else if (element.YieldInstruction != null)
+                    yield return element.YieldInstruction;
             }
 
             isRunning = false;
