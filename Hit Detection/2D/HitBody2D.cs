@@ -55,27 +55,28 @@ namespace Shears.HitDetection
 
             foreach (RaycastHit2D hit in finalHits.Values)
             {
+                if (deliverer == null)
+                {
+                    this.Log($"No deliverer for {this}!", SHLogLevel.Error);
+                    return;
+                }
+
                 IHurtBody<HitData2D> hurtbody = GetHurtBodyForCollider(hit.collider, hit.collider.transform);
 
                 if (hurtbody == null)
                     continue;
 
                 IHitReceiver<HitData2D> receiver = hurtbody.Receiver;
-                
+
+                if (receiver == null)
+                {
+                    this.Log("No receiver found!", SHLogLevel.Error, context: hit.collider);
+                    return;
+                }
+
                 if (multiHits || !unclearedHits.Contains(receiver))
                 {
                     HitData2D hitData = new(deliverer, receiver, this, hurtbody, new(hit), deliverer.GetCustomData());
-
-                    if (deliverer == null)
-                    {
-                        this.Log("No deliverer found!", SHLogLevel.Error);
-                        return;
-                    }
-                    else if (receiver == null)
-                    {
-                        this.Log("No receiver found!", SHLogLevel.Error);
-                        return;
-                    }
 
                     deliverer.OnHitDelivered(hitData);
                     receiver.OnHitReceived(hitData);

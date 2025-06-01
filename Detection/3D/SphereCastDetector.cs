@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Shears.Detection
 {
-    public class SphereCastDetector : AreaDetector
+    public class SphereCastDetector : AreaDetector3D
     {
         [field: SerializeField] public float Radius { get; set; } = 1;
         [field: SerializeField] public Vector3 Origin { get; set; } = Vector3.zero;

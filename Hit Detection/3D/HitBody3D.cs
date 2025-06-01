@@ -55,6 +55,12 @@ namespace Shears.HitDetection
 
             foreach (RaycastHit hit in finalHits.Values)
             {
+                if (deliverer == null)
+                {
+                    this.Log($"No deliverer for {this}!", SHLogLevel.Error);
+                    return;
+                }
+
                 var hurtbody = GetHurtBodyForCollider(hit.collider, hit.collider.transform);
 
                 if (hurtbody == null)
@@ -62,20 +68,15 @@ namespace Shears.HitDetection
 
                 IHitReceiver<HitData3D> receiver = hurtbody.Receiver;
 
+                if (receiver == null)
+                {
+                    this.Log($"No receiver found for {hurtbody}!", SHLogLevel.Error, context: hurtbody);
+                    return;
+                }
+
                 if (multiHits || !unclearedHits.Contains(receiver))
                 {
                     HitData3D hitData = new(deliverer, receiver, this, hurtbody, new(hit), deliverer.GetCustomData());
-
-                    if (deliverer == null)
-                    {
-                        this.Log("No deliverer found!", SHLogLevel.Error);
-                        return;
-                    }
-                    else if (receiver == null)
-                    {
-                        this.Log("No receiver found!", SHLogLevel.Error);
-                        return;
-                    }
 
                     deliverer.OnHitDelivered(hitData);
                     receiver.OnHitReceived(hitData);
