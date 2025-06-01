@@ -61,8 +61,12 @@ namespace Shears.Beziers.Editor
                 Handles.FreeMoveHandle(point.Tangent2, 0.5f * HandleUtility.GetHandleSize(point.Position) * HANDLE_SIZE, Vector3.zero, Handles.CircleHandleCap);
 
                 newPos = Snap(Handles.PositionHandle(point.Position, rotation));
-                newTangent1 = Snap(Handles.PositionHandle(point.Tangent1, rotation));
-                newTangent2 = Snap(Handles.PositionHandle(point.Tangent2, rotation));
+
+                if (point.LocalTangent1 != Vector3.zero)
+                {
+                    newTangent1 = Snap(Handles.PositionHandle(point.Tangent1, rotation));
+                    newTangent2 = Snap(Handles.PositionHandle(point.Tangent2, rotation));
+                }
             }
             else if (currentTool == Tool.Rotate || currentTool == Tool.Transform)
             {
