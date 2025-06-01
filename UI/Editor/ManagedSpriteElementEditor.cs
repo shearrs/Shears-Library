@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -23,6 +24,7 @@ namespace Shears.UI.Editor
         private PropertyField baseColorField;
         private ObjectField spriteField;
         private IntegerField sortingField;
+        private DropdownField sortingLayerField;
 
         #region Initialization
         protected override void OnEnable()
@@ -74,6 +76,7 @@ namespace Shears.UI.Editor
             baseColorField = CreateBaseColorField();
             var currentColorField = CreateCurrentColorField();
             sortingField = CreateSortingOrderField();
+            sortingLayerField = CreateSortingLayerField();
             var spriteContainer = new VisualElement();
 
             spriteContainer.AddToClassList("flagContainer");
@@ -81,6 +84,7 @@ namespace Shears.UI.Editor
             spriteContainer.Add(baseColorField);
             spriteContainer.Add(currentColorField);
             spriteContainer.Add(sortingField);
+            spriteContainer.Add(sortingLayerField);
 
             return CreateBoundFoldout("Sprite", "spriteFoldout", SpriteFoldoutTooltip, spriteContainer);
         }
@@ -193,6 +197,20 @@ namespace Shears.UI.Editor
             return sortingField;
         }
 
+        private DropdownField CreateSortingLayerField()
+        {
+            var choices = SortingLayer.layers.Select(layer => layer.name).ToList();
+            int defaultIndex = choices.IndexOf(spriteRenderer.sortingLayerName);
+            var sortingLayerField = new DropdownField("Sorting Layer", choices, defaultIndex);
+
+            BindField<DropdownField, string>(sortingLayerField,
+                (value) => spriteRenderer.sortingLayerName = value,
+                () => spriteRenderer.sortingLayerName == sortingLayerField.value,
+                "Change Sorting Layer", spriteRenderer);
+
+            return sortingLayerField;
+        }
+
         private TField BindField<TField, TValue>(
             TField field,
             Action<TValue> setTargetValue, Func<bool> valuesAreEqual,
@@ -221,6 +239,9 @@ namespace Shears.UI.Editor
 
             if (sortingField.value != spriteRenderer.sortingOrder)
                 sortingField.value = spriteRenderer.sortingOrder;
+
+            if (sortingLayerField.value != spriteRenderer.sortingLayerName)
+                sortingLayerField.value = spriteRenderer.sortingLayerName;
         }
         #endregion
 
