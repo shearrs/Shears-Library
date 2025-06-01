@@ -29,6 +29,14 @@ namespace Shears.Beziers
                 point.Parent = transform;
         }
 
+        public void AddPoint(Vector3 position) => AddPoint(new BezierPoint(position, Quaternion.identity, Vector3.zero));
+
+        public void AddPoint(BezierPoint point)
+        {
+            point.Parent = transform;
+            points.Add(point);
+        }
+
         public Vector3 Sample(float t)
         {
             if (points.Count < 2)

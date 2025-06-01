@@ -7,7 +7,7 @@ namespace Shears.Beziers
     {
         [SerializeField] private Vector3 position = Vector3.zero;
         [SerializeField] private Vector3 rotation = Vector3.zero;
-        [SerializeField] private Vector3 tangent = new(1, 0, 0);
+        [SerializeField] private Vector3 tangent = Vector3.zero;
 
         public Vector3 LocalPosition { get => position; set => position = value; }
         public Quaternion LocalRotation { get => Quaternion.Euler(rotation); set => rotation = value.eulerAngles; }
@@ -18,7 +18,14 @@ namespace Shears.Beziers
         public Vector3 Tangent1 { get => TransformPoint(tangent); set => tangent = InverseTransformPoint(value); }
         public Vector3 Tangent2 { get => TransformPoint(-tangent); set => tangent = -InverseTransformPoint(value); }
 
-        public Transform Parent { get; set; }
+        internal Transform Parent { get; set; }
+
+        public BezierPoint(Vector3 position, Quaternion rotation, Vector3 tangent)
+        {
+            this.position = position;
+            this.rotation = rotation.eulerAngles;
+            this.tangent = tangent;
+        }
 
         public Vector3 TransformPoint(Vector3 point)
         {
