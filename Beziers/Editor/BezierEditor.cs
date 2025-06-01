@@ -32,11 +32,7 @@ namespace Shears.Beziers.Editor
             else
                 Tools.hidden = false;
 
-            Handles.color = Color.cyan;
             Vector3 newPos = point.Position;
-
-            Handles.color = Color.red;
-
             Vector3 newTangent1 = point.Tangent1;
             Vector3 newTangent2 = point.Tangent2;
             Quaternion newRotation = point.Rotation;
@@ -47,6 +43,8 @@ namespace Shears.Beziers.Editor
             {
                 Handles.color = Color.cyan;
                 newPos = Snap(Handles.FreeMoveHandle(point.Position, HandleUtility.GetHandleSize(point.Position) * HANDLE_SIZE, Vector3.zero, Handles.CircleHandleCap));
+
+                Handles.color = Color.red;
                 newTangent1 = Snap(Handles.FreeMoveHandle(point.Tangent1, 0.5f * HandleUtility.GetHandleSize(point.Position) * HANDLE_SIZE, Vector3.zero, Handles.CircleHandleCap));
                 newTangent2 = Snap(Handles.FreeMoveHandle(point.Tangent2, 0.5f * HandleUtility.GetHandleSize(point.Position) * HANDLE_SIZE, Vector3.zero, Handles.CircleHandleCap));
             }
@@ -55,7 +53,10 @@ namespace Shears.Beziers.Editor
                 var rotation = Tools.pivotRotation == PivotRotation.Local ? 
                     point.LocalRotation : Quaternion.identity;
 
+                Handles.color = Color.cyan;
                 Handles.FreeMoveHandle(point.Position, HandleUtility.GetHandleSize(point.Position) * HANDLE_SIZE, Vector3.zero, Handles.CircleHandleCap);
+
+                Handles.color = Color.red;
                 Handles.FreeMoveHandle(point.Tangent1, 0.5f * HandleUtility.GetHandleSize(point.Position) * HANDLE_SIZE, Vector3.zero, Handles.CircleHandleCap);
                 Handles.FreeMoveHandle(point.Tangent2, 0.5f * HandleUtility.GetHandleSize(point.Position) * HANDLE_SIZE, Vector3.zero, Handles.CircleHandleCap);
 
