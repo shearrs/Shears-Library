@@ -18,17 +18,22 @@ namespace Shears.Beziers.Editor
             {
                 EditorGUI.BeginChangeCheck();
 
-                CreateToolHandles(bezier, point);
+                CreatePointHandles(bezier, point);
             }
         }
 
-        private void CreateToolHandles(Bezier bezier, BezierPoint point)
+        private void CreatePointHandles(Bezier bezier, BezierPoint point)
         {
             Handles.color = Color.red;
             Handles.DrawDottedLine(point.Tangent1, point.Tangent2, 2f);
 
+            if (point.LocalPosition == Vector3.zero)
+                Tools.hidden = true;
+            else
+                Tools.hidden = false;
+
             Handles.color = Color.cyan;
-            Vector3 newPos = Handles.FreeMoveHandle(point.Position, HandleUtility.GetHandleSize(point.Position) * HANDLE_SIZE, Vector3.zero, Handles.CircleHandleCap);
+            Vector3 newPos = point.Position;
 
             Handles.color = Color.red;
 
@@ -38,10 +43,25 @@ namespace Shears.Beziers.Editor
 
             var currentTool = Tools.current;
 
-            if (currentTool == Tool.Move || currentTool == Tool.Rect || currentTool == Tool.View || currentTool == Tool.Transform || currentTool == Tool.Scale)
+            if (currentTool == Tool.Rect || currentTool == Tool.View || currentTool == Tool.Scale)
             {
-                newTangent1 = Handles.FreeMoveHandle(point.Tangent1, 0.5f * HandleUtility.GetHandleSize(point.Position) * HANDLE_SIZE, Vector3.zero, Handles.CircleHandleCap);
-                newTangent2 = Handles.FreeMoveHandle(point.Tangent2, 0.5f * HandleUtility.GetHandleSize(point.Position) * HANDLE_SIZE, Vector3.zero, Handles.CircleHandleCap);
+                Handles.color = Color.cyan;
+                newPos = Snap(Handles.FreeMoveHandle(point.Position, HandleUtility.GetHandleSize(point.Position) * HANDLE_SIZE, Vector3.zero, Handles.CircleHandleCap));
+                newTangent1 = Snap(Handles.FreeMoveHandle(point.Tangent1, 0.5f * HandleUtility.GetHandleSize(point.Position) * HANDLE_SIZE, Vector3.zero, Handles.CircleHandleCap));
+                newTangent2 = Snap(Handles.FreeMoveHandle(point.Tangent2, 0.5f * HandleUtility.GetHandleSize(point.Position) * HANDLE_SIZE, Vector3.zero, Handles.CircleHandleCap));
+            }
+            else if (currentTool == Tool.Move)
+            {
+                var rotation = Tools.pivotRotation == PivotRotation.Local ? 
+                    point.LocalRotation : Quaternion.identity;
+
+                Handles.FreeMoveHandle(point.Position, HandleUtility.GetHandleSize(point.Position) * HANDLE_SIZE, Vector3.zero, Handles.CircleHandleCap);
+                Handles.FreeMoveHandle(point.Tangent1, 0.5f * HandleUtility.GetHandleSize(point.Position) * HANDLE_SIZE, Vector3.zero, Handles.CircleHandleCap);
+                Handles.FreeMoveHandle(point.Tangent2, 0.5f * HandleUtility.GetHandleSize(point.Position) * HANDLE_SIZE, Vector3.zero, Handles.CircleHandleCap);
+
+                newPos = Snap(Handles.PositionHandle(point.Position, rotation));
+                newTangent1 = Snap(Handles.PositionHandle(point.Tangent1, rotation));
+                newTangent2 = Snap(Handles.PositionHandle(point.Tangent2, rotation));
             }
             else if (currentTool == Tool.Rotate || currentTool == Tool.Transform)
             {
@@ -79,5 +99,7 @@ namespace Shears.Beziers.Editor
                     point.Rotation = newRotation;
             }
         }
+
+        private Vector3 Snap(Vector3 position) => Snapping.Snap(position, EditorSnapSettings.gridSize);
     }
 }

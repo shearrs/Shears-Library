@@ -7,7 +7,7 @@ namespace Shears.Beziers
     {
         [SerializeField] private Vector3 position = Vector3.zero;
         [SerializeField] private Vector3 rotation = Vector3.zero;
-        [SerializeField] private Vector3 tangent = Vector3.zero;
+        [SerializeField] private Vector3 tangent = new(1, 0, 0);
 
         public Vector3 LocalPosition { get => position; set => position = value; }
         public Quaternion LocalRotation { get => Quaternion.Euler(rotation); set => rotation = value.eulerAngles; }
