@@ -13,6 +13,7 @@ namespace Shears.HitDetection
 
         [Header("Hit Settings")]
         [SerializeField] private bool fixedUpdate = false;
+        [SerializeField] private bool oneHitPerFrame = false;
         [SerializeField] private bool multiHits;
         [SerializeField] protected LayerMask collisionMask = 1;
         [SerializeField] protected List<Collider2D> ignoreList;
@@ -85,6 +86,9 @@ namespace Shears.HitDetection
                         unclearedHits.Add(receiver);
 
                     ValidHitCount++;
+
+                    if (oneHitPerFrame)
+                        break;
                 }
             }
         }

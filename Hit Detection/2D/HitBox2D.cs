@@ -132,7 +132,7 @@ namespace Shears.HitDetection
         {
             var filter = new ContactFilter2D
             {
-                useTriggers = false,
+                useTriggers = true,
                 useLayerMask = true,
                 layerMask = collisionMask,
             };
