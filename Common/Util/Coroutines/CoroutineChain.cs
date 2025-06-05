@@ -123,6 +123,14 @@ namespace Shears
             return this;
         }
 
+        public CoroutineChain DoForDuration(Action action, float duration)
+        {
+            if (duration > 0)
+                chainQueue.Enqueue(new(IEDoForDuration(action, duration)));
+
+            return this;
+        }
+
         public CoroutineChain WaitForSeconds(float seconds)
         {
             if (seconds <= 0)
@@ -139,6 +147,19 @@ namespace Shears
                 return null;
 
             return CoroutineRunner.Start(IERun());
+        }
+
+        private IEnumerator IEDoForDuration(Action action, float duration)
+        {
+            float elapsedTime = 0f;
+
+            while (elapsedTime < duration)
+            {
+                action?.Invoke();
+
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
         }
 
         private IEnumerator IERun()
