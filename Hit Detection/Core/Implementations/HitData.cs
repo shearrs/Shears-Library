@@ -62,8 +62,6 @@ namespace Shears.HitDetection
             }
             else
             {
-                SHLogger.Log($"Data of type {typeof(T)} not found in HitData3D.", SHLogLevel.Warning);
-
                 data = default;
 
                 return false;
