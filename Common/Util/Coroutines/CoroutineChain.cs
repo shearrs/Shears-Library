@@ -7,11 +7,13 @@ namespace Shears
 {
     public class CoroutineChain
     {
+        private bool isRunning = false;
+        private Coroutine coroutine;
         private readonly Queue<ChainElement> chainQueue = new();
 
-        private bool isRunning = false;
-
         public int Count => chainQueue.Count;
+        public bool IsRunning => isRunning;
+
         private struct ChainElement
         {
             private readonly Action action;
@@ -131,6 +133,14 @@ namespace Shears
             return this;
         }
 
+        public CoroutineChain DoOnInterval(Action action, float duration, float interval)
+        {
+            if (duration > 0)
+                chainQueue.Enqueue(new(IEDoOnInterval(action, duration, interval)));
+
+            return this;
+        }
+
         public CoroutineChain WaitForSeconds(float seconds)
         {
             if (seconds <= 0)
@@ -146,7 +156,17 @@ namespace Shears
             if (isRunning)
                 return null;
 
-            return CoroutineRunner.Start(IERun());
+            coroutine = CoroutineRunner.Start(IERun());
+
+            return coroutine;
+        }
+
+        public void Stop()
+        {
+            if (coroutine == null)
+                return;
+
+            CoroutineRunner.Stop(coroutine);
         }
 
         private IEnumerator IEDoForDuration(Action action, float duration)
@@ -159,6 +179,20 @@ namespace Shears
 
                 elapsedTime += Time.deltaTime;
                 yield return null;
+            }
+        }
+
+        private IEnumerator IEDoOnInterval(Action action, float duration, float interval)
+        {
+            float elapsedTime = 0f;
+            var wait = CoroutineUtil.WaitForSeconds(interval);
+
+            while (elapsedTime < duration)
+            {
+                action?.Invoke();
+
+                elapsedTime += Time.deltaTime;
+                yield return wait;
             }
         }
 
