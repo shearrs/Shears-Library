@@ -7,8 +7,10 @@ namespace Shears
 {
     public class CoroutineChain
     {
-        private bool isRunning = false;
+        private GameObject owner;
         private Coroutine coroutine;
+        private bool hasOwner = false;
+        private bool isRunning = false;
         private readonly Queue<ChainElement> chainQueue = new();
 
         public int Count => chainQueue.Count;
@@ -77,6 +79,14 @@ namespace Shears
         public static CoroutineChain Create()
         {
             return new();
+        }
+
+        public CoroutineChain WithLifetime(GameObject owner)
+        {
+            hasOwner = true;
+            this.owner = owner;
+
+            return this;
         }
 
         public void Enqueue(Action action) => chainQueue.Enqueue(new(action));
@@ -202,6 +212,9 @@ namespace Shears
 
             while (chainQueue.Count > 0)
             {
+                if (hasOwner && owner == null)
+                    break;
+
                 var element = chainQueue.Dequeue();
 
                 element.Run();
