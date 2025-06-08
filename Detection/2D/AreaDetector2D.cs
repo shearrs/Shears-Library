@@ -21,7 +21,8 @@ namespace Shears.Detection
         protected ContactFilter2D ContactFilter => new()
         {
             useTriggers = DetectTriggers,
-            layerMask = DetectionMask
+            layerMask = DetectionMask,
+            useLayerMask = true
         };
 
         public int Detect(Collider2D[] detections)
