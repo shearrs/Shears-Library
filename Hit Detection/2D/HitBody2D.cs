@@ -62,11 +62,11 @@ namespace Shears.HitDetection
                     return;
                 }
 
-                (var hurtbody, var inIgnoreList) = GetHurtBodyForCollider(hit.collider, hit.collider.transform);
+                var hurtbody = GetHurtBodyForCollider(hit.collider, hit.collider.transform);
 
                 if (hurtbody == null)
                 {
-                    if (!inIgnoreList)
+                    if (!IgnoreList.Contains(hit.collider))
                         this.Log($"No HurtBody found for {hit.collider}!", SHLogLevel.Warning);
 
                     continue;
@@ -100,12 +100,11 @@ namespace Shears.HitDetection
 
         protected abstract void Sweep();
 
-        private (HurtBody2D hurtBody, bool inIgnoreList) GetHurtBodyForCollider(Collider2D collider, Transform transform)
+        private HurtBody2D GetHurtBodyForCollider(Collider2D collider, Transform transform)
         {
             if (transform == null || collider == null)
-                return (null, false);
+                return null;
 
-            bool inIgnoreList = false;
             var hurtbodies = transform.GetComponents<HurtBody2D>();
 
             foreach (HurtBody2D hurtbody in hurtbodies)
@@ -113,15 +112,15 @@ namespace Shears.HitDetection
                 if (ignoreList.Contains(hurtbody.Collider))
                 {
                     this.Log("Ignore List object detected: " + hurtbody.Collider.transform.name, SHLogLevel.Verbose);
-                    inIgnoreList = true;
+
                     continue;
                 }
 
                 if (hurtbody.Collider == collider)
-                    return (hurtbody, false);
+                    return hurtbody;
             }
 
-            return (null, inIgnoreList);
+            return null;
         }
     }
 }
