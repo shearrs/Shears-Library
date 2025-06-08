@@ -58,20 +58,25 @@ namespace Shears.HitDetection
             {
                 if (deliverer == null)
                 {
-                    this.Log($"No deliverer for {this}!", SHLogLevel.Error);
+                    this.Log($"No deliverer for {this}!", SHLogLevel.Warning);
                     return;
                 }
 
-                IHurtBody<HitData2D> hurtbody = GetHurtBodyForCollider(hit.collider, hit.collider.transform);
+                (var hurtbody, var inIgnoreList) = GetHurtBodyForCollider(hit.collider, hit.collider.transform);
 
                 if (hurtbody == null)
+                {
+                    if (!inIgnoreList)
+                        this.Log($"No HurtBody found for {hit.collider}!", SHLogLevel.Warning);
+
                     continue;
+                }
 
                 IHitReceiver<HitData2D> receiver = hurtbody.Receiver;
 
                 if (receiver == null)
                 {
-                    this.Log("No receiver found!", SHLogLevel.Error, context: hit.collider);
+                    this.Log("No receiver found!", SHLogLevel.Warning, context: hit.collider);
                     return;
                 }
 
@@ -95,11 +100,12 @@ namespace Shears.HitDetection
 
         protected abstract void Sweep();
 
-        private HurtBody2D GetHurtBodyForCollider(Collider2D collider, Transform transform)
+        private (HurtBody2D hurtBody, bool inIgnoreList) GetHurtBodyForCollider(Collider2D collider, Transform transform)
         {
             if (transform == null || collider == null)
-                return null;
+                return (null, false);
 
+            bool inIgnoreList = false;
             var hurtbodies = transform.GetComponents<HurtBody2D>();
 
             foreach (HurtBody2D hurtbody in hurtbodies)
@@ -107,14 +113,15 @@ namespace Shears.HitDetection
                 if (ignoreList.Contains(hurtbody.Collider))
                 {
                     this.Log("Ignore List object detected: " + hurtbody.Collider.transform.name, SHLogLevel.Verbose);
+                    inIgnoreList = true;
                     continue;
                 }
 
                 if (hurtbody.Collider == collider)
-                    return hurtbody;
+                    return (hurtbody, false);
             }
 
-            return null;
+            return (null, inIgnoreList);
         }
     }
 }
