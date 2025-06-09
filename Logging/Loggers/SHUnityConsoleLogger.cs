@@ -24,7 +24,12 @@ namespace Shears.Logging
 
             string message = formatter.Format(log);
 
-            Debug.Log(message, log.Context);
+            if ((log.Level & SHLogLevels.Warning) != 0)
+                Debug.LogWarning(message);
+            else if ((log.Level & SHLogLevels.Error) != 0)
+                Debug.LogError(message);
+            else
+                Debug.Log(message, log.Context);
         }
 
         public void Clear()
