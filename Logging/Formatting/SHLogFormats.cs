@@ -117,8 +117,8 @@ namespace Shears.Logging
             {
                 return log.Level switch
                 {
-                    SHLogLevel.Log => $"[{log.Prefix}, File: {fileName}, Line: {lineNumber}]",
-                    SHLogLevel.Verbose => $"[{log.Prefix}, File: {fileName}, Line: {lineNumber}]",
+                    SHLogLevels.Log => $"[{log.Prefix}, File: {fileName}, Line: {lineNumber}]",
+                    SHLogLevels.Verbose => $"[{log.Prefix}, File: {fileName}, Line: {lineNumber}]",
                     _ => $"[{logLevelPrefix} - {log.Prefix}]"
                 };
             }
@@ -126,8 +126,8 @@ namespace Shears.Logging
             {
                 return log.Level switch
                 {
-                    SHLogLevel.Log => $"[{className}, File: {fileName}, Line: {lineNumber}]",
-                    SHLogLevel.Verbose => $"[{className}, File: {fileName}, Line: {lineNumber}]",
+                    SHLogLevels.Log => $"[{className}, File: {fileName}, Line: {lineNumber}]",
+                    SHLogLevels.Verbose => $"[{className}, File: {fileName}, Line: {lineNumber}]",
                     _ => $"[{logLevelPrefix} - {className}]"
                 };
             }
@@ -259,7 +259,7 @@ namespace Shears.Logging
         public static string NoCompositor(SHLog log, SHLogFormatter format) => format.SetColor(log, $"{format.FormatPrefix(log)}{format.FormatMessage(log)}");
         #endregion
 
-        private static string GetDefaultLogLevelPrefix(SHLogLevel level)
+        private static string GetDefaultLogLevelPrefix(SHLogLevels level)
         {
             return $"{level.ToString().ToUpper()}";
         }

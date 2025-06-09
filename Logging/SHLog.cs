@@ -17,7 +17,7 @@ namespace Shears.Logging
         private Object _context;
 
         [SerializeField, Tooltip("The level/severity of the log. By default, influences the prefix and the color of the log.")]
-        private SHLogLevel _level;
+        private SHLogLevels _level;
 
         [Header("Prefix")]
         [SerializeField, Tooltip("Whether or not to show the custom prefix textbox.")]
@@ -57,7 +57,7 @@ namespace Shears.Logging
         /// <summary>
         /// The level/severity of the log. By default, influences the prefix and the color of the log.
         /// </summary>
-        public SHLogLevel Level { readonly get => _level; set => _level = value; }
+        public SHLogLevels Level { readonly get => _level; set => _level = value; }
 
         /// <summary>
         /// The color of the log when displayed in a logger that supports color.
@@ -105,7 +105,7 @@ namespace Shears.Logging
         /// <param name="prefix">The prefix to the log's message.</param>
         /// <param name="level">The level/severity of the log. By default, influences the prefix and the color of the log.</param>
         /// <param name="color">The color of the log when displayed in a logger that supports color.</param>
-        public SHLog(string message, Object context = null, string prefix = "", SHLogLevel level = SHLogLevel.Log, Color color = default)
+        public SHLog(string message, Object context = null, string prefix = "", SHLogLevels level = SHLogLevels.Log, Color color = default)
         {
             _message = message;
             _context = context;

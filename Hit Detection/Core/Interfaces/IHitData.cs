@@ -12,4 +12,15 @@ namespace Shears.HitDetection
 
         public bool TryGetData<T>(out T data);
     }
+
+    public interface IHitData<HitDataType, HitResultType> : IHitData 
+        where HitDataType : IHitData<HitDataType, HitResultType> 
+        where HitResultType : IHitResult
+    {
+        new public IHitDeliverer<HitDataType> Deliverer { get; }
+        new public IHitReceiver<HitDataType> Receiver { get; }
+        new public IHitBody<HitDataType> HitBody { get; }
+        new public IHurtBody<HitDataType> HurtBody { get; }
+        new public HitResultType Result { get; }
+    }
 }

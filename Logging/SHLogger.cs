@@ -77,7 +77,7 @@ namespace Shears.Logging
         /// <summary>
         /// The log levels that will be logged. Anything not selected will be stripped.
         /// </summary>
-        public static SHLogLevel LogLevels { get => Settings.LogLevels; set => Settings.LogLevels = value; }
+        public static SHLogLevels LogLevels { get => Settings.LogLevels; set => Settings.LogLevels = value; }
 
         /// <summary>
         /// The current formatter being used to format logs. If <see cref="FormatterOverride"/> is not set, this is the current logger target's formatter.
@@ -109,7 +109,7 @@ namespace Shears.Logging
         public static ISHLogger CustomLogger { get => Settings.CustomLogger; set => Settings.CustomLogger = value; }
 
         /// <summary>
-        /// The colors to display for each <see cref="SHLogLevel"/>. If not set, automatically sets to a default.
+        /// The colors to display for each <see cref="SHLogLevels"/>. If not set, automatically sets to a default.
         /// </summary>
         public static SHLogColors LogColors { get => Settings.LogColors; set => Settings.LogColors = value; }
 
@@ -153,7 +153,7 @@ namespace Shears.Logging
         /// <param name="formatter">The formatter for this log. Defaults to the current <see cref="ISHLogger.Formatter"/>.</param>
         /// <param name="callerFilePath">The file path of the class who called this. Should not be set manually.</param>
         /// <param name="callerLineNumber">The line number of the class who called this. Should not be set manually.</param>
-        public static void Log(string message, SHLogLevel level = SHLogLevel.Log, Color color = default, Object context = null, string prefix = "", ISHLogFormatter formatter = default,
+        public static void Log(string message, SHLogLevels level = SHLogLevels.Log, Color color = default, Object context = null, string prefix = "", ISHLogFormatter formatter = default,
         [CallerFilePath] string callerFilePath = "", [CallerLineNumber] long callerLineNumber = 0)
         => Log(new SHLog(message, context, prefix, level, color), formatter, callerFilePath, callerLineNumber);
 
@@ -232,11 +232,11 @@ namespace Shears.Logging
         #endregion
 
         /// <summary>
-        /// Gets the <see cref="Color"/> for the passed <see cref="SHLogLevel"/> from the logger's <see cref="SHLogColors"/>.
+        /// Gets the <see cref="Color"/> for the passed <see cref="SHLogLevels"/> from the logger's <see cref="SHLogColors"/>.
         /// </summary>
         /// <param name="level">The log level to get a <see cref="Color"/> for.</param>
-        /// <returns>The <see cref="Color"/> of the passed <see cref="SHLogLevel"/>.</returns>
-        public static Color GetColorForLogLevel(SHLogLevel level) => LogColors.GetColorForLogLevel(level);
+        /// <returns>The <see cref="Color"/> of the passed <see cref="SHLogLevels"/>.</returns>
+        public static Color GetColorForLogLevel(SHLogLevels level) => LogColors.GetColorForLogLevel(level);
 
         private static void InitializeUIConsole()
         {

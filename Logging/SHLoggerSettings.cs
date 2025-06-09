@@ -14,7 +14,7 @@ namespace Shears.Logging
         private LogType logType = LogType.UnityConsole;
 
         [SerializeField, Tooltip("Specifies which log levels will be logged. Anything not selected will be stripped.")]
-        private SHLogLevel logLevels = SHLogLevel.Everything;
+        private SHLogLevels logLevels = 0;
 
         [SerializeField, Tooltip("The custom logger to output to when LogType is set to Custom.")]
         private InterfaceReference<ISHLogger> customLogger = new();
@@ -39,7 +39,7 @@ namespace Shears.Logging
         /// <summary>
         /// The log levels that will be logged. Anything not selected will be stripped.
         /// </summary>
-        public SHLogLevel LogLevels { get => logLevels; set => logLevels = value; }
+        public SHLogLevels LogLevels { get => logLevels; set => logLevels = value; }
 
         /// <summary>
         /// If this is not null, this formatter is used by default instead of the current logger target's formatter.
@@ -52,7 +52,7 @@ namespace Shears.Logging
         public ISHLogger CustomLogger { get => customLogger.Value; set => customLogger.Value = value; }
 
         /// <summary>
-        /// The colors to display for each <see cref="SHLogLevel"/>. If not set, automatically sets to a default.
+        /// The colors to display for each <see cref="SHLogLevels"/>. If not set, automatically sets to a default.
         /// </summary>
         public SHLogColors LogColors
         {

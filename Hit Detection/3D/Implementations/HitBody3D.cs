@@ -2,29 +2,28 @@ using Shears.Logging;
 using System.Collections.Generic;
 using UnityEngine;
 
-using HitData2D = Shears.HitDetection.HitData<Shears.HitDetection.HitResult2D>;
-
 namespace Shears.HitDetection
 {
-    public abstract class HitBody2D : MonoBehaviour, IHitBody<HitData2D>, ISHLoggable
+    public abstract class HitBody3D : MonoBehaviour, IHitBody3D, ISHLoggable
     {
         [field: Header("Logging")]
-        [field: SerializeField] public SHLogLevel LogLevels { get; set; } = SHLogLevel.Everything;
+        [field: SerializeField] public SHLogLevels LogLevels { get; set; } = 0;
 
         [Header("Hit Settings")]
         [SerializeField] private bool fixedUpdate = false;
-        [SerializeField] private bool oneHitPerFrame = false;
         [SerializeField] private bool multiHits;
         [SerializeField] protected LayerMask collisionMask = 1;
-        [SerializeField] protected List<Collider2D> ignoreList;
+        [SerializeField] protected List<Collider> ignoreList;
 
-        private IHitDeliverer<HitData2D> deliverer;
-        private readonly List<IHitReceiver<HitData2D>> unclearedHits = new(10);
-        protected readonly Dictionary<Collider2D, RaycastHit2D> finalHits = new(10);
+        private IHitDeliverer3D deliverer;
+        private readonly List<IHitReceiver<HitData3D>> unclearedHits = new(10);
+        protected readonly Dictionary<Collider, RaycastHit> finalHits = new(10);
 
-        public IHitDeliverer<HitData2D> Deliverer => deliverer;
+        public IHitDeliverer3D Deliverer => deliverer;
         public int ValidHitCount { get; private set; }
-        public List<Collider2D> IgnoreList { get => ignoreList; set => ignoreList = value; }
+        public List<Collider> IgnoreList { get => ignoreList; set => ignoreList = value; }
+
+        IHitDeliverer<HitData3D> IHitBody<HitData3D>.Deliverer => Deliverer;
 
         protected virtual void OnEnable()
         {
@@ -34,7 +33,7 @@ namespace Shears.HitDetection
 
         private void Awake()
         {
-            deliverer = GetComponentInParent<IHitDeliverer<HitData2D>>();
+            deliverer = GetComponentInParent<IHitDeliverer3D>();
         }
 
         private void Update()
@@ -54,35 +53,30 @@ namespace Shears.HitDetection
             finalHits.Clear();
             Sweep();
 
-            foreach (RaycastHit2D hit in finalHits.Values)
+            foreach (RaycastHit hit in finalHits.Values)
             {
                 if (deliverer == null)
                 {
-                    this.Log($"No deliverer for {this}!", SHLogLevel.Warning);
+                    this.Log($"No deliverer for {this}!", SHLogLevels.Error);
                     return;
                 }
 
                 var hurtbody = GetHurtBodyForCollider(hit.collider, hit.collider.transform);
 
                 if (hurtbody == null)
-                {
-                    if (!IgnoreList.Contains(hit.collider))
-                        this.Log($"No HurtBody found for {hit.collider}!", SHLogLevel.Warning);
-
                     continue;
-                }
 
-                IHitReceiver<HitData2D> receiver = hurtbody.Receiver;
+                IHitReceiver3D receiver = hurtbody.Receiver;
 
                 if (receiver == null)
                 {
-                    this.Log("No receiver found!", SHLogLevel.Warning, context: hit.collider);
+                    this.Log($"No receiver found for {hurtbody}!", SHLogLevels.Error, context: hurtbody);
                     return;
                 }
 
                 if (multiHits || !unclearedHits.Contains(receiver))
                 {
-                    HitData2D hitData = new(deliverer, receiver, this, hurtbody, new(hit), deliverer.GetCustomData());
+                    HitData3D hitData = new(deliverer, receiver, this, hurtbody, new(hit), deliverer.GetCustomData());
 
                     deliverer.OnHitDelivered(hitData);
                     receiver.OnHitReceived(hitData);
@@ -91,28 +85,24 @@ namespace Shears.HitDetection
                         unclearedHits.Add(receiver);
 
                     ValidHitCount++;
-
-                    if (oneHitPerFrame)
-                        break;
                 }
             }
         }
 
         protected abstract void Sweep();
 
-        private HurtBody2D GetHurtBodyForCollider(Collider2D collider, Transform transform)
+        private HurtBody3D GetHurtBodyForCollider(Collider collider, Transform transform)
         {
             if (transform == null || collider == null)
                 return null;
 
-            var hurtbodies = transform.GetComponents<HurtBody2D>();
+            var hurtbodies = transform.GetComponents<HurtBody3D>();
 
-            foreach (HurtBody2D hurtbody in hurtbodies)
+            foreach (HurtBody3D hurtbody in hurtbodies)
             {
                 if (ignoreList.Contains(hurtbody.Collider))
                 {
-                    this.Log("Ignore List object detected: " + hurtbody.Collider.transform.name, SHLogLevel.Verbose);
-
+                    this.Log("Ignore List object detected: " + hurtbody.Collider.transform.name, SHLogLevels.Verbose);
                     continue;
                 }
 

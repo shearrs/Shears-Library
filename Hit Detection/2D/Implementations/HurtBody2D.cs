@@ -1,19 +1,19 @@
 using UnityEngine;
 
-using HitData2D = Shears.HitDetection.HitData<Shears.HitDetection.HitResult2D>;
-
 namespace Shears.HitDetection
 {
-    public class HurtBody2D : MonoBehaviour, IHurtBody<HitData2D>
+    public class HurtBody2D : MonoBehaviour, IHurtBody2D
     {
         [SerializeField] private Collider2D col;
 
-        public IHitReceiver<HitData2D> Receiver { get; private set; }
+        public IHitReceiver2D Receiver { get; private set; }
         public Collider2D Collider => col;
+
+        IHitReceiver<HitData2D> IHurtBody<HitData2D>.Receiver => Receiver;
 
         private void Start()
         {
-            Receiver = GetComponentInParent<IHitReceiver<HitData2D>>();
+            Receiver = GetComponentInParent<IHitReceiver2D>();
         }
 
         public void Hit(HitData2D hitData)

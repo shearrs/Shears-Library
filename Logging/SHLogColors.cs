@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Shears.Logging
 {
     /// <summary>
-    /// A <see cref="ScriptableObject"/> that defines which colors are used by each <see cref="SHLogLevel"/>.
+    /// A <see cref="ScriptableObject"/> that defines which colors are used by each <see cref="SHLogLevels"/>.
     /// </summary>
     [CreateAssetMenu(fileName = "Default Log Colors", menuName = "Shears Library/Logging/Colors")]
     public class SHLogColors : ScriptableObject
@@ -26,26 +26,26 @@ namespace Shears.Logging
 
         private readonly Color nullColor = Color.magenta;
 
-        private Dictionary<SHLogLevel, Color> logColors;
+        private Dictionary<SHLogLevels, Color> logColors;
 
         private void DefineColorDictionary()
         {
             logColors = new()
             {
-                { SHLogLevel.Log,       Log         },
-                { SHLogLevel.Verbose,   Verbose     },
-                { SHLogLevel.Warning,   Warning     },
-                { SHLogLevel.Error,     Error       },
-                { SHLogLevel.Fatal,     Fatal       }
+                { SHLogLevels.Log,       Log         },
+                { SHLogLevels.Verbose,   Verbose     },
+                { SHLogLevels.Warning,   Warning     },
+                { SHLogLevels.Error,     Error       },
+                { SHLogLevels.Fatal,     Fatal       }
             };
         }
 
         /// <summary>
-        /// Gets a <see cref="Color"/> for a given <see cref="SHLogLevel"/>.
+        /// Gets a <see cref="Color"/> for a given <see cref="SHLogLevels"/>.
         /// </summary>
         /// <param name="level">The log level to get a <see cref="Color"/> for.</param>
-        /// <returns>The <see cref="Color"/> of the passed <see cref="SHLogLevel"/>.</returns>
-        public Color GetColorForLogLevel(SHLogLevel level)
+        /// <returns>The <see cref="Color"/> of the passed <see cref="SHLogLevels"/>.</returns>
+        public Color GetColorForLogLevel(SHLogLevels level)
         {
             if (logColors == null)
                 DefineColorDictionary();

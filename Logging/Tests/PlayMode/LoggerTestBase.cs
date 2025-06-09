@@ -12,10 +12,10 @@ namespace Shears.Logging.Tests
         public virtual void LogLevelTest()
         {
             LogFancyText("------------LOG LEVEL TEST------------\n");
-            ValidateOutput(new("Hello World!", level: SHLogLevel.Log));
-            ValidateOutput(new("Hello World", level: SHLogLevel.Verbose));
-            ValidateOutput(new("Hello World!", level: SHLogLevel.Warning));
-            ValidateOutput(new("Hello World!", level: SHLogLevel.Error));
+            ValidateOutput(new("Hello World!", level: SHLogLevels.Log));
+            ValidateOutput(new("Hello World", level: SHLogLevels.Verbose));
+            ValidateOutput(new("Hello World!", level: SHLogLevels.Warning));
+            ValidateOutput(new("Hello World!", level: SHLogLevels.Error));
             LogFancyText("\n");
         }
 
@@ -23,10 +23,10 @@ namespace Shears.Logging.Tests
         public virtual void PrefixTest()
         {
             LogFancyText("------------PREFIX TEST------------\n");
-            ValidateOutput(new("Hello World!", prefix: "Custom Prefix", level: SHLogLevel.Log));
-            ValidateOutput(new("Hello World!", prefix: "Custom Prefix", level: SHLogLevel.Verbose));
-            ValidateOutput(new("Hello World!", prefix: "Custom Prefix", level: SHLogLevel.Warning));
-            ValidateOutput(new("Hello World!", prefix: "Custom Prefix", level: SHLogLevel.Error));
+            ValidateOutput(new("Hello World!", prefix: "Custom Prefix", level: SHLogLevels.Log));
+            ValidateOutput(new("Hello World!", prefix: "Custom Prefix", level: SHLogLevels.Verbose));
+            ValidateOutput(new("Hello World!", prefix: "Custom Prefix", level: SHLogLevels.Warning));
+            ValidateOutput(new("Hello World!", prefix: "Custom Prefix", level: SHLogLevels.Error));
             LogFancyText("\n");
         }
 
@@ -34,7 +34,7 @@ namespace Shears.Logging.Tests
         public virtual void ColorTest()
         {
             LogFancyText("------------COLOR TEST------------\n");
-            ValidateOutput(new("Hello World!", color: Color.green, level: SHLogLevel.Log));
+            ValidateOutput(new("Hello World!", color: Color.green, level: SHLogLevels.Log));
             LogFancyText("\n");
         }
 

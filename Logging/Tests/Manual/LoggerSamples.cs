@@ -13,9 +13,9 @@ namespace Shears.Logging
         private SHLog _log;
 
         [SerializeField]
-        private SHLogLevel _logLevels;
+        private SHLogLevels _logLevels;
 
-        public SHLogLevel LogLevels { get => _logLevels; set => _logLevels = value; }
+        public SHLogLevels LogLevels { get => _logLevels; set => _logLevels = value; }
 
         private void Start()
         {

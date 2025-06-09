@@ -2,11 +2,9 @@ using System;
 using UnityEngine;
 using UnityEngine.Events;
 
-using HitData2D = Shears.HitDetection.HitData<Shears.HitDetection.HitResult2D>;
-
 namespace Shears.HitDetection
 {
-    public class HitReceiver2D : MonoBehaviour, IHitReceiver<HitData2D>
+    public class HitReceiver2D : MonoBehaviour, IHitReceiver2D
     {
         [SerializeField] private UnityEvent<HitData2D> onReceiveHit;
 

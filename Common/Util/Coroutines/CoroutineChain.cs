@@ -185,6 +185,9 @@ namespace Shears
 
             while (elapsedTime < duration)
             {
+                if (OwnerIsDestroyed())
+                    break;
+
                 action?.Invoke();
 
                 elapsedTime += Time.deltaTime;
@@ -199,6 +202,9 @@ namespace Shears
 
             while (elapsedTime < duration)
             {
+                if (OwnerIsDestroyed())
+                    break;
+
                 action?.Invoke();
 
                 elapsedTime += Time.deltaTime;
@@ -212,7 +218,7 @@ namespace Shears
 
             while (chainQueue.Count > 0)
             {
-                if (hasOwner && owner == null)
+                if (OwnerIsDestroyed())
                     break;
 
                 var element = chainQueue.Dequeue();
@@ -227,5 +233,7 @@ namespace Shears
 
             isRunning = false;
         }
+
+        private bool OwnerIsDestroyed() => hasOwner && owner == null;
     }
 }

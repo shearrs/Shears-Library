@@ -14,14 +14,13 @@ namespace Shears.Logging
     /// </para>
     /// </summary>
     [Flags]
-    public enum SHLogLevel 
+    public enum SHLogLevels 
     { 
-        Everything = -1,
-        Nothing = 0,
         Log = 1, 
         Verbose = 2, 
         Warning = 4,
         Error = 8, 
-        Fatal = 16
+        Fatal = 16,
+        Issues = Warning | Error | Fatal
     }
 }

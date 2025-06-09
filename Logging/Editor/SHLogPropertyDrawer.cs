@@ -35,11 +35,11 @@ namespace Shears.Logging.Editor
         {
             var logLevelProp = property.FindPropertyRelative("_level");
 
-            var logLevelField = new EnumField("Level", (SHLogLevel)logLevelProp.enumValueFlag);
+            var logLevelField = new EnumField("Level", (SHLogLevels)logLevelProp.enumValueFlag);
 
             logLevelField.RegisterValueChangedCallback(evt =>
             {
-                logLevelProp.enumValueFlag = (int)(SHLogLevel)evt.newValue;
+                logLevelProp.enumValueFlag = (int)(SHLogLevels)evt.newValue;
 
                 property.serializedObject.ApplyModifiedProperties();
             });
