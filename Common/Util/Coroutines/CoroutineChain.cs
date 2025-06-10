@@ -151,6 +151,14 @@ namespace Shears
             return this;
         }
 
+        public CoroutineChain Tween(Action<float> update, float duration)
+        {
+            if (duration > 0)
+                chainQueue.Enqueue(new(IETween(update, duration)));
+
+            return this;
+        }
+
         public CoroutineChain WaitForSeconds(float seconds)
         {
             if (seconds <= 0)
@@ -209,6 +217,23 @@ namespace Shears
 
                 elapsedTime += Time.deltaTime;
                 yield return wait;
+            }
+        }
+
+        private IEnumerator IETween(Action<float> update, float duration)
+        {
+            float elapsedTime = 0f;
+            
+            while (elapsedTime < duration)
+            {
+                if (OwnerIsDestroyed())
+                    break;
+
+                update?.Invoke(elapsedTime / duration);
+
+                elapsedTime += Time.deltaTime;
+
+                yield return null;
             }
         }
 
