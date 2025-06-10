@@ -1,5 +1,6 @@
 using Shears.Logging;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Shears.HitDetection
@@ -54,7 +55,9 @@ namespace Shears.HitDetection
             finalHits.Clear();
             Sweep();
 
-            foreach (RaycastHit2D hit in finalHits.Values)
+            var hits = finalHits.Values.OrderBy(hit => hit.distance);
+
+            foreach (RaycastHit2D hit in hits)
             {
                 if (deliverer == null)
                 {
@@ -80,12 +83,20 @@ namespace Shears.HitDetection
                     return;
                 }
 
+                if (receiver is IHitBlocker2D blocker && blocker.IsBlocking)
+                {
+                    this.Log($"Hit blocker {blocker.Transform}.");
+                    break;
+                }
+
                 if (multiHits || !unclearedHits.Contains(receiver))
                 {
                     HitData2D hitData = new(deliverer, receiver, this, hurtbody, new(hit), deliverer.GetCustomData());
 
                     deliverer.OnHitDelivered(hitData);
                     receiver.OnHitReceived(hitData);
+
+                    this.Log($"Delivered hit to {receiver}!");
 
                     if (!multiHits)
                         unclearedHits.Add(receiver);
