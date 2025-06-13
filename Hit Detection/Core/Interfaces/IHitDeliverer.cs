@@ -16,5 +16,10 @@ namespace Shears.HitDetection
     public interface IHitDeliverer<T>  : IHitDeliverer where T : IHitData
     {
         public void OnHitDelivered(T hitData);
+
+        public void OnHitBlocked(T hitData)
+        {
+
+        }
     }
 }

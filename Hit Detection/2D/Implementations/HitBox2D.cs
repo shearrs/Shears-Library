@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Shears.HitDetection
 {
     public class HitBox2D : HitBody2D
     {
+        #region Internal Types
         [Flags]
         private enum GizmoModes
         {
@@ -24,26 +26,6 @@ namespace Shears.HitDetection
             Left = 1 << 2,
             Right = 1 << 3
         }
-
-        [Header("Gizmos")]
-        [SerializeField] private GizmoSettings gizmoSettings;
-        private bool activityDrawTick = false;
-
-        [Header("Collision Settings")]
-        [SerializeField, Range(2, 32)] private int raysPerSide = 8;
-        [SerializeField] private SourceDirections sourceDirections = (SourceDirections)(-1);
-
-        [Header("Transform Settings")]
-        [SerializeField] private Vector2 center;
-        [SerializeField, Range(0, 360)] private float angle = 0f;
-        [SerializeField] private Vector2 size = Vector2.one;
-
-        private readonly Dictionary<Collider2D, List<RaycastHit2D>> recentHits = new();
-        private readonly RaycastHit2D[] results = new RaycastHit2D[50];
-
-        private Vector2 Center => transform.TransformPoint(center);
-        private Quaternion Orientation => transform.rotation * Quaternion.Euler(new(0, 0, angle));
-        private Vector2 Size => size * transform.lossyScale;
 
         [Serializable]
         private struct GizmoSettings
@@ -68,11 +50,77 @@ namespace Shears.HitDetection
             public Color AverageNormalColor { readonly get => averageNormalColor; set => averageNormalColor = value; }
         }
 
+        private readonly struct ArrayCastData
+        {
+            private readonly Vector2 start;
+            private readonly Vector2 end;
+            private readonly Vector2 direction;
+            private readonly float distance;
+
+            public readonly Vector2 Start => start;
+            public readonly Vector2 End => end;
+            public readonly Vector2 Direction => direction;
+            public readonly float Distance => distance;
+
+            public ArrayCastData(Vector2 start, Vector2 end, Vector2 direction, float distance)
+            {
+                this.start = start;
+                this.end = end;
+                this.direction = direction;
+                this.distance = distance;
+            }
+        }
+        #endregion
+
+        [Header("Gizmos")]
+        [SerializeField] private GizmoSettings gizmoSettings;
+        private bool activityDrawTick = false;
+
+        [Header("Collision Settings")]
+        [SerializeField, Range(2, 32)] private int raysPerSide = 8;
+        [SerializeField] private SourceDirections sourceDirections = (SourceDirections)(-1);
+
+        [Header("Transform Settings")]
+        [SerializeField] private Vector2 center;
+        [SerializeField, Range(0, 360)] private float angle = 0f;
+        [SerializeField] private Vector2 size = Vector2.one;
+
+        private readonly Dictionary<SourceDirections, List<HitRay2D>> directionalHitRays = new();
+        private readonly Dictionary<Collider2D, List<RaycastHit2D>> recentHits = new();
+
+        private Vector2 Center => transform.TransformPoint(center);
+        private Quaternion Orientation => transform.rotation * Quaternion.Euler(new(0, 0, angle));
+        private Vector2 Size => size * transform.lossyScale;
+
         private void Reset()
         {
             ResetGizmoSettings();
         }
 
+        protected override void Awake()
+        {
+            base.Awake();
+
+            List<HitRay2D> getHitRays()
+            {
+                var list = new List<HitRay2D>();
+
+                for (int i = 0; i < raysPerSide; i++)
+                    list.Add(new(32));
+
+                return list;
+            }
+
+            directionalHitRays.Add(SourceDirections.Top, getHitRays());
+            directionalHitRays.Add(SourceDirections.Bottom, getHitRays());
+            directionalHitRays.Add(SourceDirections.Left, getHitRays());
+            directionalHitRays.Add(SourceDirections.Right, getHitRays());
+
+            foreach (var hitRayList in directionalHitRays.Values)
+                hitRays.AddRange(hitRayList);
+        }
+
+        #region Average Getters
         public Vector2 GetAverageHitPosition(Collider2D collider)
         {
             if (!recentHits.ContainsKey(collider) || recentHits[collider].Count == 0)
@@ -134,6 +182,7 @@ namespace Shears.HitDetection
 
             return matrix.inverse.MultiplyPoint3x4(normal).normalized;
         }
+        #endregion
 
         protected override void Sweep()
         {
@@ -142,38 +191,20 @@ namespace Shears.HitDetection
 
             recentHits.Clear();
 
-            Vector2 halfSize = Size * 0.5f;
-            Vector2 left = Orientation * Vector2.left;
-            Vector2 right = Orientation * Vector2.right;
-            Vector2 up = Orientation * Vector2.up;
-            Vector2 down = Orientation * Vector2.down;
-
-            Vector2 leftStart = Center + (left * halfSize.x) + (up * halfSize.y);
-            Vector2 leftEnd = leftStart + (down * Size.y);
-
-            Vector2 rightStart = Center + (right * halfSize.x) + (up * halfSize.y);
-            Vector2 rightEnd = rightStart + (down * Size.y);
-
-            Vector2 bottomStart = Center + (left * halfSize.x) + (down * halfSize.y);
-            Vector2 bottomEnd = bottomStart + (right * Size.x);
-
-            Vector2 topStart = Center + (left * halfSize.x) + (up * halfSize.y);
-            Vector2 topEnd = topStart + (right * Size.x);
-
             if ((sourceDirections & SourceDirections.Left) != 0)
-                ArrayCast(leftStart, leftEnd, right, Size.x);
+                ArrayCast(SourceDirections.Left);
 
             if ((sourceDirections & SourceDirections.Right) != 0)
-                ArrayCast(rightStart, rightEnd, left, Size.x);
+                ArrayCast(SourceDirections.Right);
 
             if ((sourceDirections & SourceDirections.Bottom) != 0)
-                ArrayCast(bottomStart, bottomEnd, up, Size.y);
+                ArrayCast(SourceDirections.Bottom);
 
             if ((sourceDirections & SourceDirections.Top) != 0)
-                ArrayCast(topStart, topEnd, down, Size.y);
+                ArrayCast(SourceDirections.Top);
         }
 
-        private void ArrayCast(Vector2 start, Vector2 end, Vector2 direction, float distance)
+        private void ArrayCast(SourceDirections rayDirection)
         {
             var filter = new ContactFilter2D
             {
@@ -182,23 +213,57 @@ namespace Shears.HitDetection
                 layerMask = collisionMask,
             };
 
-            for (int i = 0; i < raysPerSide; i++)
+            var castData = GetArrayCastData(rayDirection);
+
+            for (int i = 0; i < directionalHitRays[rayDirection].Count; i++)
             {
+                var ray = directionalHitRays[rayDirection][i];
                 float t = (float)i / (raysPerSide - 1);
-                Vector2 origin = Vector2.Lerp(start, end, t);
+                Vector2 origin = Vector2.Lerp(castData.Start, castData.End, t);
 
-                int hits = Physics2D.Raycast(origin, direction, filter, results, distance);
+                ray.ClearValidHits();
+                ray.Cast(origin, castData.Direction, filter, castData.Distance);
 
-                if (hits > 0)
-                    AddValidHits(hits);
+                AddValidHits(ray);
             }
         }
 
-        private void AddValidHits(int hits)
+        private ArrayCastData GetArrayCastData(SourceDirections direction)
         {
-            for (int i = 0; i < hits; i++)
+            Vector2 halfSize = Size * 0.5f;
+            Vector2 left = Orientation * Vector2.left;
+            Vector2 right = Orientation * Vector2.right;
+            Vector2 up = Orientation * Vector2.up;
+            Vector2 down = Orientation * Vector2.down;
+
+            switch (direction)
             {
-                var result = results[i];
+                case SourceDirections.Top:
+                    Vector2 topStart = Center + (left * halfSize.x) + (up * halfSize.y);
+                    Vector2 topEnd = topStart + (right * Size.x);
+                    return new(topStart, topEnd, down, Size.y);
+                case SourceDirections.Bottom:
+                    Vector2 bottomStart = Center + (left * halfSize.x) + (down * halfSize.y);
+                    Vector2 bottomEnd = bottomStart + (right * Size.x);
+                    return new(bottomStart, bottomEnd, up, Size.y);
+                case SourceDirections.Left:
+                    Vector2 leftStart = Center + (left * halfSize.x) + (up * halfSize.y);
+                    Vector2 leftEnd = leftStart + (down * Size.y);
+                    return new(leftStart, leftEnd, right, Size.x);
+                case SourceDirections.Right:
+                    Vector2 rightStart = Center + (right * halfSize.x) + (up * halfSize.y);
+                    Vector2 rightEnd = rightStart + (down * Size.y);
+                    return new(rightStart, rightEnd, left, Size.x);
+            }
+
+            return default;
+        }
+
+        private void AddValidHits(HitRay2D ray)
+        {
+            for (int i = 0; i < ray.Hits; i++)
+            {
+                var result = ray.Results[i];
 
                 if (result.collider == null)
                     continue;
@@ -208,19 +273,20 @@ namespace Shears.HitDetection
                 else
                     recentHits.Add(result.collider, new List<RaycastHit2D> { result });
 
-                if (finalHits.TryGetValue(result.collider, out var oldHit))
+                if (ray.ValidHits.TryGetValue(result.collider, out var oldHit))
                 {
                     if (oldHit.distance < result.distance)
-                        finalHits[result.collider] = result;
+                        ray.SetValidHit(result.collider, result);
                 }
                 else
-                    finalHits.Add(result.collider, result);
+                    ray.AddValidHit(result);
 
                 if ((gizmoSettings.Modes & GizmoModes.Hits) != 0)
                     Debug.DrawLine(Center, result.point, Color.red);
             }
         }
 
+        #region Gizmos
         private void OnDrawGizmos()
         {
             if ((gizmoSettings.Modes & GizmoModes.Hitbox) != 0)
@@ -323,5 +389,6 @@ namespace Shears.HitDetection
             gizmoSettings.AverageSurfaceColor = Color.green;
             gizmoSettings.AverageNormalColor = Color.cyan;
         }
+        #endregion
     }
 }
