@@ -3,6 +3,12 @@ using UnityEngine;
 
 namespace Shears.Logging
 {
+    public static class SHLogUtil
+    {
+        public static SHLogLevels Nothing = 0;
+        public static SHLogLevels Everything = (SHLogLevels)(-1);
+    }
+
     /// <summary>
     /// Represents the level/severity of a <see cref="SHLog"/>.
     /// <para>
