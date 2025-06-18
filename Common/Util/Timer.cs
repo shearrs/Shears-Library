@@ -27,6 +27,7 @@ namespace Shears
                 return;
 
             tokenSource?.Cancel();
+            isDone = true;
         }
 
         private async void RunAsync(float time, CancellationToken token)
