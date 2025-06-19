@@ -3,9 +3,11 @@ using UnityEngine;
 
 namespace Shears
 {
+    [System.Serializable]
     public class Timer
     {
-        private bool isDone = true;
+        [SerializeField, ReadOnly] private bool isDone = true;
+        
         private CancellationTokenSource tokenSource;
 
         public bool IsDone => isDone;
