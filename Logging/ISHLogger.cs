@@ -16,6 +16,7 @@ namespace Shears.Logging
         /// Log a message with default formatting.
         /// </summary>
         /// <param name="log">The log to log.</param>
+        [HideInCallstack]
         public void Log(SHLog log);
 
         /// <summary>
@@ -23,6 +24,7 @@ namespace Shears.Logging
         /// </summary>
         /// <param name="log">The log to log.</param>
         /// <param name="formatter">The formatter to format the log with.</param>
+        [HideInCallstack]
         public void Log(SHLog log, ISHLogFormatter formatter);
 
         /// <summary>

@@ -9,11 +9,13 @@ namespace Shears.Logging
     {
         public ISHLogFormatter Formatter => SHLogFormats.Default;
 
+        [HideInCallstack]
         public void Log(SHLog log)
         {
             Log(log, Formatter);
         }
 
+        [HideInCallstack]
         public void Log(SHLog log, ISHLogFormatter formatter)
         {
             if (!formatter.IsValid())

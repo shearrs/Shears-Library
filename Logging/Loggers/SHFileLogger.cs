@@ -37,11 +37,13 @@ namespace Shears.Logging
             _runtimeGUID = Guid.NewGuid().ToString();
         }
 
+        [HideInCallstack]
         public void Log(SHLog log)
         {
             Log(log, Formatter);
         }
 
+        [HideInCallstack]
         public void Log(SHLog log, ISHLogFormatter formatter)
         {
             if (!formatter.IsValid())

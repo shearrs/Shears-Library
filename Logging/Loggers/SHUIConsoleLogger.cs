@@ -17,11 +17,13 @@ namespace Shears.Logging
         public string Text => textMesh.text;
         public ISHLogFormatter Formatter => SHLogFormats.DefaultWithTimestamp;
 
+        [HideInCallstack]
         public void Log(SHLog log)
         {
             Log(log, Formatter);
         }
 
+        [HideInCallstack]
         public void Log(SHLog log, ISHLogFormatter formatter)
         {
             if (!formatter.IsValid())
