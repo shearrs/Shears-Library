@@ -87,16 +87,19 @@ namespace Shears.HitDetection
 
                     if (!unblockable && receiver is IHitBlocker2D blocker && blocker.IsBlocking)
                     {
-                        this.Log($"Hit blocker {blocker.Transform}.");
+                        var hitData = new HitData2D(deliverer, receiver, this, hurtbody, new(hit), deliverer.GetCustomData());
 
-                        deliverer.OnHitBlocked(new(deliverer, receiver, this, hurtbody, new(hit), deliverer.GetCustomData()));
-                        
+                        deliverer.OnHitBlocked(hitData);
+                        blocker.OnHitBlocked(hitData);
+
+                        this.Log($"Hit blocked by {blocker}.");
+
                         break;
                     }
 
                     if (multiHits || !unclearedHits.Contains(receiver))
                     {
-                        HitData2D hitData = new(deliverer, receiver, this, hurtbody, new(hit), deliverer.GetCustomData());
+                        var hitData = new HitData2D(deliverer, receiver, this, hurtbody, new(hit), deliverer.GetCustomData());
 
                         deliverer.OnHitDelivered(hitData);
                         receiver.OnHitReceived(hitData);
