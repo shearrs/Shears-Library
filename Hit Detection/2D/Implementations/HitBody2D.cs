@@ -70,12 +70,7 @@ namespace Shears.HitDetection
                     var hurtbody = GetHurtBodyForCollider(hit.collider, hit.collider.transform);
 
                     if (hurtbody == null)
-                    {
-                        if (!IgnoreList.Contains(hit.collider))
-                            this.Log($"No HurtBody found for {hit.collider}!", SHLogLevels.Warning);
-
                         continue;
-                    }
 
                     IHitReceiver2D receiver = hurtbody.Receiver;
 

@@ -81,16 +81,16 @@ namespace Shears.HitDetection
         [SerializeField] private SourceDirections sourceDirections = (SourceDirections)(-1);
 
         [Header("Transform Settings")]
-        [SerializeField] private Vector2 center;
+        [SerializeField] private Vector2 offset;
         [SerializeField, Range(0, 360)] private float angle = 0f;
         [SerializeField] private Vector2 size = Vector2.one;
 
         private readonly Dictionary<SourceDirections, List<HitRay2D>> directionalHitRays = new();
         private readonly Dictionary<Collider2D, List<RaycastHit2D>> recentHits = new();
 
-        private Vector2 Center => transform.TransformPoint(center);
-        private Quaternion Orientation => transform.rotation * Quaternion.Euler(new(0, 0, angle));
-        private Vector2 Size => size * transform.lossyScale;
+        public Vector2 Center => transform.TransformPoint(offset);
+        public Quaternion Orientation => transform.rotation * Quaternion.Euler(new(0, 0, angle));
+        public Vector2 Size => size * transform.lossyScale;
 
         private void Reset()
         {
@@ -293,7 +293,7 @@ namespace Shears.HitDetection
             {
                 var originalMatrix = Gizmos.matrix;
                 var newMatrix = Matrix4x4.TRS(transform.position, transform.rotation, transform.lossyScale);
-                newMatrix *= Matrix4x4.TRS(center, Quaternion.Euler(0, 0, angle), Vector3.one);
+                newMatrix *= Matrix4x4.TRS(offset, Quaternion.Euler(0, 0, angle), Vector3.one);
 
                 Gizmos.matrix = newMatrix;
                 Gizmos.color = gizmoSettings.HitboxColor;

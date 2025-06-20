@@ -1,3 +1,4 @@
+using Shears.Editor;
 using System;
 using System.Linq;
 using UnityEditor;
@@ -35,11 +36,6 @@ namespace Shears.UI.Editor
 
             var managedSpriteRenderer = target as ManagedSpriteElement;
             spriteRenderer = managedSpriteRenderer.TypedWrappedValue;
-
-            var wrappedValueSO = new SerializedObject(wrappedValue);
-            wrappedValueSO.FindProperty("m_ObjectHideFlags").intValue = (int)HideFlags.HideInInspector;
-            wrappedValueSO.ApplyModifiedPropertiesWithoutUndo();
-            EditorUtility.SetDirty(wrappedValueSO.targetObject);
         }
 
         private void OnDisable()

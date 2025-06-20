@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Shears.UI
+namespace Shears
 {
     public abstract class ManagedWrapper : MonoBehaviour
     {
@@ -17,13 +17,18 @@ namespace Shears.UI
 
     public abstract class ManagedWrapper<T> : ManagedWrapper where T : Component
     {
+        private T typedWrappedValue;
+
         public override Component WrappedValue => TypedWrappedValue;
 
         public T TypedWrappedValue
         {
             get
             {
-                return GetComponent<T>();
+                if (typedWrappedValue == null)
+                    typedWrappedValue = GetComponent<T>();
+
+                return typedWrappedValue;
             }
         }
     }

@@ -2,7 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Shears.UI.Editor
+namespace Shears.Editor
 {
     [CustomEditor(typeof(ManagedWrapper), true)]
     public class ManagedWrapperEditor : UnityEditor.Editor
@@ -17,17 +17,11 @@ namespace Shears.UI.Editor
             var wrapper = target as ManagedWrapper;
 
             wrappedValue = wrapper.WrappedValue;
-        }
 
-        public override VisualElement CreateInspectorGUI()
-        {
-            var root = new VisualElement();
-
-            var label = new Label("ManagedWrapper types should override Editor.CreateInspectorGUI!");
-
-            root.Add(label);
-
-            return root;
+            var wrappedValueSO = new SerializedObject(wrappedValue);
+            wrappedValueSO.FindProperty("m_ObjectHideFlags").intValue = (int)HideFlags.HideInInspector;
+            wrappedValueSO.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(wrappedValueSO.targetObject);
         }
 
         protected virtual void OnDestroy()

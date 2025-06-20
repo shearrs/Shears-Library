@@ -13,10 +13,13 @@ namespace Shears.Detection
 
         [Header("Detection Settings")]
         [SerializeField] protected int maxDetections = 10;
-        [field: SerializeField] public LayerMask DetectionMask { get; set; } = 1;
-        [field: SerializeField] public bool DetectTriggers { get; set; } = true;
+        [SerializeField] private LayerMask detectionMask = 1;
+        [SerializeField] private bool detectTriggers = true;
 
         private Color gizmoColor = Color.clear;
+
+        public LayerMask DetectionMask { get => detectionMask; set => detectionMask = value; }
+        public bool DetectTriggers { get => detectTriggers; set => detectTriggers = value; }
 
         protected ContactFilter2D ContactFilter => new()
         {
@@ -25,9 +28,9 @@ namespace Shears.Detection
             useLayerMask = true
         };
 
-        public int Detect(Collider2D[] detections)
+        public bool Detect(Collider2D[] detections, out int hits)
         {
-            int hits = Sweep(detections);
+            hits = Sweep(detections);
 
             if (highlightOnDetect)
             {
@@ -35,7 +38,7 @@ namespace Shears.Detection
                 StartCoroutine(IEHighlightGizmos());
             }
 
-            return hits;
+            return hits > 0;
         }
 
         protected abstract int Sweep(Collider2D[] detections);
@@ -51,6 +54,7 @@ namespace Shears.Detection
                 DrawWireGizmos();
             }
         }
+
         protected abstract void DrawWireGizmos();
 
         private IEnumerator IEHighlightGizmos()
