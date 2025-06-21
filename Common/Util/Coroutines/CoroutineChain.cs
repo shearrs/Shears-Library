@@ -7,7 +7,7 @@ namespace Shears
 {
     public class CoroutineChain
     {
-        private GameObject owner;
+        private UnityEngine.Object owner;
         private Coroutine coroutine;
         private bool hasOwner = false;
         private bool isRunning = false;
@@ -81,7 +81,7 @@ namespace Shears
             return new();
         }
 
-        public CoroutineChain WithLifetime(GameObject owner)
+        public CoroutineChain WithLifetime(UnityEngine.Object owner)
         {
             hasOwner = true;
             this.owner = owner;
@@ -185,6 +185,11 @@ namespace Shears
                 return;
 
             CoroutineRunner.Stop(coroutine);
+        }
+
+        public void Clear()
+        {
+            chainQueue.Clear();
         }
 
         private IEnumerator IEDoForDuration(Action action, float duration)
