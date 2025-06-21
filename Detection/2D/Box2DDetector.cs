@@ -5,9 +5,13 @@ namespace Shears.Detection
     public class Box2DDetector : AreaDetector2D
     {
         [Header("Box Settings")]
-        [field: SerializeField] public Vector2 Offset { get; set; }
-        [field: SerializeField, Range(0, 360)] public float Angle { get; set; } = 0f;
-        [field: SerializeField] public Vector2 Size { get; set; } = Vector2.one;
+        [SerializeField] private Vector2 offset = Vector2.zero;
+        [SerializeField, Range(0, 360)] private float angle = 0;
+        [SerializeField] private Vector2 size = Vector2.one;
+
+        public Vector2 Offset { get => offset; set => offset = value; }
+        public float Angle { get => angle; set => angle = value; }
+        public Vector2 Size { get => size; set => size = value; }
 
         protected override int Sweep(Collider2D[] detections)
         {
