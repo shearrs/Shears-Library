@@ -6,19 +6,22 @@ using UnityEngine;
 namespace Shears.ActionQueues
 {
     [Serializable]
-    public class ActionEntry : IActionEntryStatusHandle
+    public struct ActionEntry : IActionEntryStatusHandle
     {
 #if UNITY_EDITOR
         [SerializeField, ReadOnly] private string name;
 #endif
 
-        private readonly List<Func<bool>> conditionals = new();
+        private Coroutine coroutine;
+        private bool success;
+        private readonly List<Func<bool>> conditionals;
         private readonly Action action;
         private readonly IEnumerator enumeratorAction;
         private readonly Func<Coroutine> funcAction;
+        private readonly YieldInstruction yieldAction;
 
-        public bool Success { get; private set; } = false;
-        public Coroutine Coroutine { get; private set; }
+        public readonly bool Success => success;
+        public readonly Coroutine Coroutine => coroutine;
 
         #region Constructors
         public ActionEntry(Action action, string name = "")
@@ -44,8 +47,15 @@ namespace Shears.ActionQueues
             else
                 this.name = name;
 #endif
+            success = false;
+            conditionals = new();
+            enumeratorAction = null;
+            funcAction = null;
+            coroutine = null;
+            yieldAction = null;
 
-                this.action = action;
+
+            this.action = action;
         }
 
         public ActionEntry(IEnumerator action, string name = "")
@@ -56,8 +66,14 @@ namespace Shears.ActionQueues
             else
                 this.name = name;
 #endif
+            success = false;
+            conditionals = new();
+            this.action = null;
+            funcAction = null;
+            coroutine = null;
+            yieldAction = null;
 
-                enumeratorAction = action;
+            enumeratorAction = action;
         }
 
         public ActionEntry(Func<Coroutine> action, string name = "")
@@ -68,19 +84,44 @@ namespace Shears.ActionQueues
             else
                 this.name = name;
 #endif
+            success = false;
+            conditionals = new();
+            this.action = null;
+            enumeratorAction = null;
+            coroutine = null;
+            yieldAction = null;
 
-                funcAction = action;
+            funcAction = action;
         }
         #endregion
 
-        public ActionEntry AddConditional(Func<bool> conditionalFunc)
+        public ActionEntry(YieldInstruction action, string name = "")
+        {
+#if UNITY_EDITOR
+            if (name == "")
+                this.name = action.ToString();
+            else
+                this.name = name;
+#endif
+
+            success = false;
+            conditionals = new();
+            this.action = null;
+            enumeratorAction = null;
+            funcAction = null;
+            coroutine = null;
+
+            yieldAction = action;
+        }
+
+        public readonly ActionEntry AddConditional(Func<bool> conditionalFunc)
         {
             conditionals.Add(conditionalFunc);
 
             return this;
         }
 
-        public ActionEntry AddConditional(IActionEntryStatusHandle statusHandle)
+        public readonly ActionEntry AddConditional(IActionEntryStatusHandle statusHandle)
         {
             conditionals.Add(() => statusHandle.Success);
 
@@ -92,10 +133,10 @@ namespace Shears.ActionQueues
             if (action != null && ConditionalsAreTrue())
             {
                 action();
-                Success = true;
+                success = true;
             }
             else
-                Coroutine = CoroutineRunner.Start(IERun());
+                coroutine = CoroutineRunner.Start(IERun());
         }
 
         private IEnumerator IERun()
@@ -104,14 +145,16 @@ namespace Shears.ActionQueues
             {
                 if (enumeratorAction != null)
                     yield return CoroutineRunner.Start(enumeratorAction);
+                else if (yieldAction != null)
+                    yield return yieldAction;
                 else
                     yield return funcAction();
 
-                Success = true;
+                success = true;
             }
         }
 
-        private bool ConditionalsAreTrue()
+        private readonly bool ConditionalsAreTrue()
         {
             if (conditionals.Count == 0)
                 return true;
