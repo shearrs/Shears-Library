@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Shears.Detection
 {
-    public class Box2DDetector : AreaDetector2D
+    public class BoxDetector2D : AreaDetector2D
     {
         [Header("Box Settings")]
         [SerializeField] private Vector2 offset = Vector2.zero;
