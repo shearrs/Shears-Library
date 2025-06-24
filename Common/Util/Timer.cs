@@ -6,12 +6,20 @@ namespace Shears
     [System.Serializable]
     public class Timer
     {
-        [SerializeField] private float time;
+        [SerializeField] private float time = 1;
         [SerializeField, ReadOnly] private bool isDone = true;
         
         private CancellationTokenSource tokenSource;
 
+        public float Time { get => time; set => time = value; }
         public bool IsDone => isDone;
+
+        public Timer() { }
+
+        public Timer(float time)
+        {
+            this.time = time;
+        }
 
         public void Start() => Start(time);
 
