@@ -134,6 +134,27 @@ namespace Shears
 
             return this;
         }
+        public CoroutineChain IfThen(Func<bool> condition, Action action)
+        {
+            if (condition())
+                chainQueue.Enqueue(new(action));
+
+            return this;
+        }
+        public CoroutineChain IfThen(Func<bool> condition, IEnumerator action)
+        {
+            if (condition())
+                chainQueue.Enqueue(new(action));
+
+            return this;
+        }
+        public CoroutineChain IfThen(Func<bool> condition, Func<Coroutine> action)
+        {
+            if (condition())
+                chainQueue.Enqueue(new(action));
+
+            return this;
+        }
 
         public CoroutineChain DoForDuration(Action action, float duration)
         {
