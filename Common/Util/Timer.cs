@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
@@ -10,6 +12,7 @@ namespace Shears
         [SerializeField, ReadOnly] private bool isDone = true;
         
         private CancellationTokenSource tokenSource;
+        private readonly List<Action> onComplete = new();
 
         public float Time { get => time; set => time = value; }
         public bool IsDone => isDone;
@@ -43,6 +46,18 @@ namespace Shears
             isDone = true;
         }
 
+        public void AddOnComplete(Action action)
+        {
+            if (action != null && !onComplete.Contains(action))
+                onComplete.Add(action);
+        }
+
+        public void RemoveOnComplete(Action action)
+        {
+            if (action != null)
+                onComplete.Remove(action);
+        }
+
         private async void RunAsync(float time, CancellationToken token)
         {
             isDone = false;
@@ -50,6 +65,9 @@ namespace Shears
             await SafeAwaitable.WaitForSecondsAsync(time, token);
 
             isDone = true;
+
+            foreach (var action in onComplete)
+                action?.Invoke();
         }
     }
 }
