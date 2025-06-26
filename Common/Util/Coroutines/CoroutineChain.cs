@@ -11,12 +11,12 @@ namespace Shears
         private Coroutine coroutine;
         private bool hasOwner = false;
         private bool isRunning = false;
-        private readonly Queue<ChainElement> chainQueue = new();
+        private readonly Queue<ChainAction> chainQueue = new();
 
         public int Count => chainQueue.Count;
         public bool IsRunning => isRunning;
 
-        private struct ChainElement
+        public struct ChainAction
         {
             private readonly Action action;
             private readonly IEnumerator enumeratorAction;
@@ -27,7 +27,7 @@ namespace Shears
             public readonly Coroutine Coroutine => coroutine;
             public readonly YieldInstruction YieldInstruction => yieldInstruction;
 
-            public ChainElement(Action action)
+            public ChainAction(Action action)
             {
                 this.action = action;
                 enumeratorAction = null;
@@ -36,7 +36,7 @@ namespace Shears
                 yieldInstruction = null;
             }
 
-            public ChainElement(IEnumerator action)
+            public ChainAction(IEnumerator action)
             {
                 enumeratorAction = action;
                 this.action = null;
@@ -45,7 +45,7 @@ namespace Shears
                 yieldInstruction = null;
             }
 
-            public ChainElement(Func<Coroutine> action)
+            public ChainAction(Func<Coroutine> action)
             {
                 coroutineAction = action;
                 this.action = null;
@@ -54,7 +54,7 @@ namespace Shears
                 yieldInstruction = null;
             }
 
-            public ChainElement(YieldInstruction yieldInstruction)
+            public ChainAction(YieldInstruction yieldInstruction)
             {
                 this.yieldInstruction = yieldInstruction;
                 action = null;
@@ -89,72 +89,67 @@ namespace Shears
             return this;
         }
 
-        public void Enqueue(Action action) => chainQueue.Enqueue(new(action));
-        public void Enqueue(IEnumerator action) => chainQueue.Enqueue(new(action));
-        public void Enqueue(Func<Coroutine> action) => chainQueue.Enqueue(new(action));
-        public void Enqueue(YieldInstruction yieldInstruction) => chainQueue.Enqueue(new(yieldInstruction));
+        public void Enqueue(ChainAction action) => chainQueue.Enqueue(action);
+        public void Enqueue(Action action) => Enqueue(new ChainAction(action));
+        public void Enqueue(IEnumerator action) => Enqueue(new ChainAction(action));
+        public void Enqueue(Func<Coroutine> action) => Enqueue(new ChainAction(action));
+        public void Enqueue(YieldInstruction yieldInstruction) => Enqueue(new ChainAction(yieldInstruction));
 
-        public CoroutineChain Then(Action action)
+        public CoroutineChain Then(ChainAction action)
         {
-            chainQueue.Enqueue(new(action));
+            Enqueue(action);
 
             return this;
         }
-        public CoroutineChain Then(IEnumerator action)
-        {
-            chainQueue.Enqueue(new(action));
+        public CoroutineChain Then(Action action) => Then(new ChainAction(action));
+        public CoroutineChain Then(IEnumerator action) => Then(new ChainAction(action));
+        public CoroutineChain Then(Func<Coroutine> action) => Then(new ChainAction(action));
 
-            return this;
-        }
-        public CoroutineChain Then(Func<Coroutine> action)
-        {
-            chainQueue.Enqueue(new(action));
-
-            return this;
-        }
-
-        public CoroutineChain IfThen(bool condition, Action action)
+        public CoroutineChain IfThen(bool condition, ChainAction action)
         {
             if (condition)
-                chainQueue.Enqueue(new(action));
+                Enqueue(action);
 
             return this;
         }
-        public CoroutineChain IfThen(bool condition, IEnumerator action)
+        public CoroutineChain IfThen(bool condition, Action action) => IfThen(condition, new ChainAction(action));
+        public CoroutineChain IfThen(bool condition, IEnumerator action) => IfThen(condition, new ChainAction(action));
+        public CoroutineChain IfThen(bool condition, Func<Coroutine> action) => IfThen(condition, new ChainAction(action));
+        public CoroutineChain IfThen(Func<bool> condition, ChainAction action)
+        {
+            if (condition())
+                Enqueue(action);
+
+            return this;
+        }
+        public CoroutineChain IfThen(Func<bool> condition, Action action) => IfThen(condition, new ChainAction(action));
+        public CoroutineChain IfThen(Func<bool> condition, IEnumerator action) => IfThen(condition, new ChainAction(action));
+        public CoroutineChain IfThen(Func<bool> condition, Func<Coroutine> action) => IfThen(condition, new ChainAction(action));
+
+        public CoroutineChain IfThenElse(bool condition, ChainAction ifAction, ChainAction elseAction)
         {
             if (condition)
-                chainQueue.Enqueue(new(action));
+                Enqueue(ifAction);
+            else
+                Enqueue(elseAction);
 
             return this;
         }
-        public CoroutineChain IfThen(bool condition, Func<Coroutine> action)
-        {
-            if (condition)
-                chainQueue.Enqueue(new(action));
-
-            return this;
-        }
-        public CoroutineChain IfThen(Func<bool> condition, Action action)
+        public CoroutineChain IfThenElse(bool condition, Action ifAction, Action elseAction) => IfThenElse(condition, new ChainAction(ifAction), new ChainAction(elseAction));
+        public CoroutineChain IfThenElse(bool condition, IEnumerator ifAction, IEnumerator elseAction) => IfThenElse(condition, new ChainAction(ifAction), new ChainAction(elseAction));
+        public CoroutineChain IfThenElse(bool condition, Func<Coroutine> ifAction, Func<Coroutine> elseAction) => IfThenElse(condition, new ChainAction(ifAction), new ChainAction(elseAction));
+        public CoroutineChain IfThenElse(Func<bool> condition, ChainAction ifAction, ChainAction elseAction)
         {
             if (condition())
-                chainQueue.Enqueue(new(action));
+                Enqueue(ifAction);
+            else
+                Enqueue(elseAction);
 
             return this;
         }
-        public CoroutineChain IfThen(Func<bool> condition, IEnumerator action)
-        {
-            if (condition())
-                chainQueue.Enqueue(new(action));
-
-            return this;
-        }
-        public CoroutineChain IfThen(Func<bool> condition, Func<Coroutine> action)
-        {
-            if (condition())
-                chainQueue.Enqueue(new(action));
-
-            return this;
-        }
+        public CoroutineChain IfThenElse(Func<bool> condition, Action ifAction, Action elseAction) => IfThenElse(condition, new ChainAction(ifAction), new ChainAction(elseAction));
+        public CoroutineChain IfThenElse(Func<bool> condition, IEnumerator ifAction, IEnumerator elseAction) => IfThenElse(condition, new ChainAction(ifAction), new ChainAction(elseAction));
+        public CoroutineChain IfThenElse(Func<bool> condition, Func<Coroutine> ifAction, Func<Coroutine> elseAction) => IfThenElse(condition, new ChainAction(ifAction), new ChainAction(elseAction));
 
         public CoroutineChain DoForDuration(Action action, float duration)
         {
