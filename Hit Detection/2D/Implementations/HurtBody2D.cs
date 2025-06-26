@@ -11,15 +11,7 @@ namespace Shears.HitDetection
 
         IHitReceiver<HitData2D> IHurtBody<HitData2D>.Receiver => Receiver;
 
-        public Bounds Bounds
-        {
-            get
-            {
-                Physics2D.SyncTransforms();
-
-                return col.bounds;
-            }
-        }
+        public Bounds Bounds => col.bounds;
 
         private void Start()
         {
