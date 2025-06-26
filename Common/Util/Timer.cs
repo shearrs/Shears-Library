@@ -46,6 +46,12 @@ namespace Shears
             isDone = true;
         }
 
+        public void Restart()
+        {
+            Stop();
+            Start();
+        }
+
         public void AddOnComplete(Action action)
         {
             if (action != null && !onComplete.Contains(action))
@@ -65,6 +71,9 @@ namespace Shears
             await SafeAwaitable.WaitForSecondsAsync(time, token);
 
             isDone = true;
+
+            if (token.IsCancellationRequested)
+                return;
 
             foreach (var action in onComplete)
                 action?.Invoke();
