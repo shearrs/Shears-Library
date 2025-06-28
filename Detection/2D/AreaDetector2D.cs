@@ -32,7 +32,7 @@ namespace Shears.Detection
         {
             hits = Sweep(detections);
 
-            if (highlightOnDetect)
+            if (highlightOnDetect && isActiveAndEnabled)
             {
                 StopAllCoroutines();
                 StartCoroutine(IEHighlightGizmos());

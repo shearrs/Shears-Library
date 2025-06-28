@@ -20,6 +20,11 @@ namespace Shears.Detection
 
             int hits = Physics2D.OverlapBox(transform.TransformPoint(Offset), size, Angle, ContactFilter, detections);
 
+            if (hits > 0)
+            {
+                Debug.DrawLine(transform.position, detections[0].transform.position, Color.red, 100f);
+            }
+
             return hits;
         }
 
