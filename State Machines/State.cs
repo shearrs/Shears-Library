@@ -12,7 +12,7 @@ namespace Shears.StateMachines
         private State currentSubState;
 
         [SerializeField]
-        private TransitionCollection transitions;
+        private TransitionCollection transitions = new();
 
         private State parentState;
 
