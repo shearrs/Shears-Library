@@ -11,7 +11,7 @@ namespace Shears.StateMachines
     public class Transition
     {
         #if UNITY_EDITOR
-        [SerializeField, HideInInspector] private bool _isFoldoutExpanded;
+        [SerializeField, HideInInspector] private bool isFoldoutExpanded;
         #endif
 
         [SerializeField, ReadOnly]
