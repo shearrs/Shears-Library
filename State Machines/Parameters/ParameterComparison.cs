@@ -9,9 +9,9 @@ namespace Shears.StateMachines
     public abstract class ParameterComparison
     {
         [SerializeField]
-        private string _parameterID;
+        private string parameterID;
 
-        internal string ParameterID => _parameterID;
+        internal string ParameterID => parameterID;
         public abstract Parameter Parameter { get; internal set;}
 
         public bool Evaluate()
@@ -32,11 +32,11 @@ namespace Shears.StateMachines
     [System.Serializable]
     public abstract class ParameterComparison<T> : ParameterComparison
     {
-        protected Parameter<T> _parameter;
+        protected Parameter<T> parameter;
 
         [SerializeField]
-        protected T _compareValue;
+        protected T compareValue;
 
-        public override Parameter Parameter { get => _parameter; internal set => _parameter = value as Parameter<T>; }
+        public override Parameter Parameter { get => parameter; internal set => parameter = value as Parameter<T>; }
     }
 }

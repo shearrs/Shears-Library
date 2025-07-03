@@ -8,22 +8,22 @@ namespace Shears.StateMachines
     {
         [Header("States")]
         [SerializeField]
-        private State _initialState;
+        private State initialState;
 
 #if UNITY_EDITOR
         [Header("Display")]
         [SerializeField, ReadOnly]
-        private List<State> _stateDisplay = new();
+        private List<State> stateDisplay = new();
 #endif
 
-        private readonly List<State> _stateTree = new();
-        private List<State> _states;
+        private readonly List<State> stateTree = new();
+        private List<State> states;
 
         [SerializeReference]
-        private List<Parameter> _parameters = new();
+        private List<Parameter> parameters = new();
 
-        private readonly Dictionary<string, Parameter> _parameterIDDictionary = new();
-        private readonly Dictionary<string, Parameter> _parameterNameDictionary = new();
+        private readonly Dictionary<string, Parameter> parameterIDDictionary = new();
+        private readonly Dictionary<string, Parameter> parameterNameDictionary = new();
 
         #region Initialization
         protected virtual void Awake()
@@ -34,7 +34,7 @@ namespace Shears.StateMachines
 
         protected virtual void Start()
         {
-            SetState(_initialState);
+            SetState(initialState);
         }
 
         /// <summary>
@@ -42,9 +42,9 @@ namespace Shears.StateMachines
         /// </summary>
         private void InitializeStates()
         {
-            _states = GetComponentsInChildren<State>(true).ToList();
+            states = GetComponentsInChildren<State>(true).ToList();
 
-            foreach (var state in _states)
+            foreach (var state in states)
                 state.StateMachine = this;
         }
 
@@ -53,19 +53,19 @@ namespace Shears.StateMachines
         /// </summary>
         private void InitializeParameters()
         {
-            foreach (var parameter in _parameters)
+            foreach (var parameter in parameters)
             {
-                _parameterIDDictionary[parameter.ID] = parameter;
-                _parameterNameDictionary[parameter.Name] = parameter;
+                parameterIDDictionary[parameter.ID] = parameter;
+                parameterNameDictionary[parameter.Name] = parameter;
             }
 
-            foreach (var state in _states)
+            foreach (var state in states)
             {
                 foreach (var transition in state.Transitions)
                 {
                     foreach (var comparison in transition.Comparisons)
                     {
-                        if (_parameterIDDictionary.TryGetValue(comparison.ParameterID, out var parameter))
+                        if (parameterIDDictionary.TryGetValue(comparison.ParameterID, out var parameter))
                             comparison.Parameter = parameter;
                         else
                             Debug.LogError($"Parameter '{comparison.ParameterID}' not found in the state machine.");
@@ -77,7 +77,7 @@ namespace Shears.StateMachines
 
         protected virtual void Update()
         {
-            if (_stateTree.Count == 0)
+            if (stateTree.Count == 0)
                 return;
 
             EvaluateState();
@@ -93,7 +93,7 @@ namespace Shears.StateMachines
         /// </summary>
         private void EvaluateState()
         {
-            foreach (var state in _stateTree)
+            foreach (var state in stateTree)
             {
                 if (state.EvaluateTransitions(out var newState))
                 {
@@ -108,7 +108,7 @@ namespace Shears.StateMachines
         /// </summary>
         private void UpdateState()
         {
-            foreach (var state in _stateTree)
+            foreach (var state in stateTree)
                 state.UpdateState();
         }
 
@@ -131,15 +131,15 @@ namespace Shears.StateMachines
 
         private void ExitState(List<State> newStateTree)
         {
-            if (_stateTree.Count == 0)
+            if (stateTree.Count == 0)
                 return;
 
-            State currentState = _stateTree[^1];
+            State currentState = stateTree[^1];
 
             while (currentState != null && !newStateTree.Contains(currentState))
             {
                 currentState.Exit();
-                _stateTree.RemoveAt(_stateTree.Count - 1);
+                stateTree.RemoveAt(stateTree.Count - 1);
 
                 currentState = currentState.ParentState;
             }
@@ -154,9 +154,9 @@ namespace Shears.StateMachines
             {
                 State currentState = newStateTree[i];
 
-                if (!_stateTree.Contains(currentState))
+                if (!stateTree.Contains(currentState))
                 {
-                    _stateTree.Add(currentState);
+                    stateTree.Add(currentState);
                     currentState.Enter();
 
                     if (i > 0)
@@ -166,9 +166,9 @@ namespace Shears.StateMachines
 
             State currentSubState = newStateTree[^1].InitialSubState;
 
-            while (currentSubState != null && !_stateTree.Contains(currentSubState))
+            while (currentSubState != null && !stateTree.Contains(currentSubState))
             {
-                _stateTree.Add(currentSubState);
+                stateTree.Add(currentSubState);
                 currentSubState.Enter();
 
                 currentSubState.ParentState.SubState = currentSubState;
@@ -180,7 +180,7 @@ namespace Shears.StateMachines
         #region Parameters
         public T GetParameter<T>(string name)
         {
-            if (_parameterNameDictionary.TryGetValue(name, out var parameter))
+            if (parameterNameDictionary.TryGetValue(name, out var parameter))
             {
                 if (parameter is Parameter<T> typedParameter)
                     return typedParameter.Value;
@@ -195,7 +195,7 @@ namespace Shears.StateMachines
 
         public void SetParameter<T>(string name, T value)
         {
-            if (_parameterNameDictionary.TryGetValue(name, out var parameter))
+            if (parameterNameDictionary.TryGetValue(name, out var parameter))
             {
                 if (parameter is Parameter<T> typedParameter)
                     typedParameter.Value = value;
@@ -210,11 +210,11 @@ namespace Shears.StateMachines
         private void UpdateStateDisplay()
         {
 #if UNITY_EDITOR
-            _stateDisplay.Clear();
+            stateDisplay.Clear();
 
-            foreach (var state in _stateTree)
+            foreach (var state in stateTree)
             {
-                _stateDisplay.Add(state);
+                stateDisplay.Add(state);
             }
 #endif
         }

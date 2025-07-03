@@ -19,8 +19,8 @@ namespace Shears.StateMachines
         {
             return _compareValueType switch
             {
-                CompareValueType.LessThan => _parameter.Value < _compareValue,
-                CompareValueType.GreaterThan => _parameter.Value > _compareValue,
+                CompareValueType.LessThan => parameter.Value < compareValue,
+                CompareValueType.GreaterThan => parameter.Value > compareValue,
                 _ => false,
             };
         }

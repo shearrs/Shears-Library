@@ -6,18 +6,18 @@ namespace Shears.StateMachines
     public abstract class Parameter
     {
         [SerializeField]
-        private string _name;
+        private string name;
 
         [SerializeField, HideInInspector]
-        private string _id;
+        private string id;
 
-        public string Name { get => _name; set => _name = value; }
-        public string ID => _id;
+        public string Name { get => name; set => name = value; }
+        public string ID => id;
 
         public Parameter(string name)
         {
-            _name = name;
-            _id = System.Guid.NewGuid().ToString();
+            this.name = name;
+            id = System.Guid.NewGuid().ToString();
         }
     }
 
@@ -25,9 +25,9 @@ namespace Shears.StateMachines
     public abstract class Parameter<T> : Parameter
     {
         [SerializeField]
-        private T _value;
+        private T value;
 
-        public T Value { get => _value; set => _value = value; }
+        public T Value { get => value; set => this.value = value; }
 
         public Parameter(string name) : base(name) { }
     }

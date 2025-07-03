@@ -19,11 +19,11 @@ namespace Shears.StateMachines
         {
             return _compareValueType switch
             {
-                CompareValueType.EqualTo => _parameter.Value == _compareValue,
-                CompareValueType.LessThan => _parameter.Value < _compareValue,
-                CompareValueType.GreaterThan => _parameter.Value > _compareValue,
-                CompareValueType.LessThanOrEqualTo => _parameter.Value <= _compareValue,
-                CompareValueType.GreaterThanOrEqualTo => _parameter.Value >= _compareValue,
+                CompareValueType.EqualTo => parameter.Value == compareValue,
+                CompareValueType.LessThan => parameter.Value < compareValue,
+                CompareValueType.GreaterThan => parameter.Value > compareValue,
+                CompareValueType.LessThanOrEqualTo => parameter.Value <= compareValue,
+                CompareValueType.GreaterThanOrEqualTo => parameter.Value >= compareValue,
                 _ => false,
             };
         }
