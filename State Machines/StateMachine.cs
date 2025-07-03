@@ -11,6 +11,7 @@ namespace Shears.StateMachines
         private State _initialState;
 
 #if UNITY_EDITOR
+        [Header("Display")]
         [SerializeField, ReadOnly]
         private List<State> _stateDisplay = new();
 #endif
