@@ -15,28 +15,28 @@ namespace Shears.StateMachines
         #endif
 
         [SerializeField, ReadOnly]
-        private State _from;
+        private State from;
 
         [SerializeField]
-        private State _to;
+        private State to;
 
         [SerializeReference]
-        private List<ParameterComparison> _comparisons = new();
+        private List<ParameterComparison> comparisons = new();
 
-        internal IReadOnlyList<ParameterComparison> Comparisons => _comparisons;
+        internal IReadOnlyList<ParameterComparison> Comparisons => comparisons;
 
-        public State From { get => _from; set => _from = value; }
-        public State To { get => _to; set => _to = value; }
+        public State From { get => from; set => from = value; }
+        public State To { get => to; set => to = value; }
 
         public Transition(State from, State to)
         {
-            _from = from;
-            _to = to;
+            this.from = from;
+            this.to = to;
         }
 
         public bool Evaluate()
         {
-            foreach (var comparison in _comparisons)
+            foreach (var comparison in comparisons)
             {
                 if (!comparison.Evaluate())
                     return false;
@@ -47,12 +47,12 @@ namespace Shears.StateMachines
 
         public void AddComparison(ParameterComparison comparison)
         {
-            _comparisons.Add(comparison);
+            comparisons.Add(comparison);
         }
 
         public void RemoveComparison(ParameterComparison comparison)
         {
-            _comparisons.Remove(comparison);
+            comparisons.Remove(comparison);
         }
     }
 }

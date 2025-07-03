@@ -35,7 +35,7 @@ namespace Shears.StateMachines.Editor
             foreach (var parameterName in stateMachineParameters)
                 parameterField.choices.Add(parameterName);
 
-            var parameterIDProp = property.FindPropertyRelative("_parameterID");
+            var parameterIDProp = property.FindPropertyRelative("parameterID");
             string name = "";
 
             // If our comparison already has a parameter reference, we can set the name of the parameter in the dropdown field
@@ -85,7 +85,7 @@ namespace Shears.StateMachines.Editor
                 return parameterNames;
 
             var stateMachineSO = new SerializedObject(stateMachine);
-            var parametersProp = stateMachineSO.FindProperty("_parameters");
+            var parametersProp = stateMachineSO.FindProperty("parameters");
 
             if (parametersProp == null || parametersProp.isArray == false)
             {
@@ -147,7 +147,7 @@ namespace Shears.StateMachines.Editor
                 return null;
 
             var stateMachineSO = new SerializedObject(stateMachine);
-            var parametersProp = stateMachineSO.FindProperty("_parameters");
+            var parametersProp = stateMachineSO.FindProperty("parameters");
 
             return parametersProp;
         }
@@ -196,7 +196,7 @@ namespace Shears.StateMachines.Editor
         #region Compare Value Field
         protected virtual VisualElement CreateCompareValueField(SerializedProperty property)
         {
-            var compareValueField = new PropertyField(property.FindPropertyRelative("_compareValue"));
+            var compareValueField = new PropertyField(property.FindPropertyRelative("compareValue"));
             
             return compareValueField;
         }

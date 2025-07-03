@@ -10,8 +10,8 @@ namespace Shears.StateMachines.Editor
     {
         protected override VisualElement CreateCompareValueField(SerializedProperty property)
         {
-            var compareTypeField = new PropertyField(property.FindPropertyRelative("_compareValueType"));
-            var compareValueField = new PropertyField(property.FindPropertyRelative("_compareValue"));
+            var compareTypeField = new PropertyField(property.FindPropertyRelative("_ompareValueType"));
+            var compareValueField = new PropertyField(property.FindPropertyRelative("compareValue"));
 
             var container = new VisualElement();
             container.Add(compareTypeField);

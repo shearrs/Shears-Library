@@ -15,7 +15,7 @@ namespace Shears.StateMachines.Editor
             var root = new VisualElement();
             root.styleSheets.Add(Resources.Load<StyleSheet>("StateMachines"));
 
-            var transitionsProp = property.FindPropertyRelative("_transitions");
+            var transitionsProp = property.FindPropertyRelative("transitions");
 
             var transitionsContainer = CreateTransitionsContainer(property, transitionsProp);
 
@@ -65,12 +65,12 @@ namespace Shears.StateMachines.Editor
             var transitionFoldout = new Foldout
             {
                 name = $"Transition Wrapper {index}",
-                value = transitionProp.FindPropertyRelative("_isFoldoutExpanded").boolValue
+                value = transitionProp.FindPropertyRelative("isFoldoutExpanded").boolValue
             };
 
             transitionFoldout.RegisterValueChangedCallback(evt =>
             {
-                transitionProp.FindPropertyRelative("_isFoldoutExpanded").boolValue = evt.newValue;
+                transitionProp.FindPropertyRelative("isFoldoutExpanded").boolValue = evt.newValue;
                 transitionProp.serializedObject.ApplyModifiedPropertiesWithoutUndo();
             });
 
@@ -83,7 +83,7 @@ namespace Shears.StateMachines.Editor
                 transitionFoldout.text = newText;
             }
 
-            var toProp = transitionProp.FindPropertyRelative("_to");
+            var toProp = transitionProp.FindPropertyRelative("to");
             transitionFoldout.TrackPropertyValue(toProp, updateFoldoutText);
             updateFoldoutText(toProp);
 

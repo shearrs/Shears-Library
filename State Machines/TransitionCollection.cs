@@ -7,13 +7,13 @@ namespace Shears.StateMachines
     public class TransitionCollection
     {
         [SerializeField]
-        private List<Transition> _transitions = new();
+        private List<Transition> transitions = new();
 
-        public IReadOnlyList<Transition> Transitions => _transitions;
+        public IReadOnlyList<Transition> Transitions => transitions;
 
         public void Initialize(State from)
         {
-            foreach (var transition in _transitions)
+            foreach (var transition in transitions)
                 transition.From = from;
         }
 
@@ -26,7 +26,7 @@ namespace Shears.StateMachines
         {
             newState = null;
 
-            foreach (var transition in _transitions)
+            foreach (var transition in transitions)
             {
                 if (transition.Evaluate())
                 {

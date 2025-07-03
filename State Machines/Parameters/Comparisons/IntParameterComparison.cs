@@ -7,17 +7,17 @@ namespace Shears.StateMachines
         public enum CompareValueType { EqualTo, LessThan, GreaterThan, LessThanOrEqualTo, GreaterThanOrEqualTo }
 
         [SerializeField]
-        private CompareValueType _compareValueType;
+        private CompareValueType compareValueType;
 
         public CompareValueType CompareType
         {
-            get => _compareValueType;
-            set => _compareValueType = value;
+            get => compareValueType;
+            set => compareValueType = value;
         }
 
         public override bool EvaluateInternal()
         {
-            return _compareValueType switch
+            return compareValueType switch
             {
                 CompareValueType.EqualTo => parameter.Value == compareValue,
                 CompareValueType.LessThan => parameter.Value < compareValue,

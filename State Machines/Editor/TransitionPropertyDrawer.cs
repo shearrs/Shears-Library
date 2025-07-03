@@ -17,7 +17,7 @@ namespace Shears.StateMachines.Editor
             var statesHeader = new Label("States");
             statesHeader.AddToClassList("header");
 
-            var fromField = new PropertyField(property.FindPropertyRelative("_from"));
+            var fromField = new PropertyField(property.FindPropertyRelative("from"));
             var toField = CreateToField(property);
 
             // Comparisons
@@ -29,7 +29,7 @@ namespace Shears.StateMachines.Editor
                 text = "Add Comparison"
             };
 
-            var comparisonsField = new PropertyField(property.FindPropertyRelative("_comparisons"));
+            var comparisonsField = new PropertyField(property.FindPropertyRelative("comparisons"));
 
             root.Add(statesHeader);
             root.Add(fromField);
@@ -62,14 +62,14 @@ namespace Shears.StateMachines.Editor
 
         private VisualElement CreateToField(SerializedProperty property)
         {
-            var toField = new PropertyField(property.FindPropertyRelative("_to"));
+            var toField = new PropertyField(property.FindPropertyRelative("to"));
 
             return toField;
         }
 
         private string GetStateName(SerializedProperty property)
         {
-            var to = property.FindPropertyRelative("_to").objectReferenceValue;
+            var to = property.FindPropertyRelative("to").objectReferenceValue;
 
             return to != null
                 ? to.GetType().Name
@@ -84,13 +84,14 @@ namespace Shears.StateMachines.Editor
             menu.AddItem(new GUIContent("Primitive/Int Comparison"), false, () => AddComparison(property, new IntParameterComparison()));
             menu.AddItem(new GUIContent("Primitive/Float Comparison"), false, () => AddComparison(property, new FloatParameterComparison()));
             menu.AddItem(new GUIContent("Composite/Trigger Comparison"), false, () => AddComparison(property, new TriggerParameterComparison()));
+            menu.AddItem(new GUIContent("Composite/Object Comparison"), false, () => AddComparison(property, new ObjectParameterComparison()));
 
             menu.ShowAsContext();
         }
 
         private void AddComparison(SerializedProperty property, ParameterComparison comparison)
         {
-            var comparisonsProperty = property.FindPropertyRelative("_comparisons");
+            var comparisonsProperty = property.FindPropertyRelative("comparisons");
 
             comparisonsProperty.InsertArrayElementAtIndex(comparisonsProperty.arraySize);
             var newComparisonProperty = comparisonsProperty.GetArrayElementAtIndex(comparisonsProperty.arraySize - 1);

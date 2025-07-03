@@ -6,23 +6,23 @@ namespace Shears.StateMachines
     public abstract class State : MonoBehaviour
     {
         [SerializeField]
-        private State _initialSubState;
+        private State initialSubState;
 
         [SerializeField, ReadOnly]
-        private State _currentSubState;
+        private State currentSubState;
 
         [SerializeField]
-        private TransitionCollection _transitions;
+        private TransitionCollection transitions;
 
-        private State _parentState;
+        private State parentState;
 
-        protected StateMachine _stateMachine;
+        protected StateMachine stateMachine;
 
-        internal IReadOnlyList<Transition> Transitions => _transitions.Transitions;
-        internal State ParentState => _parentState;
-        internal State InitialSubState { get => _initialSubState; }
-        internal State SubState { get => _currentSubState; set => _currentSubState = value; }
-        internal StateMachine StateMachine { get => _stateMachine; set => _stateMachine = value; }
+        internal IReadOnlyList<Transition> Transitions => transitions.Transitions;
+        internal State ParentState => parentState;
+        internal State InitialSubState { get => initialSubState; }
+        internal State SubState { get => currentSubState; set => currentSubState = value; }
+        internal StateMachine StateMachine { get => stateMachine; set => stateMachine = value; }
 
         public string Name => GetType().Name;
 
@@ -33,7 +33,7 @@ namespace Shears.StateMachines
 
         private void Awake()
         {
-            _parentState = transform.parent.GetComponentInParent<State>(true);
+            parentState = transform.parent.GetComponentInParent<State>(true);
         }
 
         private void Start()
@@ -56,7 +56,7 @@ namespace Shears.StateMachines
 
         public void Exit()
         {
-            _currentSubState = null;
+            currentSubState = null;
 
             OnExit();
         }
@@ -66,20 +66,20 @@ namespace Shears.StateMachines
         #region Transitions
         public bool EvaluateTransitions(out State newState)
         {
-            return _transitions.Evaluate(out newState);
+            return transitions.Evaluate(out newState);
         }
 
         private void InitializeTransitions()
         {
-            _transitions.Initialize(this);
+            transitions.Initialize(this);
         }
         #endregion
     
         #region Parameter Management
         protected T GetParameter<T>(string name)
         {
-            if (_stateMachine != null)
-                return _stateMachine.GetParameter<T>(name);
+            if (stateMachine != null)
+                return stateMachine.GetParameter<T>(name);
             else
             {
                 Debug.LogError($"StateMachine not set for state '{GetType().Name}'. Cannot get parameter '{name}'.");
@@ -89,8 +89,8 @@ namespace Shears.StateMachines
 
         protected void SetParameter<T>(string name, T value)
         {
-            if (_stateMachine != null)
-                _stateMachine.SetParameter(name, value);
+            if (stateMachine != null)
+                stateMachine.SetParameter(name, value);
             else
                 Debug.LogError($"StateMachine not set for state '{GetType().Name}'. Cannot set parameter '{name}'.");
         }
