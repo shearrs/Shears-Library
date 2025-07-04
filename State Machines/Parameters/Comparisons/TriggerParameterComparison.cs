@@ -6,9 +6,9 @@ namespace Shears.StateMachines
     {
         public override bool EvaluateInternal()
         {
-            bool result = _parameter.Value.Value == Trigger.Active.Value;
+            bool result = parameter.Value.Value == Trigger.Active.Value;
 
-            _parameter.Value = Trigger.Inactive;
+            parameter.Value = Trigger.Inactive;
 
             return result;
         }

@@ -6,7 +6,7 @@ namespace Shears.StateMachines
     {
         public override bool EvaluateInternal()
         {
-            return _parameter.Value == _compareValue;
+            return parameter.Value == compareValue;
         }
     }
 }

@@ -35,7 +35,7 @@ namespace Shears.StateMachines.Editor
             foreach (var parameterName in stateMachineParameters)
                 parameterField.choices.Add(parameterName);
 
-            var parameterIDProp = property.FindPropertyRelative("_parameterID");
+            var parameterIDProp = property.FindPropertyRelative("parameterID");
             string name = "";
 
             // If our comparison already has a parameter reference, we can set the name of the parameter in the dropdown field
@@ -82,10 +82,13 @@ namespace Shears.StateMachines.Editor
 
             var stateMachine = GetStateMachine(property);
             if (stateMachine == null)
+            {
+                Debug.LogError("StateMachine is null! Cannot retrieve parameters.");
                 return parameterNames;
+            }
 
             var stateMachineSO = new SerializedObject(stateMachine);
-            var parametersProp = stateMachineSO.FindProperty("_parameters");
+            var parametersProp = stateMachineSO.FindProperty("parameters");
 
             if (parametersProp == null || parametersProp.isArray == false)
             {
@@ -147,12 +150,12 @@ namespace Shears.StateMachines.Editor
                 return null;
 
             var stateMachineSO = new SerializedObject(stateMachine);
-            var parametersProp = stateMachineSO.FindProperty("_parameters");
+            var parametersProp = stateMachineSO.FindProperty("parameters");
 
             return parametersProp;
         }
 
-        private StateMachine GetStateMachine(SerializedProperty property)
+        private StateMachineBase GetStateMachine(SerializedProperty property)
         {
             var state = (State)property.serializedObject.targetObject;
 
@@ -165,7 +168,7 @@ namespace Shears.StateMachines.Editor
             Transform currentTransform = state.transform;
             while (currentTransform != null)
             {
-                if (currentTransform.TryGetComponent<StateMachine>(out var stateMachine))
+                if (currentTransform.TryGetComponent<StateMachineBase>(out var stateMachine))
                     return stateMachine;
 
                 currentTransform = currentTransform.parent;
@@ -196,7 +199,7 @@ namespace Shears.StateMachines.Editor
         #region Compare Value Field
         protected virtual VisualElement CreateCompareValueField(SerializedProperty property)
         {
-            var compareValueField = new PropertyField(property.FindPropertyRelative("_compareValue"));
+            var compareValueField = new PropertyField(property.FindPropertyRelative("compareValue"));
             
             return compareValueField;
         }

@@ -2,7 +2,8 @@
     "name": "InternProject.StateMachines.Editor",
     "rootNamespace": "InternProject.StateMachines.Editor",
     "references": [
-        "GUID:4dda845160e703f4095da45af3d45973"
+        "GUID:4dda845160e703f4095da45af3d45973",
+        "GUID:f9343658ba9f34f40af4f1a7b0c76be7"
     ],
     "includePlatforms": [
         "Editor"
