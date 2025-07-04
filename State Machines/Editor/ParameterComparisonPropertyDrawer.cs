@@ -82,7 +82,10 @@ namespace Shears.StateMachines.Editor
 
             var stateMachine = GetStateMachine(property);
             if (stateMachine == null)
+            {
+                Debug.LogError("StateMachine is null! Cannot retrieve parameters.");
                 return parameterNames;
+            }
 
             var stateMachineSO = new SerializedObject(stateMachine);
             var parametersProp = stateMachineSO.FindProperty("parameters");
@@ -152,7 +155,7 @@ namespace Shears.StateMachines.Editor
             return parametersProp;
         }
 
-        private StateMachine GetStateMachine(SerializedProperty property)
+        private StateMachineBase GetStateMachine(SerializedProperty property)
         {
             var state = (State)property.serializedObject.targetObject;
 
@@ -165,7 +168,7 @@ namespace Shears.StateMachines.Editor
             Transform currentTransform = state.transform;
             while (currentTransform != null)
             {
-                if (currentTransform.TryGetComponent<StateMachine>(out var stateMachine))
+                if (currentTransform.TryGetComponent<StateMachineBase>(out var stateMachine))
                     return stateMachine;
 
                 currentTransform = currentTransform.parent;

@@ -5,13 +5,13 @@ using UnityEngine.UIElements;
 
 namespace Shears.StateMachines.Editor
 {
-    [CustomEditor(typeof(StateMachine))]
+    [CustomEditor(typeof(StateMachineBase<>), true)]
     public class StateMachineEditor : UnityEditor.Editor
     {
         public override VisualElement CreateInspectorGUI()
         {
             var root = new VisualElement();
-            
+
             root.styleSheets.Add(Resources.Load<StyleSheet>("StateMachines"));
 
             var scriptField = new PropertyField(serializedObject.FindProperty("m_Script"));

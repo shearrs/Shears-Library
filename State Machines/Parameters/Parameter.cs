@@ -30,5 +30,10 @@ namespace Shears.StateMachines
         public T Value { get => value; set => this.value = value; }
 
         public Parameter(string name) : base(name) { }
+
+        public Parameter(string name, T value) : base(name)
+        {
+            this.value = value;
+        }
     }
 }

@@ -16,13 +16,13 @@ namespace Shears.StateMachines
 
         private State parentState;
 
-        protected StateMachine stateMachine;
+        protected StateMachineBase stateMachine;
 
         internal IReadOnlyList<Transition> Transitions => transitions.Transitions;
         internal State ParentState => parentState;
         internal State InitialSubState { get => initialSubState; }
         internal State SubState { get => currentSubState; set => currentSubState = value; }
-        internal StateMachine StateMachine { get => stateMachine; set => stateMachine = value; }
+        internal StateMachineBase StateMachine { get => stateMachine; set => stateMachine = value; }
 
         public string Name => GetType().Name;
 
