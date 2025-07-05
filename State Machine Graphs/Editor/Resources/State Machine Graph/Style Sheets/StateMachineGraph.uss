@@ -1,0 +1,51 @@
+:root
+{
+	--color-select-light: rgba(0, 155, 255, 0.65);
+	--color-select-dark: rgba(0, 155, 255, 0.4);
+	--color-select-light-solid: rgb(0, 155, 255);
+	--color-select-lighter-solid: rgb(120, 200, 255);
+	--color-select-dark-solid: rgb(0, 100, 160);
+}
+
+.editorWindow 
+{
+}
+
+.stateMachineGraph
+{
+	width: 100%;
+	height: 100%;
+}
+
+.contentViewContainer
+{
+	flex-direction: row;
+	flex-grow: 1;
+}
+
+.graphViewContainer
+{
+	flex-grow: 1;
+	width: 100%;
+	align-content: center;
+	justify-content: center;
+}
+
+.toolBar 
+{
+	flex-direction: column;
+	background-color: rgba(60, 60, 60, 1);
+	min-height: 50px;
+	border-bottom-width: 1px;
+	border-color: rgba(40, 40, 40, 1);
+}
+
+.dataField
+{
+	margin: auto 10px auto 10px;
+}
+
+.dataFieldLabel
+{
+	min-width: 40px;
+}

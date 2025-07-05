@@ -1,0 +1,35 @@
+.graphView
+{
+	overflow: hidden;
+	flex-direction: column;
+	min-width: 100%;
+	flex-grow: 1;
+	flex-basis: 0;
+	align-items: center;
+	align-content: center;
+	justify-content: center;
+}
+
+.graphViewContainer
+{
+	flex-grow: 1;
+	flex-basis: 0;
+}
+
+.contentViewContainer
+{
+	flex-grow: 1;
+	flex-basis: 0;
+}
+
+.gridBackground
+{
+	--spacing: 50;
+	--line-width: 1;
+	--thick-line-width: 10;
+	--thick-line-interval: 5;
+	--line-color: rgba(0, 0, 0, 0.18);
+	--thick-line-color: rgba(0, 0, 0, 0.38);
+
+	background-color: rgba(0, 0, 0, 0.38);
+}
