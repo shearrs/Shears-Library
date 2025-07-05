@@ -1,3 +1,4 @@
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -5,12 +6,16 @@ namespace Shears.GraphViews.Editor
 {
     public class GraphView : VisualElement
     {
+        private readonly ContentDragger contentDragger;
+        private readonly ContentZoomer contentZoomer;
         private GraphData graphData;
+        private VisualElement rootContainer;
         private VisualElement graphViewContainer;
         private VisualElement contentViewContainer;
+        private GridBackground gridBackground;
 
-        protected VisualElement GraphViewContainer => graphViewContainer;
-
+        protected VisualElement RootContainer => rootContainer;
+        public VisualElement GraphViewContainer => graphViewContainer;
         public VisualElement ContentViewContainer => contentViewContainer;
         public ITransform ViewTransform => contentViewContainer.transform;
 
@@ -19,22 +24,44 @@ namespace Shears.GraphViews.Editor
             this.AddStyleSheet(GraphViewEditorUtil.GraphViewStyleSheet);
             AddToClassList("graphView");
 
+            contentDragger = new(this);
+            contentZoomer = new(this);
+
+            CreateRootContainer();
             CreateGraphViewContainer();
             CreateContentViewContainer();
         }
 
         protected void SetGraphData(GraphData graphData)
         {
+            if (graphData == null)
+            {
+                graphViewContainer.Remove(gridBackground);
+                contentViewContainer.Clear();
+                contentViewContainer.RemoveManipulator(contentDragger);
+                contentViewContainer.RemoveManipulator(contentZoomer);
+
+                return;
+            }
+
             this.graphData = graphData;
             focusable = true;
-
-            graphViewContainer = new();
-            contentViewContainer = new();
 
             CreateBackground();
             AddManipulators();
 
             UpdateViewTransform(graphData.Position, graphData.Scale);
+        }
+
+        private void CreateRootContainer()
+        {
+            rootContainer = new VisualElement
+            {
+                name = "rootContainer"
+            };
+
+            rootContainer.AddToClassList("rootContainer");
+            Add(rootContainer);
         }
 
         private void CreateGraphViewContainer()
@@ -45,7 +72,7 @@ namespace Shears.GraphViews.Editor
             };
 
             graphViewContainer.AddToClassList("graphViewContainer");
-            Add(graphViewContainer);
+            rootContainer.Add(graphViewContainer);
         }
 
         private void CreateContentViewContainer()
@@ -62,15 +89,15 @@ namespace Shears.GraphViews.Editor
 
         private void CreateBackground()
         {
-            var background = new GridBackground(this);
+            gridBackground = new GridBackground(this);
 
-            graphViewContainer.Insert(0, background);
+            graphViewContainer.Insert(0, gridBackground);
         }
 
         private void AddManipulators()
         {
-            contentViewContainer.AddManipulator(new ContentDragger());
-            contentViewContainer.AddManipulator(new ContentZoomer());
+            graphViewContainer.AddManipulator(contentDragger);
+            graphViewContainer.AddManipulator(contentZoomer);
         }
 
         public void UpdateViewTransform(Vector2 newPosition, Vector2 newScale)

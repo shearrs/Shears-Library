@@ -5,11 +5,13 @@ namespace Shears.GraphViews.Editor
 {
     public class ContentDragger : MouseManipulator
     {
+        private readonly GraphView graphView;
         private bool isDragging = false;
-        private GraphView graphView;
 
-        public ContentDragger()
+        public ContentDragger(GraphView graphView)
         {
+            this.graphView = graphView;
+
             activators.Add(new ManipulatorActivationFilter
             {
                 button = MouseButton.LeftMouse,
@@ -24,8 +26,6 @@ namespace Shears.GraphViews.Editor
 
         protected override void RegisterCallbacksOnTarget()
         {
-            graphView = target as GraphView;
-
             target.RegisterCallback<MouseDownEvent>(OnMouseDown);
             target.RegisterCallback<MouseMoveEvent>(OnMouseMove);
             target.RegisterCallback<MouseUpEvent>(OnMouseUp);

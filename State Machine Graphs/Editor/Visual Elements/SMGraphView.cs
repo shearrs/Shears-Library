@@ -15,17 +15,18 @@ namespace Shears.StateMachineGraphs.Editor
 
         private void CreateToolbar()
         {
-            var toolbar = new SMToolbar(graphData, SetGraphData);
+            var toolbar = new SMToolbar(graphData, SetStateMachineGraph);
 
-            GraphViewContainer.Insert(0, toolbar);
+            RootContainer.Insert(0, toolbar);
         }
 
-        private void SetGraphData(StateMachineGraph graphData)
+        private void SetStateMachineGraph(StateMachineGraph graphData)
         {
             if (this.graphData == graphData)
                 return;
 
             this.graphData = graphData;
+            SetGraphData(graphData);
         }
     }
 }

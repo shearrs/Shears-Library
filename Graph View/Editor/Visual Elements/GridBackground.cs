@@ -8,7 +8,7 @@ namespace Shears.GraphViews.Editor
     {
         private static readonly CustomStylePropertyDefault<float> SpacingProperty = new("--spacing", 50f);
         private static readonly CustomStylePropertyDefault<int> LineWidthProperty = new("--line-width", 1);
-        private static readonly CustomStylePropertyDefault<int> ThickLineWidthProperty = new("--thick-line-width", 10);
+        private static readonly CustomStylePropertyDefault<int> ThickLineWidthProperty = new("--thick-line-width", 5);
         private static readonly CustomStylePropertyDefault<int> ThickLineIntervalProperty = new("--thick-line-interval", 5);
         private static readonly CustomStylePropertyDefault<Color> LineColorProperty = new("--line-color", new Color(0f, 0f, 0f, 0.18f));
         private static readonly CustomStylePropertyDefault<Color> ThickLineColorProperty = new("--thick-line-color", new Color(0f, 0f, 0f, 0.38f));
@@ -68,9 +68,11 @@ namespace Shears.GraphViews.Editor
             float spacing = Mathf.Max(1, this.spacing);
             float thickSpacing = spacing * thickLineInterval;
 
-            Vector2 corner = this.ChangeCoordinatesTo(viewContainer, -Vector2.one);
-            Vector2 topLeft = new Vector2(corner.x - (corner.x % spacing), corner.y - (corner.y % spacing)) - new Vector2(spacing, spacing);
-            Vector2 topLeftThick = new Vector2(corner.x - (corner.x % thickSpacing), corner.y - (corner.y % thickSpacing)) - new Vector2(thickSpacing, thickSpacing);
+            Vector2 topLeft = this.ChangeCoordinatesTo(viewContainer, Vector2.zero);
+            topLeft -= new Vector2(topLeft.x % spacing, topLeft.y % spacing) + new Vector2(spacing, spacing);
+
+            Vector2 topLeftThick = topLeft;
+            topLeftThick -= new Vector2(topLeft.x % thickSpacing, topLeft.y % thickSpacing) + new Vector2(thickSpacing, thickSpacing);
 
             topLeft = viewContainer.ChangeCoordinatesTo(this, topLeft);
             topLeftThick = viewContainer.ChangeCoordinatesTo(this, topLeftThick);
@@ -84,8 +86,8 @@ namespace Shears.GraphViews.Editor
             // Thin Lines
             painter.BeginPath();
 
-            CreateHorizontalLines(painter, topLeft, maxWidth, maxHeight, scaledSpacing.x);
-            CreateVerticalLines(painter, topLeft, maxWidth, maxHeight, scaledSpacing.y);
+            CreateVerticalLines(painter, topLeft, maxWidth, maxHeight, scaledSpacing.x);
+            CreateHorizontalLines(painter, topLeft, maxWidth, maxHeight, scaledSpacing.y);
 
             DrawLines(painter, lineWidth, lineColor);
 
@@ -93,13 +95,13 @@ namespace Shears.GraphViews.Editor
             scaledSpacing *= thickLineInterval;
             painter.BeginPath();
 
-            CreateHorizontalLines(painter, topLeftThick, maxWidth, maxHeight, scaledSpacing.x);
-            CreateVerticalLines(painter, topLeftThick, maxWidth, maxHeight, scaledSpacing.y);
+            CreateVerticalLines(painter, topLeftThick, maxWidth, maxHeight, scaledSpacing.x);
+            CreateHorizontalLines(painter, topLeftThick, maxWidth, maxHeight, scaledSpacing.y);
 
             DrawLines(painter, thickLineWidth, thickLineColor);
         }
 
-        private void CreateHorizontalLines(Painter2D painter, Vector2 startPos, float maxWidth, float maxHeight, float spacing)
+        private void CreateVerticalLines(Painter2D painter, Vector2 startPos, float maxWidth, float maxHeight, float spacing)
         {
             Vector2 currentPos = startPos;
 
@@ -112,7 +114,7 @@ namespace Shears.GraphViews.Editor
             }
         }
 
-        private void CreateVerticalLines(Painter2D painter, Vector2 startPos, float maxWidth, float maxHeight, float spacing)
+        private void CreateHorizontalLines(Painter2D painter, Vector2 startPos, float maxWidth, float maxHeight, float spacing)
         {
             Vector2 currentPos = startPos;
 

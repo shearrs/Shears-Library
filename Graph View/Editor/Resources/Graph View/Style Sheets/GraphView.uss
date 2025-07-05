@@ -10,6 +10,14 @@
 	justify-content: center;
 }
 
+.rootContainer
+{
+	overflow: hidden;
+	flex-grow: 1;
+	flex-basis: 0;
+	min-width: 100%;
+}
+
 .graphViewContainer
 {
 	flex-grow: 1;
@@ -18,18 +26,24 @@
 
 .contentViewContainer
 {
-	flex-grow: 1;
-	flex-basis: 0;
+	width: 100px;
+	height: 100px;
 }
 
 .gridBackground
 {
 	--spacing: 50;
 	--line-width: 1;
-	--thick-line-width: 10;
+	--thick-line-width: 5;
 	--thick-line-interval: 5;
 	--line-color: rgba(0, 0, 0, 0.18);
 	--thick-line-color: rgba(0, 0, 0, 0.38);
 
+	overflow: hidden;
+	position: absolute;
+	min-width: 100%;
+	min-height: 100%;
+	flex-grow: 1;
+	flex-basis: 0;
 	background-color: rgba(0, 0, 0, 0.38);
 }
