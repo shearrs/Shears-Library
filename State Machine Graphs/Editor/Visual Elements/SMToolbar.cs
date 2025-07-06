@@ -1,3 +1,4 @@
+using Shears.GraphViews;
 using System;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -7,13 +8,15 @@ namespace Shears.StateMachineGraphs.Editor
 {
     public class SMToolbar : VisualElement
     {
-        private readonly Action<StateMachineGraph> dataChangeCallback;
+        private readonly Action<GraphData> dataSetCallback;
+        private readonly Action dataClearCallback;
 
-        public SMToolbar(StateMachineGraph data, Action<StateMachineGraph> dataChangeCallback)
+        public SMToolbar(StateMachineGraph data, Action<GraphData> dataSetCallback, Action dataClearCallback)
         {
             AddToClassList(SMEditorUtil.ToolbarClassName);
 
-            this.dataChangeCallback = dataChangeCallback;
+            this.dataSetCallback = dataSetCallback;
+            this.dataClearCallback = dataClearCallback;
             this.AddStyleSheet(SMEditorUtil.ToolbarStyleSheet);
 
             CreateObjectField(data);
@@ -36,7 +39,12 @@ namespace Shears.StateMachineGraphs.Editor
 
         private void OnDataChanged(ChangeEvent<UnityEngine.Object> evt)
         {
-            dataChangeCallback?.Invoke((StateMachineGraph)evt.newValue);
+            var value = (StateMachineGraph)evt.newValue;
+
+            if (value != null)
+                dataSetCallback?.Invoke(value);
+            else
+                dataClearCallback?.Invoke();
         }
     }
 }

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a3251f27db25e54d8fd770aee2cc34b, type: 3}
   m_Name: New State Machine Graph
   m_EditorClassIdentifier: 
-  position: {x: -12, y: -11.2}
-  scale: {x: 1, y: 1}
+  position: {x: 295.2, y: 208.8}
+  scale: {x: 0.25, y: 0.25}
   selection:
     rid: 8604816614494306379
   nodeData:
@@ -33,8 +33,10 @@ MonoBehaviour:
       data:
         keys:
         - ff903975-23e5-4f2b-9476-eb57e6abfdfc
+        - b202b4bd-f5b0-47ed-84ff-4a8f8734bf7a
         values:
         - rid: 8604816614494306378
+        - rid: 8604816637271474242
     - rid: 8604816614494306377
       type: {class: GraphEdgeDictionary, ns: Shears.GraphViews, asm: Shears.GraphView}
       data:
@@ -44,9 +46,14 @@ MonoBehaviour:
       type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
         name: Empty State
-        position: {x: 313.60004, y: 195.19995}
+        position: {x: 440, y: 180}
     - rid: 8604816614494306379
       type: {class: GraphSelectionDictionary, ns: Shears.GraphViews, asm: Shears.GraphView}
       data:
         keys: []
         values: []
+    - rid: 8604816637271474242
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        name: Empty State
+        position: {x: 440, y: 380}

@@ -31,35 +31,54 @@ namespace Shears.GraphViews.Editor
             contentDragger = new(this);
             contentZoomer = new(this);
             contentSelector = new(this);
-            nodeDragger = new(this);
+            nodeDragger = new(this); 
 
             CreateRootContainer();
             CreateGraphViewContainer();
             CreateContentViewContainer();
+            schedule.Execute(() => SetGraphData(GraphEditorState.instance.GraphData)).StartingIn(1);
         }
 
         #region Initialization
         protected void SetGraphData(GraphData graphData)
         {
+            if (graphData == this.graphData || graphData == null)
+                return;
+
             this.graphData = graphData;
             nodeDragger.SetGraphData(graphData);
-
-            if (graphData == null)
-            {
-                graphViewContainer.Remove(gridBackground);
-                contentViewContainer.Clear();
-                contentViewContainer.RemoveManipulator(contentDragger);
-                contentViewContainer.RemoveManipulator(contentZoomer);
-                contentViewContainer.RemoveManipulator(contentSelector);
-                contentViewContainer.RemoveManipulator(nodeDragger);
-
-                return;
-            }
 
             CreateBackground();
             AddManipulators();
 
             UpdateViewTransform(graphData.Position, graphData.Scale);
+
+            GraphEditorState.instance.SetGraphData(graphData);
+            OnGraphDataSet(graphData); 
+        }
+
+        protected void ClearGraphData()
+        {
+            if (graphData == null) 
+                return; 
+
+            graphViewContainer.Remove(gridBackground);
+            contentViewContainer.Clear();
+            contentViewContainer.RemoveManipulator(contentDragger);
+            contentViewContainer.RemoveManipulator(contentZoomer);
+            contentViewContainer.RemoveManipulator(contentSelector);
+            contentViewContainer.RemoveManipulator(nodeDragger);
+
+            GraphEditorState.instance.SetGraphData(null);
+            OnGraphDataCleared();
+        }
+
+        protected virtual void OnGraphDataSet(GraphData graphData)
+        {
+        }
+
+        protected virtual void OnGraphDataCleared()
+        {
         }
 
         private void CreateRootContainer()

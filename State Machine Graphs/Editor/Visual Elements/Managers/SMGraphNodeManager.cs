@@ -24,12 +24,20 @@ namespace Shears.StateMachineGraphs.Editor
         public void SetGraphData(StateMachineGraph graphData)
         {
             if (this.graphData != null)
-                UnsubscribeFromGraphData();
+                ClearGraphData();
 
             this.graphData = graphData;
 
             if (graphData != null)
                 graphData.NodeDataCreated += CreateStateNode;
+        }
+
+        public void ClearGraphData()
+        {
+            if (graphData != null)
+                UnsubscribeFromGraphData();
+
+            graphData = null;
         }
 
         public void CreateNode(GraphNodeData nodeData)

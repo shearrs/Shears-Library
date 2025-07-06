@@ -1,3 +1,4 @@
+using Shears.GraphViews;
 using Shears.GraphViews.Editor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -20,7 +21,12 @@ namespace Shears.StateMachineGraphs.Editor
         #region Initialization
         private void CreateToolbar()
         {
-            var toolbar = new SMToolbar(graphData, SetStateMachineGraph);
+            var toolbarData = graphData;
+
+            if (toolbarData == null)
+                toolbarData = (StateMachineGraph)GraphEditorState.instance.GraphData;
+
+            var toolbar = new SMToolbar(toolbarData, SetGraphData, ClearGraphData);
 
             RootContainer.Insert(0, toolbar);
         }
@@ -38,17 +44,24 @@ namespace Shears.StateMachineGraphs.Editor
             evt.menu.AppendAction("Create State Node", (action) => graphData.CreateStateNodeData(mousePos));
         }
 
-        private void SetStateMachineGraph(StateMachineGraph graphData)
+        protected override void OnGraphDataSet(GraphData graphData)
         {
-            if (this.graphData == graphData)
+            if (graphData is not StateMachineGraph stateGraphData)
+            {
+                Debug.LogError("SMGraphView only accepts StateMachineGraph data!");
                 return;
+            }
 
-            this.graphData = graphData;
-            SetGraphData(graphData);
-            nodeManager.SetGraphData(graphData);
+            this.graphData = stateGraphData;
+            nodeManager.SetGraphData(stateGraphData);
 
-            if (graphData != null)
-                LoadGraphData();
+            LoadGraphData();
+        }
+
+        protected override void OnGraphDataCleared()
+        {
+            graphData = null;
+            nodeManager.ClearGraphData();
         }
         #endregion
 
