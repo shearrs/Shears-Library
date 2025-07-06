@@ -1,6 +1,7 @@
 using Shears.GraphViews;
 using Shears.GraphViews.Editor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Shears.StateMachineGraphs.Editor
 {
@@ -27,6 +28,14 @@ namespace Shears.StateMachineGraphs.Editor
 
             this.graphData = graphData;
             SetGraphData(graphData);
+
+            var testElement = new VisualElement();
+            testElement.style.backgroundColor = Color.white;
+            testElement.style.width = 100;
+            testElement.style.height = 100;
+            testElement.style.position = Position.Absolute;
+
+            ContentViewContainer.Add(testElement);
         }
     }
 }

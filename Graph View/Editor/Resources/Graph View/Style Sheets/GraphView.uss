@@ -5,9 +5,6 @@
 	min-width: 100%;
 	flex-grow: 1;
 	flex-basis: 0;
-	align-items: center;
-	align-content: center;
-	justify-content: center;
 }
 
 .rootContainer
@@ -22,12 +19,16 @@
 {
 	flex-grow: 1;
 	flex-basis: 0;
+	overflow: hidden;
 }
 
 .contentViewContainer
 {
-	width: 100px;
-	height: 100px;
+	flex-grow: 0;
+	width: 0px;
+	height: 0px;
+	overflow: visible;
+	position: absolute;
 }
 
 .gridBackground
@@ -39,7 +40,6 @@
 	--line-color: rgba(0, 0, 0, 0.18);
 	--thick-line-color: rgba(0, 0, 0, 0.38);
 
-	overflow: hidden;
 	position: absolute;
 	min-width: 100%;
 	min-height: 100%;

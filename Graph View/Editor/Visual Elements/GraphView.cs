@@ -84,6 +84,9 @@ namespace Shears.GraphViews.Editor
             };
 
             contentViewContainer.AddToClassList("contentViewContainer");
+            contentViewContainer.style.top = 0;
+            contentViewContainer.style.left = 0;
+
             graphViewContainer.Add(contentViewContainer);
         }
 

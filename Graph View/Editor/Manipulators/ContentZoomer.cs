@@ -46,14 +46,19 @@ namespace Shears.GraphViews.Editor
             float currentZoom = scale.y;
             float newZoom = CalculateNewZoom(currentZoom, wheelDelta);
 
-            localMousePos = target.ChangeCoordinatesTo(graphView.ContentViewContainer, localMousePos) * currentZoom;
-
-            if (Mathf.Approximately(currentZoom, newZoom))
-                return;
+            Vector2 previousMousePos = target.ChangeCoordinatesTo(graphView.ContentViewContainer, localMousePos);
 
             scale = new Vector3(newZoom, newZoom, 1);
+            graphView.UpdateViewTransform(position, scale);
 
-            // TODO: Adjust position based on the zoom center
+            Vector2 newMousePos = target.ChangeCoordinatesTo(graphView.ContentViewContainer, localMousePos);
+            Vector2 movement = newZoom * (newMousePos - previousMousePos);
+
+            Debug.Log("local mouse pos: " + localMousePos);
+            Debug.Log("previous mouse position: " + previousMousePos);
+            Debug.Log("new mouse position: " + newMousePos);
+
+            position += (Vector3)movement;
 
             graphView.UpdateViewTransform(position, scale);
             graphView.SaveViewTransform();
