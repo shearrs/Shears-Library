@@ -2,6 +2,7 @@
     "name": "Shears.GraphViews.Editor",
     "rootNamespace": "Shears.GraphViews.Editor",
     "references": [
+        "GUID:b28a31c08beef024d83a7aa1ec3f2f6d",
         "GUID:b8ce35fbba9686d4a8094487b762ff16",
         "GUID:9b823b1522d45d540ab361574b64451b"
     ],

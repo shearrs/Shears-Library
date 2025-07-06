@@ -62,3 +62,8 @@
 	font-size: 28px;
 	-unity-text-align: middle-center
 }
+
+.graphNodeSelected
+{
+	border-color: rgba(20, 100, 200, .75);
+}

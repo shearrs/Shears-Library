@@ -9,10 +9,33 @@ namespace Shears.GraphViews.Editor
         {
             AddToClassList(GraphViewEditorUtil.GraphNodeClassName);
 
-            var nameLabel = new Label(data.Name);
+            var nameLabel = new Label(data.Name)
+            {
+                pickingMode = PickingMode.Ignore
+            };
+
             Add(nameLabel);
 
             transform.position = data.Position;
+
+            data.Selected += Select;
+            data.Deselected += Deselect;
+        }
+
+        ~GraphNode()
+        {
+            Data.Selected -= Select;
+            Data.Deselected -= Deselect;
+        }
+
+        public override void Select()
+        {
+            AddToClassList(GraphViewEditorUtil.GraphNodeSelectedClassName);
+        }
+
+        public override void Deselect()
+        {
+            RemoveFromClassList(GraphViewEditorUtil.GraphNodeSelectedClassName);
         }
     }
 }

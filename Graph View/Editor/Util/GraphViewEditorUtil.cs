@@ -13,6 +13,7 @@ namespace Shears.GraphViews.Editor
         public static string ContentViewContainerClassName => "contentViewContainer";
         public static string GridBackgroundClassName => "gridBackground";
         public static string GraphNodeClassName => "graphNode";
+        public static string GraphNodeSelectedClassName => "graphNodeSelected";
 
         public static StyleSheet GraphViewStyleSheet => Resources.Load<StyleSheet>($"{STYLE_SHEET_PATH}/GraphView");
     }

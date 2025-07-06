@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,6 +16,9 @@ namespace Shears.GraphViews
         public string Name { get => name; set => name = value; }
         public Vector2 Position { get => position; set => position = value; }
 
+        public event Action Selected;
+        public event Action Deselected;
+
         public IReadOnlyList<GraphEdgeData> GetEdges()
         {
             instanceEdges.Clear();
@@ -26,6 +30,16 @@ namespace Shears.GraphViews
             }
 
             return instanceEdges;
+        }
+
+        public override void Select()
+        {
+            Selected?.Invoke();
+        }
+
+        public override void Deselect()
+        {
+            Deselected?.Invoke();
         }
     }
 }

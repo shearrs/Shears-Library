@@ -1,13 +1,13 @@
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Shears.GraphViews.Editor
 {
-    public class GraphView : VisualElement
+    public abstract class GraphView : VisualElement
     {
         private readonly ContentDragger contentDragger;
         private readonly ContentZoomer contentZoomer;
+        private readonly ContentSelector contentSelector;
         private GraphData graphData;
         private VisualElement rootContainer;
         private VisualElement graphViewContainer;
@@ -24,16 +24,21 @@ namespace Shears.GraphViews.Editor
             this.AddStyleSheet(GraphViewEditorUtil.GraphViewStyleSheet);
             AddToClassList(GraphViewEditorUtil.GraphViewClassName);
 
+            focusable = true;
             contentDragger = new(this);
             contentZoomer = new(this);
+            contentSelector = new(this);
 
             CreateRootContainer();
             CreateGraphViewContainer();
             CreateContentViewContainer();
         }
 
+        #region Initialization
         protected void SetGraphData(GraphData graphData)
         {
+            this.graphData = graphData;
+
             if (graphData == null)
             {
                 graphViewContainer.Remove(gridBackground);
@@ -43,9 +48,6 @@ namespace Shears.GraphViews.Editor
 
                 return;
             }
-
-            this.graphData = graphData;
-            focusable = true;
 
             CreateBackground();
             AddManipulators();
@@ -101,8 +103,11 @@ namespace Shears.GraphViews.Editor
         {
             graphViewContainer.AddManipulator(contentDragger);
             graphViewContainer.AddManipulator(contentZoomer);
+            graphViewContainer.AddManipulator(contentSelector);
         }
+        #endregion
 
+        #region Transformations
         public void UpdateViewTransform(Vector2 newPosition, Vector2 newScale)
         {
             newPosition.x = EditorGUIHelper.RoundToPixelGrid(newPosition.x);
@@ -116,6 +121,15 @@ namespace Shears.GraphViews.Editor
         {
             graphData.Position = ViewTransform.position;
             graphData.Scale = ViewTransform.scale;
+        }
+        #endregion
+    
+        public void Select(GraphElement element)
+        {
+            if (element == null)
+                graphData.Select(null);
+            else
+                graphData.Select(element.GetData());
         }
     }
 }

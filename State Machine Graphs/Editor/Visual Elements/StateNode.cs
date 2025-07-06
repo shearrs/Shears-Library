@@ -8,13 +8,5 @@ namespace Shears.StateMachineGraphs.Editor
         public StateNode(StateNodeData data) : base(data)
         {
         }
-
-        public override void Select()
-        {
-        }
-
-        public override void Deselect()
-        {
-        }
     }
 }

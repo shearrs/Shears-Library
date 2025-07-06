@@ -3,7 +3,15 @@ using UnityEngine.UIElements;
 
 namespace Shears.GraphViews.Editor
 {
-    public abstract class GraphElement<T> : VisualElement where T : GraphElementData
+    public abstract class GraphElement : VisualElement
+    {
+        public abstract GraphElementData GetData();
+
+        public abstract void Select();
+        public abstract void Deselect();
+    }
+
+    public abstract class GraphElement<T> : GraphElement where T : GraphElementData
     {
         private readonly T data;
 
@@ -14,7 +22,6 @@ namespace Shears.GraphViews.Editor
             this.data = data;
         }
 
-        public abstract void Select();
-        public abstract void Deselect();
+        public override GraphElementData GetData() => data;
     }
 }

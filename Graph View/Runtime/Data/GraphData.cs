@@ -10,22 +10,40 @@ namespace Shears.GraphViews
         [SerializeField] private Vector2 scale = Vector2.one;
 
         [Header("Elements")]
-        [SerializeReference] private GraphElementData selection;
-        [SerializeReference] private List<GraphNodeData> nodeData = new();
-        [SerializeReference] private List<GraphEdgeData> edgeData = new();
+        [SerializeReference] private GraphSelectionDictionary selection = new();
+        [SerializeReference] private GraphNodeDictionary nodeData = new();
+        [SerializeReference] private GraphEdgeDictionary edgeData = new();
         [SerializeReference] private Stack<GraphNodeData> nodePath = new();
-
+        
         public Vector2 Position { get => position; set => position = value; }
         public Vector2 Scale { get => scale; set => scale = value; }
-        public GraphElementData Selection { get => selection; set => selection = value; }
 
-        public IReadOnlyList<GraphNodeData> NodeData => nodeData;
-        public IReadOnlyList<GraphEdgeData> EdgeData => edgeData;
+        public IReadOnlyCollection<GraphElementData> Selection => selection.Values;
+        public IReadOnlyCollection<GraphNodeData> NodeData => nodeData.Values;
+        public IReadOnlyCollection<GraphEdgeData> EdgeData => edgeData.Values;
         public IReadOnlyCollection<GraphNodeData> NodePath => nodePath;
 
         protected void AddNodeData(GraphNodeData data)
         {
-            nodeData.Add(data);
+            nodeData.Add(data.ID, data);
+        }
+
+        public void Select(GraphElementData elementData)
+        {
+            selection ??= new();
+
+            if (elementData == null)
+            {
+                foreach (var selectedElement in selection.Values)
+                    selectedElement.Deselect();
+
+                selection.Clear();
+            }
+            else
+            {
+                selection.TryAdd(elementData.ID, elementData);
+                elementData.Select();
+            }
         }
     }
 }
