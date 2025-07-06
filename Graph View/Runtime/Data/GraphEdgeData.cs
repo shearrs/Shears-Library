@@ -2,10 +2,11 @@ using UnityEngine;
 
 namespace Shears.GraphViews
 {
+    [System.Serializable]
     public abstract class GraphEdgeData : GraphElementData
     {
-        private readonly GraphReference<GraphNodeData> from = new();
-        private readonly GraphReference<GraphNodeData> to = new();
+        [SerializeField] private readonly GraphReference<GraphNodeData> from = new();
+        [SerializeField] private readonly GraphReference<GraphNodeData> to = new();
 
         public string FromID { get => from.ID; set => from.ID = value; }
         public string ToID { get => to.ID; set => to.ID = value; }

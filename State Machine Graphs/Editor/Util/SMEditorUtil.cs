@@ -7,10 +7,11 @@ namespace Shears.StateMachineGraphs.Editor
     {
         private const string STYLE_SHEET_PATH = "State Machine Graph/Style Sheets";
 
-        private static readonly StyleSheet graphStyleSheet = Resources.Load<StyleSheet>($"{STYLE_SHEET_PATH}/StateMachineGraph");
-        private static readonly StyleSheet toolbarStyleSheet = Resources.Load<StyleSheet>($"{STYLE_SHEET_PATH}/StateMachineGraph");
+        public static string ToolbarClassName => "toolBar";
+        public static string ToolbarDataFieldClassName => "dataField";
+        public static string ToolbarDataFieldLabelClassName => "dataFieldLabel";
 
-        public static StyleSheet GraphStyleSheet => graphStyleSheet;
-        public static StyleSheet ToolbarStyleSheet => toolbarStyleSheet;
+        public static StyleSheet GraphStyleSheet => Resources.Load<StyleSheet>($"{STYLE_SHEET_PATH}/StateMachineGraph");
+        public static StyleSheet ToolbarStyleSheet => Resources.Load<StyleSheet>($"{STYLE_SHEET_PATH}/StateMachineGraph");
     }
 }

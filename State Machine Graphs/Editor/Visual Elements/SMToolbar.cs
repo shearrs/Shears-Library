@@ -11,7 +11,7 @@ namespace Shears.StateMachineGraphs.Editor
 
         public SMToolbar(StateMachineGraph data, Action<StateMachineGraph> dataChangeCallback)
         {
-            AddToClassList("toolBar");
+            AddToClassList(SMEditorUtil.ToolbarClassName);
 
             this.dataChangeCallback = dataChangeCallback;
             this.AddStyleSheet(SMEditorUtil.ToolbarStyleSheet);
@@ -27,8 +27,8 @@ namespace Shears.StateMachineGraphs.Editor
                 value = data
             };
 
-            dataField.AddToClassList("dataField");
-            dataField.labelElement.AddToClassList("dataFieldLabel");
+            dataField.AddToClassList(SMEditorUtil.ToolbarDataFieldClassName);
+            dataField.labelElement.AddToClassList(SMEditorUtil.ToolbarDataFieldLabelClassName);
             dataField.RegisterCallback<ChangeEvent<UnityEngine.Object>>(OnDataChanged);
 
             Add(dataField);

@@ -22,7 +22,7 @@ namespace Shears.GraphViews.Editor
         protected GraphView()
         {
             this.AddStyleSheet(GraphViewEditorUtil.GraphViewStyleSheet);
-            AddToClassList("graphView");
+            AddToClassList(GraphViewEditorUtil.GraphViewClassName);
 
             contentDragger = new(this);
             contentZoomer = new(this);
@@ -60,7 +60,7 @@ namespace Shears.GraphViews.Editor
                 name = "rootContainer"
             };
 
-            rootContainer.AddToClassList("rootContainer");
+            rootContainer.AddToClassList(GraphViewEditorUtil.RootContainerClassName);
             Add(rootContainer);
         }
 
@@ -71,7 +71,7 @@ namespace Shears.GraphViews.Editor
                 name = "graphViewContainer"
             };
 
-            graphViewContainer.AddToClassList("graphViewContainer");
+            graphViewContainer.AddToClassList(GraphViewEditorUtil.GraphViewContainerClassName);
             rootContainer.Add(graphViewContainer);
         }
 
@@ -83,7 +83,7 @@ namespace Shears.GraphViews.Editor
                 pickingMode = PickingMode.Ignore
             };
 
-            contentViewContainer.AddToClassList("contentViewContainer");
+            contentViewContainer.AddToClassList(GraphViewEditorUtil.ContentViewContainerClassName);
             contentViewContainer.style.top = 0;
             contentViewContainer.style.left = 0;
 

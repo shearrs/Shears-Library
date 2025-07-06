@@ -3,11 +3,13 @@ using UnityEngine;
 
 namespace Shears.GraphViews
 {
+    [System.Serializable]
     public abstract class GraphNodeData : GraphElementData
     {
-        private string name;
-        private Vector2 position;
-        private readonly List<GraphReference<GraphEdgeData>> edges = new();
+        [SerializeField] private string name;
+        [SerializeField] private Vector2 position;
+        [SerializeField] private readonly List<GraphReference<GraphEdgeData>> edges = new();
+
         private readonly List<GraphEdgeData> instanceEdges = new();
 
         public string Name { get => name; set => name = value; }

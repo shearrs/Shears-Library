@@ -47,3 +47,18 @@
 	flex-basis: 0;
 	background-color: rgba(0, 0, 0, 0.38);
 }
+
+.graphNode
+{
+	background-color: rgba(60, 60, 60, 1);
+	position: absolute;
+	width: 300px;
+	height: 100px;
+	align-content: center;
+	justify-content: center;
+	border-radius: 8px;
+	border-width: 2px;
+	border-color: rgba(40, 40, 40, 1);
+	font-size: 28px;
+	-unity-text-align: middle-center
+}

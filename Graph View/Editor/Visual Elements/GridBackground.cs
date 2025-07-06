@@ -31,7 +31,7 @@ namespace Shears.GraphViews.Editor
             this.graphView = graphView;
 
             pickingMode = PickingMode.Ignore;
-            AddToClassList("gridBackground");
+            AddToClassList(GraphViewEditorUtil.GridBackgroundClassName);
 
             generateVisualContent += GenerateVisualContent;
 

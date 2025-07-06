@@ -54,10 +54,6 @@ namespace Shears.GraphViews.Editor
             Vector2 newMousePos = target.ChangeCoordinatesTo(graphView.ContentViewContainer, localMousePos);
             Vector2 movement = newZoom * (newMousePos - previousMousePos);
 
-            Debug.Log("local mouse pos: " + localMousePos);
-            Debug.Log("previous mouse position: " + previousMousePos);
-            Debug.Log("new mouse position: " + newMousePos);
-
             position += (Vector3)movement;
 
             graphView.UpdateViewTransform(position, scale);
