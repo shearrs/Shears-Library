@@ -3,10 +3,14 @@ using UnityEngine.UIElements;
 
 namespace Shears.GraphViews.Editor
 {
-    public abstract class GraphNode<T> : GraphElement<T> where T : GraphNodeData
+    public abstract class GraphNode : GraphElement
     {
-        public GraphNode(T data) : base(data)
+        private readonly GraphNodeData data;
+
+        protected GraphNode(GraphNodeData data)
         {
+            this.data = data;
+
             AddToClassList(GraphViewEditorUtil.GraphNodeClassName);
 
             var nameLabel = new Label(data.Name)
@@ -24,8 +28,8 @@ namespace Shears.GraphViews.Editor
 
         ~GraphNode()
         {
-            Data.Selected -= Select;
-            Data.Deselected -= Deselect;
+            data.Selected -= Select;
+            data.Deselected -= Deselect;
         }
 
         public override void Select()
@@ -37,5 +41,7 @@ namespace Shears.GraphViews.Editor
         {
             RemoveFromClassList(GraphViewEditorUtil.GraphNodeSelectedClassName);
         }
+
+        public override GraphElementData GetData() => data;
     }
 }

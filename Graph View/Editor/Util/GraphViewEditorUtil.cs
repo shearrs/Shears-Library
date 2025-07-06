@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -16,5 +17,7 @@ namespace Shears.GraphViews.Editor
         public static string GraphNodeSelectedClassName => "graphNodeSelected";
 
         public static StyleSheet GraphViewStyleSheet => Resources.Load<StyleSheet>($"{STYLE_SHEET_PATH}/GraphView");
+
+        public static void Save(Object obj) => EditorUtility.SetDirty(obj);
     }
 }

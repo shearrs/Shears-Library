@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace Shears.GraphViews
@@ -23,27 +24,41 @@ namespace Shears.GraphViews
         public IReadOnlyCollection<GraphEdgeData> EdgeData => edgeData.Values;
         public IReadOnlyCollection<GraphNodeData> NodePath => nodePath;
 
+        public void SetNodePosition(GraphNodeData nodeData, Vector2 position)
+        {
+            nodeData.Position = position;
+        }
+
+        public void Select(GraphElementData elementData, bool isMultiSelect = false)
+        {
+            selection ??= new();
+
+            if (elementData == null)
+                ClearSelection();
+            else
+            {
+                if (selection.ContainsKey(elementData.ID))
+                    return;
+
+                if (!isMultiSelect)
+                    ClearSelection();
+
+                selection.TryAdd(elementData.ID, elementData);
+                elementData.Select();
+            }
+        }
+
         protected void AddNodeData(GraphNodeData data)
         {
             nodeData.Add(data.ID, data);
         }
 
-        public void Select(GraphElementData elementData)
+        private void ClearSelection()
         {
-            selection ??= new();
+            foreach (var selectedElement in selection.Values)
+                selectedElement.Deselect();
 
-            if (elementData == null)
-            {
-                foreach (var selectedElement in selection.Values)
-                    selectedElement.Deselect();
-
-                selection.Clear();
-            }
-            else
-            {
-                selection.TryAdd(elementData.ID, elementData);
-                elementData.Select();
-            }
+            selection.Clear();
         }
     }
 }

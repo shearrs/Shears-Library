@@ -43,7 +43,7 @@ namespace Shears.StateMachineGraphs.Editor
             var stateNode = new StateNode(nodeData);
 
             stateNodes.Add(stateNode);
-            graphView.ContentViewContainer.Add(stateNode);
+            graphView.AddNode(stateNode);
         }
 
         private void UnsubscribeFromGraphData()

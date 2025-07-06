@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -8,6 +9,8 @@ namespace Shears.GraphViews.Editor
         private readonly ContentDragger contentDragger;
         private readonly ContentZoomer contentZoomer;
         private readonly ContentSelector contentSelector;
+        private readonly NodeDragger nodeDragger;
+        private readonly Dictionary<GraphElementData, GraphNode> nodes = new();
         private GraphData graphData;
         private VisualElement rootContainer;
         private VisualElement graphViewContainer;
@@ -28,6 +31,7 @@ namespace Shears.GraphViews.Editor
             contentDragger = new(this);
             contentZoomer = new(this);
             contentSelector = new(this);
+            nodeDragger = new(this);
 
             CreateRootContainer();
             CreateGraphViewContainer();
@@ -38,6 +42,7 @@ namespace Shears.GraphViews.Editor
         protected void SetGraphData(GraphData graphData)
         {
             this.graphData = graphData;
+            nodeDragger.SetGraphData(graphData);
 
             if (graphData == null)
             {
@@ -45,6 +50,8 @@ namespace Shears.GraphViews.Editor
                 contentViewContainer.Clear();
                 contentViewContainer.RemoveManipulator(contentDragger);
                 contentViewContainer.RemoveManipulator(contentZoomer);
+                contentViewContainer.RemoveManipulator(contentSelector);
+                contentViewContainer.RemoveManipulator(nodeDragger);
 
                 return;
             }
@@ -104,6 +111,7 @@ namespace Shears.GraphViews.Editor
             graphViewContainer.AddManipulator(contentDragger);
             graphViewContainer.AddManipulator(contentZoomer);
             graphViewContainer.AddManipulator(contentSelector);
+            graphViewContainer.AddManipulator(nodeDragger);
         }
         #endregion
 
@@ -124,12 +132,24 @@ namespace Shears.GraphViews.Editor
         }
         #endregion
     
-        public void Select(GraphElement element)
+        public GraphNode GetNode(GraphNodeData nodeData)
+        {
+            return nodes[nodeData];
+        }
+
+        public void AddNode(GraphNode node)
+        {
+            nodes.Add(node.GetData(), node);
+
+            contentViewContainer.Add(node);
+        }
+
+        public void Select(GraphElement element, bool isMultiSelect = false)
         {
             if (element == null)
                 graphData.Select(null);
             else
-                graphData.Select(element.GetData());
+                graphData.Select(element.GetData(), isMultiSelect);
         }
     }
 }
