@@ -1,3 +1,4 @@
+using System;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -18,6 +19,6 @@ namespace Shears.GraphViews.Editor
 
         public static StyleSheet GraphViewStyleSheet => Resources.Load<StyleSheet>($"{STYLE_SHEET_PATH}/GraphView");
 
-        public static void Save(Object obj) => EditorUtility.SetDirty(obj);
+        public static void Save(UnityEngine.Object obj) => EditorUtility.SetDirty(obj);
     }
 }

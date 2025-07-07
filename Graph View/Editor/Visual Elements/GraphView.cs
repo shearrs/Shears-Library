@@ -53,7 +53,8 @@ namespace Shears.GraphViews.Editor
             multiNodeSelector.SetGraphData(graphData);
             nodeDragger.SetGraphData(graphData);
 
-            graphData.NodePathChanged += ReloadNodePath;
+            graphData.LayersChanged -= ReloadLayer;
+            graphData.LayersChanged += ReloadLayer;
 
             CreateBackground();
             AddManipulators();
@@ -70,7 +71,7 @@ namespace Shears.GraphViews.Editor
             if (graphData == null) 
                 return; 
 
-            graphData.NodePathChanged -= ReloadNodePath;
+            graphData.LayersChanged -= ReloadLayer;
             graphData = null;
 
             contentViewContainer.Clear();
@@ -85,7 +86,7 @@ namespace Shears.GraphViews.Editor
             OnGraphDataCleared();
         }
 
-        protected void ReloadNodePath()
+        protected void ReloadLayer()
         {
             ClearNodes();
             LoadNodes(graphData.GetActiveNodes());

@@ -24,7 +24,7 @@ namespace Shears.StateMachineGraphs.Editor
                 ClearGraphData();
 
             this.graphData = graphData;
-            graphData.NodePathChanged += UpdateLayers;
+            graphData.LayersChanged += UpdateLayers;
 
             UpdateLayers();
         }
@@ -34,7 +34,7 @@ namespace Shears.StateMachineGraphs.Editor
             if (graphData == null)
                 return;
 
-            graphData.NodePathChanged -= UpdateLayers;
+            graphData.LayersChanged -= UpdateLayers;
             graphData = null;
 
             ClearLayers();
@@ -52,29 +52,15 @@ namespace Shears.StateMachineGraphs.Editor
         {
             ClearLayers();
 
-            CreateRootTag();
-            foreach (var layer in graphData.NodePath)
+            foreach (var layer in graphData.Layers)
                 CreateLayerTag(layer);
         }
 
-        private void CreateRootTag()
+        private void CreateLayerTag(GraphLayer layer)
         {
-            var layerTag = new Button(() => graphData.OpenRootPath())
+            var layerTag = new Button(() => graphData.OpenLayer(layer))
             {
-                text = "Root"
-            };
-
-            layerTag.AddToClassList(SMEditorUtil.LayerDisplayTagClassName);
-
-            layers.Add(layerTag);
-            Add(layerTag);
-        }
-
-        private void CreateLayerTag(GraphMultiNodeData nodeData)
-        {
-            var layerTag = new Button(() => graphData.OpenSubPath(nodeData))
-            {
-                text = nodeData.Name
+                text = layer.ParentName
             };
 
             layerTag.AddToClassList(SMEditorUtil.LayerDisplayTagClassName);

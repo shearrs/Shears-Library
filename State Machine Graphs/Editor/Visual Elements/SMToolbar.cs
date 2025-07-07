@@ -60,7 +60,10 @@ namespace Shears.StateMachineGraphs.Editor
             if (value != null)
                 dataSetCallback?.Invoke(value);
             else
+            {
                 dataClearCallback?.Invoke();
+                layerDisplay.ClearGraphData();
+            }
         }
     }
 }

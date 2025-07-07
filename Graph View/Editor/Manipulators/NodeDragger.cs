@@ -52,7 +52,7 @@ namespace Shears.GraphViews.Editor
                 return;
             }
 
-            if (graphData.Selection.Count == 0)
+            if (graphData.GetSelection().Count == 0)
                 return;
 
             if (CanStartManipulation(evt))
@@ -79,7 +79,7 @@ namespace Shears.GraphViews.Editor
 
             VisualElement eventTarget = evt.target as VisualElement;
 
-            foreach (var elementData in graphData.Selection)
+            foreach (var elementData in graphData.GetSelection())
             {
                 if (elementData is not GraphNodeData nodeData)
                     continue;
@@ -122,7 +122,7 @@ namespace Shears.GraphViews.Editor
         {
             elementStartPositions.Clear();
 
-            foreach (var elementData in graphData.Selection)
+            foreach (var elementData in graphData.GetSelection())
             {
                 if (elementData is not GraphNodeData nodeData)
                     continue;
@@ -134,7 +134,7 @@ namespace Shears.GraphViews.Editor
 
         private void SaveEndPositions()
         {
-            foreach (var elementData in graphData.Selection)
+            foreach (var elementData in graphData.GetSelection())
             {
                 if (elementData is not GraphNodeData nodeData)
                     continue;

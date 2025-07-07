@@ -12,52 +12,75 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a3251f27db25e54d8fd770aee2cc34b, type: 3}
   m_Name: New State Machine Graph
   m_EditorClassIdentifier: 
-  position: {x: 263.2, y: 233.6}
-  scale: {x: 0.55, y: 0.55}
-  selection:
-    rid: 8604816637271474244
+  position: {x: 168, y: 91.2}
+  scale: {x: 0.52, y: 0.52}
   nodeData:
-    rid: 8604816637271474245
-  edgeData:
-    rid: 8604816637271474246
+    rid: 8604816661711683667
+  selection: []
   rootNodes:
-  - rid: 8604816637271474264
-  - rid: 8604816637271474265
-  nodePath:
-    rid: 8604816637271474247
+  - 8d36ec2d-1490-41e9-bb27-2be8041fea2b
+  layers:
+  - parentName: Root
+    parentID: $ROOT
+    position: {x: 0, y: 0}
+    scale: {x: 1, y: 1}
   references:
     version: 2
     RefIds:
-    - rid: 8604816637271474244
-      type: {class: GraphSelectionDictionary, ns: Shears.GraphViews, asm: Shears.GraphViews}
-      data:
-        keys: []
-        values: []
-    - rid: 8604816637271474245
+    - rid: 8604816661711683667
       type: {class: GraphNodeDictionary, ns: Shears.GraphViews, asm: Shears.GraphViews}
       data:
         keys:
-        - dd4577e9-fb15-459c-be67-6c8f2a1f0b09
-        - de665eff-4d9f-43ef-9f11-233aba047c62
+        - 8d36ec2d-1490-41e9-bb27-2be8041fea2b
+        - 06a9c5af-296f-4557-9c2a-4eccfb43e11d
+        - 23ad9333-3d69-4022-a417-62d077cc936c
+        - 095744f9-101f-409f-91d4-f9e6713e84dc
+        - ceef0f29-9de4-4ae9-aa0d-5b322d81ceec
         values:
-        - rid: 8604816637271474264
-        - rid: 8604816637271474265
-    - rid: 8604816637271474246
-      type: {class: GraphEdgeDictionary, ns: Shears.GraphViews, asm: Shears.GraphViews}
-      data:
-        keys: []
-        values: []
-    - rid: 8604816637271474247
-      type: {class: 'Stack`1[[Shears.GraphViews.GraphNodeData, Shears.GraphViews]]', ns: System.Collections.Generic, asm: mscorlib}
-      data: 
-    - rid: 8604816637271474264
-      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        name: Empty State
-        position: {x: -240, y: -80}
-    - rid: 8604816637271474265
+        - rid: 8604816661711683668
+        - rid: 8604816661711683669
+        - rid: 8604816661711683670
+        - rid: 8604816661711683671
+        - rid: 8604816661711683672
+    - rid: 8604816661711683668
       type: {class: StateMachineNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
+        id: 8d36ec2d-1490-41e9-bb27-2be8041fea2b
         name: New State Machine
-        position: {x: 240, y: -80}
+        position: {x: 200, y: 120}
+        parentID: 
+        subNodes:
+        - id: 06a9c5af-296f-4557-9c2a-4eccfb43e11d
+    - rid: 8604816661711683669
+      type: {class: StateMachineNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 06a9c5af-296f-4557-9c2a-4eccfb43e11d
+        name: New State Machine
+        position: {x: 353.84622, y: 223.07695}
+        parentID: 8d36ec2d-1490-41e9-bb27-2be8041fea2b
+        subNodes:
+        - id: 23ad9333-3d69-4022-a417-62d077cc936c
+        - id: 095744f9-101f-409f-91d4-f9e6713e84dc
+        - id: ceef0f29-9de4-4ae9-aa0d-5b322d81ceec
+    - rid: 8604816661711683670
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 23ad9333-3d69-4022-a417-62d077cc936c
+        name: Empty State
+        position: {x: 272.3077, y: 86.15387}
+        parentID: 06a9c5af-296f-4557-9c2a-4eccfb43e11d
+    - rid: 8604816661711683671
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 095744f9-101f-409f-91d4-f9e6713e84dc
+        name: Empty State
+        position: {x: 520, y: 260}
+        parentID: 06a9c5af-296f-4557-9c2a-4eccfb43e11d
+    - rid: 8604816661711683672
+      type: {class: StateMachineNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: ceef0f29-9de4-4ae9-aa0d-5b322d81ceec
+        name: New State Machine
+        position: {x: 170.76926, y: 344.61542}
+        parentID: 06a9c5af-296f-4557-9c2a-4eccfb43e11d
         subNodes: []

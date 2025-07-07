@@ -38,7 +38,7 @@ namespace Shears.GraphViews.Editor
             if (evt.target is not GraphMultiNode multiNode)
                 return;
 
-            graphData.OpenSubPath(multiNode.Data);
+            graphData.OpenLayer(new(multiNode.Data));
 
             evt.StopImmediatePropagation();
         }
