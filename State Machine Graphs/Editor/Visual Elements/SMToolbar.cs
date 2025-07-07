@@ -10,21 +10,30 @@ namespace Shears.StateMachineGraphs.Editor
     {
         private readonly Action<GraphData> dataSetCallback;
         private readonly Action dataClearCallback;
+        private SMLayerDisplay layerDisplay;
 
-        public SMToolbar(StateMachineGraph data, Action<GraphData> dataSetCallback, Action dataClearCallback)
+        public SMToolbar(StateMachineGraph graphData, Action<GraphData> dataSetCallback, Action dataClearCallback)
         {
             AddToClassList(SMEditorUtil.ToolbarClassName);
 
             this.dataSetCallback = dataSetCallback;
             this.dataClearCallback = dataClearCallback;
             this.AddStyleSheet(SMEditorUtil.ToolbarStyleSheet);
+            
+            CreateObjectField(graphData);
+            CreateLayerDisplay();
 
-            CreateObjectField(data);
+            SetGraphData(graphData);
+        }
+
+        public void SetGraphData(StateMachineGraph graphData)
+        {
+            layerDisplay.SetGraphData(graphData);
         }
 
         private void CreateObjectField(StateMachineGraph data)
         {
-            ObjectField dataField = new("Data")
+            var dataField = new ObjectField("Data")
             {
                 objectType = typeof(StateMachineGraph),
                 value = data
@@ -35,6 +44,13 @@ namespace Shears.StateMachineGraphs.Editor
             dataField.RegisterCallback<ChangeEvent<UnityEngine.Object>>(OnDataChanged);
 
             Add(dataField);
+        }
+
+        private void CreateLayerDisplay()
+        {
+            layerDisplay = new SMLayerDisplay();
+
+            Add(layerDisplay);
         }
 
         private void OnDataChanged(ChangeEvent<UnityEngine.Object> evt)

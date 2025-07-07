@@ -7,6 +7,7 @@ namespace Shears.StateMachineGraphs.Editor
     public class SMGraphNodeManager
     {
         private readonly List<StateNode> stateNodes = new();
+        private readonly List<StateMachineNode> stateMachineNodes = new();
 
         private StateMachineGraph graphData;
         private readonly SMGraphView graphView;
@@ -29,7 +30,7 @@ namespace Shears.StateMachineGraphs.Editor
             this.graphData = graphData;
 
             if (graphData != null)
-                graphData.NodeDataCreated += CreateStateNode;
+                graphData.NodeDataCreated += CreateNode;
         }
 
         public void ClearGraphData()
@@ -40,10 +41,24 @@ namespace Shears.StateMachineGraphs.Editor
             graphData = null;
         }
 
+        public void ClearNodes()
+        {
+            foreach (var node in stateNodes)
+                graphView.RemoveNode(node);
+
+            foreach (var node in stateMachineNodes)
+                graphView.RemoveNode(node);
+
+            stateNodes.Clear();
+            stateMachineNodes.Clear();
+        }
+
         public void CreateNode(GraphNodeData nodeData)
         {
             if (nodeData is StateNodeData stateNodeData)
                 CreateStateNode(stateNodeData);
+            else if (nodeData is StateMachineNodeData stateMachineNodeData)
+                CreateStateMachineNode(stateMachineNodeData);
         }
 
         private void CreateStateNode(StateNodeData nodeData)
@@ -54,9 +69,17 @@ namespace Shears.StateMachineGraphs.Editor
             graphView.AddNode(stateNode);
         }
 
+        private void CreateStateMachineNode(StateMachineNodeData nodeData)
+        {
+            var stateMachineNode = new StateMachineNode(nodeData);
+
+            stateMachineNodes.Add(stateMachineNode);
+            graphView.AddNode(stateMachineNode);
+        }
+
         private void UnsubscribeFromGraphData()
         {
-            graphData.NodeDataCreated -= CreateStateNode;
+            graphData.NodeDataCreated -= CreateNode;
         }
     }
 }

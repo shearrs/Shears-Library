@@ -1,5 +1,6 @@
 using Shears.GraphViews;
 using Shears.GraphViews.Editor;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -9,6 +10,7 @@ namespace Shears.StateMachineGraphs.Editor
     {
         private readonly SMGraphNodeManager nodeManager;
         private StateMachineGraph graphData;
+        private SMToolbar toolbar;
 
         public SMGraphView() : base()
         {
@@ -26,7 +28,7 @@ namespace Shears.StateMachineGraphs.Editor
             if (toolbarData == null)
                 toolbarData = (StateMachineGraph)GraphEditorState.instance.GraphData;
 
-            var toolbar = new SMToolbar(toolbarData, SetGraphData, ClearGraphData);
+            toolbar = new SMToolbar(toolbarData, SetGraphData, ClearGraphData);
 
             RootContainer.Insert(0, toolbar);
         }
@@ -42,6 +44,7 @@ namespace Shears.StateMachineGraphs.Editor
             Vector2 mousePos = target.ChangeCoordinatesTo(ContentViewContainer, evt.localMousePosition);
 
             evt.menu.AppendAction("Create State Node", (action) => graphData.CreateStateNodeData(mousePos));
+            evt.menu.AppendAction("Create State Machine Node", (action) => graphData.CreateStateMachineNodeData(mousePos));
         }
 
         protected override void OnGraphDataSet(GraphData graphData)
@@ -54,8 +57,7 @@ namespace Shears.StateMachineGraphs.Editor
 
             this.graphData = stateGraphData;
             nodeManager.SetGraphData(stateGraphData);
-
-            LoadGraphData();
+            toolbar.SetGraphData(stateGraphData);
         }
 
         protected override void OnGraphDataCleared()
@@ -66,15 +68,15 @@ namespace Shears.StateMachineGraphs.Editor
         #endregion
 
         #region Loading
-        private void LoadGraphData()
+        protected override void LoadNodes(IReadOnlyCollection<GraphNodeData> nodeData)
         {
-            LoadNodes();
+            foreach (var data in nodeData)
+                nodeManager.CreateNode(data);
         }
 
-        private void LoadNodes()
+        protected override void ClearNodes()
         {
-            foreach (var nodeData in graphData.NodeData)
-                nodeManager.CreateNode(nodeData);
+            nodeManager.ClearNodes();
         }
         #endregion
     }

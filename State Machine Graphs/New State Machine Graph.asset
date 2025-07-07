@@ -12,48 +12,52 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a3251f27db25e54d8fd770aee2cc34b, type: 3}
   m_Name: New State Machine Graph
   m_EditorClassIdentifier: 
-  position: {x: 295.2, y: 208.8}
-  scale: {x: 0.25, y: 0.25}
+  position: {x: 263.2, y: 233.6}
+  scale: {x: 0.55, y: 0.55}
   selection:
-    rid: 8604816614494306379
+    rid: 8604816637271474244
   nodeData:
-    rid: 8604816614494306376
+    rid: 8604816637271474245
   edgeData:
-    rid: 8604816614494306377
+    rid: 8604816637271474246
+  rootNodes:
+  - rid: 8604816637271474264
+  - rid: 8604816637271474265
   nodePath:
-    rid: 8604816614494306369
+    rid: 8604816637271474247
   references:
     version: 2
     RefIds:
-    - rid: 8604816614494306369
-      type: {class: 'Stack`1[[Shears.GraphViews.GraphNodeData, Shears.GraphView]]', ns: System.Collections.Generic, asm: mscorlib}
-      data: 
-    - rid: 8604816614494306376
-      type: {class: GraphNodeDictionary, ns: Shears.GraphViews, asm: Shears.GraphView}
+    - rid: 8604816637271474244
+      type: {class: GraphSelectionDictionary, ns: Shears.GraphViews, asm: Shears.GraphViews}
+      data:
+        keys: []
+        values: []
+    - rid: 8604816637271474245
+      type: {class: GraphNodeDictionary, ns: Shears.GraphViews, asm: Shears.GraphViews}
       data:
         keys:
-        - ff903975-23e5-4f2b-9476-eb57e6abfdfc
-        - b202b4bd-f5b0-47ed-84ff-4a8f8734bf7a
+        - dd4577e9-fb15-459c-be67-6c8f2a1f0b09
+        - de665eff-4d9f-43ef-9f11-233aba047c62
         values:
-        - rid: 8604816614494306378
-        - rid: 8604816637271474242
-    - rid: 8604816614494306377
-      type: {class: GraphEdgeDictionary, ns: Shears.GraphViews, asm: Shears.GraphView}
+        - rid: 8604816637271474264
+        - rid: 8604816637271474265
+    - rid: 8604816637271474246
+      type: {class: GraphEdgeDictionary, ns: Shears.GraphViews, asm: Shears.GraphViews}
       data:
         keys: []
         values: []
-    - rid: 8604816614494306378
+    - rid: 8604816637271474247
+      type: {class: 'Stack`1[[Shears.GraphViews.GraphNodeData, Shears.GraphViews]]', ns: System.Collections.Generic, asm: mscorlib}
+      data: 
+    - rid: 8604816637271474264
       type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
         name: Empty State
-        position: {x: 440, y: 180}
-    - rid: 8604816614494306379
-      type: {class: GraphSelectionDictionary, ns: Shears.GraphViews, asm: Shears.GraphView}
+        position: {x: -240, y: -80}
+    - rid: 8604816637271474265
+      type: {class: StateMachineNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
-        keys: []
-        values: []
-    - rid: 8604816637271474242
-      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        name: Empty State
-        position: {x: 440, y: 380}
+        name: New State Machine
+        position: {x: 240, y: -80}
+        subNodes: []

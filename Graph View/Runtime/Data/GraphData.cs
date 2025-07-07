@@ -1,5 +1,5 @@
+using System;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 namespace Shears.GraphViews
@@ -10,23 +10,66 @@ namespace Shears.GraphViews
         [SerializeField] private Vector2 position;
         [SerializeField] private Vector2 scale = Vector2.one;
 
-        [Header("Elements")]
+        [Header("Graph Elements")]
         [SerializeReference] private GraphSelectionDictionary selection = new();
         [SerializeReference] private GraphNodeDictionary nodeData = new();
         [SerializeReference] private GraphEdgeDictionary edgeData = new();
-        [SerializeReference] private Stack<GraphNodeData> nodePath = new();
+        [SerializeReference] private List<GraphNodeData> rootNodes = new();
+        [SerializeReference] private List<GraphMultiNodeData> nodePath = new();
         
         public Vector2 Position { get => position; set => position = value; }
         public Vector2 Scale { get => scale; set => scale = value; }
 
         public IReadOnlyCollection<GraphElementData> Selection => selection.Values;
-        public IReadOnlyCollection<GraphNodeData> NodeData => nodeData.Values;
-        public IReadOnlyCollection<GraphEdgeData> EdgeData => edgeData.Values;
-        public IReadOnlyCollection<GraphNodeData> NodePath => nodePath;
+        public IReadOnlyCollection<GraphMultiNodeData> NodePath => nodePath;
+
+        public event Action NodePathChanged;
 
         public void SetNodePosition(GraphNodeData nodeData, Vector2 position)
         {
             nodeData.Position = position;
+        }
+
+        public void OpenRootPath()
+        {
+            if (nodePath.Count == 0)
+                return;
+
+            nodePath.Clear();
+
+            NodePathChanged?.Invoke();
+        }
+
+        public void OpenSubPath(GraphMultiNodeData path)
+        {
+            if (nodePath.Count > 0 && nodePath[^1] == path)
+                return;
+
+            nodePath.Clear();
+            nodePath.Add(path);
+
+            string parentID = path.ParentID;
+
+            while (parentID != null && parentID != string.Empty)
+            {
+                nodeData.TryGetValue(parentID, out var untypedParent);
+
+                if (untypedParent == null || untypedParent is not GraphMultiNodeData parent)
+                    break;
+
+                nodePath.Insert(0, parent);
+                parentID = parent.ParentID;
+            }
+
+            NodePathChanged?.Invoke();
+        }
+
+        public IReadOnlyCollection<GraphNodeData> GetActiveNodes()
+        {
+            if (nodePath.Count > 0)
+                return nodePath[^1].GetSubNodes();
+
+            return rootNodes;
         }
 
         public void Select(GraphElementData elementData, bool isMultiSelect = false)
@@ -51,6 +94,11 @@ namespace Shears.GraphViews
         protected void AddNodeData(GraphNodeData data)
         {
             nodeData.Add(data.ID, data);
+
+            if (nodePath.Count == 0)
+                rootNodes.Add(data);
+            else
+                nodePath[^1].AddSubNode(data);
         }
 
         private void ClearSelection()

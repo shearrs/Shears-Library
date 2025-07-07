@@ -1,6 +1,6 @@
 {
-    "name": "Shears.GraphView",
-    "rootNamespace": "Shears.GraphView",
+    "name": "Shears.GraphViews",
+    "rootNamespace": "Shears.GraphViews",
     "references": [
         "GUID:b28a31c08beef024d83a7aa1ec3f2f6d"
     ],

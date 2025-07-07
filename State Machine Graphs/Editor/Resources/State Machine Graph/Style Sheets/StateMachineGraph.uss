@@ -49,3 +49,19 @@
 {
 	min-width: 40px;
 }
+
+.layerDisplay
+{
+	min-height: 15px;
+	flex-direction: row;
+}
+
+.layerDisplayTag
+{
+	flex-grow: 0;
+	min-width: auto;
+	max-width: none;
+	border-width: 1px;
+	border-radius: 0px;
+	margin: 0px;
+}

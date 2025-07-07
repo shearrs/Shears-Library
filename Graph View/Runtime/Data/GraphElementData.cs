@@ -5,7 +5,7 @@ namespace Shears.GraphViews
     [System.Serializable]
     public abstract class GraphElementData
     {
-        private readonly string id;
+        [SerializeField] private string id;
 
         public string ID => id;
 

@@ -4,20 +4,27 @@ using UnityEngine;
 
 namespace Shears.GraphViews
 {
-    [System.Serializable]
+    [Serializable]
     public abstract class GraphNodeData : GraphElementData
     {
         [SerializeField] private string name;
         [SerializeField] private Vector2 position;
         [SerializeField] private readonly List<GraphReference<GraphEdgeData>> edges = new();
+        [SerializeField] private string parentID;
 
         private readonly List<GraphEdgeData> instanceEdges = new();
 
         public string Name { get => name; set => name = value; }
         public Vector2 Position { get => position; set => position = value; }
+        public string ParentID => parentID;
 
         public event Action Selected;
         public event Action Deselected;
+
+        public void SetParent(GraphMultiNodeData parent)
+        {
+            parentID = parent.ID;
+        }
 
         public IReadOnlyList<GraphEdgeData> GetEdges()
         {

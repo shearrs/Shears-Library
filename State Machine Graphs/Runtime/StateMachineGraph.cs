@@ -8,13 +8,6 @@ namespace Shears.StateMachineGraphs
     [CreateAssetMenu(fileName = "New State Machine Graph", menuName = "Shears Library/State Machine Graph")]
     public class StateMachineGraph : GraphData
     {
-        [Header("State Machine Graph Elements")]
-        [SerializeField] private List<StateNodeData> stateNodeData = new();
-        [SerializeField] private List<StateMachineNodeData> stateMachineNodeData = new();
-
-        public IReadOnlyList<StateNodeData> StateNodeData => stateNodeData;
-        public IReadOnlyList<StateMachineNodeData> StateMachineNodeData => stateMachineNodeData;
-        
         public event Action<GraphNodeData> NodeDataCreated;
 
         public void CreateStateNodeData(Vector2 position)
@@ -25,7 +18,6 @@ namespace Shears.StateMachineGraphs
                 Name = "Empty State"
             };
 
-            stateNodeData.Add(nodeData);
             AddNodeData(nodeData);
 
             NodeDataCreated?.Invoke(nodeData);
@@ -39,7 +31,6 @@ namespace Shears.StateMachineGraphs
                 Name = "New State Machine"
             };
 
-            stateMachineNodeData.Add(nodeData);
             AddNodeData(nodeData);
 
             NodeDataCreated?.Invoke(nodeData);
