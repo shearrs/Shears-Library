@@ -27,6 +27,7 @@ namespace Shears.GraphViews
 
         public event Action LayersChanged;
 
+        #region Editor Validation
         public void Reset()
         {
             if (layers.Count == 0)
@@ -38,11 +39,43 @@ namespace Shears.GraphViews
             if (layers.Count == 0)
                 CreateRootLayer();
         }
+        #endregion
 
+        #region Nodes
         public void SetNodePosition(GraphNodeData nodeData, Vector2 position)
         {
             nodeData.Position = position;
         }
+
+        protected void AddNodeData(GraphNodeData data)
+        {
+            nodeData.Add(data.ID, data);
+
+            if (layers[^1].IsRoot())
+                rootNodes.Add(data.ID);
+            else
+            {
+                if (!TryGetNode(layers[^1].ParentID, out GraphMultiNodeData parent))
+                {
+                    Debug.LogError("Could not get node for ID: " + layers[^1].ParentID);
+                    return;
+                }
+
+                parent.AddSubNode(data);
+            }
+        }
+
+        protected bool TryGetNode<NodeDataType>(string id, out NodeDataType data) where NodeDataType : GraphNodeData
+        {
+            data = null;
+
+            if (!nodeData.TryGetValue(id, out var value))
+                return false;
+
+            data = (NodeDataType)value;
+            return data != null;
+        }
+        #endregion
 
         #region Selection
         public void Select(GraphElementData elementData, bool isMultiSelect = false)
@@ -87,35 +120,6 @@ namespace Shears.GraphViews
             selection.Clear();
         }
         #endregion
-
-        protected void AddNodeData(GraphNodeData data)
-        {
-            nodeData.Add(data.ID, data);
-
-            if (layers[^1].IsRoot())
-                rootNodes.Add(data.ID);
-            else
-            {
-                if (!TryGetNode(layers[^1].ParentID, out GraphMultiNodeData parent))
-                {
-                    Debug.LogError("Could not get node for ID: " + layers[^1].ParentID);
-                    return;
-                }
-
-                parent.AddSubNode(data);
-            }
-        }
-
-        protected bool TryGetNode<NodeDataType>(string id, out NodeDataType data) where NodeDataType : GraphNodeData
-        {
-            data = null;
-
-            if (!nodeData.TryGetValue(id, out var value))
-                return false;
-
-            data = (NodeDataType)value;
-            return data != null;
-        }
 
         #region Layers
         public void OpenLayer(GraphLayer layer)
@@ -166,8 +170,6 @@ namespace Shears.GraphViews
 
         public IReadOnlyCollection<GraphNodeData> GetActiveNodes()
         {
-            Debug.Log("subnodes: " + GetLayerSubNodes(layers[^1]).Count);
-
             return GetLayerSubNodes(layers[^1]); 
         }
 

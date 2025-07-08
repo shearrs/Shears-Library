@@ -74,6 +74,7 @@ namespace Shears.GraphViews.Editor
             graphData.LayersChanged -= ReloadLayer;
             graphData = null;
 
+            nodes.Clear();
             contentViewContainer.Clear();
             graphViewContainer.Remove(gridBackground);
             graphViewContainer.RemoveManipulator(contentDragger);
@@ -153,6 +154,62 @@ namespace Shears.GraphViews.Editor
             graphViewContainer.AddManipulator(nodeDragger);
         }
         #endregion
+
+        //private void OnKeyDown(KeyDownEvent evt)
+        //{
+        //    if (Selection.Count == 0)
+        //        return;
+
+        //    if (evt.keyCode == KeyCode.Delete)
+        //        DeleteSelection();
+        //    else if (evt.keyCode == KeyCode.F)
+        //        FocusCamera();
+        //}
+
+        //private void DeleteSelection()
+        //{
+        //    foreach (var stateNode in GetSelectedElementsOfType<StateNode>())
+        //        graphData.DeleteStateNodeData(stateNode.ID);
+
+        //    foreach (var smNode in GetSelectedElementsOfType<StateMachineNode>())
+        //        graphData.DeleteStateMachineNodeData(smNode.ID);
+
+        //    foreach (var transition in GetSelectedElementsOfType<TransitionEdge>())
+        //        graphData.DeleteTransitionData(transition.ID);
+
+        //    foreach (var parameter in GetSelectedElementsOfType<ParameterUI>())
+        //        graphData.DeleteParameter(parameter.ID);
+        //}
+
+        //private void FocusCamera()
+        //{
+        //    Vector2 averagePosition = Vector2.zero;
+        //    int nodes = 0;
+
+        //    foreach (var selectable in Selection)
+        //    {
+        //        if (selectable is StateNode node)
+        //        {
+        //            Vector2 center = node.GetCenter();
+        //            center.x += node.layout.width / 2;
+        //            center.y += node.layout.height / 2;
+
+        //            averagePosition -= center;
+        //            nodes++;
+        //        }
+        //    }
+
+        //    if (nodes == 0)
+        //        return;
+
+        //    averagePosition /= nodes;
+        //    averagePosition *= graphView.ViewTransform.scale;
+        //    averagePosition.x += layout.width * 0.5f;
+        //    averagePosition.y += layout.height * 0.5f;
+
+        //    graphView.UpdateViewTransform(averagePosition, graphView.ViewTransform.scale);
+        //    graphView.SaveViewTransform();
+        //}
 
         #region Loading
         private void LoadGraphData()
