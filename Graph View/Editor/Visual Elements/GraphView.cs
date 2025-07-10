@@ -181,9 +181,11 @@ namespace Shears.GraphViews.Editor
                 FocusCamera(nodes.Values);
         }
 
-        private void DeleteSelection()
+        protected void DeleteSelection()
         {
             graphData.DeleteSelection();
+
+            GraphViewEditorUtil.Save(graphData);
         }
 
         private void FocusCamera(IReadOnlyCollection<GraphElement> targets)

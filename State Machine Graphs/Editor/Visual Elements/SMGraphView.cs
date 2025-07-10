@@ -49,6 +49,7 @@ namespace Shears.StateMachineGraphs.Editor
 
             evt.menu.AppendAction("Create State Node", (action) => PerformThenSave(() => graphData.CreateStateNodeData(mousePos)));
             evt.menu.AppendAction("Create State Machine Node", (action) => PerformThenSave(() => graphData.CreateStateMachineNodeData(mousePos)));
+            if (graphData.SelectionCount > 0) evt.menu.AppendAction("Delete", (action) => PerformThenSave(DeleteSelection));
         }
 
         private void OnGraphDataSet(GraphData graphData)

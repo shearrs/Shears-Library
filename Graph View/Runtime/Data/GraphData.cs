@@ -21,7 +21,8 @@ namespace Shears.GraphViews
 
         public Vector2 Position { get => position; set => position = value; }
         public Vector2 Scale { get => scale; set => scale = value; }
-        
+
+        public int SelectionCount => selection.Count;
         public IReadOnlyCollection<GraphLayer> Layers => layers;
 
         public event Action LayersChanged;
