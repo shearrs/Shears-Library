@@ -65,5 +65,13 @@
 
 .graphNodeSelected
 {
-	border-color: rgba(20, 100, 200, .75);
+	border-color: rgba(0, 155, 255, 0.75);
+}
+
+.rectangleSelector
+{
+	position: absolute;
+	background-color: rgba(0, 155, 255, 0.15);
+	border-width: 1px;
+	border-color: rgba(0, 155, 255, 0.75);
 }

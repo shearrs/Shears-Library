@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -13,6 +14,7 @@ namespace Shears.GraphViews.Editor
         private readonly ContentSelector contentSelector;
         private readonly MultiNodeSelector multiNodeSelector;
         private readonly NodeDragger nodeDragger;
+        private readonly RectangleSelector rectangleSelector;
         private readonly Dictionary<GraphElementData, GraphNode> nodes = new();
         private readonly List<GraphElement> instanceElements = new();
         private readonly List<GraphNode> instanceNodes = new();
@@ -26,6 +28,7 @@ namespace Shears.GraphViews.Editor
         public VisualElement GraphViewContainer => graphViewContainer;
         public VisualElement ContentViewContainer => contentViewContainer;
         public ITransform ViewTransform => contentViewContainer.transform;
+        public int SelectionCount => graphData.SelectionCount;
 
         public event Action NodesCleared;
         public event Action<GraphData> GraphDataSet;
@@ -42,7 +45,8 @@ namespace Shears.GraphViews.Editor
             contentZoomer = new(this);
             contentSelector = new(this);
             multiNodeSelector = new(this);
-            nodeDragger = new(this); 
+            nodeDragger = new(this);
+            rectangleSelector = new(this);
 
             CreateRootContainer();
             CreateGraphViewContainer();
@@ -98,11 +102,7 @@ namespace Shears.GraphViews.Editor
             nodes.Clear();
             contentViewContainer.Clear();
             graphViewContainer.Remove(gridBackground);
-            graphViewContainer.RemoveManipulator(contentDragger);
-            graphViewContainer.RemoveManipulator(contentZoomer);
-            graphViewContainer.RemoveManipulator(contentSelector);
-            graphViewContainer.RemoveManipulator(multiNodeSelector);
-            graphViewContainer.RemoveManipulator(nodeDragger);
+            RemoveManipulators();
 
             GraphEditorState.instance.SetGraphData(null);
             GraphDataCleared?.Invoke();
@@ -166,6 +166,17 @@ namespace Shears.GraphViews.Editor
             graphViewContainer.AddManipulator(contentSelector);
             graphViewContainer.AddManipulator(multiNodeSelector);
             graphViewContainer.AddManipulator(nodeDragger);
+            graphViewContainer.AddManipulator(rectangleSelector);
+        }
+
+        private void RemoveManipulators()
+        {
+            graphViewContainer.RemoveManipulator(contentDragger);
+            graphViewContainer.RemoveManipulator(contentZoomer);
+            graphViewContainer.RemoveManipulator(contentSelector);
+            graphViewContainer.RemoveManipulator(multiNodeSelector);
+            graphViewContainer.RemoveManipulator(nodeDragger);
+            graphViewContainer.RemoveManipulator(rectangleSelector);
         }
         #endregion
 
@@ -294,6 +305,23 @@ namespace Shears.GraphViews.Editor
 
         protected abstract GraphNode CreateNodeFromData(GraphNodeData data);
         #endregion
+
+        public IReadOnlyList<GraphElement> GetElements()
+        {
+            instanceElements.Clear();
+
+            instanceElements.AddRange(nodes.Values);
+
+            return instanceElements;
+        }
+
+        public void SelectAll(IReadOnlyCollection<GraphElement> elements)
+        {
+            Select(null);
+
+            foreach (var element in elements)
+                Select(element, true);
+        }
 
         public void Select(GraphElement element, bool isMultiSelect = false)
         {
