@@ -134,6 +134,8 @@ namespace Shears.GraphViews.Editor
 
         private void SaveEndPositions()
         {
+            GraphViewEditorUtil.Record(graphData, "Drag Node");
+
             foreach (var elementData in graphData.GetSelection())
             {
                 if (elementData is not GraphNodeData nodeData)

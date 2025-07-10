@@ -1,7 +1,6 @@
 using Shears.GraphViews;
 using Shears.GraphViews.Editor;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -47,9 +46,11 @@ namespace Shears.StateMachineGraphs.Editor
             var target = evt.target as VisualElement;
             Vector2 mousePos = target.ChangeCoordinatesTo(ContentViewContainer, evt.localMousePosition);
 
-            evt.menu.AppendAction("Create State Node", (action) => PerformThenSave(() => graphData.CreateStateNodeData(mousePos)));
-            evt.menu.AppendAction("Create State Machine Node", (action) => PerformThenSave(() => graphData.CreateStateMachineNodeData(mousePos)));
-            if (graphData.SelectionCount > 0) evt.menu.AppendAction("Delete", (action) => PerformThenSave(DeleteSelection));
+            void perform(Action action, string actionName) => GraphViewEditorUtil.RecordAndSave(graphData, action, actionName);
+
+            evt.menu.AppendAction("Create State Node", (action) => perform(() => graphData.CreateStateNodeData(mousePos), "Create State Node"));
+            evt.menu.AppendAction("Create State Machine Node", (action) => perform(() => graphData.CreateStateMachineNodeData(mousePos), "Create State Machine Node"));
+            if (graphData.SelectionCount > 0) evt.menu.AppendAction("Delete", (action) => DeleteSelection());
         }
 
         private void OnGraphDataSet(GraphData graphData)
@@ -69,13 +70,6 @@ namespace Shears.StateMachineGraphs.Editor
             graphData = null;
         }
         #endregion
-
-        private void PerformThenSave(Action action)
-        {
-            action();
-
-            GraphViewEditorUtil.Save(graphData);
-        }
 
         protected override GraphNode CreateNodeFromData(GraphNodeData data)
         {

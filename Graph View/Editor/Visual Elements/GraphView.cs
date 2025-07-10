@@ -52,6 +52,8 @@ namespace Shears.GraphViews.Editor
             CreateGraphViewContainer();
             CreateContentViewContainer();
             schedule.Execute(() => SetGraphData(GraphEditorState.instance.GraphData)).StartingIn(1);
+
+            GraphViewEditorUtil.UndoRedoEvent += OnUndoRedo;
         }
 
         ~GraphView()
@@ -62,6 +64,11 @@ namespace Shears.GraphViews.Editor
                 graphData.NodeDataAdded -= AddNodeFromData;
                 graphData.NodeDataRemoved -= RemoveNodeFromData;
             }
+        }
+
+        private void OnUndoRedo()
+        {
+            ReloadLayer();
         }
 
         #region Initialization
@@ -194,6 +201,8 @@ namespace Shears.GraphViews.Editor
 
         protected void DeleteSelection()
         {
+            GraphViewEditorUtil.Record(graphData, "Delete Selection");
+
             graphData.DeleteSelection();
 
             GraphViewEditorUtil.Save(graphData);
