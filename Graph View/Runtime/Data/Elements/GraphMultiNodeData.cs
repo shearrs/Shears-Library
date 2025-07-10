@@ -17,5 +17,11 @@ namespace Shears.GraphViews
 
             data.SetParent(this);
         }
+
+        public void RemoveSubNode(GraphNodeData data)
+        {
+            subNodeIDs.Remove(data.ID);
+            data.SetParent(null);
+        }
     }
 }

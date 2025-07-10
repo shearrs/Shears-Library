@@ -19,6 +19,9 @@ namespace Shears.StateMachineGraphs.Editor
 
             CreateToolbar();
             AddManipulators();
+
+            GraphDataSet += OnGraphDataSet;
+            GraphDataCleared += OnGraphDataCleared;
         }
 
         #region Initialization
@@ -48,7 +51,7 @@ namespace Shears.StateMachineGraphs.Editor
             evt.menu.AppendAction("Create State Machine Node", (action) => PerformThenSave(() => graphData.CreateStateMachineNodeData(mousePos)));
         }
 
-        protected override void OnGraphDataSet(GraphData graphData)
+        private void OnGraphDataSet(GraphData graphData)
         {
             if (graphData is not StateMachineGraph stateGraphData)
             {
@@ -57,27 +60,12 @@ namespace Shears.StateMachineGraphs.Editor
             }
 
             this.graphData = stateGraphData;
-            nodeManager.SetGraphData(stateGraphData);
             toolbar.SetGraphData(stateGraphData);
         }
 
-        protected override void OnGraphDataCleared()
+        private void OnGraphDataCleared()
         {
             graphData = null;
-            nodeManager.ClearGraphData();
-        }
-        #endregion
-
-        #region Loading
-        protected override void LoadNodes(IReadOnlyCollection<GraphNodeData> nodeData)
-        {
-            foreach (var data in nodeData)
-                nodeManager.CreateNode(data);
-        }
-
-        protected override void ClearNodes()
-        {
-            nodeManager.ClearNodes();
         }
         #endregion
 
@@ -86,6 +74,11 @@ namespace Shears.StateMachineGraphs.Editor
             action();
 
             GraphViewEditorUtil.Save(graphData);
+        }
+
+        protected override GraphNode CreateNodeFromData(GraphNodeData data)
+        {
+            return nodeManager.CreateNode(data);
         }
     }
 }

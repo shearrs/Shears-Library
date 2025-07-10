@@ -5,8 +5,8 @@ namespace Shears.GraphViews
     [System.Serializable]
     public struct GraphLayer
     {
-        private const string ROOT_NAME = "Root";
-        private const string ROOT_ID = "$ROOT";
+        public const string ROOT_NAME = "Root";
+        public const string ROOT_ID = "$ROOT";
 
         [SerializeField] private string parentName;
         [SerializeField] private string parentID;

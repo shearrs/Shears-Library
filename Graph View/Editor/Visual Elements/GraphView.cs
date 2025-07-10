@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -13,6 +14,8 @@ namespace Shears.GraphViews.Editor
         private readonly MultiNodeSelector multiNodeSelector;
         private readonly NodeDragger nodeDragger;
         private readonly Dictionary<GraphElementData, GraphNode> nodes = new();
+        private readonly List<GraphElement> instanceElements = new();
+        private readonly List<GraphNode> instanceNodes = new();
         private GraphData graphData;
         private VisualElement rootContainer;
         private VisualElement graphViewContainer;
@@ -23,6 +26,10 @@ namespace Shears.GraphViews.Editor
         public VisualElement GraphViewContainer => graphViewContainer;
         public VisualElement ContentViewContainer => contentViewContainer;
         public ITransform ViewTransform => contentViewContainer.transform;
+
+        public event Action NodesCleared;
+        public event Action<GraphData> GraphDataSet;
+        public event Action GraphDataCleared;
         #endregion
 
         protected GraphView()
@@ -43,6 +50,16 @@ namespace Shears.GraphViews.Editor
             schedule.Execute(() => SetGraphData(GraphEditorState.instance.GraphData)).StartingIn(1);
         }
 
+        ~GraphView()
+        {
+            if (graphData != null)
+            {
+                graphData.LayersChanged -= ReloadLayer;
+                graphData.NodeDataAdded -= AddNodeFromData;
+                graphData.NodeDataRemoved -= RemoveNodeFromData;
+            }
+        }
+
         #region Initialization
         protected void SetGraphData(GraphData graphData)
         {
@@ -53,17 +70,19 @@ namespace Shears.GraphViews.Editor
             multiNodeSelector.SetGraphData(graphData);
             nodeDragger.SetGraphData(graphData);
 
-            graphData.LayersChanged -= ReloadLayer;
             graphData.LayersChanged += ReloadLayer;
+            graphData.NodeDataAdded += AddNodeFromData;
+            graphData.NodeDataRemoved += RemoveNodeFromData;
 
             CreateBackground();
             AddManipulators();
             UpdateViewTransform(graphData.Position, graphData.Scale);
 
             GraphEditorState.instance.SetGraphData(graphData);
-            OnGraphDataSet(graphData);
+            GraphDataSet?.Invoke(graphData);
 
             LoadGraphData();
+            RegisterCallback<KeyDownEvent>(OnKeyDown);
         }
 
         protected void ClearGraphData()
@@ -72,6 +91,8 @@ namespace Shears.GraphViews.Editor
                 return; 
 
             graphData.LayersChanged -= ReloadLayer;
+            graphData.NodeDataAdded -= AddNodeFromData;
+            graphData.NodeDataRemoved -= RemoveNodeFromData;
             graphData = null;
 
             nodes.Clear();
@@ -84,21 +105,14 @@ namespace Shears.GraphViews.Editor
             graphViewContainer.RemoveManipulator(nodeDragger);
 
             GraphEditorState.instance.SetGraphData(null);
-            OnGraphDataCleared();
+            GraphDataCleared?.Invoke();
         }
 
         protected void ReloadLayer()
         {
+            Select(null);
             ClearNodes();
-            LoadNodes(graphData.GetActiveNodes());
-        }
-
-        protected virtual void OnGraphDataSet(GraphData graphData)
-        {
-        }
-
-        protected virtual void OnGraphDataCleared()
-        {
+            LoadNodes();
         }
 
         private void CreateRootContainer()
@@ -155,70 +169,74 @@ namespace Shears.GraphViews.Editor
         }
         #endregion
 
-        //private void OnKeyDown(KeyDownEvent evt)
-        //{
-        //    if (Selection.Count == 0)
-        //        return;
+        private void OnKeyDown(KeyDownEvent evt)
+        {
+            bool hasSelection = graphData.GetSelection().Count > 0;
 
-        //    if (evt.keyCode == KeyCode.Delete)
-        //        DeleteSelection();
-        //    else if (evt.keyCode == KeyCode.F)
-        //        FocusCamera();
-        //}
+            if (hasSelection && evt.keyCode == KeyCode.Delete)
+                DeleteSelection();
+            else if (hasSelection && evt.keyCode == KeyCode.F)
+                FocusCamera(GetSelection());
+            else if (evt.keyCode == KeyCode.A)
+                FocusCamera(nodes.Values);
+        }
 
-        //private void DeleteSelection()
-        //{
-        //    foreach (var stateNode in GetSelectedElementsOfType<StateNode>())
-        //        graphData.DeleteStateNodeData(stateNode.ID);
+        private void DeleteSelection()
+        {
+            graphData.DeleteSelection();
+        }
 
-        //    foreach (var smNode in GetSelectedElementsOfType<StateMachineNode>())
-        //        graphData.DeleteStateMachineNodeData(smNode.ID);
+        private void FocusCamera(IReadOnlyCollection<GraphElement> targets)
+        {
+            Vector2 averagePosition = Vector2.zero;
+            int nodes = 0;
 
-        //    foreach (var transition in GetSelectedElementsOfType<TransitionEdge>())
-        //        graphData.DeleteTransitionData(transition.ID);
+            foreach (var selectable in targets)
+            {
+                if (selectable is GraphNode node)
+                {
+                    Vector2 center = node.transform.position;
+                    center.x += node.layout.width / 2;
+                    center.y += node.layout.height / 2;
 
-        //    foreach (var parameter in GetSelectedElementsOfType<ParameterUI>())
-        //        graphData.DeleteParameter(parameter.ID);
-        //}
+                    averagePosition -= center;
+                    nodes++;
+                }
+            }
 
-        //private void FocusCamera()
-        //{
-        //    Vector2 averagePosition = Vector2.zero;
-        //    int nodes = 0;
+            if (nodes == 0)
+                return;
 
-        //    foreach (var selectable in Selection)
-        //    {
-        //        if (selectable is StateNode node)
-        //        {
-        //            Vector2 center = node.GetCenter();
-        //            center.x += node.layout.width / 2;
-        //            center.y += node.layout.height / 2;
+            averagePosition /= nodes;
+            averagePosition *= ViewTransform.scale;
+            averagePosition.x += layout.width * 0.5f;
+            averagePosition.y += layout.height * 0.5f;
 
-        //            averagePosition -= center;
-        //            nodes++;
-        //        }
-        //    }
-
-        //    if (nodes == 0)
-        //        return;
-
-        //    averagePosition /= nodes;
-        //    averagePosition *= graphView.ViewTransform.scale;
-        //    averagePosition.x += layout.width * 0.5f;
-        //    averagePosition.y += layout.height * 0.5f;
-
-        //    graphView.UpdateViewTransform(averagePosition, graphView.ViewTransform.scale);
-        //    graphView.SaveViewTransform();
-        //}
+            UpdateViewTransform(averagePosition, ViewTransform.scale);
+            SaveViewTransform();
+        }
 
         #region Loading
         private void LoadGraphData()
         {
-            LoadNodes(graphData.GetActiveNodes());
+            LoadNodes();
+        }
+        
+        private void LoadNodes()
+        {
+            foreach (var data in graphData.GetActiveNodes())
+                AddNodeFromData(data);
         }
 
-        protected abstract void LoadNodes(IReadOnlyCollection<GraphNodeData> nodeData);
-        protected abstract void ClearNodes();
+        protected void ClearNodes()
+        {
+            instanceNodes.AddRange(nodes.Values);
+
+            foreach (var node in instanceNodes)
+                RemoveNode(node);
+
+            NodesCleared?.Invoke();
+        }
         #endregion
 
         #region Transformations
@@ -258,6 +276,21 @@ namespace Shears.GraphViews.Editor
             if (contentViewContainer.Contains(node))
                 contentViewContainer.Remove(node);
         }
+
+        private void AddNodeFromData(GraphNodeData data)
+        {
+            var node = CreateNodeFromData(data);
+
+            AddNode(node);
+        }
+
+        private void RemoveNodeFromData(GraphNodeData data)
+        {
+            if (nodes.TryGetValue(data, out var node))
+                RemoveNode(node);
+        }
+
+        protected abstract GraphNode CreateNodeFromData(GraphNodeData data);
         #endregion
 
         public void Select(GraphElement element, bool isMultiSelect = false)
@@ -266,6 +299,20 @@ namespace Shears.GraphViews.Editor
                 graphData.Select(null);
             else
                 graphData.Select(element.GetData(), isMultiSelect);
+        }
+    
+        private IReadOnlyList<GraphElement> GetSelection()
+        {
+            var selectionData = graphData.GetSelection();
+            instanceElements.Clear();
+
+            foreach (var data in selectionData)
+            {
+                if (nodes.TryGetValue(data, out var node))
+                    instanceElements.Add(node);
+            }
+
+            return instanceElements;
         }
     }
 }

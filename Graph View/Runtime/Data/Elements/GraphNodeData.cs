@@ -10,7 +10,7 @@ namespace Shears.GraphViews
         [SerializeField] private string name;
         [SerializeField] private Vector2 position;
         [SerializeField] private readonly List<GraphReference<GraphEdgeData>> edges = new();
-        [SerializeField] private string parentID;
+        [SerializeField] private string parentID = GraphLayer.ROOT_ID;
 
         private readonly List<GraphEdgeData> instanceEdges = new();
 
@@ -23,7 +23,10 @@ namespace Shears.GraphViews
 
         public void SetParent(GraphMultiNodeData parent)
         {
-            parentID = parent.ID;
+            if (parent == null)
+                parentID = GraphLayer.ROOT_ID;
+            else
+                parentID = parent.ID;
         }
 
         public IReadOnlyList<GraphEdgeData> GetEdges()

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Shears.GraphViews
@@ -26,6 +25,8 @@ namespace Shears.GraphViews
         public IReadOnlyCollection<GraphLayer> Layers => layers;
 
         public event Action LayersChanged;
+        public event Action<GraphNodeData> NodeDataAdded;
+        public event Action<GraphNodeData> NodeDataRemoved;
 
         #region Editor Validation
         public void Reset()
@@ -63,6 +64,38 @@ namespace Shears.GraphViews
 
                 parent.AddSubNode(data);
             }
+
+            NodeDataAdded?.Invoke(data);
+        }
+
+        protected void RemoveNodeData(GraphNodeData data)
+        {
+            if (!nodeData.ContainsKey(data.ID))
+            {
+                Debug.LogError("Node data does not have data with ID: " + data.ID + "!");
+                return;
+            }
+            
+            nodeData.Remove(data.ID);
+
+            if (data is GraphMultiNodeData multiData)
+            {
+                foreach (var subNodeID in multiData.SubNodeIDs)
+                {
+                    if (nodeData.TryGetValue(subNodeID, out var childData))
+                        RemoveNodeData(childData);
+                }
+            }
+
+            if (data.ParentID == GraphLayer.ROOT_ID)
+                rootNodes.Remove(data.ID);
+            else
+            {
+                if (TryGetNode(data.ParentID, out GraphMultiNodeData parent))
+                    parent.RemoveSubNode(data);
+            }
+
+            NodeDataRemoved?.Invoke(data);
         }
 
         protected bool TryGetNode<NodeDataType>(string id, out NodeDataType data) where NodeDataType : GraphNodeData
@@ -105,6 +138,19 @@ namespace Shears.GraphViews
                 instanceSelection.Add(nodeData[selectID]);
 
             return instanceSelection;
+        }
+
+        public void DeleteSelection()
+        {
+            var instanceSelection = GetSelection();
+
+            foreach (var selectable in instanceSelection)
+            {
+                if (selectable is GraphNodeData nodeData)
+                    RemoveNodeData(nodeData);
+            }
+
+            ClearSelection();
         }
 
         private void ClearSelection()
