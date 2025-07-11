@@ -15,6 +15,15 @@ namespace Shears.StateMachineGraphs
         public event Action<ParameterData> ParameterDataAdded;
         public event Action<ParameterData> ParameterDataRemoved;
 
+        protected override void OnDeleteSelection(IReadOnlyList<GraphElementData> selection)
+        {
+            foreach (var element in selection)
+            {
+                if (element is ParameterData parameterData)
+                    RemoveParameter(parameterData);
+            }
+        }
+
         #region Nodes
         public void CreateStateNodeData(Vector2 position)
         {
@@ -46,7 +55,7 @@ namespace Shears.StateMachineGraphs
 
             foreach (var parameterID in parameters)
             {
-                if (TryGetElement<ParameterData>(parameterID, out var parameter))
+                if (TryGetData<ParameterData>(parameterID, out var parameter))
                     instanceParameters.Add(parameter);
             }
 

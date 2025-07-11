@@ -26,8 +26,6 @@ namespace Shears.GraphViews.Editor
 
         private void Select(MouseDownEvent evt)
         {
-            Debug.Log("target: " + evt.target);
-
             if (evt.target is GraphElement graphElement)
                 graphView.Select(graphElement, IsMultiSelect(evt.modifiers));
             else
