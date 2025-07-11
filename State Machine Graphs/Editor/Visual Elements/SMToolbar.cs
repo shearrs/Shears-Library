@@ -11,6 +11,7 @@ namespace Shears.StateMachineGraphs.Editor
         private readonly Action<GraphData> dataSetCallback;
         private readonly Action dataClearCallback;
         private SMLayerDisplay layerDisplay;
+        private ObjectField dataField;
 
         public SMToolbar(StateMachineGraph graphData, Action<GraphData> dataSetCallback, Action dataClearCallback)
         {
@@ -29,11 +30,18 @@ namespace Shears.StateMachineGraphs.Editor
         public void SetGraphData(StateMachineGraph graphData)
         {
             layerDisplay.SetGraphData(graphData);
+            dataField.SetValueWithoutNotify(graphData);
+        }
+
+        public void ClearGraphData()
+        {
+            layerDisplay.ClearGraphData();
+            dataField.SetValueWithoutNotify(null);
         }
 
         private void CreateObjectField(StateMachineGraph data)
         {
-            var dataField = new ObjectField("Data")
+            dataField = new ObjectField("Data")
             {
                 objectType = typeof(StateMachineGraph),
                 value = data
@@ -60,10 +68,7 @@ namespace Shears.StateMachineGraphs.Editor
             if (value != null)
                 dataSetCallback?.Invoke(value);
             else
-            {
                 dataClearCallback?.Invoke();
-                layerDisplay.ClearGraphData();
-            }
         }
     }
 }

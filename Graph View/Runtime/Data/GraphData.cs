@@ -10,11 +10,14 @@ namespace Shears.GraphViews
         [SerializeField] private Vector2 position;
         [SerializeField] private Vector2 scale = Vector2.one;
 
+        [Header("Layers")]
+        [SerializeField] private List<GraphLayer> layers = new();
+        // add base elements dictionary for selection and such
         [Header("Graph Elements")]
-        [SerializeReference] private GraphNodeDictionary nodeData = new();
+        [SerializeReference] private GraphElementDictionary graphElements = new();
+        [SerializeField] private List<string> nodeData = new();
         [SerializeField] private List<string> selection = new();
         [SerializeField] private List<string> rootNodes = new();
-        [SerializeField] private List<GraphLayer> layers = new();
 
         private readonly List<GraphElementData> instanceSelection = new();
         private readonly List<GraphNodeData> instanceSubNodes = new();
@@ -28,6 +31,16 @@ namespace Shears.GraphViews
         public event Action LayersChanged;
         public event Action<GraphNodeData> NodeDataAdded;
         public event Action<GraphNodeData> NodeDataRemoved;
+
+        protected void AddGraphElementData(GraphElementData data)
+        {
+            graphElements.Add(data.ID, data);
+        }
+
+        protected void RemoveGraphElementData(GraphElementData data)
+        {
+            graphElements.Remove(data.ID);
+        }
 
         #region Editor Validation
         public void Reset()
@@ -51,13 +64,14 @@ namespace Shears.GraphViews
 
         protected void AddNodeData(GraphNodeData data)
         {
-            nodeData.Add(data.ID, data);
+            nodeData.Add(data.ID);
+            AddGraphElementData(data);
 
             if (layers[^1].IsRoot())
                 rootNodes.Add(data.ID);
             else
             {
-                if (!TryGetNode(layers[^1].ParentID, out GraphMultiNodeData parent))
+                if (!TryGetElement(layers[^1].ParentID, out GraphMultiNodeData parent))
                 {
                     Debug.LogError("Could not get node for ID: " + layers[^1].ParentID);
                     return;
@@ -71,20 +85,21 @@ namespace Shears.GraphViews
 
         protected void RemoveNodeData(GraphNodeData data)
         {
-            if (!nodeData.ContainsKey(data.ID))
+            if (!nodeData.Contains(data.ID))
             {
                 Debug.LogError("Node data does not have data with ID: " + data.ID + "!");
                 return;
             }
             
             nodeData.Remove(data.ID);
+            RemoveGraphElementData(data);
 
             if (data is GraphMultiNodeData multiData)
             {
                 foreach (var subNodeID in multiData.SubNodeIDs)
                 {
-                    if (nodeData.TryGetValue(subNodeID, out var childData))
-                        RemoveNodeData(childData);
+                    if (nodeData.Contains(subNodeID) && graphElements.TryGetValue(subNodeID, out var childData))
+                        RemoveNodeData((GraphNodeData)childData);
                 }
             }
 
@@ -92,21 +107,24 @@ namespace Shears.GraphViews
                 rootNodes.Remove(data.ID);
             else
             {
-                if (TryGetNode(data.ParentID, out GraphMultiNodeData parent))
+                if (TryGetElement(data.ParentID, out GraphMultiNodeData parent))
                     parent.RemoveSubNode(data);
             }
 
             NodeDataRemoved?.Invoke(data);
         }
 
-        protected bool TryGetNode<NodeDataType>(string id, out NodeDataType data) where NodeDataType : GraphNodeData
+        protected bool TryGetElement<GraphElementType>(string id, out GraphElementType data) where GraphElementType : GraphElementData
         {
             data = null;
-
-            if (!nodeData.TryGetValue(id, out var value))
+            
+            if (!nodeData.Contains(id))
                 return false;
 
-            data = (NodeDataType)value;
+            if (!graphElements.TryGetValue(id, out var elementData))
+                return false;
+
+            data = (GraphElementType)elementData;
             return data != null;
         }
         #endregion
@@ -136,7 +154,10 @@ namespace Shears.GraphViews
             instanceSelection.Clear();
 
             foreach (var selectID in selection)
-                instanceSelection.Add(nodeData[selectID]);
+            {
+                if (graphElements.TryGetValue(selectID, out var element))
+                    instanceSelection.Add(element);
+            }
 
             return instanceSelection;
         }
@@ -158,10 +179,10 @@ namespace Shears.GraphViews
         {
             foreach (var selectionID in selection)
             {
-                if (!nodeData.TryGetValue(selectionID, out var node))
+                if (!graphElements.TryGetValue(selectionID, out var element))
                     continue;
 
-                node.Deselect();
+                element.Deselect();
             }
 
             selection.Clear();
@@ -173,7 +194,7 @@ namespace Shears.GraphViews
         {
             if (layer.IsRoot())
                 OpenRootLayer();
-            else if (TryGetNode<GraphMultiNodeData>(layer.ParentID, out var parentNode))
+            else if (TryGetElement<GraphMultiNodeData>(layer.ParentID, out var parentNode))
                 OpenMultiNode(parentNode);
             else
                 Debug.LogError("Could not find node for layer: " + layer.ParentID);
@@ -203,7 +224,8 @@ namespace Shears.GraphViews
 
             while (parentID != null && parentID != string.Empty)
             {
-                nodeData.TryGetValue(parentID, out var untypedParent);
+                if (!nodeData.Contains(parentID) || !graphElements.TryGetValue(parentID, out var untypedParent))
+                    break;
 
                 if (untypedParent == null || untypedParent is not GraphMultiNodeData parent)
                     break;
@@ -224,7 +246,7 @@ namespace Shears.GraphViews
         {
             instanceSubNodes.Clear();
 
-            TryGetNode(layer.ParentID, out GraphMultiNodeData multiNode);
+            TryGetElement(layer.ParentID, out GraphMultiNodeData multiNode);
 
             IReadOnlyList<string> nodeIDs;
 
@@ -235,7 +257,7 @@ namespace Shears.GraphViews
 
             foreach (var nodeID in nodeIDs)
             {
-                if (!TryGetNode(nodeID, out GraphNodeData node))
+                if (!TryGetElement(nodeID, out GraphNodeData node))
                     continue;
 
                 instanceSubNodes.Add(node);

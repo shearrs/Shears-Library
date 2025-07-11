@@ -15,10 +15,17 @@ namespace Shears.StateMachineGraphs.Editor
         public SMGraphNodeManager(SMGraphView graphView)
         {
             this.graphView = graphView;
-            graphView.NodesCleared += OnNodesCleared;
+            graphView.GraphDataCleared += ClearNodes;
+            graphView.NodesCleared += ClearNodes;
         }
 
-        public void OnNodesCleared()
+        ~SMGraphNodeManager()
+        {
+            graphView.GraphDataCleared -= ClearNodes;
+            graphView.NodesCleared -= ClearNodes;
+        }
+
+        public void ClearNodes()
         {
             stateNodes.Clear();
             stateMachineNodes.Clear();

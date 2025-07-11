@@ -11,16 +11,24 @@ namespace Shears.StateMachineGraphs.Editor
         private readonly SMGraphNodeManager nodeManager;
         private StateMachineGraph graphData;
         private SMToolbar toolbar;
+        private SMParameterBar parameterBar;
 
         public SMGraphView() : base()
         {
             nodeManager = new(this);
 
             CreateToolbar();
+            CreateParameterBar();
             AddManipulators();
 
             GraphDataSet += OnGraphDataSet;
             GraphDataCleared += OnGraphDataCleared;
+            GraphViewEditorUtil.UndoRedoEvent += OnUndoRedo;
+        }
+
+        private void OnUndoRedo()
+        {
+            parameterBar.Reload();
         }
 
         #region Initialization
@@ -34,6 +42,19 @@ namespace Shears.StateMachineGraphs.Editor
             toolbar = new SMToolbar(toolbarData, SetGraphData, ClearGraphData);
 
             RootContainer.Insert(0, toolbar);
+        }
+
+        private void CreateParameterBar()
+        {
+            var parameterBarData = graphData;
+
+            if (parameterBarData == null)
+                parameterBarData = (StateMachineGraph)GraphEditorState.instance.GraphData;
+
+            parameterBar = new SMParameterBar(parameterBarData);
+
+            GraphViewContainer.Insert(0, parameterBar);
+            parameterBar.BringToFront();
         }
 
         private void AddManipulators()
@@ -63,11 +84,14 @@ namespace Shears.StateMachineGraphs.Editor
 
             this.graphData = stateGraphData;
             toolbar.SetGraphData(stateGraphData);
+            parameterBar.SetGraphData(stateGraphData);
         }
 
         private void OnGraphDataCleared()
         {
             graphData = null;
+            parameterBar.ClearGraphData();
+            toolbar.ClearGraphData();
         }
         #endregion
 

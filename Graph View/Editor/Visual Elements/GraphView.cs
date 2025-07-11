@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -54,6 +53,8 @@ namespace Shears.GraphViews.Editor
             schedule.Execute(() => SetGraphData(GraphEditorState.instance.GraphData)).StartingIn(1);
 
             GraphViewEditorUtil.UndoRedoEvent += OnUndoRedo;
+
+            RegisterCallback<KeyDownEvent>(OnKeyDown);
         }
 
         ~GraphView()
@@ -76,6 +77,8 @@ namespace Shears.GraphViews.Editor
         {
             if (graphData == this.graphData || graphData == null)
                 return;
+            else if (this.graphData != null)
+                ClearGraphData();
 
             this.graphData = graphData;
             multiNodeSelector.SetGraphData(graphData);
@@ -93,7 +96,6 @@ namespace Shears.GraphViews.Editor
             GraphDataSet?.Invoke(graphData);
 
             LoadGraphData();
-            RegisterCallback<KeyDownEvent>(OnKeyDown);
         }
 
         protected void ClearGraphData()
@@ -189,6 +191,17 @@ namespace Shears.GraphViews.Editor
 
         private void OnKeyDown(KeyDownEvent evt)
         {
+            if (evt.keyCode == KeyCode.R && evt.modifiers.HasFlag(EventModifiers.Shift) && evt.modifiers.HasFlag(EventModifiers.Control))
+            {
+                Debug.Log("reset");
+
+                ClearGraphData();
+                return;
+            }
+
+            if (graphData == null)
+                return;
+
             bool hasSelection = graphData.GetSelection().Count > 0;
 
             if (hasSelection && evt.keyCode == KeyCode.Delete)

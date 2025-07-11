@@ -1,0 +1,223 @@
+using Shears.GraphViews.Editor;
+using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+namespace Shears.StateMachineGraphs.Editor
+{
+    public class SMParameterBar : VisualElement
+    {
+        private readonly Dictionary<ParameterData, ParameterUI> parameterUIs = new();
+        private readonly List<ParameterData> instanceParameters = new();
+
+        private StateMachineGraph graphData;
+        private VisualElement titlePanel;
+        private VisualElement contentPanel;
+        private VisualElement parametersPanel;
+        private VisualElement resizeBar;
+        private VisualElement resizeBarVisual;
+        private Button addButton;
+
+        private readonly Color resizeDefaultColor = new(.251f, .251f, .251f);
+        private readonly Color resizeHighlightColor = new(.4f, .4f, .4f);
+
+        public SMParameterBar(StateMachineGraph graphData)
+        {
+            AddToClassList(SMEditorUtil.ParameterBarClassName);
+            this.AddStyleSheet(SMEditorUtil.ParameterBarStyleSheet);
+
+            CreateTitlePanel();
+            CreateContentPanel();
+
+            SetGraphData(graphData);
+        }
+
+        #region Title Panel
+        private void CreateTitlePanel()
+        {
+            titlePanel = new()
+            {
+                pickingMode = PickingMode.Ignore
+            };
+
+            titlePanel.AddToClassList(SMEditorUtil.ParameterBarTitlePanelClassName);
+
+            CreateTitle();
+            CreateAddButton();
+
+            Add(titlePanel);
+        }
+
+        private void CreateTitle()
+        {
+            var title = new Label("Parameters");
+
+            title.AddToClassList(SMEditorUtil.ParameterBarTitleClassName);
+
+            titlePanel.Add(title);
+        }
+
+        private void CreateAddButton()
+        {
+            addButton = new(ShowContextMenu)
+            {
+                text = "+"
+            };
+
+            addButton.AddToClassList(SMEditorUtil.ParameterBarAddButtonClassName);
+
+            if (graphData == null)
+                addButton.enabledSelf = false;
+
+            titlePanel.Add(addButton);
+        }
+        #endregion
+
+        #region Content Panel
+        private void CreateContentPanel()
+        {
+            contentPanel = new()
+            {
+                pickingMode = PickingMode.Ignore
+            };
+
+            contentPanel.AddToClassList(SMEditorUtil.ParameterBarContentPanelClassName);
+
+            CreateParametersPanel();
+            CreateResizeBar();
+
+            Add(contentPanel);
+        }
+
+        private void CreateParametersPanel()
+        {
+            parametersPanel = new()
+            {
+                pickingMode = PickingMode.Ignore
+            };
+
+            parametersPanel.AddToClassList(SMEditorUtil.ParameterBarParametersPanelClassName);
+
+            contentPanel.Add(parametersPanel);
+        }
+        #endregion
+
+        #region Resize Bar
+        private void CreateResizeBar()
+        {
+            resizeBar = new();
+            resizeBarVisual = new()
+            {
+                pickingMode = PickingMode.Ignore,
+            };
+
+            resizeBar.AddToClassList(SMEditorUtil.ResizeBarClassName);
+            resizeBarVisual.AddToClassList(SMEditorUtil.ResizeBarVisualClassName);
+
+            resizeBar.AddManipulator(new Resizer(this, Resizer.ResizeDirection.Width));
+            resizeBar.RegisterCallback<MouseOverEvent>(HighlightResizeBar);
+            resizeBar.RegisterCallback<MouseOutEvent>(UnhighlightResizeBar);
+
+            resizeBar.Add(resizeBarVisual);
+            contentPanel.Add(resizeBar);
+        }
+
+        private void HighlightResizeBar(MouseOverEvent evt)
+        {
+            resizeBarVisual.style.backgroundColor = resizeHighlightColor;
+
+            evt.StopImmediatePropagation();
+        }
+
+        private void UnhighlightResizeBar(MouseOutEvent evt)
+        {
+            resizeBarVisual.style.backgroundColor = resizeDefaultColor;
+        }
+        #endregion
+
+        public void Reload()
+        {
+            instanceParameters.Clear();
+            instanceParameters.AddRange(parameterUIs.Keys);
+
+            foreach (var parameter in instanceParameters)
+                RemoveParameterUI(parameter);
+
+            LoadParameters();
+        }
+
+        private void LoadParameters()
+        {
+            foreach (var parameter in graphData.GetParameters())
+                AddParameterUI(parameter);
+        }
+
+        public void SetGraphData(StateMachineGraph graphData)
+        {
+            if (graphData == null)
+                return;
+
+            if (this.graphData != null)
+                ClearGraphData();
+
+            this.graphData = graphData;
+
+            addButton.enabledSelf = true;
+            this.graphData.ParameterDataAdded += AddParameterUI;
+            this.graphData.ParameterDataRemoved += RemoveParameterUI;
+
+            LoadParameters();
+        }
+
+        public void ClearGraphData()
+        {
+            if (graphData == null)
+                return;
+
+            graphData.ParameterDataAdded -= AddParameterUI;
+            graphData.ParameterDataRemoved -= RemoveParameterUI;
+
+            parameterUIs.Clear();
+
+            addButton.enabledSelf = false;
+            parametersPanel.Clear();
+        }
+    
+        private void ShowContextMenu()
+        {
+            GenericMenu menu = new();
+
+            menu.AddItem(new GUIContent("Bool Parameter"), false, AddParameter, new BoolParameterData());
+
+            menu.ShowAsContext();
+        }
+
+        private void AddParameter(object parameterObj)
+        {
+            if (parameterObj is not ParameterData parameter)
+                throw new System.ArgumentException("Invalid argument for adding a parameter!");
+
+            GraphViewEditorUtil.Record(graphData, "Add Parameter");
+            graphData.AddParameter(parameter);
+            GraphViewEditorUtil.Save(graphData);
+        }
+
+        private void AddParameterUI(ParameterData parameterData)
+        {
+            var parameterUI = new ParameterUI(parameterData, graphData);
+
+            parametersPanel.Add(parameterUI);
+            parameterUIs.Add(parameterData, parameterUI);
+        }
+
+        private void RemoveParameterUI(ParameterData parameterData)
+        {
+            if (!parameterUIs.TryGetValue(parameterData, out var parameterUI))
+                return;
+
+            parameterUIs.Remove(parameterData);
+            parametersPanel.Remove(parameterUI);
+        }
+    }
+}

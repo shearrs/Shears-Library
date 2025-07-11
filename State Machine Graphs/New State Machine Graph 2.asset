@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1a3251f27db25e54d8fd770aee2cc34b, type: 3}
-  m_Name: New State Machine Graph
+  m_Name: New State Machine Graph 2
   m_EditorClassIdentifier: 
   position: {x: -28, y: 122.4}
   scale: {x: 0.61, y: 0.61}

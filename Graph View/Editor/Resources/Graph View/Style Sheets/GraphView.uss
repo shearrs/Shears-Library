@@ -17,6 +17,8 @@
 
 .graphViewContainer
 {
+	justify-content: left;
+	flex-direction: row;
 	flex-grow: 1;
 	flex-basis: 0;
 	overflow: hidden;
