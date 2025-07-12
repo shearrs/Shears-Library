@@ -14,6 +14,12 @@ namespace Shears.GraphViews.Editor
         private GraphElement anchor1;
         private GraphElement anchor2;
 
+        // when generating, we need to know if our anchors have another connection to each other
+        // if they do:
+        //  - if it is the same direction, the graphview will handle it before this
+        //  - if it is a different direction, we need to offset our center y by a little
+
+        //  - could hold a reference to the graph data to get these values
         public GraphEdge(GraphEdgeData data, GraphElement anchor1, GraphElement anchor2)
         {
             this.data = data;

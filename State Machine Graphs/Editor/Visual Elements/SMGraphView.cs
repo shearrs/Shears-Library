@@ -117,6 +117,9 @@ namespace Shears.StateMachineGraphs.Editor
             if (element1Data is not ITransitionable transitionable1 || element2Data is not ITransitionable transitionable2)
                 return;
 
+            if (graphData.HasEdgeWithAnchors(element1.GetData(), element2.GetData()))
+                return;
+
             GraphViewEditorUtil.Record(graphData);
             graphData.CreateTransitionData(transitionable1, transitionable2);
             GraphViewEditorUtil.Save(graphData);
