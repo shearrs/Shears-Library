@@ -6,7 +6,7 @@ namespace Shears.GraphViews.Editor
     public interface IEdgeAnchorable
     {
         public string ID { get; }
-        public VisualElement Element { get; }
+        public GraphElement Element { get; }
 
         public bool HasConnectionTo(IEdgeAnchorable anchor);
     }

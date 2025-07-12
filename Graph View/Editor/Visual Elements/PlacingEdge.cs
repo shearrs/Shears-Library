@@ -8,11 +8,11 @@ namespace Shears.GraphViews.Editor
         private readonly VisualElement edgeLine;
         private readonly VisualElement arrow;
 
-        private readonly GraphElement anchor1;
+        private readonly IEdgeAnchorable anchor1;
         private bool geometryInitialized = false;
         private Vector2 anchor2;
 
-        public PlacingEdge(GraphElement anchor1)
+        public PlacingEdge(IEdgeAnchorable anchor1)
         {
             this.anchor1 = anchor1;
 
@@ -49,7 +49,7 @@ namespace Shears.GraphViews.Editor
 
         private void DrawLine()
         {
-            Vector2 anchor1Pos = (Vector2)anchor1.transform.position + anchor1.layout.center;
+            Vector2 anchor1Pos = (Vector2)anchor1.Element.transform.position + anchor1.Element.layout.center;
             Vector2 anchor2Pos = anchor2;
             Vector2 center = 0.5f * (anchor1Pos + anchor2Pos);
 

@@ -9,7 +9,7 @@ namespace Shears.GraphViews.Editor
         private readonly GraphView graphView;
 
         string IEdgeAnchorable.ID => data.ID;
-        VisualElement IEdgeAnchorable.Element => this;
+        GraphElement IEdgeAnchorable.Element => this;
 
         protected GraphNode(GraphNodeData data, GraphView graphView)
         {

@@ -11,15 +11,10 @@ namespace Shears.GraphViews.Editor
         private readonly VisualElement arrow;
 
         private bool geometryInitialized = false;
-        private GraphElement anchor1;
-        private GraphElement anchor2;
+        private IEdgeAnchorable anchor1;
+        private IEdgeAnchorable anchor2;
 
-        // when generating, we need to know if our anchors have another connection to each other
-        // if they do:
-        //  - if it is a different direction, we need to offset our center y by a little
-
-        //  - could hold a reference to the graph data to get these values
-        public GraphEdge(GraphEdgeData data, GraphElement anchor1, GraphElement anchor2)
+        public GraphEdge(GraphEdgeData data, IEdgeAnchorable anchor1, IEdgeAnchorable anchor2)
         {
             this.data = data;
             this.anchor1 = anchor1;
@@ -67,8 +62,8 @@ namespace Shears.GraphViews.Editor
 
         private void DrawLine()
         {
-            Vector2 anchor1Pos = (Vector2)anchor1.transform.position + anchor1.layout.center;
-            Vector2 anchor2Pos = (Vector2)anchor2.transform.position + anchor2.layout.center;
+            Vector2 anchor1Pos = (Vector2)anchor1.Element.transform.position + anchor1.Element.layout.center;
+            Vector2 anchor2Pos = (Vector2)anchor2.Element.transform.position + anchor2.Element.layout.center;
             Vector2 center = 0.5f * (anchor1Pos + anchor2Pos);
 
             if (!float.IsNaN(layout.width))
@@ -99,12 +94,12 @@ namespace Shears.GraphViews.Editor
             transform.rotation = rotation;
         }
 
-        protected void SetAnchor1(GraphElement anchor)
+        protected void SetAnchor1(IEdgeAnchorable anchor)
         {
             anchor1 = anchor;
         }
 
-        protected void SetAnchor2(GraphElement anchor)
+        protected void SetAnchor2(IEdgeAnchorable anchor)
         {
             anchor2 = anchor;
         }

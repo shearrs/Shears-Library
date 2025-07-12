@@ -431,7 +431,7 @@ namespace Shears.GraphViews.Editor
             return edges[edgeData];
         }
 
-        protected void BeginPlacingEdge(GraphElement anchor, Action<GraphElement, GraphElement> tryPlaceCallback)
+        protected void BeginPlacingEdge(IEdgeAnchorable anchor, Action<IEdgeAnchorable, IEdgeAnchorable> tryPlaceCallback)
         {
             edgePlacer.BeginPlacing(anchor);
             edgePlacer.TryPlaceEdgeCallback = tryPlaceCallback;

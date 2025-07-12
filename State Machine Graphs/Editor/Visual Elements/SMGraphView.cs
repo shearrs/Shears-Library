@@ -109,15 +109,17 @@ namespace Shears.StateMachineGraphs.Editor
         }
         #endregion
 
-        private void TryCreateTransition(GraphElement element1, GraphElement element2)
+        private void TryCreateTransition(IEdgeAnchorable anchor1, IEdgeAnchorable anchor2)
         {
-            var element1Data = element1.GetData();
-            var element2Data = element2.GetData();
+            Debug.Log($"anchor1: {anchor1.ID}, anchor2: {anchor2.ID}");
+
+            var element1Data = anchor1.Element.GetData();
+            var element2Data = anchor2.Element.GetData();
 
             if (element1Data is not ITransitionable transitionable1 || element2Data is not ITransitionable transitionable2)
                 return;
 
-            if (graphData.HasEdgeWithAnchors(element1.GetData(), element2.GetData()))
+            if (anchor1.HasConnectionTo(anchor2))
                 return;
 
             GraphViewEditorUtil.Record(graphData);

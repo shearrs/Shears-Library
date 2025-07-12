@@ -10,11 +10,11 @@ namespace Shears.GraphViews.Editor
     {
         private readonly GraphView graphView;
         private PlacingEdge placingEdge;
-        private GraphElement anchor1;
+        private IEdgeAnchorable anchor1;
 
         public bool IsPlacing { get; private set; }
 
-        public Action<GraphElement, GraphElement> TryPlaceEdgeCallback { get; set; }
+        public Action<IEdgeAnchorable, IEdgeAnchorable> TryPlaceEdgeCallback { get; set; }
 
         public EdgePlacer(GraphView graphView)
         {
@@ -35,7 +35,7 @@ namespace Shears.GraphViews.Editor
             target.UnregisterCallback<MouseDownEvent>(TryCreateEdge);
         }
 
-        public void BeginPlacing(GraphElement anchor)
+        public void BeginPlacing(IEdgeAnchorable anchor)
         {
             if (IsPlacing)
                 return;
@@ -81,9 +81,9 @@ namespace Shears.GraphViews.Editor
             if (!IsPlacing)
                 return;
 
-            if (evt.target is GraphElement element)
+            if (evt.target is IEdgeAnchorable anchor2)
             {
-                TryPlaceEdgeCallback?.Invoke(anchor1, element);
+                TryPlaceEdgeCallback?.Invoke(anchor1, anchor2);
                 TryPlaceEdgeCallback = null;
             }
 

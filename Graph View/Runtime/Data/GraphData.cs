@@ -189,20 +189,6 @@ namespace Shears.GraphViews
 
             EdgeDataRemoved?.Invoke(data);
         }
-
-        public bool HasEdgeWithAnchors(GraphElementData anchor1, GraphElementData anchor2)
-        {
-            foreach (string edgeID in edgeData)
-            {
-                if (!TryGetData(edgeID, out GraphEdgeData data))
-                    continue;
-
-                if (data.FromID == anchor1.ID && data.ToID == anchor2.ID)
-                    return true;
-            }
-
-            return false;
-        }
         #endregion
 
         #region Selection

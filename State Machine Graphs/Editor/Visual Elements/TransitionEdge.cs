@@ -8,7 +8,7 @@ namespace Shears.StateMachineGraphs.Editor
     {
         private readonly TransitionEdgeData data;
 
-        public TransitionEdge(TransitionEdgeData data, GraphElement from, GraphElement to) : base(data, from, to)
+        public TransitionEdge(TransitionEdgeData data, IEdgeAnchorable from, IEdgeAnchorable to) : base(data, from, to)
         {
             this.data = data;
         }
