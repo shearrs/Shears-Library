@@ -92,6 +92,7 @@
 	background-color: gray;
 	height: 8px;
 	width: 100%;
+	overflow: visible;
 }
 
 .edgeLineSelected

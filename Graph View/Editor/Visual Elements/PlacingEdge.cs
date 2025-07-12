@@ -73,7 +73,9 @@ namespace Shears.GraphViews.Editor
             Vector2 direction = heading.normalized;
             float distance = heading.magnitude;
 
-            Quaternion rotation = Quaternion.FromToRotation(Vector2.right, direction);
+            float angle = Vector2.SignedAngle(Vector2.right, direction);
+            Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+            Vector3 eulerRotation = rotation.eulerAngles;
 
             style.width = distance;
 
