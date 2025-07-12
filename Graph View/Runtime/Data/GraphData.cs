@@ -12,7 +12,7 @@ namespace Shears.GraphViews
 
         [Header("Layers")]
         [SerializeField] private List<GraphLayer> layers = new();
-        // add base elements dictionary for selection and such
+
         [Header("Graph Elements")]
         [SerializeReference] private GraphElementDictionary graphElements = new();
         [SerializeField] private List<string> nodeData = new();
@@ -22,6 +22,7 @@ namespace Shears.GraphViews
 
         private readonly List<GraphElementData> instanceSelection = new();
         private readonly List<GraphNodeData> instanceSubNodes = new();
+        private readonly List<GraphEdgeData> instanceEdges = new();
 
         public Vector2 Position { get => position; set => position = value; }
         public Vector2 Scale { get => scale; set => scale = value; }
@@ -76,7 +77,7 @@ namespace Shears.GraphViews
             {
                 if (!TryGetData(layers[^1].ParentID, out GraphMultiNodeData parent))
                 {
-                    Debug.LogError("Could not get node for ID: " + layers[^1].ParentID);
+                    LogError("Could not get node for ID: " + layers[^1].ParentID);
                     return;
                 }
 
@@ -90,12 +91,15 @@ namespace Shears.GraphViews
         {
             if (!nodeData.Contains(data.ID))
             {
-                Debug.LogError("Node data does not have data with ID: " + data.ID + "!");
+                LogError("Node data does not have data with ID: " + data.ID + "!");
                 return;
             }
             
             nodeData.Remove(data.ID);
             RemoveGraphElementData(data);
+
+            foreach (var edgeData in GetNodeEdges(data))
+                RemoveEdgeData(edgeData);
 
             if (data is GraphMultiNodeData multiData)
             {
@@ -117,6 +121,19 @@ namespace Shears.GraphViews
             NodeDataRemoved?.Invoke(data);
         }
 
+        private IReadOnlyList<GraphEdgeData> GetNodeEdges(GraphNodeData nodeData)
+        {
+            instanceEdges.Clear();
+
+            foreach (var edgeID in nodeData.Edges)
+            {
+                if (graphElements.TryGetValue(edgeID, out var elementData) && elementData is GraphEdgeData edgeData)
+                    instanceEdges.Add(edgeData);
+            }
+
+            return instanceEdges;
+        }
+
         public bool TryGetData<GraphElementType>(string id, out GraphElementType data) where GraphElementType : GraphElementData
         {
             data = null;
@@ -132,21 +149,45 @@ namespace Shears.GraphViews
         #region Edges
         protected void AddEdgeData(GraphEdgeData data)
         {
+            if (!graphElements.TryGetValue(data.FromID, out var from) || from is not GraphNodeData fromNode)
+            {
+                LogError("Could not find 'from' node with ID: " + data.FromID);
+                return;
+            }
+
+            if (!graphElements.TryGetValue(data.ToID, out var to) || to is not GraphNodeData toNode)
+            {
+                LogError("Could not find 'to' node with ID: " + data.ToID);
+                return;
+            }
+
             edgeData.Add(data.ID);
             AddGraphElementData(data);
+
+            fromNode.AddEdge(data);
+            toNode.AddEdge(data);
 
             EdgeDataAdded?.Invoke(data);
         }
 
         protected void RemoveEdgeData(GraphEdgeData data)
         {
-            if (edgeData.Contains(data.ID))
+            if (!edgeData.Contains(data.ID))
             {
-                edgeData.Remove(data.ID);
-                RemoveGraphElementData(data);
-
-                EdgeDataRemoved?.Invoke(data);
+                LogError("Could not remove edge with ID: " + data.ID);
+                return;
             }
+
+            edgeData.Remove(data.ID);
+            RemoveGraphElementData(data);
+
+            if (graphElements.TryGetValue(data.FromID, out var from) && from is GraphNodeData fromNode)
+                fromNode.RemoveEdge(data);
+
+            if (graphElements.TryGetValue(data.ToID, out var to) && to is GraphNodeData toNode)
+                toNode.RemoveEdge(data);
+
+            EdgeDataRemoved?.Invoke(data);
         }
         #endregion
 
@@ -191,6 +232,8 @@ namespace Shears.GraphViews
             {
                 if (selectable is GraphNodeData nodeData)
                     RemoveNodeData(nodeData);
+                else if (selectable is GraphEdgeData edgeData)
+                    RemoveEdgeData(edgeData);
             }
 
             OnDeleteSelection(instanceSelection);
@@ -222,7 +265,7 @@ namespace Shears.GraphViews
             else if (TryGetData<GraphMultiNodeData>(layer.ParentID, out var parentNode))
                 OpenMultiNode(parentNode);
             else
-                Debug.LogError("Could not find node for layer: " + layer.ParentID);
+                LogError("Could not find node for layer: " + layer.ParentID);
         }
 
         private void OpenRootLayer()
@@ -307,5 +350,10 @@ namespace Shears.GraphViews
             layers.Clear();
         }
         #endregion Layers
+    
+        private void LogError(string message)
+        {
+            Debug.LogError(message);
+        }
     }
 }

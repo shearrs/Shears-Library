@@ -19,6 +19,7 @@ namespace Shears.GraphViews.Editor
         private readonly Dictionary<GraphElementData, GraphEdge> edges = new();
         private readonly List<GraphElement> instanceElements = new();
         private readonly List<GraphNode> instanceNodes = new();
+        private readonly List<GraphEdge> instanceEdges = new();
         private GraphData graphData;
         private VisualElement rootContainer;
         private VisualElement graphViewContainer;
@@ -32,6 +33,7 @@ namespace Shears.GraphViews.Editor
         public int SelectionCount => graphData.SelectionCount;
 
         public event Action NodesCleared;
+        public event Action EdgesCleared;
         public event Action<GraphData> GraphDataSet;
         public event Action GraphDataCleared;
         #endregion
@@ -78,6 +80,8 @@ namespace Shears.GraphViews.Editor
         #region Initialization
         protected void SetGraphData(GraphData graphData)
         {
+            Debug.Log("set data");
+
             if (graphData == this.graphData || graphData == null)
                 return;
             else if (this.graphData != null)
@@ -116,6 +120,7 @@ namespace Shears.GraphViews.Editor
             graphData = null;
 
             nodes.Clear();
+            edges.Clear();
             contentViewContainer.Clear();
             graphViewContainer.Remove(gridBackground);
             RemoveManipulators();
@@ -127,8 +132,10 @@ namespace Shears.GraphViews.Editor
         protected void ReloadLayer()
         {
             Select(null);
+            ClearEdges();
             ClearNodes();
             LoadNodes();
+            LoadEdges();
         }
 
         private void CreateRootContainer()
@@ -198,6 +205,7 @@ namespace Shears.GraphViews.Editor
         }
         #endregion
 
+        #region Keybinds
         private void OnKeyDown(KeyDownEvent evt)
         {
             if (evt.keyCode == KeyCode.R && evt.modifiers.HasFlag(EventModifiers.Shift) && evt.modifiers.HasFlag(EventModifiers.Control))
@@ -259,27 +267,57 @@ namespace Shears.GraphViews.Editor
             UpdateViewTransform(averagePosition, ViewTransform.scale);
             SaveViewTransform();
         }
+        #endregion
 
         #region Loading
         private void LoadGraphData()
         {
             LoadNodes();
+            LoadEdges();
         }
         
         private void LoadNodes()
         {
-            foreach (var data in graphData.GetActiveNodes())
-                AddNodeFromData(data);
+            foreach (var nodeData in graphData.GetActiveNodes())
+                AddNodeFromData(nodeData);
+        }
+
+        private void LoadEdges()
+        {
+            foreach (var nodeData in graphData.GetActiveNodes())
+            {
+                foreach (var edgeID in nodeData.Edges)
+                {
+                    if (!graphData.TryGetData(edgeID, out GraphEdgeData edgeData))
+                        continue;
+                    else if (edges.ContainsKey(edgeData))
+                        continue;
+
+                    AddEdgeFromData(edgeData);
+                }
+            }
         }
 
         protected void ClearNodes()
         {
+            instanceNodes.Clear();
             instanceNodes.AddRange(nodes.Values);
 
             foreach (var node in instanceNodes)
                 RemoveNode(node);
 
             NodesCleared?.Invoke();
+        }
+
+        protected void ClearEdges()
+        {
+            instanceEdges.Clear();
+            instanceEdges.AddRange(edges.Values);
+
+            foreach (var edge in instanceEdges)
+                RemoveEdge(edge);
+
+            EdgesCleared?.Invoke();
         }
         #endregion
 
@@ -426,6 +464,8 @@ namespace Shears.GraphViews.Editor
             {
                 if (nodes.TryGetValue(data, out var node))
                     instanceElements.Add(node);
+                else if (edges.TryGetValue(data, out var edge))
+                    instanceElements.Add(edge);
             }
 
             return instanceElements;

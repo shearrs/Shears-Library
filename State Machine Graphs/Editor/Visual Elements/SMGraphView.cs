@@ -130,7 +130,10 @@ namespace Shears.StateMachineGraphs.Editor
         protected override GraphEdge CreateEdgeFromData(GraphEdgeData data)
         {
             if (data is not TransitionEdgeData transitionData)
+            {
+                Debug.LogError("Received non transition edge data: " + data.ID);
                 return null;
+            }
 
             var from = GetNode(data.FromID);
             var to = GetNode(data.ToID);

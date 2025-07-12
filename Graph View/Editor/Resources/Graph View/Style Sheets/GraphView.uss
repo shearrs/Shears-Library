@@ -96,7 +96,7 @@
 
 .edgeLineSelected
 {
-	background-color: rgba(0, 110, 180, 1);
+	background-color: rgba(40, 70, 110, 1);
 }
 
 .edgeArrow

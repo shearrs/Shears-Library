@@ -1,8 +1,9 @@
+using System;
 using UnityEngine;
 
 namespace Shears.GraphViews
 {
-    [System.Serializable]
+    [Serializable]
     public abstract class GraphEdgeData : GraphElementData
     {
         [SerializeField] private string fromID;
@@ -10,6 +11,9 @@ namespace Shears.GraphViews
 
         public string FromID => fromID;
         public string ToID => toID;
+
+        public event Action Selected;
+        public event Action Deselected;
 
         public GraphEdgeData(string fromID, string toID)
         {
@@ -19,10 +23,12 @@ namespace Shears.GraphViews
 
         public override void Select()
         {
+            Selected?.Invoke();
         }
 
         public override void Deselect()
         {
+            Deselected?.Invoke();
         }
     }
 }

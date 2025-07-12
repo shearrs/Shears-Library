@@ -9,14 +9,13 @@ namespace Shears.GraphViews
     {
         [SerializeField] private string name;
         [SerializeField] private Vector2 position;
-        [SerializeField] private readonly List<GraphReference<GraphEdgeData>> edges = new();
+        [SerializeField] private List<string> edges = new();
         [SerializeField] private string parentID = GraphLayer.ROOT_ID;
-
-        private readonly List<GraphEdgeData> instanceEdges = new();
 
         public string Name { get => name; set => name = value; }
         public Vector2 Position { get => position; set => position = value; }
         public string ParentID => parentID;
+        public IReadOnlyList<string> Edges => edges;
 
         public event Action Selected;
         public event Action Deselected;
@@ -29,17 +28,20 @@ namespace Shears.GraphViews
                 parentID = parent.ID;
         }
 
-        public IReadOnlyList<GraphEdgeData> GetEdges()
+        public void AddEdge(GraphEdgeData edge)
         {
-            instanceEdges.Clear();
-
-            foreach (var reference in edges)
+            if (edges.Contains(edge.ID))
             {
-                if (reference.Data != null)
-                    instanceEdges.Add(reference.Data);
+                Debug.LogError("Node already contains edge with ID: " + edge.ID);
+                return;
             }
 
-            return instanceEdges;
+            edges.Add(edge.ID);
+        }
+
+        public void RemoveEdge(GraphEdgeData edge)
+        {
+            edges.Remove(edge.ID);
         }
 
         public override void Select()
