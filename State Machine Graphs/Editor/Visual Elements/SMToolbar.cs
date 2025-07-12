@@ -65,8 +65,6 @@ namespace Shears.StateMachineGraphs.Editor
         {
             var value = (StateMachineGraph)evt.newValue;
 
-            Debug.Log("data changed");
-
             if (value != null)
                 dataSetCallback?.Invoke(value);
             else

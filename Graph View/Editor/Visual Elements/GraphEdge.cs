@@ -1,3 +1,4 @@
+using Shears.Editor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -9,6 +10,7 @@ namespace Shears.GraphViews.Editor
         private readonly VisualElement edgeLine;
         private readonly VisualElement arrow;
 
+        private bool geometryInitialized = false;
         private GraphElement anchor1;
         private GraphElement anchor2;
 
@@ -17,18 +19,6 @@ namespace Shears.GraphViews.Editor
             this.data = data;
             this.anchor1 = anchor1;
             this.anchor2 = anchor2;
-
-            //visible = false;
-
-            //schedule.Execute(() =>
-            //{
-            //    visible = true;
-            //}).StartingIn(10);
-
-            schedule.Execute(() =>
-            {
-                Redraw();
-            }).Every(1);
 
             edgeLine = new()
             {
@@ -49,6 +39,8 @@ namespace Shears.GraphViews.Editor
 
             data.Selected += Select;
             data.Deselected += Deselect;
+
+            RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
         }
         
         ~GraphEdge()
@@ -57,20 +49,38 @@ namespace Shears.GraphViews.Editor
             data.Deselected -= Deselect;
         }
 
+        private void OnGeometryChanged(GeometryChangedEvent evt)
+        {
+            Redraw();
+        }
+
         private void Redraw()
         {
             DrawLine();
             MarkDirtyRepaint();
         }
 
-        // seems like the first frame (or so) is placing it at like local positions? it has no offset other than the different between anchor1 and 2
         private void DrawLine()
         {
             Vector2 anchor1Pos = (Vector2)anchor1.transform.position + anchor1.layout.center;
             Vector2 anchor2Pos = (Vector2)anchor2.transform.position + anchor2.layout.center;
-
             Vector2 center = 0.5f * (anchor1Pos + anchor2Pos);
-            center.x -= 0.5f * layout.width;
+
+            if (!float.IsNaN(layout.width))
+            {
+                center.x -= 0.5f * layout.width;
+
+                if (layout.width != 0 && !geometryInitialized)
+                {
+                    schedule.Execute(() =>
+                    {
+                        Redraw();
+                    }).Every(1);
+
+                    geometryInitialized = true;
+                    UnregisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+                }
+            }
 
             Vector2 heading = anchor2Pos - anchor1Pos;
             float distance = heading.magnitude;

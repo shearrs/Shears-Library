@@ -9,24 +9,12 @@ namespace Shears.GraphViews.Editor
         private readonly VisualElement arrow;
 
         private readonly GraphElement anchor1;
+        private bool geometryInitialized = false;
         private Vector2 anchor2;
 
         public PlacingEdge(GraphElement anchor1)
         {
             this.anchor1 = anchor1;
-
-            visible = false;
-
-            schedule.Execute(() =>
-            {
-                visible = true;
-            }).StartingIn(10);
-
-            schedule.Execute(() =>
-            {
-                DrawLine();
-                MarkDirtyRepaint();
-            }).Every(1);
 
             edgeLine = new()
             {
@@ -44,6 +32,19 @@ namespace Shears.GraphViews.Editor
             AddToClassList(GraphViewEditorUtil.EdgeClassName);
             edgeLine.AddToClassList(GraphViewEditorUtil.EdgeLineClassName);
             arrow.AddToClassList(GraphViewEditorUtil.EdgeArrowClassName);
+
+            RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+        }
+
+        private void OnGeometryChanged(GeometryChangedEvent evt)
+        {
+            Redraw();
+        }
+
+        private void Redraw()
+        {
+            DrawLine();
+            MarkDirtyRepaint();
         }
 
         private void DrawLine()
@@ -51,7 +52,22 @@ namespace Shears.GraphViews.Editor
             Vector2 anchor1Pos = (Vector2)anchor1.transform.position + anchor1.layout.center;
             Vector2 anchor2Pos = anchor2;
             Vector2 center = 0.5f * (anchor1Pos + anchor2Pos);
-            center.x -= 0.5f * layout.width;
+
+            if (!float.IsNaN(layout.width))
+            {
+                center.x -= 0.5f * layout.width;
+
+                if (layout.width != 0 && !geometryInitialized)
+                {
+                    schedule.Execute(() =>
+                    {
+                        Redraw();
+                    }).Every(1);
+
+                    geometryInitialized = true;
+                    UnregisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+                }
+            }
 
             Vector2 heading = anchor2Pos - anchor1Pos;
             Vector2 direction = heading.normalized;

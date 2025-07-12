@@ -80,8 +80,6 @@ namespace Shears.GraphViews.Editor
         #region Initialization
         protected void SetGraphData(GraphData graphData)
         {
-            Debug.Log("set data");
-
             if (graphData == this.graphData || graphData == null)
                 return;
             else if (this.graphData != null)
