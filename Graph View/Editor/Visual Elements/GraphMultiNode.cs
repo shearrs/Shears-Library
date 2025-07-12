@@ -8,7 +8,7 @@ namespace Shears.GraphViews.Editor
 
         public GraphMultiNodeData Data => data;
 
-        public GraphMultiNode(GraphMultiNodeData data) : base(data)
+        public GraphMultiNode(GraphMultiNodeData data, GraphView graphView) : base(data, graphView)
         {
             this.data = data;
         }

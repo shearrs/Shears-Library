@@ -16,7 +16,7 @@ namespace Shears.StateMachineGraphs.Editor
 
         public SMGraphView() : base()
         {
-            nodeManager = new();
+            nodeManager = new(this);
             contextMenu = new(PopulateContextualMenu);
 
             CreateToolbar();

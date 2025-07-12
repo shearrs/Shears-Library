@@ -16,7 +16,6 @@ namespace Shears.GraphViews.Editor
 
         // when generating, we need to know if our anchors have another connection to each other
         // if they do:
-        //  - if it is the same direction, the graphview will handle it before this
         //  - if it is a different direction, we need to offset our center y by a little
 
         //  - could hold a reference to the graph data to get these values

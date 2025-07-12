@@ -7,6 +7,13 @@ namespace Shears.StateMachineGraphs.Editor
 {
     public class SMGraphNodeManager
     {
+        private readonly GraphView graphView;
+
+        public SMGraphNodeManager(GraphView graphView)
+        {
+            this.graphView = graphView;
+        }
+
         public GraphNode CreateNode(GraphNodeData nodeData)
         {
             if (nodeData is StateNodeData stateNodeData)
@@ -19,14 +26,14 @@ namespace Shears.StateMachineGraphs.Editor
 
         private GraphNode CreateStateNode(StateNodeData nodeData)
         {
-            var stateNode = new StateNode(nodeData);
+            var stateNode = new StateNode(nodeData, graphView);
 
             return stateNode;
         }
 
         private GraphNode CreateStateMachineNode(StateMachineNodeData nodeData)
         {
-            var stateMachineNode = new SubStateMachineNode(nodeData);
+            var stateMachineNode = new SubStateMachineNode(nodeData, graphView);
 
             return stateMachineNode;
         }

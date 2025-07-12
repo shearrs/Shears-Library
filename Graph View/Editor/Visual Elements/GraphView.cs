@@ -415,6 +415,22 @@ namespace Shears.GraphViews.Editor
         #endregion
 
         #region Edges
+        public GraphEdge GetEdge(string id)
+        {
+            if (!graphData.TryGetData(id, out GraphEdgeData data))
+            {
+                Debug.LogError("Could not find edge data for id: " + id);
+                return null;
+            }
+
+            return GetEdge(data);
+        }
+
+        public GraphEdge GetEdge(GraphEdgeData edgeData)
+        {
+            return edges[edgeData];
+        }
+
         protected void BeginPlacingEdge(GraphElement anchor, Action<GraphElement, GraphElement> tryPlaceCallback)
         {
             edgePlacer.BeginPlacing(anchor);
