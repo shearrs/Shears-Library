@@ -26,7 +26,8 @@ MonoBehaviour:
   selection: []
   rootNodes:
   - 2aedfcf4-de58-4cab-a82f-1f6698446896
-  parameters: []
+  parameters:
+  - 7d49e607-c0c6-46bf-8fb3-9fc570c3960b
   references:
     version: 2
     RefIds:
@@ -35,12 +36,20 @@ MonoBehaviour:
       data:
         keys:
         - 2aedfcf4-de58-4cab-a82f-1f6698446896
+        - 7d49e607-c0c6-46bf-8fb3-9fc570c3960b
         values:
         - rid: 8604816729717866598
+        - rid: 8604816729717866602
     - rid: 8604816729717866598
       type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
         id: 2aedfcf4-de58-4cab-a82f-1f6698446896
         name: Empty State
-        position: {x: 720, y: 0}
+        position: {x: 800, y: 20}
         parentID: $ROOT
+    - rid: 8604816729717866602
+      type: {class: BoolParameterData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 7d49e607-c0c6-46bf-8fb3-9fc570c3960b
+        name: lydia
+        value: 0

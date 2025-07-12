@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace Shears.StateMachineGraphs.Editor
 {
-    public class StateMachineNode : GraphMultiNode
+    public class SubStateMachineNode : GraphMultiNode
     {
-        public StateMachineNode(StateMachineNodeData data) : base(data)
+        public SubStateMachineNode(StateMachineNodeData data) : base(data)
         {
         }
     }

@@ -14,7 +14,9 @@ namespace Shears.GraphViews.Editor
         private readonly MultiNodeSelector multiNodeSelector;
         private readonly NodeDragger nodeDragger;
         private readonly RectangleSelector rectangleSelector;
+        private readonly EdgePlacer edgePlacer;
         private readonly Dictionary<GraphElementData, GraphNode> nodes = new();
+        private readonly Dictionary<GraphElementData, GraphEdge> edges = new();
         private readonly List<GraphElement> instanceElements = new();
         private readonly List<GraphNode> instanceNodes = new();
         private GraphData graphData;
@@ -22,7 +24,7 @@ namespace Shears.GraphViews.Editor
         private VisualElement graphViewContainer;
         private VisualElement contentViewContainer;
         private GridBackground gridBackground;
-
+        
         protected VisualElement RootContainer => rootContainer;
         public VisualElement GraphViewContainer => graphViewContainer;
         public VisualElement ContentViewContainer => contentViewContainer;
@@ -46,6 +48,7 @@ namespace Shears.GraphViews.Editor
             multiNodeSelector = new(this);
             nodeDragger = new(this);
             rectangleSelector = new(this);
+            edgePlacer = new(this);
 
             CreateRootContainer();
             CreateGraphViewContainer();
@@ -87,6 +90,8 @@ namespace Shears.GraphViews.Editor
             graphData.LayersChanged += ReloadLayer;
             graphData.NodeDataAdded += AddNodeFromData;
             graphData.NodeDataRemoved += RemoveNodeFromData;
+            graphData.EdgeDataAdded += AddEdgeFromData;
+            graphData.EdgeDataRemoved += RemoveEdgeFromData;
 
             CreateBackground();
             AddManipulators();
@@ -106,6 +111,8 @@ namespace Shears.GraphViews.Editor
             graphData.LayersChanged -= ReloadLayer;
             graphData.NodeDataAdded -= AddNodeFromData;
             graphData.NodeDataRemoved -= RemoveNodeFromData;
+            graphData.EdgeDataAdded -= AddEdgeFromData;
+            graphData.EdgeDataRemoved -= RemoveEdgeFromData;
             graphData = null;
 
             nodes.Clear();
@@ -176,6 +183,7 @@ namespace Shears.GraphViews.Editor
             graphViewContainer.AddManipulator(multiNodeSelector);
             graphViewContainer.AddManipulator(nodeDragger);
             graphViewContainer.AddManipulator(rectangleSelector);
+            graphViewContainer.AddManipulator(edgePlacer);
         }
 
         private void RemoveManipulators()
@@ -186,6 +194,7 @@ namespace Shears.GraphViews.Editor
             graphViewContainer.RemoveManipulator(multiNodeSelector);
             graphViewContainer.RemoveManipulator(nodeDragger);
             graphViewContainer.RemoveManipulator(rectangleSelector);
+            graphViewContainer.RemoveManipulator(edgePlacer);
         }
         #endregion
 
@@ -193,8 +202,6 @@ namespace Shears.GraphViews.Editor
         {
             if (evt.keyCode == KeyCode.R && evt.modifiers.HasFlag(EventModifiers.Shift) && evt.modifiers.HasFlag(EventModifiers.Control))
             {
-                Debug.Log("reset");
-
                 ClearGraphData();
                 return;
             }
@@ -210,6 +217,8 @@ namespace Shears.GraphViews.Editor
                 FocusCamera(GetSelection());
             else if (evt.keyCode == KeyCode.A)
                 FocusCamera(nodes.Values);
+            else if (evt.keyCode == KeyCode.Escape && edgePlacer.IsPlacing)
+                EndPlacingEdge();
         }
 
         protected void DeleteSelection()
@@ -292,19 +301,30 @@ namespace Shears.GraphViews.Editor
         #endregion
 
         #region Nodes
+        public GraphNode GetNode(string id)
+        {
+            if (!graphData.TryGetData(id, out GraphNodeData data))
+            {
+                Debug.LogError("Could not find node data for id: " + id);
+                return null;
+            }
+
+            return GetNode(data);
+        }
+
         public GraphNode GetNode(GraphNodeData nodeData)
         {
             return nodes[nodeData];
         }
 
-        public void AddNode(GraphNode node)
+        private void AddNode(GraphNode node)
         {
             nodes.Add(node.GetData(), node);
 
             contentViewContainer.Add(node);
         }
 
-        public void RemoveNode(GraphNode node)
+        private void RemoveNode(GraphNode node)
         {
             nodes.Remove(node.GetData());
 
@@ -325,7 +345,50 @@ namespace Shears.GraphViews.Editor
                 RemoveNode(node);
         }
 
+        public void AddEdge(GraphEdge edge)
+        {
+            edges.Add(edge.GetData(), edge);
+
+            contentViewContainer.Add(edge);
+            edge.SendToBack();
+        }
+
+        public void RemoveEdge(GraphEdge edge)
+        {
+            edges.Remove(edge.GetData());
+
+            if (contentViewContainer.Contains(edge))
+                contentViewContainer.Remove(edge);
+        }
+
+        private void AddEdgeFromData(GraphEdgeData data)
+        {
+            var edge = CreateEdgeFromData(data);
+
+            AddEdge(edge);
+        }
+
+        private void RemoveEdgeFromData(GraphEdgeData data)
+        {
+            if (edges.TryGetValue(data, out var edge))
+                RemoveEdge(edge);
+        }
+
         protected abstract GraphNode CreateNodeFromData(GraphNodeData data);
+        protected abstract GraphEdge CreateEdgeFromData(GraphEdgeData data);
+        #endregion
+
+        #region Edges
+        protected void BeginPlacingEdge(GraphElement anchor, Action<GraphElement, GraphElement> tryPlaceCallback)
+        {
+            edgePlacer.BeginPlacing(anchor);
+            edgePlacer.TryPlaceEdgeCallback = tryPlaceCallback;
+        }
+
+        protected void EndPlacingEdge()
+        {
+            edgePlacer.EndPlacing();
+        }
         #endregion
 
         public IReadOnlyList<GraphElement> GetElements()
@@ -337,6 +400,7 @@ namespace Shears.GraphViews.Editor
             return instanceElements;
         }
 
+        #region Selection
         public void SelectAll(IReadOnlyCollection<GraphElement> elements)
         {
             Select(null);
@@ -353,7 +417,7 @@ namespace Shears.GraphViews.Editor
                 graphData.Select(element.GetData(), isMultiSelect);
         }
     
-        private IReadOnlyList<GraphElement> GetSelection()
+        protected IReadOnlyList<GraphElement> GetSelection()
         {
             var selectionData = graphData.GetSelection();
             instanceElements.Clear();
@@ -366,5 +430,6 @@ namespace Shears.GraphViews.Editor
 
             return instanceElements;
         }
+        #endregion
     }
 }

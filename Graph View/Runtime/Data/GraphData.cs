@@ -16,6 +16,7 @@ namespace Shears.GraphViews
         [Header("Graph Elements")]
         [SerializeReference] private GraphElementDictionary graphElements = new();
         [SerializeField] private List<string> nodeData = new();
+        [SerializeField] private List<string> edgeData = new();
         [SerializeField] private List<string> selection = new();
         [SerializeField] private List<string> rootNodes = new();
 
@@ -31,6 +32,8 @@ namespace Shears.GraphViews
         public event Action LayersChanged;
         public event Action<GraphNodeData> NodeDataAdded;
         public event Action<GraphNodeData> NodeDataRemoved;
+        public event Action<GraphEdgeData> EdgeDataAdded;
+        public event Action<GraphEdgeData> EdgeDataRemoved;
 
         protected void AddGraphElementData(GraphElementData data)
         {
@@ -114,7 +117,7 @@ namespace Shears.GraphViews
             NodeDataRemoved?.Invoke(data);
         }
 
-        protected bool TryGetData<GraphElementType>(string id, out GraphElementType data) where GraphElementType : GraphElementData
+        public bool TryGetData<GraphElementType>(string id, out GraphElementType data) where GraphElementType : GraphElementData
         {
             data = null;
 
@@ -123,6 +126,27 @@ namespace Shears.GraphViews
 
             data = (GraphElementType)elementData;
             return data != null;
+        }
+        #endregion
+
+        #region Edges
+        protected void AddEdgeData(GraphEdgeData data)
+        {
+            edgeData.Add(data.ID);
+            AddGraphElementData(data);
+
+            EdgeDataAdded?.Invoke(data);
+        }
+
+        protected void RemoveEdgeData(GraphEdgeData data)
+        {
+            if (edgeData.Contains(data.ID))
+            {
+                edgeData.Remove(data.ID);
+                RemoveGraphElementData(data);
+
+                EdgeDataRemoved?.Invoke(data);
+            }
         }
         #endregion
 

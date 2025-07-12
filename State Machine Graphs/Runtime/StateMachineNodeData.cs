@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Shears.StateMachineGraphs
 {
     [System.Serializable]
-    public class StateMachineNodeData : GraphMultiNodeData
+    public class StateMachineNodeData : GraphMultiNodeData, ITransitionable
     {
     }
 }

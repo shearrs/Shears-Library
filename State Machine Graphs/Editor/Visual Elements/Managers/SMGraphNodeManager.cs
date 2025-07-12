@@ -7,30 +7,6 @@ namespace Shears.StateMachineGraphs.Editor
 {
     public class SMGraphNodeManager
     {
-        private readonly Dictionary<StateNodeData, StateNode> stateNodes = new();
-        private readonly Dictionary<StateMachineNodeData, StateMachineNode> stateMachineNodes = new();
-
-        private readonly SMGraphView graphView;
-
-        public SMGraphNodeManager(SMGraphView graphView)
-        {
-            this.graphView = graphView;
-            graphView.GraphDataCleared += ClearNodes;
-            graphView.NodesCleared += ClearNodes;
-        }
-
-        ~SMGraphNodeManager()
-        {
-            graphView.GraphDataCleared -= ClearNodes;
-            graphView.NodesCleared -= ClearNodes;
-        }
-
-        public void ClearNodes()
-        {
-            stateNodes.Clear();
-            stateMachineNodes.Clear();
-        }
-
         public GraphNode CreateNode(GraphNodeData nodeData)
         {
             if (nodeData is StateNodeData stateNodeData)
@@ -45,48 +21,14 @@ namespace Shears.StateMachineGraphs.Editor
         {
             var stateNode = new StateNode(nodeData);
 
-            stateNodes.Add(nodeData, stateNode);
-
             return stateNode;
         }
 
         private GraphNode CreateStateMachineNode(StateMachineNodeData nodeData)
         {
-            var stateMachineNode = new StateMachineNode(nodeData);
-
-            stateMachineNodes.Add(nodeData, stateMachineNode);
+            var stateMachineNode = new SubStateMachineNode(nodeData);
 
             return stateMachineNode;
-        }
-
-        public void RemoveNode(GraphNodeData nodeData)
-        {
-            if (nodeData is StateNodeData stateNodeData)
-                RemoveStateNode(stateNodeData);
-            else if (nodeData is StateMachineNodeData stateMachineNodeData)
-                RemoveStateMachineNode(stateMachineNodeData);
-        }
-
-        private void RemoveStateNode(StateNodeData nodeData)
-        {
-            if (!stateNodes.TryGetValue(nodeData, out var stateNode))
-            {
-                Debug.LogError("Can not find StateNode with ID: " + nodeData.ID);
-                return;
-            }
-
-            stateNodes.Remove(nodeData);
-        }
-
-        private void RemoveStateMachineNode(StateMachineNodeData nodeData)
-        {
-            if (!stateMachineNodes.TryGetValue(nodeData, out var stateNode))
-            {
-                Debug.LogError("Can not find StateNode with ID: " + nodeData.ID);
-                return;
-            }
-
-            stateMachineNodes.Remove(nodeData);
         }
     }
 }

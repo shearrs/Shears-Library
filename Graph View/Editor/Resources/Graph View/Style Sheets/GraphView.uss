@@ -17,7 +17,7 @@
 
 .graphViewContainer
 {
-	justify-content: left;
+	justify-content: flex-start;
 	flex-direction: row;
 	flex-grow: 1;
 	flex-basis: 0;
@@ -76,4 +76,39 @@
 	background-color: rgba(0, 155, 255, 0.15);
 	border-width: 1px;
 	border-color: rgba(0, 155, 255, 0.75);
+}
+
+.edge
+{
+	position: absolute;
+	height: 100px;
+	align-self: center;
+	align-items: center;
+	justify-content: center;
+}
+
+.edgeLine
+{
+	background-color: gray;
+	height: 8px;
+	width: 100%;
+}
+
+.edgeLineSelected
+{
+	background-color: rgba(0, 110, 180, 1);
+}
+
+.edgeArrow
+{
+	position: absolute;
+	min-width: 40px;
+	min-height: 40px;
+	background-image: resource("Graph View/Sprites/arrow");
+	-unity-background-image-tint-color: lightgray;
+}
+
+.edgeArrowSelected
+{
+	-unity-background-image-tint-color: rgba(0, 110, 180, 1);
 }

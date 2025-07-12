@@ -11,13 +11,18 @@ namespace Shears.GraphViews.Editor
 
         private static readonly string STYLE_SHEET_PATH = "Graph View/Style Sheets";
 
-        public static string GraphViewClassName => "graphView";
-        public static string RootContainerClassName => "rootContainer";
-        public static string GraphViewContainerClassName => "graphViewContainer";
-        public static string ContentViewContainerClassName => "contentViewContainer";
-        public static string GridBackgroundClassName => "gridBackground";
-        public static string GraphNodeClassName => "graphNode";
-        public static string GraphNodeSelectedClassName => "graphNodeSelected";
+        public static readonly string GraphViewClassName = "graphView";
+        public static readonly string RootContainerClassName = "rootContainer";
+        public static readonly string GraphViewContainerClassName = "graphViewContainer";
+        public static readonly string ContentViewContainerClassName = "contentViewContainer";
+        public static readonly string GridBackgroundClassName = "gridBackground";
+        public static readonly string GraphNodeClassName = "graphNode";
+        public static readonly string GraphNodeSelectedClassName = "graphNodeSelected";
+        public static readonly string EdgeClassName = "edge";
+        public static readonly string EdgeLineClassName = "edgeLine";
+        public static readonly string EdgeArrowClassName = "edgeArrow";
+        public static readonly string EdgeLineSelectedClassName = "edgeLineSelected";
+        public static readonly string EdgeArrowSelectedClassName = "edgeArrowSelected";
 
         public static StyleSheet GraphViewStyleSheet => Resources.Load<StyleSheet>($"{STYLE_SHEET_PATH}/GraphView");
 

@@ -9,17 +9,18 @@ namespace Shears.StateMachineGraphs.Editor
     public class SMGraphView : GraphView
     {
         private readonly SMGraphNodeManager nodeManager;
+        private readonly ContextualMenuManipulator contextMenu;
         private StateMachineGraph graphData;
         private SMToolbar toolbar;
         private SMParameterBar parameterBar;
 
         public SMGraphView() : base()
         {
-            nodeManager = new(this);
+            nodeManager = new();
+            contextMenu = new(PopulateContextualMenu);
 
             CreateToolbar();
             CreateParameterBar();
-            AddManipulators();
 
             GraphDataSet += OnGraphDataSet;
             GraphDataCleared += OnGraphDataCleared;
@@ -32,6 +33,28 @@ namespace Shears.StateMachineGraphs.Editor
         }
 
         #region Initialization
+        private void OnGraphDataSet(GraphData graphData)
+        {
+            if (graphData is not StateMachineGraph stateGraphData)
+            {
+                Debug.LogError("SMGraphView only accepts StateMachineGraph data!");
+                return;
+            }
+
+            this.graphData = stateGraphData;
+            toolbar.SetGraphData(stateGraphData);
+            parameterBar.SetGraphData(stateGraphData);
+            AddManipulators();
+        }
+
+        private void OnGraphDataCleared()
+        {
+            graphData = null;
+            parameterBar.ClearGraphData();
+            toolbar.ClearGraphData();
+            RemoveManipulators();
+        }
+
         private void CreateToolbar()
         {
             var toolbarData = graphData;
@@ -59,45 +82,61 @@ namespace Shears.StateMachineGraphs.Editor
 
         private void AddManipulators()
         {
-            this.AddManipulator(new ContextualMenuManipulator(PopulateContextualMenu));
+            GraphViewContainer.AddManipulator(contextMenu);
+        }
+
+        private void RemoveManipulators()
+        {
+            GraphViewContainer.RemoveManipulator(contextMenu);
         }
 
         private void PopulateContextualMenu(ContextualMenuPopulateEvent evt)
         {
             var target = evt.target as VisualElement;
+            Vector2 parameterMousePos = target.ChangeCoordinatesTo(parameterBar, evt.localMousePosition);
+
+            if (parameterBar.ContainsPoint(parameterMousePos))
+                return;
+
             Vector2 mousePos = target.ChangeCoordinatesTo(ContentViewContainer, evt.localMousePosition);
 
             void perform(Action action, string actionName) => GraphViewEditorUtil.RecordAndSave(graphData, action, actionName);
 
+            if (graphData.SelectionCount == 1 && GetSelection()[0] is GraphNode node) evt.menu.AppendAction("Create Transition", (action) => BeginPlacingEdge(node, TryCreateTransition));
             evt.menu.AppendAction("Create State Node", (action) => perform(() => graphData.CreateStateNodeData(mousePos), "Create State Node"));
             evt.menu.AppendAction("Create State Machine Node", (action) => perform(() => graphData.CreateStateMachineNodeData(mousePos), "Create State Machine Node"));
             if (graphData.SelectionCount > 0) evt.menu.AppendAction("Delete", (action) => DeleteSelection());
         }
-
-        private void OnGraphDataSet(GraphData graphData)
-        {
-            if (graphData is not StateMachineGraph stateGraphData)
-            {
-                Debug.LogError("SMGraphView only accepts StateMachineGraph data!");
-                return;
-            }
-
-            this.graphData = stateGraphData;
-            toolbar.SetGraphData(stateGraphData);
-            parameterBar.SetGraphData(stateGraphData);
-        }
-
-        private void OnGraphDataCleared()
-        {
-            graphData = null;
-            parameterBar.ClearGraphData();
-            toolbar.ClearGraphData();
-        }
         #endregion
+
+        private void TryCreateTransition(GraphElement element1, GraphElement element2)
+        {
+            var element1Data = element1.GetData();
+            var element2Data = element2.GetData();
+
+            if (element1Data is not ITransitionable transitionable1 || element2Data is not ITransitionable transitionable2)
+                return;
+
+            GraphViewEditorUtil.Record(graphData);
+            graphData.CreateTransitionData(transitionable1, transitionable2);
+            GraphViewEditorUtil.Save(graphData);
+        }
 
         protected override GraphNode CreateNodeFromData(GraphNodeData data)
         {
             return nodeManager.CreateNode(data);
+        }
+
+        protected override GraphEdge CreateEdgeFromData(GraphEdgeData data)
+        {
+            if (data is not TransitionEdgeData transitionData)
+                return null;
+
+            var from = GetNode(data.FromID);
+            var to = GetNode(data.ToID);
+            var edge = new TransitionEdge(transitionData, from, to);
+
+            return edge;
         }
     }
 }

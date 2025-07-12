@@ -24,7 +24,7 @@ namespace Shears.StateMachineGraphs
             }
         }
 
-        #region Nodes
+        #region States
         public void CreateStateNodeData(Vector2 position)
         {
             var nodeData = new StateNodeData
@@ -45,6 +45,15 @@ namespace Shears.StateMachineGraphs
             };
 
             AddNodeData(nodeData);
+        }
+        #endregion
+
+        #region Transitions
+        public void CreateTransitionData(ITransitionable from, ITransitionable to)
+        {
+            var transitionData = new TransitionEdgeData(from, to);
+
+            AddEdgeData(transitionData);
         }
         #endregion
 
