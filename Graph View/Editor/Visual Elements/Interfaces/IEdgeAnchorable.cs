@@ -9,5 +9,7 @@ namespace Shears.GraphViews.Editor
         public GraphElement Element { get; }
 
         public bool HasConnectionTo(IEdgeAnchorable anchor);
+
+        public bool HasConnectionFrom(IEdgeAnchorable anchor);
     }
 }

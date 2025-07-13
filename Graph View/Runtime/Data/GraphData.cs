@@ -173,10 +173,7 @@ namespace Shears.GraphViews
         protected void RemoveEdgeData(GraphEdgeData data)
         {
             if (!edgeData.Contains(data.ID))
-            {
-                LogError("Could not remove edge with ID: " + data.ID);
                 return;
-            }
 
             edgeData.Remove(data.ID);
             RemoveGraphElementData(data);

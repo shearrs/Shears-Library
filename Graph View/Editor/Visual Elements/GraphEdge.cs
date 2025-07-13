@@ -6,6 +6,8 @@ namespace Shears.GraphViews.Editor
 {
     public abstract class GraphEdge : GraphElement
     {
+        private const float DOUBLE_EDGE_SPACING = 16f;
+
         private readonly GraphEdgeData data;
         private readonly VisualElement edgeLine;
         private readonly VisualElement arrow;
@@ -66,10 +68,19 @@ namespace Shears.GraphViews.Editor
             Vector2 anchor2Pos = (Vector2)anchor2.Element.transform.position + anchor2.Element.layout.center;
             Vector2 center = 0.5f * (anchor1Pos + anchor2Pos);
 
+            Vector2 heading = anchor2Pos - anchor1Pos;
+            float distance = heading.magnitude;
+            Vector2 direction = heading.normalized;
+
+            Quaternion rotation = Quaternion.FromToRotation(Vector2.right, direction);
+
             if (!float.IsNaN(layout.width))
             {
                 center.x -= 0.5f * layout.width;
 
+                if (anchor1.HasConnectionFrom(anchor2))
+                    center += (Vector2)(rotation * (Vector2.up * DOUBLE_EDGE_SPACING));
+                
                 if (layout.width != 0 && !geometryInitialized)
                 {
                     schedule.Execute(() =>
@@ -82,14 +93,7 @@ namespace Shears.GraphViews.Editor
                 }
             }
 
-            Vector2 heading = anchor2Pos - anchor1Pos;
-            float distance = heading.magnitude;
-            Vector2 direction = heading.normalized;
-
-            Quaternion rotation = Quaternion.FromToRotation(Vector2.right, direction);
-
             style.width = distance;
-
             transform.position = center;
             transform.rotation = rotation;
         }

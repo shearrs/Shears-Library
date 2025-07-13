@@ -111,8 +111,6 @@ namespace Shears.StateMachineGraphs.Editor
 
         private void TryCreateTransition(IEdgeAnchorable anchor1, IEdgeAnchorable anchor2)
         {
-            Debug.Log($"anchor1: {anchor1.ID}, anchor2: {anchor2.ID}");
-
             var element1Data = anchor1.Element.GetData();
             var element2Data = anchor2.Element.GetData();
 

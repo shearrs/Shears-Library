@@ -62,5 +62,19 @@ namespace Shears.GraphViews.Editor
 
             return false;
         }
+
+        public bool HasConnectionFrom(IEdgeAnchorable anchor)
+        {
+            foreach (string edgeID in data.Edges)
+            {
+                var edge = graphView.GetEdge(edgeID);
+                var edgeData = edge.GetData() as GraphEdgeData;
+
+                if (edgeData.FromID == anchor.ID)
+                    return true;
+            }
+
+            return false;
+        }
     }
 }
