@@ -1,9 +1,8 @@
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Shears.GraphViews.Editor
 {
-    public abstract class GraphElement : VisualElement
+    public interface IGraphElement
     {
         public abstract GraphElementData GetData();
     }

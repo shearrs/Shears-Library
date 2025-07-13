@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 
 namespace Shears.StateMachineGraphs.Editor
 {
-    public class ParameterUI : GraphElement
+    public class ParameterUI : GraphElement, ISelectable
     {
         private readonly StateMachineGraph graphData;
         private readonly ParameterData parameterData;
@@ -108,12 +108,12 @@ namespace Shears.StateMachineGraphs.Editor
             GraphViewEditorUtil.Save(graphData);
         }
 
-        public override void Select()
+        public void Select()
         {
             AddToClassList(SMEditorUtil.ParameterUISelectedClassName);
         }
 
-        public override void Deselect()
+        public void Deselect()
         {
             RemoveFromClassList(SMEditorUtil.ParameterUISelectedClassName);
         }

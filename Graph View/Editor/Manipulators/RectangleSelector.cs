@@ -9,7 +9,7 @@ namespace Shears.GraphViews.Editor
         const float MIN_DISTANCE = 10f;
 
         private readonly VisualElement rectangle;
-        private readonly List<GraphElement> selectedElements = new();
+        private readonly List<ISelectable> selectedElements = new();
         private readonly GraphView graphView;
 
         private bool rectangleStyleSolved = true;
@@ -150,13 +150,16 @@ namespace Shears.GraphViews.Editor
 
             selectedElements.Clear();
 
+            if (!rectangleStyleSolved)
+                return;
+
             foreach (var element in graphView.GetElements())
             {
-                if (!rectangleStyleSolved)
-                    return;
+                if (element is not ISelectable selectable)
+                    continue;
 
                 if (rectangle.worldBound.Overlaps(element.worldBound, true))
-                    selectedElements.Add(element);
+                    selectedElements.Add(selectable);
             }
 
             foreach (var element in selectedElements)

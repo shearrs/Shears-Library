@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 namespace Shears.GraphViews.Editor
 {
-    public abstract class GraphEdge : GraphElement
+    public abstract class GraphEdge : GraphElement, ISelectable
     {
         private const float DOUBLE_EDGE_SPACING = 16f;
 
@@ -108,13 +108,13 @@ namespace Shears.GraphViews.Editor
             anchor2 = anchor;
         }
 
-        public override void Select()
+        public void Select()
         {
             edgeLine.AddToClassList(GraphViewEditorUtil.EdgeLineSelectedClassName);
             arrow.AddToClassList(GraphViewEditorUtil.EdgeArrowSelectedClassName);
         }
 
-        public override void Deselect()
+        public void Deselect()
         {
             edgeLine.RemoveFromClassList(GraphViewEditorUtil.EdgeLineSelectedClassName);
             arrow.RemoveFromClassList(GraphViewEditorUtil.EdgeArrowSelectedClassName);

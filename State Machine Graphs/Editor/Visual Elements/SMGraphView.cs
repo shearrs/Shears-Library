@@ -76,8 +76,7 @@ namespace Shears.StateMachineGraphs.Editor
 
             parameterBar = new SMParameterBar(parameterBarData);
 
-            GraphViewContainer.Insert(0, parameterBar);
-            parameterBar.BringToFront();
+            BodyContainer.Insert(0, parameterBar);
         }
 
         private void AddManipulators()
@@ -127,8 +126,8 @@ namespace Shears.StateMachineGraphs.Editor
             graphData.CreateTransitionData(transitionable1, transitionable2);
             GraphViewEditorUtil.Save(graphData);
 
-            if (anchor2 is GraphElement element)
-                Select(element);
+            if (anchor2 is ISelectable selectable)
+                Select(selectable);
         }
 
         protected override GraphNode CreateNodeFromData(GraphNodeData data)

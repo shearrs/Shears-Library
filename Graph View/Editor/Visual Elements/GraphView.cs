@@ -19,16 +19,19 @@ namespace Shears.GraphViews.Editor
         private readonly Dictionary<GraphElementData, GraphNode> nodes = new();
         private readonly Dictionary<GraphElementData, GraphEdge> edges = new();
         private readonly List<GraphElement> instanceElements = new();
+        private readonly List<ISelectable> instanceSelection = new();
         private readonly List<GraphNode> instanceNodes = new();
         private readonly List<GraphEdge> instanceEdges = new();
         private GraphData graphData;
-        private VisualElement rootContainer;
-        private VisualElement graphViewContainer;
-        private VisualElement contentViewContainer;
+        private VisualElement rootContainer; // holds everything
+        private VisualElement bodyContainer; // holds graph container and possible bars
+        private VisualElement graphViewContainer; // holds background and content
+        private VisualElement contentViewContainer; // holds things in the graph
         private GridBackground gridBackground;
         
         protected VisualElement RootContainer => rootContainer;
-        public VisualElement GraphViewContainer => graphViewContainer;
+        protected VisualElement BodyContainer => bodyContainer;
+        protected VisualElement GraphViewContainer => graphViewContainer;
         public VisualElement ContentViewContainer => contentViewContainer;
         public ITransform ViewTransform => contentViewContainer.transform;
         public int SelectionCount => graphData.SelectionCount;
@@ -57,6 +60,7 @@ namespace Shears.GraphViews.Editor
             edgePlacer.PlacingEnded += OnPlacingEnd;
 
             CreateRootContainer();
+            CreateBodyContainer();
             CreateGraphViewContainer();
             CreateContentViewContainer();
             schedule.Execute(() => SetGraphData(GraphEditorState.instance.GraphData)).StartingIn(1);
@@ -152,6 +156,17 @@ namespace Shears.GraphViews.Editor
             Add(rootContainer);
         }
 
+        private void CreateBodyContainer()
+        {
+            bodyContainer = new VisualElement
+            {
+                name = "bodyContainer"
+            };
+
+            bodyContainer.AddToClassList(GraphViewEditorUtil.BodyContainerClassName);
+            rootContainer.Add(bodyContainer);
+        }
+
         private void CreateGraphViewContainer()
         {
             graphViewContainer = new()
@@ -160,7 +175,7 @@ namespace Shears.GraphViews.Editor
             };
 
             graphViewContainer.AddToClassList(GraphViewEditorUtil.GraphViewContainerClassName);
-            rootContainer.Add(graphViewContainer);
+            bodyContainer.Add(graphViewContainer);
         }
 
         private void CreateContentViewContainer()
@@ -239,7 +254,7 @@ namespace Shears.GraphViews.Editor
             GraphViewEditorUtil.Save(graphData);
         }
 
-        private void FocusCamera(IReadOnlyCollection<GraphElement> targets)
+        private void FocusCamera(IReadOnlyCollection<IGraphElement> targets)
         {
             Vector2 averagePosition = Vector2.zero;
             int nodes = 0;
@@ -262,8 +277,8 @@ namespace Shears.GraphViews.Editor
 
             averagePosition /= nodes;
             averagePosition *= ViewTransform.scale;
-            averagePosition.x += layout.width * 0.5f;
-            averagePosition.y += layout.height * 0.5f;
+            averagePosition.x += graphViewContainer.layout.width * 0.5f;
+            averagePosition.y += graphViewContainer.layout.height * 0.5f;
 
             UpdateViewTransform(averagePosition, ViewTransform.scale);
             SaveViewTransform();
@@ -472,39 +487,39 @@ namespace Shears.GraphViews.Editor
         }
 
         #region Selection
-        public void SelectAll(IReadOnlyCollection<GraphElement> elements)
+        public void SelectAll(IReadOnlyCollection<ISelectable> selectables)
         {
             Select(null);
 
-            foreach (var element in elements)
+            foreach (var element in selectables)
                 Select(element, true);
         }
 
-        public void Select(GraphElement element, bool isMultiSelect = false)
+        public void Select(ISelectable selectable, bool isMultiSelect = false)
         {
-            if (element == null)
+            if (selectable == null)
                 graphData.Select(null);
             else
             {
                 Selection.activeObject = graphData;
-                graphData.Select(element.GetData(), isMultiSelect);
+                graphData.Select(selectable.GetData(), isMultiSelect);
             }
         }
     
-        protected IReadOnlyList<GraphElement> GetSelection()
+        protected IReadOnlyList<ISelectable> GetSelection()
         {
             var selectionData = graphData.GetSelection();
-            instanceElements.Clear();
+            instanceSelection.Clear();
 
             foreach (var data in selectionData)
             {
                 if (nodes.TryGetValue(data, out var node))
-                    instanceElements.Add(node);
+                    instanceSelection.Add(node);
                 else if (edges.TryGetValue(data, out var edge))
-                    instanceElements.Add(edge);
+                    instanceSelection.Add(edge);
             }
 
-            return instanceElements;
+            return instanceSelection;
         }
         #endregion
     }

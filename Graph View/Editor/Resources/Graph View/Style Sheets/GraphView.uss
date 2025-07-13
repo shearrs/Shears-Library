@@ -17,11 +17,17 @@
 
 .graphViewContainer
 {
+	flex-grow: 1;
+	flex-basis: 0;
+	overflow: hidden;
+}
+
+.bodyContainer
+{
 	justify-content: flex-start;
 	flex-direction: row;
 	flex-grow: 1;
 	flex-basis: 0;
-	overflow: hidden;
 }
 
 .contentViewContainer

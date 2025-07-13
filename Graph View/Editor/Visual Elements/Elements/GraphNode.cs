@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 namespace Shears.GraphViews.Editor
 {
-    public abstract class GraphNode : GraphElement, IEdgeAnchorable
+    public abstract class GraphNode : GraphElement, IEdgeAnchorable, ISelectable
     {
         private readonly GraphNodeData data;
         private readonly GraphView graphView;
@@ -37,12 +37,12 @@ namespace Shears.GraphViews.Editor
             data.Deselected -= Deselect;
         }
 
-        public override void Select()
+        public void Select()
         {
             AddToClassList(GraphViewEditorUtil.GraphNodeSelectedClassName);
         }
 
-        public override void Deselect()
+        public void Deselect()
         {
             RemoveFromClassList(GraphViewEditorUtil.GraphNodeSelectedClassName);
         }
