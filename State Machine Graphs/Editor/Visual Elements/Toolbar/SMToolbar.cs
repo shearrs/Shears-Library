@@ -1,7 +1,4 @@
-using Shears.GraphViews;
-using System;
 using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Shears.StateMachineGraphs.Editor

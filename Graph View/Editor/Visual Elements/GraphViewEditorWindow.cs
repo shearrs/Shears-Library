@@ -1,5 +1,6 @@
 using System;
 using UnityEditor;
+using UnityEngine;
 
 namespace Shears.GraphViews.Editor
 {
@@ -9,6 +10,9 @@ namespace Shears.GraphViews.Editor
 
         private void OnFocus()
         {
+            if (!EditorApplication.isFocused)
+                return;
+
             windowFocusChanged -= OnWindowFocusChanged;
             windowFocusChanged += OnWindowFocusChanged;
         }

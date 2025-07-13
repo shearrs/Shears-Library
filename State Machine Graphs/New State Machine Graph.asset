@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a3251f27db25e54d8fd770aee2cc34b, type: 3}
   m_Name: New State Machine Graph
   m_EditorClassIdentifier: 
-  position: {x: 160.8, y: 106.4}
-  scale: {x: 0.43, y: 0.43}
+  position: {x: -262.4, y: 43.2}
+  scale: {x: 0.61, y: 0.61}
   layers:
   - parentName: Root
     parentID: $ROOT
@@ -22,11 +22,11 @@ MonoBehaviour:
   graphElements:
     rid: 8604816770313224439
   nodeData:
-  - eca1985d-90b0-4a91-9a46-89415e1ff0d1
+  - 55bb6bed-c2ee-43ab-bb80-93f764f3aa83
   edgeData: []
   selection: []
   rootNodes:
-  - eca1985d-90b0-4a91-9a46-89415e1ff0d1
+  - 55bb6bed-c2ee-43ab-bb80-93f764f3aa83
   parameters:
   - 33169ae8-2f78-4c7d-bf78-3cd99c680b85
   references:
@@ -36,22 +36,22 @@ MonoBehaviour:
       type: {class: GraphElementDictionary, ns: Shears.GraphViews, asm: Shears.GraphViews}
       data:
         keys:
-        - eca1985d-90b0-4a91-9a46-89415e1ff0d1
+        - 55bb6bed-c2ee-43ab-bb80-93f764f3aa83
         - 33169ae8-2f78-4c7d-bf78-3cd99c680b85
         values:
-        - rid: 8604816770313224450
+        - rid: 8604816795022393409
         - rid: 8604816770313224451
-    - rid: 8604816770313224450
-      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: eca1985d-90b0-4a91-9a46-89415e1ff0d1
-        name: Empty State
-        position: {x: 840, y: 40}
-        edges: []
-        parentID: $ROOT
     - rid: 8604816770313224451
       type: {class: BoolParameterData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
         id: 33169ae8-2f78-4c7d-bf78-3cd99c680b85
         name: lydia
         value: 0
+    - rid: 8604816795022393409
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 55bb6bed-c2ee-43ab-bb80-93f764f3aa83
+        name: Empty State
+        position: {x: 1200, y: 200}
+        edges: []
+        parentID: $ROOT
