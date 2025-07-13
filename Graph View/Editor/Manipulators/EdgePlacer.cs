@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
@@ -10,10 +11,12 @@ namespace Shears.GraphViews.Editor
         private readonly GraphView graphView;
         private PlacingEdge placingEdge;
         private IEdgeAnchorable anchor1;
-
-        public bool IsPlacing { get; private set; }
+        private bool isPlacing;
 
         public Action<IEdgeAnchorable, IEdgeAnchorable> TryPlaceEdgeCallback { get; set; }
+
+        public event Action PlacingBegan;
+        public event Action PlacingEnded;
 
         public EdgePlacer(GraphView graphView)
         {
@@ -24,50 +27,68 @@ namespace Shears.GraphViews.Editor
 
         protected override void RegisterCallbacksOnTarget()
         {
-            target.RegisterCallback<MouseMoveEvent>(UpdateMouseAnchor);
-            target.RegisterCallback<MouseDownEvent>(TryCreateEdge);
+            target.RegisterCallback<MouseMoveEvent>(OnMouseMove);
+            target.RegisterCallback<MouseDownEvent>(OnMouseDown);
         }
 
         protected override void UnregisterCallbacksFromTarget()
         {
-            target.UnregisterCallback<MouseMoveEvent>(UpdateMouseAnchor);
-            target.UnregisterCallback<MouseDownEvent>(TryCreateEdge);
+            target.UnregisterCallback<MouseMoveEvent>(OnMouseMove);
+            target.UnregisterCallback<MouseDownEvent>(OnMouseDown);
         }
 
         public void BeginPlacing(IEdgeAnchorable anchor)
         {
-            if (IsPlacing)
+            if (isPlacing)
                 return;
 
             anchor1 = anchor;
-
-            placingEdge = new(anchor)
-            {
-                pickingMode = PickingMode.Ignore
-            };
-            placingEdge.SetAnchor2(graphView.ContentViewContainer.WorldToLocal(Mouse.current.position.ReadValue()));
+            CreatePlacingEdge();
 
             graphView.ContentViewContainer.Add(placingEdge);
             placingEdge.SendToBack();
+            target.RegisterCallback<KeyDownEvent>(OnKeyDown);
 
-            IsPlacing = true;
+            isPlacing = true;
+
+            PlacingBegan?.Invoke();
         }
 
         public void EndPlacing()
         {
-            if (!IsPlacing)
+            if (!isPlacing)
                 return;
 
             placingEdge.visible = false;
             graphView.ContentViewContainer.Remove(placingEdge);
 
             placingEdge = null;
-            IsPlacing = false;
+            isPlacing = false;
+
+            target.UnregisterCallback<KeyDownEvent>(OnKeyDown);
+
+            PlacingEnded?.Invoke();
         }
 
-        private void UpdateMouseAnchor(MouseMoveEvent evt)
+        private void CreatePlacingEdge()
         {
-            if (!IsPlacing)
+            placingEdge = new PlacingEdge(anchor1)
+            {
+                pickingMode = PickingMode.Ignore
+            };
+
+            placingEdge.SetAnchor2(graphView.ContentViewContainer.WorldToLocal(Mouse.current.position.ReadValue()));
+        }
+
+        private void OnKeyDown(KeyDownEvent evt)
+        {
+            if (evt.keyCode == KeyCode.Escape && isPlacing)
+                EndPlacing();
+        }
+
+        private void OnMouseMove(MouseMoveEvent evt)
+        {
+            if (!isPlacing)
                 return;
 
             Vector2 mousePos = graphView.ContentViewContainer.WorldToLocal(evt.mousePosition);
@@ -75,9 +96,9 @@ namespace Shears.GraphViews.Editor
             placingEdge.SetAnchor2(mousePos);
         }
 
-        private void TryCreateEdge(MouseDownEvent evt)
+        private void OnMouseDown(MouseDownEvent evt)
         {
-            if (!IsPlacing)
+            if (!isPlacing || !CanStopManipulation(evt))
                 return;
 
             if (evt.target is IEdgeAnchorable anchor2)

@@ -126,6 +126,9 @@ namespace Shears.StateMachineGraphs.Editor
             GraphViewEditorUtil.Record(graphData);
             graphData.CreateTransitionData(transitionable1, transitionable2);
             GraphViewEditorUtil.Save(graphData);
+
+            if (anchor2 is GraphElement element)
+                Select(element);
         }
 
         protected override GraphNode CreateNodeFromData(GraphNodeData data)

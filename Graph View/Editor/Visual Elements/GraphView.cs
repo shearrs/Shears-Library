@@ -48,10 +48,13 @@ namespace Shears.GraphViews.Editor
             contentDragger = new(this);
             contentZoomer = new(this);
             contentSelector = new(this);
-            multiNodeSelector = new(this);
+            multiNodeSelector = new();
             nodeDragger = new(this);
             rectangleSelector = new(this);
             edgePlacer = new(this);
+
+            edgePlacer.PlacingBegan += OnPlacingBegin;
+            edgePlacer.PlacingEnded += OnPlacingEnd;
 
             CreateRootContainer();
             CreateGraphViewContainer();
@@ -225,8 +228,6 @@ namespace Shears.GraphViews.Editor
                 FocusCamera(GetSelection());
             else if (evt.keyCode == KeyCode.A)
                 FocusCamera(nodes.Values);
-            else if (evt.keyCode == KeyCode.Escape && edgePlacer.IsPlacing)
-                EndPlacingEdge();
         }
 
         protected void DeleteSelection()
@@ -442,6 +443,22 @@ namespace Shears.GraphViews.Editor
         protected void EndPlacingEdge()
         {
             edgePlacer.EndPlacing();
+        }
+
+        private void OnPlacingBegin()
+        {
+            this.RemoveManipulator(contentSelector);
+            this.RemoveManipulator(multiNodeSelector);
+            this.RemoveManipulator(nodeDragger);
+            this.RemoveManipulator(rectangleSelector);
+        }
+
+        private void OnPlacingEnd()
+        {
+            graphViewContainer.AddManipulator(contentSelector);
+            graphViewContainer.AddManipulator(multiNodeSelector);
+            graphViewContainer.AddManipulator(nodeDragger);
+            graphViewContainer.AddManipulator(rectangleSelector);
         }
         #endregion
 

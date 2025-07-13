@@ -5,13 +5,10 @@ namespace Shears.GraphViews.Editor
 {
     public class MultiNodeSelector : MouseManipulator
     {
-        private readonly GraphView graphView;
         private GraphData graphData;
 
-        public MultiNodeSelector(GraphView graphView)
+        public MultiNodeSelector()
         {
-            this.graphView = graphView;
-
             activators.Add(new ManipulatorActivationFilter { button = MouseButton.LeftMouse, clickCount = 2 });
         }
 
