@@ -1,13 +1,13 @@
+using Shears.GraphViews.Editor;
 using UnityEditor;
 using UnityEngine;
 
 namespace Shears.StateMachineGraphs.Editor
 {
-    public class SMEditorWindow : EditorWindow
+    public class SMEditorWindow : GraphViewEditorWindow
     {
         private SMGraphView graph;
 
-        // need to save what data we have selected in a scriptablesingleton
         [MenuItem("Window/State Machine Graph")]
         public static void Open()
         {
@@ -23,7 +23,7 @@ namespace Shears.StateMachineGraphs.Editor
             root.AddStyleSheet(SMEditorUtil.GraphStyleSheet);
 
             graph = new();
-
+            
             root.Add(graph);
         }
     }

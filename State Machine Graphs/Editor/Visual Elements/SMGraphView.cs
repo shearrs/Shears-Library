@@ -62,7 +62,7 @@ namespace Shears.StateMachineGraphs.Editor
             if (toolbarData == null)
                 toolbarData = (StateMachineGraph)GraphEditorState.instance.GraphData;
 
-            toolbar = new SMToolbar(toolbarData, SetGraphData, ClearGraphData);
+            toolbar = new SMToolbar(this, toolbarData);
 
             RootContainer.Insert(0, toolbar);
         }

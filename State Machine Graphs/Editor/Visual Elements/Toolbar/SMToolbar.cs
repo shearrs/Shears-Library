@@ -8,17 +8,16 @@ namespace Shears.StateMachineGraphs.Editor
 {
     public class SMToolbar : VisualElement
     {
-        private readonly Action<GraphData> dataSetCallback;
-        private readonly Action dataClearCallback;
+        private readonly SMGraphView graphView;
         private SMLayerDisplay layerDisplay;
         private ObjectField dataField;
 
-        public SMToolbar(StateMachineGraph graphData, Action<GraphData> dataSetCallback, Action dataClearCallback)
+        public SMToolbar(SMGraphView graphView, StateMachineGraph graphData)
         {
-            AddToClassList(SMEditorUtil.ToolbarClassName);
+            this.graphView = graphView;
+            focusable = true;
 
-            this.dataSetCallback = dataSetCallback;
-            this.dataClearCallback = dataClearCallback;
+            AddToClassList(SMEditorUtil.ToolbarClassName);
             this.AddStyleSheet(SMEditorUtil.ToolbarStyleSheet);
             
             CreateObjectField(graphData);
@@ -31,12 +30,21 @@ namespace Shears.StateMachineGraphs.Editor
         {
             layerDisplay.SetGraphData(graphData);
             dataField.SetValueWithoutNotify(graphData);
+
+            RegisterCallback<FocusInEvent>(OnFocusIn);
         }
 
         public void ClearGraphData()
         {
             layerDisplay.ClearGraphData();
             dataField.SetValueWithoutNotify(null);
+
+            UnregisterCallback<FocusInEvent>(OnFocusIn);
+        }
+
+        private void OnFocusIn(FocusInEvent evt)
+        {
+            graphView.Select(null);
         }
 
         private void CreateObjectField(StateMachineGraph data)
@@ -66,9 +74,9 @@ namespace Shears.StateMachineGraphs.Editor
             var value = (StateMachineGraph)evt.newValue;
 
             if (value != null)
-                dataSetCallback?.Invoke(value);
+                graphView.SetGraphData(value);
             else
-                dataClearCallback?.Invoke();
+                graphView.ClearGraphData();
         }
     }
 }

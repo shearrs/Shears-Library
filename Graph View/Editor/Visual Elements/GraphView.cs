@@ -79,7 +79,7 @@ namespace Shears.GraphViews.Editor
         }
 
         #region Initialization
-        protected void SetGraphData(GraphData graphData)
+        public void SetGraphData(GraphData graphData)
         {
             if (graphData == this.graphData || graphData == null)
                 return;
@@ -104,9 +104,10 @@ namespace Shears.GraphViews.Editor
             GraphDataSet?.Invoke(graphData);
 
             LoadGraphData();
+            Select(null);
         }
 
-        protected void ClearGraphData()
+        public void ClearGraphData()
         {
             if (graphData == null) 
                 return; 
