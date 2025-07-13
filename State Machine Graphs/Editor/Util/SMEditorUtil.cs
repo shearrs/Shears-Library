@@ -38,8 +38,13 @@ namespace Shears.StateMachineGraphs.Editor
         public static string EditableLabelTextFieldClassName => "elTextField";
         #endregion
 
+        #region Inspector Class Names
+        public static readonly string SMGraphInspectorClassName = "graphInspector";
+        #endregion
+
         public static StyleSheet GraphStyleSheet => Resources.Load<StyleSheet>($"{STYLE_SHEET_PATH}/StateMachineGraph");
         public static StyleSheet ToolbarStyleSheet => Resources.Load<StyleSheet>($"{STYLE_SHEET_PATH}/StateMachineGraph");
         public static StyleSheet ParameterBarStyleSheet => Resources.Load<StyleSheet>($"{STYLE_SHEET_PATH}/ParameterBar");
+        public static StyleSheet SMGraphInspectorStyleSheet => Resources.Load<StyleSheet>($"{STYLE_SHEET_PATH}/StateMachineInspector");
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -466,7 +467,10 @@ namespace Shears.GraphViews.Editor
             if (element == null)
                 graphData.Select(null);
             else
+            {
+                Selection.activeObject = graphData;
                 graphData.Select(element.GetData(), isMultiSelect);
+            }
         }
     
         protected IReadOnlyList<GraphElement> GetSelection()

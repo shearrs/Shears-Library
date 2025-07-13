@@ -31,6 +31,7 @@ namespace Shears.GraphViews
         public IReadOnlyCollection<GraphLayer> Layers => layers;
 
         public event Action LayersChanged;
+        public event Action SelectionChanged;
         public event Action<GraphNodeData> NodeDataAdded;
         public event Action<GraphNodeData> NodeDataRemoved;
         public event Action<GraphEdgeData> EdgeDataAdded;
@@ -205,6 +206,8 @@ namespace Shears.GraphViews
 
                 selection.Add(elementData.ID);
                 elementData.Select();
+
+                SelectionChanged?.Invoke();
             }
         }
 
@@ -251,6 +254,7 @@ namespace Shears.GraphViews
             }
 
             selection.Clear();
+            SelectionChanged?.Invoke();
         }
         #endregion
 
