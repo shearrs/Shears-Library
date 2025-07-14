@@ -1,3 +1,5 @@
+using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -6,22 +8,27 @@ namespace Shears.GraphViews.Editor
     public abstract class GraphNode : GraphElement, IEdgeAnchorable, ISelectable
     {
         private readonly GraphNodeData data;
+        private readonly SerializedProperty nodeProperty;
         private readonly GraphView graphView;
 
         string IEdgeAnchorable.ID => data.ID;
         GraphElement IEdgeAnchorable.Element => this;
 
-        protected GraphNode(GraphNodeData data, GraphView graphView)
+        protected GraphNode(GraphNodeData data, SerializedProperty nodeProperty, GraphView graphView)
         {
             this.data = data;
+            this.nodeProperty = nodeProperty;
             this.graphView = graphView;
 
             AddToClassList(GraphViewEditorUtil.GraphNodeClassName);
 
-            var nameLabel = new Label(data.Name)
+            var nameProp = nodeProperty.FindPropertyRelative("name");
+            var nameLabel = new Label()
             {
                 pickingMode = PickingMode.Ignore
             };
+
+            nameLabel.BindProperty(nameProp);
 
             Add(nameLabel);
 

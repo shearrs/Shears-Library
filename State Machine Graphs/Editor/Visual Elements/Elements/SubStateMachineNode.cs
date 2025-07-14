@@ -1,12 +1,11 @@
-using Shears.GraphViews;
 using Shears.GraphViews.Editor;
-using UnityEngine;
+using UnityEditor;
 
 namespace Shears.StateMachineGraphs.Editor
 {
     public class SubStateMachineNode : GraphMultiNode
     {
-        public SubStateMachineNode(StateMachineNodeData data, GraphView graphView) : base(data, graphView)
+        public SubStateMachineNode(StateMachineNodeData data, SerializedProperty nodeProp, GraphView graphView) : base(data, nodeProp, graphView)
         {
         }
     }

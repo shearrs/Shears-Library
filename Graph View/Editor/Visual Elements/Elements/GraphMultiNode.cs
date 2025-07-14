@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEngine;
 
 namespace Shears.GraphViews.Editor
@@ -8,7 +9,7 @@ namespace Shears.GraphViews.Editor
 
         public GraphMultiNodeData Data => data;
 
-        public GraphMultiNode(GraphMultiNodeData data, GraphView graphView) : base(data, graphView)
+        public GraphMultiNode(GraphMultiNodeData data, SerializedProperty nodeProperty, GraphView graphView) : base(data, nodeProperty, graphView)
         {
             this.data = data;
         }

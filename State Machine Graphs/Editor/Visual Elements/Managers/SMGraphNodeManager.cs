@@ -1,17 +1,26 @@
 using Shears.GraphViews;
 using Shears.GraphViews.Editor;
-using System.Collections.Generic;
-using UnityEngine;
 
 namespace Shears.StateMachineGraphs.Editor
 {
     public class SMGraphNodeManager
     {
         private readonly GraphView graphView;
+        private GraphData graphData;
 
         public SMGraphNodeManager(GraphView graphView)
         {
             this.graphView = graphView;
+        }
+
+        public void SetGraphData(GraphData data)
+        {
+            graphData = data;
+        }
+
+        public void ClearGraphData()
+        {
+            graphData = null;
         }
 
         public GraphNode CreateNode(GraphNodeData nodeData)
@@ -26,14 +35,16 @@ namespace Shears.StateMachineGraphs.Editor
 
         private GraphNode CreateStateNode(StateNodeData nodeData)
         {
-            var stateNode = new StateNode(nodeData, graphView);
+            var prop = GraphViewEditorUtil.GetElementProp(graphData, nodeData.ID);
+            var stateNode = new StateNode(nodeData, prop, graphView);
 
             return stateNode;
         }
 
         private GraphNode CreateStateMachineNode(StateMachineNodeData nodeData)
         {
-            var stateMachineNode = new SubStateMachineNode(nodeData, graphView);
+            var prop = GraphViewEditorUtil.GetElementProp(graphData, nodeData.ID);
+            var stateMachineNode = new SubStateMachineNode(nodeData, prop, graphView);
 
             return stateMachineNode;
         }

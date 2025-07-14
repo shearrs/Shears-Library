@@ -44,6 +44,7 @@ namespace Shears.StateMachineGraphs.Editor
             this.graphData = stateGraphData;
             toolbar.SetGraphData(stateGraphData);
             parameterBar.SetGraphData(stateGraphData);
+            nodeManager.SetGraphData(graphData);
             AddManipulators();
         }
 
@@ -52,6 +53,7 @@ namespace Shears.StateMachineGraphs.Editor
             graphData = null;
             parameterBar.ClearGraphData();
             toolbar.ClearGraphData();
+            nodeManager.ClearGraphData();
             RemoveManipulators();
         }
 

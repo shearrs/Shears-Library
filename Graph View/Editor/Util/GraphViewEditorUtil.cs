@@ -57,5 +57,28 @@ namespace Shears.GraphViews.Editor
         }
 
         public static void Save(UnityEngine.Object obj) => EditorUtility.SetDirty(obj);
+
+        public static SerializedProperty GetElementProp(GraphData graphData, string elementID)
+        {
+            var graphSO = new SerializedObject(graphData);
+
+            var elementsProp = graphSO.FindProperty("graphElements");
+            var valuesProp = elementsProp.FindPropertyRelative("values");
+            SerializedProperty element = null;
+
+            for (int i = 0; i < valuesProp.arraySize; i++)
+            {
+                var elementProp = valuesProp.GetArrayElementAtIndex(i);
+                var elementIDProp = elementProp.FindPropertyRelative("id");
+
+                if (elementIDProp.stringValue == elementID)
+                {
+                    element = elementProp;
+                    break;
+                }
+            }
+
+            return element;
+        }
     }
 }

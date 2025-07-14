@@ -18,13 +18,13 @@ namespace Shears.GraphViews.Editor
         protected override void RegisterCallbacksOnTarget()
         {
             target.RegisterCallback<MouseDownEvent>(Select);
-            EditorWindow.GetWindow<GraphViewEditorWindow>().NonGraphWindowFocused += OnGraphLostFocus;
+            EditorWindow.GetWindow<GraphViewEditorWindow>(false, null, false).NonGraphWindowFocused += OnGraphLostFocus;
         }
 
         protected override void UnregisterCallbacksFromTarget()
         {
             target.UnregisterCallback<MouseDownEvent>(Select);
-            EditorWindow.GetWindow<GraphViewEditorWindow>().NonGraphWindowFocused -= OnGraphLostFocus;
+            EditorWindow.GetWindow<GraphViewEditorWindow>(false, null, false).NonGraphWindowFocused -= OnGraphLostFocus;
         }
 
         private void Select(MouseDownEvent evt)
