@@ -1,6 +1,4 @@
 using Shears.GraphViews;
-using Shears.GraphViews.Editor;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Shears.StateMachineGraphs.Editor
@@ -8,6 +6,7 @@ namespace Shears.StateMachineGraphs.Editor
     public class SMGraphInspector : VisualElement
     {
         private readonly StateMachineGraph graphData;
+        private readonly StateNodeInspector stateNodeInspector;
         private readonly VisualElement selectionDisplay;
 
         public SMGraphInspector(StateMachineGraph graphData)
@@ -17,6 +16,7 @@ namespace Shears.StateMachineGraphs.Editor
             AddToClassList(SMEditorUtil.SMGraphInspectorClassName);
             this.AddStyleSheet(SMEditorUtil.SMGraphInspectorStyleSheet);
 
+            stateNodeInspector = new(graphData);
             selectionDisplay = new();
             UpdateSelectionDisplay();
             Add(selectionDisplay);
@@ -47,7 +47,10 @@ namespace Shears.StateMachineGraphs.Editor
                 element = selection[^1];
 
             if (element is StateNodeData stateNode)
-                testLabel.text = "State Node: " + stateNode.Name;
+            {
+                stateNodeInspector.SetNode(stateNode);
+                selectionDisplay.Add(stateNodeInspector);
+            }
             else if (element is StateMachineNodeData stateMachineNode)
                 testLabel.text = "State Machine: " + stateMachineNode.Name;
             else if (element is TransitionEdgeData transition)

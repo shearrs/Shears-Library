@@ -53,13 +53,7 @@ namespace Shears.GraphViews.Editor
 
         private void OnGeometryChanged(GeometryChangedEvent evt)
         {
-            Redraw();
-        }
-
-        private void Redraw()
-        {
             DrawLine();
-            MarkDirtyRepaint();
         }
 
         private void DrawLine()
@@ -72,7 +66,8 @@ namespace Shears.GraphViews.Editor
             float distance = heading.magnitude;
             Vector2 direction = heading.normalized;
 
-            Quaternion rotation = Quaternion.FromToRotation(Vector2.right, direction);
+            float angle = Vector2.SignedAngle(Vector2.right, direction);
+            Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
 
             if (!float.IsNaN(layout.width))
             {
@@ -81,15 +76,14 @@ namespace Shears.GraphViews.Editor
                 if (anchor1.HasConnectionFrom(anchor2))
                     center += (Vector2)(rotation * (Vector2.up * DOUBLE_EDGE_SPACING));
                 
-                if (layout.width != 0 && !geometryInitialized)
+                if (layout.width != 0 && layout.height != 0 && !geometryInitialized)
                 {
                     schedule.Execute(() =>
                     {
-                        Redraw();
+                        DrawLine();
                     }).Every(1);
 
                     geometryInitialized = true;
-                    UnregisterCallback<GeometryChangedEvent>(OnGeometryChanged);
                 }
             }
 
