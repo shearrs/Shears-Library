@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -11,6 +12,7 @@ namespace Shears.GraphViews.Editor
 
         private static readonly string STYLE_SHEET_PATH = "Graph View/Style Sheets";
 
+        #region StyleSheet Classes
         public static readonly string GraphViewClassName = "graphView";
         public static readonly string RootContainerClassName = "rootContainer";
         public static readonly string BodyContainerClassName = "bodyContainer";
@@ -24,6 +26,7 @@ namespace Shears.GraphViews.Editor
         public static readonly string EdgeArrowClassName = "edgeArrow";
         public static readonly string EdgeLineSelectedClassName = "edgeLineSelected";
         public static readonly string EdgeArrowSelectedClassName = "edgeArrowSelected";
+        #endregion
 
         public static StyleSheet GraphViewStyleSheet => Resources.Load<StyleSheet>($"{STYLE_SHEET_PATH}/GraphView");
 
@@ -84,6 +87,16 @@ namespace Shears.GraphViews.Editor
             }
 
             return element;
+        }
+
+        public static bool IsInspectorLocked()
+        {
+            var type = typeof(EditorWindow).Assembly.GetType("UnityEditor.InspectorWindow");
+            var window = EditorWindow.GetWindow(type, false, null, false);
+
+            PropertyInfo info = type.GetProperty("isLocked", BindingFlags.Public | BindingFlags.Instance);
+
+            return (bool)info.GetValue(window, null);
         }
     }
 }

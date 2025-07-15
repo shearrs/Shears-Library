@@ -502,6 +502,7 @@ namespace Shears.GraphViews.Editor
             else
             {
                 Selection.activeObject = graphData;
+
                 graphData.Select(selectable.GetData(), isMultiSelect);
             }
         }

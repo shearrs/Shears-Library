@@ -1,4 +1,5 @@
 using Shears.GraphViews;
+using Shears.GraphViews.Editor;
 using UnityEngine.UIElements;
 
 namespace Shears.StateMachineGraphs.Editor
@@ -8,6 +9,8 @@ namespace Shears.StateMachineGraphs.Editor
         private readonly StateMachineGraph graphData;
         private readonly StateNodeInspector stateNodeInspector;
         private readonly VisualElement selectionDisplay;
+
+        private IVisualElementScheduledItem inspectorPoll;
 
         public SMGraphInspector(StateMachineGraph graphData)
         {
@@ -31,6 +34,13 @@ namespace Shears.StateMachineGraphs.Editor
 
         private void OnSelectionChanged()
         {
+            if (GraphViewEditorUtil.IsInspectorLocked())
+            {
+                inspectorPoll ??= schedule.Execute(PollInspector).Every(1);
+
+                return;
+            }
+            
             UpdateSelectionDisplay();
         }
 
@@ -61,6 +71,17 @@ namespace Shears.StateMachineGraphs.Editor
                 testLabel.text = "Select A Graph Element to Inspect";
 
             selectionDisplay.Add(testLabel);
+        }
+    
+        private void PollInspector()
+        {
+            if (GraphViewEditorUtil.IsInspectorLocked())
+                return;
+
+            inspectorPoll.Pause();
+            inspectorPoll = null;
+
+            UpdateSelectionDisplay();
         }
     }
 }
