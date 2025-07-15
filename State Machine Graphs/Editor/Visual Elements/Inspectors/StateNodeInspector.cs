@@ -16,6 +16,8 @@ namespace Shears.StateMachineGraphs.Editor
         public StateNodeInspector(StateMachineGraph graphData)
         {
             this.graphData = graphData;
+
+            AddToClassList(SMEditorUtil.StateNodeInspectorClassName);
         }
 
         public void SetNode(StateNodeData data)
@@ -56,11 +58,16 @@ namespace Shears.StateMachineGraphs.Editor
 
             var transitionsContainer = new VisualElement();
             var title = new Label("Transitions");
+
+            transitionsContainer.AddToClassList(SMEditorUtil.TransitionContainerClassName);
+            title.AddToClassList(SMEditorUtil.TransitionsTitleClassName);
+
             transitionsContainer.Add(title);
 
             foreach (var transitionProp in transitionProps)
             {
                 var transitionElement = new VisualElement();
+                transitionElement.AddToClassList(SMEditorUtil.TransitionClassName);
                 var fromLabel = new Label();
                 var symbolLabel = new Label(" -> ");
                 var toLabel = new Label();
@@ -73,26 +80,6 @@ namespace Shears.StateMachineGraphs.Editor
 
                 fromLabel.BindProperty(fromNameProp);
                 toLabel.BindProperty(toNameProp);
-
-                transitionElement.style.backgroundColor = new Color(0.3f, 0.3f, 0.3f);
-                transitionElement.style.borderBottomColor = new Color(0.05f, 0.05f, 0.05f);
-                transitionElement.style.borderRightColor = new Color(0.05f, 0.05f, 0.05f);
-                transitionElement.style.borderTopColor = new Color(0.05f, 0.05f, 0.05f);
-                transitionElement.style.borderLeftColor = new Color(0.05f, 0.05f, 0.05f);
-                transitionElement.style.borderTopWidth = 1;
-                transitionElement.style.borderBottomWidth = 1;
-                transitionElement.style.borderLeftWidth = 1;
-                transitionElement.style.borderRightWidth = 1;
-                transitionElement.style.borderBottomLeftRadius = 4;
-                transitionElement.style.borderBottomRightRadius = 4;
-                transitionElement.style.borderTopLeftRadius = 4;
-                transitionElement.style.borderTopRightRadius = 4;
-                transitionElement.style.marginBottom = 4;
-                transitionElement.style.paddingTop = 4;
-                transitionElement.style.paddingBottom = 4;
-                transitionElement.style.paddingLeft = 4;
-                transitionElement.style.paddingRight = 4;
-                transitionElement.style.flexDirection = FlexDirection.Row;
 
                 transitionElement.Add(fromLabel);
                 transitionElement.Add(symbolLabel);
