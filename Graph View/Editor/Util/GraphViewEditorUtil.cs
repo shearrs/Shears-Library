@@ -62,6 +62,11 @@ namespace Shears.GraphViews.Editor
         {
             var graphSO = new SerializedObject(graphData);
 
+            return GetElementProp(graphSO, elementID);
+        }
+
+        public static SerializedProperty GetElementProp(SerializedObject graphSO, string elementID)
+        {
             var elementsProp = graphSO.FindProperty("graphElements");
             var valuesProp = elementsProp.FindPropertyRelative("values");
             SerializedProperty element = null;

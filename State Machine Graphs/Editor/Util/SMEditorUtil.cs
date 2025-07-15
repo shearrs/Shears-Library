@@ -42,8 +42,10 @@ namespace Shears.StateMachineGraphs.Editor
         public static readonly string SMGraphInspectorClassName = "graphInspector";
         public static readonly string StateNodeInspectorClassName = "stateNodeInspector";
         public static readonly string TransitionContainerClassName = "transitionContainer";
-        public static readonly string TransitionsTitleClassName = "transitionsTitle";
+        public static readonly string TransitionListClassName = "transitionList";
+        public static readonly string TransitionContainerTitleClassName = "transitionContainerTitle";
         public static readonly string TransitionClassName = "transition";
+        public static readonly string TransitionTitleClassName = "transitionTitle";
         #endregion
 
         public static StyleSheet GraphStyleSheet => Resources.Load<StyleSheet>($"{STYLE_SHEET_PATH}/StateMachineGraph");

@@ -28,5 +28,11 @@ namespace Shears
 
             element.AddStyleSheet(styleSheet);
         }
+
+        public static void AddAll(this VisualElement element, params VisualElement[] elements)
+        {
+            foreach (var elem in elements)
+                element.Add(elem);
+        }
     }
 }

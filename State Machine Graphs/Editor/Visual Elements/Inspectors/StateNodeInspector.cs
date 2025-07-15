@@ -1,4 +1,5 @@
 using Shears.GraphViews.Editor;
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -56,38 +57,19 @@ namespace Shears.StateMachineGraphs.Editor
                     transitionProps.Add(GraphViewEditorUtil.GetElementProp(graphData, edge.stringValue));
             }
 
-            var transitionsContainer = new VisualElement();
-            var title = new Label("Transitions");
+            VisualElement makeItem() => new PropertyField();
+            void bindItem(VisualElement e, int i) => (e as PropertyField).BindProperty(transitionProps[i]);
 
-            transitionsContainer.AddToClassList(SMEditorUtil.TransitionContainerClassName);
-            title.AddToClassList(SMEditorUtil.TransitionsTitleClassName);
+            var transitionContainer = new VisualElement();
+            transitionContainer.AddToClassList(SMEditorUtil.TransitionContainerClassName);
 
-            transitionsContainer.Add(title);
+            var listView = new ListView(transitionProps, makeItem: makeItem, bindItem: bindItem);
+            listView.AddToClassList(SMEditorUtil.TransitionListClassName);
+            listView.reorderable = true;
+            listView.virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight;
 
-            foreach (var transitionProp in transitionProps)
-            {
-                var transitionElement = new VisualElement();
-                transitionElement.AddToClassList(SMEditorUtil.TransitionClassName);
-                var fromLabel = new Label();
-                var symbolLabel = new Label(" -> ");
-                var toLabel = new Label();
-                var fromIDProp = transitionProp.FindPropertyRelative("fromID");
-                var toIDProp = transitionProp.FindPropertyRelative("toID");
-                var fromProp = GraphViewEditorUtil.GetElementProp(graphData, fromIDProp.stringValue);
-                var toProp = GraphViewEditorUtil.GetElementProp(graphData, toIDProp.stringValue);
-                var fromNameProp = fromProp.FindPropertyRelative("name");
-                var toNameProp = toProp.FindPropertyRelative("name");
-
-                fromLabel.BindProperty(fromNameProp);
-                toLabel.BindProperty(toNameProp);
-
-                transitionElement.Add(fromLabel);
-                transitionElement.Add(symbolLabel);
-                transitionElement.Add(toLabel);
-                transitionsContainer.Add(transitionElement);
-            }
-
-            Add(transitionsContainer);
+            transitionContainer.Add(listView);
+            Add(transitionContainer);
         }
     }
 }
