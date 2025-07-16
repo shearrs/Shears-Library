@@ -9,8 +9,11 @@ namespace Shears.StateMachineGraphs.Editor
     public class StateNodeInspector : VisualElement
     {
         private readonly StateMachineGraph graphData;
+        private readonly List<SerializedProperty> instanceTransitionProps = new();
         private StateNodeData nodeData;
         private SerializedProperty nodeProp;
+        private SerializedProperty edgesProp;
+        private VisualElement transitionList;
 
         public StateNodeInspector(StateMachineGraph graphData)
         {
@@ -25,6 +28,7 @@ namespace Shears.StateMachineGraphs.Editor
 
             nodeData = data;
             nodeProp = GraphViewEditorUtil.GetElementProp(graphData, nodeData.ID);
+            edgesProp = nodeProp.FindPropertyRelative("edges");
 
             CreateNameField();
             CreateTransitions();
@@ -42,30 +46,53 @@ namespace Shears.StateMachineGraphs.Editor
 
         private void CreateTransitions()
         {
-            var edgesProp = nodeProp.FindPropertyRelative("edges");
-            var transitionProps = new List<SerializedProperty>();
-           
+            var transitionContainer = new VisualElement();
+            transitionContainer.AddToClassList(SMEditorUtil.TransitionContainerClassName);
+            transitionContainer.TrackPropertyValue(edgesProp, OnEdgesChanged);
+
+            var transitionsTitle = new Label("Transitions");
+            transitionsTitle.AddToClassList(SMEditorUtil.TransitionTitleClassName);
+
+            transitionList = new VisualElement();
+
+            UpdateTransitionProps();
+            BuildTransitionList();
+
+            transitionContainer.Add(transitionList);
+            Add(transitionContainer);
+        }
+
+        private void UpdateTransitionProps()
+        {
+            instanceTransitionProps.Clear();
+
             for (int i = 0; i < edgesProp.arraySize; i++)
             {
                 var edge = edgesProp.GetArrayElementAtIndex(i);
                 var transition = GraphViewEditorUtil.GetElementProp(graphData, edge.stringValue);
-                
+
                 if (transition != null)
-                    transitionProps.Add(GraphViewEditorUtil.GetElementProp(graphData, edge.stringValue));
+                    instanceTransitionProps.Add(GraphViewEditorUtil.GetElementProp(graphData, edge.stringValue));
             }
+        }
 
-            var transitionContainer = new VisualElement();
-            transitionContainer.AddToClassList(SMEditorUtil.TransitionContainerClassName);
+        private void BuildTransitionList()
+        {
+            transitionList.Clear();
 
-            foreach (var transition in transitionProps)
+            foreach (var transition in instanceTransitionProps)
             {
                 var transitionField = new PropertyField();
                 transitionField.BindProperty(transition);
 
-                transitionContainer.Add(transitionField);
+                transitionList.Add(transitionField);
             }
+        }
 
-            Add(transitionContainer);
+        private void OnEdgesChanged(SerializedProperty edgesProp)
+        {
+            UpdateTransitionProps();
+            BuildTransitionList();
         }
     }
 }
