@@ -24,15 +24,6 @@
 	padding: 4px;
 }
 
-.transitionList
-{
-	background-color: rgba(40, 40, 40, 1);
-	border-color: rgba(20, 20, 20, 1);
-	border-width: 1px;
-	border-radius: 4px;
-	margin: 8px 2px 2px 2px;
-}
-
 .transition
 {
 	background-color: rgba(70, 70, 70, 1);

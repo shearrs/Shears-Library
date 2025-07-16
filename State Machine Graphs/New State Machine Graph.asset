@@ -25,9 +25,7 @@ MonoBehaviour:
   - e95e0053-87a5-4317-8d5f-41a5b9c41931
   - cff049db-d0af-46af-97e8-bf9a658af49e
   - 574c2bb6-0828-40be-9938-d025b01670ae
-  edgeData:
-  - 405d3028-8193-4726-b5cb-ef2659b3dd49
-  - 61f76718-bbc1-4c2b-b4c5-2533893c1f90
+  edgeData: []
   selection: []
   rootNodes:
   - e95e0053-87a5-4317-8d5f-41a5b9c41931
@@ -45,15 +43,11 @@ MonoBehaviour:
         - e95e0053-87a5-4317-8d5f-41a5b9c41931
         - 2f67f350-b595-4068-a522-3375a60903d1
         - cff049db-d0af-46af-97e8-bf9a658af49e
-        - 405d3028-8193-4726-b5cb-ef2659b3dd49
-        - 61f76718-bbc1-4c2b-b4c5-2533893c1f90
         - 574c2bb6-0828-40be-9938-d025b01670ae
         values:
         - rid: 8604816820549189703
         - rid: 8604816820549189702
         - rid: 8604816820549189704
-        - rid: 8604816820549189705
-        - rid: 8604816820549189706
         - rid: 8604816820549189707
     - rid: 8604816820549189702
       type: {class: BoolParameterData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
@@ -67,9 +61,7 @@ MonoBehaviour:
         id: e95e0053-87a5-4317-8d5f-41a5b9c41931
         name: state 1
         position: {x: 960, y: 160}
-        edges:
-        - 405d3028-8193-4726-b5cb-ef2659b3dd49
-        - 61f76718-bbc1-4c2b-b4c5-2533893c1f90
+        edges: []
         parentID: $ROOT
     - rid: 8604816820549189704
       type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
@@ -77,22 +69,8 @@ MonoBehaviour:
         id: cff049db-d0af-46af-97e8-bf9a658af49e
         name: my other state
         position: {x: 1660, y: 160}
-        edges:
-        - 405d3028-8193-4726-b5cb-ef2659b3dd49
-        - 61f76718-bbc1-4c2b-b4c5-2533893c1f90
+        edges: []
         parentID: $ROOT
-    - rid: 8604816820549189705
-      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 405d3028-8193-4726-b5cb-ef2659b3dd49
-        fromID: e95e0053-87a5-4317-8d5f-41a5b9c41931
-        toID: cff049db-d0af-46af-97e8-bf9a658af49e
-    - rid: 8604816820549189706
-      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 61f76718-bbc1-4c2b-b4c5-2533893c1f90
-        fromID: cff049db-d0af-46af-97e8-bf9a658af49e
-        toID: e95e0053-87a5-4317-8d5f-41a5b9c41931
     - rid: 8604816820549189707
       type: {class: StateMachineNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:

@@ -1,9 +1,7 @@
 using Shears.GraphViews.Editor;
-using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Shears.StateMachineGraphs.Editor
@@ -30,7 +28,6 @@ namespace Shears.StateMachineGraphs.Editor
 
             CreateNameField();
             CreateTransitions();
-            // get list of edges, get actual transition serialized property from graph, bind to stuff
         }
         
         private void CreateNameField()
@@ -57,18 +54,17 @@ namespace Shears.StateMachineGraphs.Editor
                     transitionProps.Add(GraphViewEditorUtil.GetElementProp(graphData, edge.stringValue));
             }
 
-            VisualElement makeItem() => new PropertyField();
-            void bindItem(VisualElement e, int i) => (e as PropertyField).BindProperty(transitionProps[i]);
-
             var transitionContainer = new VisualElement();
             transitionContainer.AddToClassList(SMEditorUtil.TransitionContainerClassName);
 
-            var listView = new ListView(transitionProps, makeItem: makeItem, bindItem: bindItem);
-            listView.AddToClassList(SMEditorUtil.TransitionListClassName);
-            listView.reorderable = true;
-            listView.virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight;
+            foreach (var transition in transitionProps)
+            {
+                var transitionField = new PropertyField();
+                transitionField.BindProperty(transition);
 
-            transitionContainer.Add(listView);
+                transitionContainer.Add(transitionField);
+            }
+
             Add(transitionContainer);
         }
     }

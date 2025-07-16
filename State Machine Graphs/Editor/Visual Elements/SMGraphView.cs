@@ -125,10 +125,12 @@ namespace Shears.StateMachineGraphs.Editor
                 return;
 
             GraphViewEditorUtil.Record(graphData);
-            graphData.CreateTransitionData(transitionable1, transitionable2);
+            var transitionData = graphData.CreateTransitionData(transitionable1, transitionable2);
             GraphViewEditorUtil.Save(graphData);
 
-            if (anchor2 is ISelectable selectable)
+            var edge = GetEdge(transitionData);
+
+            if (edge is ISelectable selectable)
                 Select(selectable);
         }
 

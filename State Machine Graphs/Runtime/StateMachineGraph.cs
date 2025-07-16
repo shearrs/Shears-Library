@@ -49,11 +49,13 @@ namespace Shears.StateMachineGraphs
         #endregion
 
         #region Transitions
-        public void CreateTransitionData(ITransitionable from, ITransitionable to)
+        public TransitionEdgeData CreateTransitionData(ITransitionable from, ITransitionable to)
         {
             var transitionData = new TransitionEdgeData(from, to);
 
             AddEdgeData(transitionData);
+
+            return transitionData;
         }
         #endregion
 
