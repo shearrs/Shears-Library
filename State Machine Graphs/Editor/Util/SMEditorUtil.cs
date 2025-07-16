@@ -41,10 +41,20 @@ namespace Shears.StateMachineGraphs.Editor
         #region Inspector Class Names
         public static readonly string SMGraphInspectorClassName = "graphInspector";
         public static readonly string StateNodeInspectorClassName = "stateNodeInspector";
+
+        #region Transition Class Names
         public static readonly string TransitionContainerClassName = "transitionContainer";
         public static readonly string TransitionContainerTitleClassName = "transitionContainerTitle";
         public static readonly string TransitionClassName = "transition";
         public static readonly string TransitionTitleClassName = "transitionTitle";
+        #endregion
+
+        #region Comparison Class Names
+        public static readonly string ComparisonsContainerClassName = "comparisonsContainer";
+        public static readonly string AddComparisonButtonClassName = "addComparisonButton";
+        public static readonly string ComparisonBodyClassName = "comparisonBody";
+        public static readonly string ComparisonDropdownClassName = "comparisonDropdown";
+        #endregion
         #endregion
 
         public static StyleSheet GraphStyleSheet => Resources.Load<StyleSheet>($"{STYLE_SHEET_PATH}/StateMachineGraph");

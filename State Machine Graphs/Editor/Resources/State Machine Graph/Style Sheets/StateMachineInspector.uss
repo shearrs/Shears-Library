@@ -39,3 +39,25 @@
 	flex-direction: row;
 	-unity-text-align: middle-center;
 }
+
+.comparisonsContainer
+{
+	border-color: rgba(40, 40, 40, 1);
+	border-width: 1px;
+	border-radius: 4px;
+}
+
+.addComparisonButton
+{
+	-unity-text-align: middle-center;
+}
+
+.comparisonBody
+{
+	flex-direction: row;
+}
+
+.comparisonDropdown
+{
+	min-width: 100px;
+}

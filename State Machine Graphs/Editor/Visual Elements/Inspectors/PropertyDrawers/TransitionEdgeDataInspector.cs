@@ -9,14 +9,22 @@ namespace Shears.StateMachineGraphs.Editor
     [CustomPropertyDrawer(typeof(TransitionEdgeData))]
     public class TransitionEdgeDataPropertyDrawer : PropertyDrawer
     {
-        public override VisualElement CreatePropertyGUI(SerializedProperty property)
+        private readonly List<SerializedProperty> instanceComparisonProps = new();
+
+        public override VisualElement CreatePropertyGUI(SerializedProperty transitionProp)
         {
             var root = new VisualElement();
             root.AddStyleSheet(SMEditorUtil.SMGraphInspectorStyleSheet);
             root.AddToClassList(SMEditorUtil.TransitionClassName);
 
-            root.Add(CreateTitle(property));
-            root.Add(CreateComparisonList(property));
+            root.Add(CreateTitle(transitionProp));
+
+            var comparisonsContainer = CreateComparisonsContainer();
+            var comparisonList = CreateComparisonList(transitionProp);
+            comparisonsContainer.Add(CreateAddComparisonButton(comparisonList, transitionProp));
+
+            root.Add(comparisonsContainer);
+            root.Add(comparisonList);
 
             return root;
         }
@@ -47,20 +55,82 @@ namespace Shears.StateMachineGraphs.Editor
             return title;
         }
 
+        private VisualElement CreateComparisonsContainer()
+        {
+            var container = new VisualElement();
+
+            container.AddToClassList(SMEditorUtil.ComparisonsContainerClassName);
+
+            return container;
+        }
+
+        private VisualElement CreateAddComparisonButton(VisualElement comparisonList, SerializedProperty transitionProp)
+        {
+            var addComparisonButton = new Button(() => AddComparison(transitionProp))
+            {
+                text = "+"
+            };
+
+            addComparisonButton.AddToClassList(SMEditorUtil.AddComparisonButtonClassName);
+            return addComparisonButton;
+        }
+
+        private void AddComparison(SerializedProperty transitionProp)
+        {
+            var comparisonsProp = transitionProp.FindPropertyRelative("comparisonData");
+            var size = comparisonsProp.arraySize;
+            var comparison = new EmptyComparisonData();
+
+            comparisonsProp.InsertArrayElementAtIndex(size);
+            comparisonsProp.GetArrayElementAtIndex(size).boxedValue = comparison;
+
+            comparisonsProp.serializedObject.ApplyModifiedProperties();
+        }
+
         private VisualElement CreateComparisonList(SerializedProperty transitionProp)
         {
             var comparisonsProp = transitionProp.FindPropertyRelative("comparisonData");
-            var comparisonProps = new List<SerializedProperty>();
+
+            instanceComparisonProps.Clear();
 
             for (int i = 0; i < comparisonsProp.arraySize; ++i)
-                comparisonProps.Add(comparisonsProp.GetArrayElementAtIndex(i));
+                instanceComparisonProps.Add(comparisonsProp.GetArrayElementAtIndex(i));
 
-            VisualElement makeItem() => new PropertyField();
-            void bindItem(VisualElement e, int i) => (e as PropertyField).BindProperty(comparisonProps[i]);
+            var comparisonList = new VisualElement();
 
-            var listView = new ListView(comparisonProps, makeItem: makeItem, bindItem: bindItem);
+            void updateList(SerializedProperty comparisonsProp)
+            {
+                UpdateComparisonProps(comparisonsProp);
+                BuildComparisonList(comparisonList);
+            }
 
-            return listView;
+            comparisonList.TrackPropertyValue(comparisonsProp, updateList);
+
+            updateList(comparisonsProp);
+
+            return comparisonList;
+        }
+
+        private void UpdateComparisonProps(SerializedProperty comparisonsProp)
+        {
+            instanceComparisonProps.Clear();
+
+            for (int i = 0; i < comparisonsProp.arraySize; ++i)
+                instanceComparisonProps.Add(comparisonsProp.GetArrayElementAtIndex(i));
+        }
+
+        // TODO: i think if we cache these, the rebuild wont be noticeable
+        private void BuildComparisonList(VisualElement comparisonList)
+        {
+            comparisonList.Clear();
+
+            foreach (var comparison in instanceComparisonProps)
+            {
+                var comparisonField = new PropertyField();
+                comparisonField.BindProperty(comparison);
+
+                comparisonList.Add(comparisonField);
+            }
         }
     }
 }
