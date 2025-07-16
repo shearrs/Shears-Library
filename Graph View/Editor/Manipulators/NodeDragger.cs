@@ -134,7 +134,7 @@ namespace Shears.GraphViews.Editor
 
         private void SaveEndPositions()
         {
-            GraphViewEditorUtil.Record(graphData, "Drag Node");
+            graphView.Record("Drag Node");
 
             foreach (var elementData in graphData.GetSelection())
             {
@@ -145,7 +145,7 @@ namespace Shears.GraphViews.Editor
                 graphData.SetNodePosition(nodeData, node.transform.position);
             }
 
-            GraphViewEditorUtil.Save(graphData);
+            graphView.Save();
         }
 
         private Vector2 RoundToPixelGrid(Vector2 pos)

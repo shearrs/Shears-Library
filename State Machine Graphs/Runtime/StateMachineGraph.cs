@@ -25,7 +25,7 @@ namespace Shears.StateMachineGraphs
         }
 
         #region States
-        public void CreateStateNodeData(Vector2 position)
+        public StateNodeData CreateStateNodeData(Vector2 position)
         {
             var nodeData = new StateNodeData
             {
@@ -34,9 +34,11 @@ namespace Shears.StateMachineGraphs
             };
 
             AddNodeData(nodeData);
+
+            return nodeData;
         }
 
-        public void CreateStateMachineNodeData(Vector2 position)
+        public StateMachineNodeData CreateStateMachineNodeData(Vector2 position)
         {
             var nodeData = new StateMachineNodeData
             {
@@ -45,6 +47,8 @@ namespace Shears.StateMachineGraphs
             };
 
             AddNodeData(nodeData);
+
+            return nodeData;
         }
         #endregion
 

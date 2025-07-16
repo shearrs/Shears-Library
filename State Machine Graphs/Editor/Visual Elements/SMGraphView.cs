@@ -101,14 +101,32 @@ namespace Shears.StateMachineGraphs.Editor
 
             Vector2 mousePos = target.ChangeCoordinatesTo(ContentViewContainer, evt.localMousePosition);
 
-            void perform(Action action, string actionName) => GraphViewEditorUtil.RecordAndSave(graphData, action, actionName);
-
             if (graphData.SelectionCount == 1 && GetSelection()[0] is GraphNode node) evt.menu.AppendAction("Create Transition", (action) => BeginPlacingEdge(node, TryCreateTransition));
-            evt.menu.AppendAction("Create State Node", (action) => perform(() => graphData.CreateStateNodeData(mousePos), "Create State Node"));
-            evt.menu.AppendAction("Create State Machine Node", (action) => perform(() => graphData.CreateStateMachineNodeData(mousePos), "Create State Machine Node"));
+            evt.menu.AppendAction("Create State Node", (action) => CreateStateNode(mousePos));
+            evt.menu.AppendAction("Create State Machine Node", (action) => CreateStateMachineNode(mousePos));
             if (graphData.SelectionCount > 0) evt.menu.AppendAction("Delete", (action) => DeleteSelection());
         }
         #endregion
+
+        private void CreateStateNode(Vector2 pos)
+        {
+            Record("Create State Node");
+            var nodeData = graphData.CreateStateNodeData(pos);
+            Save();
+
+            var node = GetNode(nodeData);
+            Select(node);
+        }
+
+        private void CreateStateMachineNode(Vector2 pos)
+        {
+            Record("Create State Machine Node");
+            var nodeData = graphData.CreateStateMachineNodeData(pos);
+            Save();
+
+            var node = GetNode(nodeData);
+            Select(node);
+        }
 
         private void TryCreateTransition(IEdgeAnchorable anchor1, IEdgeAnchorable anchor2)
         {
@@ -124,14 +142,12 @@ namespace Shears.StateMachineGraphs.Editor
             if (anchor1.HasConnectionTo(anchor2))
                 return;
 
-            GraphViewEditorUtil.Record(graphData);
+            Record("Add Transition");
             var transitionData = graphData.CreateTransitionData(transitionable1, transitionable2);
-            GraphViewEditorUtil.Save(graphData);
+            Save();
 
             var edge = GetEdge(transitionData);
-
-            if (edge is ISelectable selectable)
-                Select(selectable);
+            Select(edge);
         }
 
         protected override GraphNode CreateNodeFromData(GraphNodeData data)

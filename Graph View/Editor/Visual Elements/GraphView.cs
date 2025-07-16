@@ -85,6 +85,16 @@ namespace Shears.GraphViews.Editor
             ReloadLayer();
         }
 
+        public void Record(string undoName = "Graph View Undo")
+        {
+            GraphViewEditorUtil.Record(graphData, undoName);
+        }
+
+        public void Save()
+        {
+            GraphViewEditorUtil.Save(graphData);
+        }
+
         #region Initialization
         public void SetGraphData(GraphData graphData)
         {
