@@ -4,7 +4,7 @@ using UnityEditor;
 
 namespace Shears.Editor
 {
-    static partial class SerializedPropertyExtensions
+    public static partial class SerializedPropertyExtensions
     {
         // found from https://gist.github.com/monry/9de7009689cbc5050c652bcaaaa11daa
         public static SerializedProperty FindParentProperty(this SerializedProperty serializedProperty)
