@@ -198,6 +198,7 @@ namespace Shears.StateMachineGraphs.Editor
             menu.AddItem(new GUIContent("Bool Parameter"), false, AddParameter, new BoolParameterData());
             menu.AddItem(new GUIContent("Int Parameter"), false, AddParameter, new IntParameterData());
             menu.AddItem(new GUIContent("Float Parameter"), false, AddParameter, new FloatParameterData());
+            menu.AddItem(new GUIContent("Trigger Parameter"), false, AddParameter, new TriggerParameterData());
 
             menu.ShowAsContext();
         }

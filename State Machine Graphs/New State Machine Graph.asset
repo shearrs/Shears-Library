@@ -29,7 +29,7 @@ MonoBehaviour:
   edgeData:
   - bfec5c6b-a60d-4cb3-8dc0-775b6b66682c
   selection:
-  - bfec5c6b-a60d-4cb3-8dc0-775b6b66682c
+  - fa615c93-ec70-4240-af3d-5d150d21986c
   rootNodes:
   - fa615c93-ec70-4240-af3d-5d150d21986c
   - 5c8b1977-fb40-4ab5-bd6e-a9c0b5a5c569
@@ -39,6 +39,7 @@ MonoBehaviour:
   - 75493422-f6c2-4298-81e3-69307c1dede1
   - a282ccf7-4edc-411d-bdba-fa20f70c0c12
   - 11972b17-322a-4a94-8bf6-e96d79afdbc2
+  - 2e9a604e-c0ce-4ee0-9952-702a80bc3d67
   references:
     version: 2
     RefIds:
@@ -54,6 +55,7 @@ MonoBehaviour:
         - 51b2c067-b08d-4e19-8f74-6371615fa68a
         - a282ccf7-4edc-411d-bdba-fa20f70c0c12
         - 11972b17-322a-4a94-8bf6-e96d79afdbc2
+        - 2e9a604e-c0ce-4ee0-9952-702a80bc3d67
         values:
         - rid: 8604816885529182279
         - rid: 8604816885529182280
@@ -63,6 +65,7 @@ MonoBehaviour:
         - rid: 8604816885529182302
         - rid: 8604816885529182305
         - rid: 8604816885529182306
+        - rid: 8604816885529182320
     - rid: 8604816885529182279
       type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
@@ -123,16 +126,15 @@ MonoBehaviour:
         fromID: fa615c93-ec70-4240-af3d-5d150d21986c
         toID: a9adfd59-76b4-40e3-ad1d-6591b9dc6ef5
         comparisonData:
-        - rid: 8604816885529182314
-        - rid: 8604816885529182316
-    - rid: 8604816885529182314
-      type: {class: IntComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+        - rid: 8604816885529182327
+    - rid: 8604816885529182320
+      type: {class: TriggerParameterData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
-        parameterID: a282ccf7-4edc-411d-bdba-fa20f70c0c12
-        compareValue: 0
-        compareType: 0
-    - rid: 8604816885529182316
-      type: {class: BoolComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+        id: 2e9a604e-c0ce-4ee0-9952-702a80bc3d67
+        name: lydia trigger
+        value: 0
+    - rid: 8604816885529182327
+      type: {class: TriggerComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
-        parameterID: 75493422-f6c2-4298-81e3-69307c1dede1
+        parameterID: 2e9a604e-c0ce-4ee0-9952-702a80bc3d67
         compareValue: 0
