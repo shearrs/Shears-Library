@@ -6,6 +6,7 @@ namespace Shears.GraphViews
 {
     public abstract class GraphData : ScriptableObject
     {
+        #region Variables
         [Header("Transform")]
         [SerializeField] private Vector2 position;
         [SerializeField] private Vector2 scale = Vector2.one;
@@ -36,6 +37,7 @@ namespace Shears.GraphViews
         public event Action<GraphNodeData> NodeDataRemoved;
         public event Action<GraphEdgeData> EdgeDataAdded;
         public event Action<GraphEdgeData> EdgeDataRemoved;
+        #endregion
 
         protected void AddGraphElementData(GraphElementData data)
         {

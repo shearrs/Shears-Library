@@ -6,23 +6,23 @@ using UnityEngine.UIElements;
 
 namespace Shears.StateMachineGraphs.Editor
 {
-    public class StateNodeInspector : VisualElement
+    public class StateMachineNodeInspector : VisualElement
     {
         private readonly StateMachineGraph graphData;
         private readonly List<SerializedProperty> instanceTransitionProps = new();
-        private StateNodeData nodeData;
+        private StateMachineNodeData nodeData;
         private SerializedProperty nodeProp;
         private SerializedProperty edgesProp;
         private VisualElement transitionList;
 
-        public StateNodeInspector(StateMachineGraph graphData)
+        public StateMachineNodeInspector(StateMachineGraph graphData)
         {
             this.graphData = graphData;
 
             AddToClassList(SMEditorUtil.StateNodeInspectorClassName);
         }
 
-        public void SetNode(StateNodeData data)
+        public void SetNode(StateMachineNodeData data)
         {
             Clear();
 
@@ -33,7 +33,7 @@ namespace Shears.StateMachineGraphs.Editor
             CreateNameField();
             CreateTransitions();
         }
-        
+
         private void CreateNameField()
         {
             var nameProp = nodeProp.FindPropertyRelative("name");

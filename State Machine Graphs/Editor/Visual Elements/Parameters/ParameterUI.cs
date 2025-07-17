@@ -1,6 +1,7 @@
 using Shears.GraphViews;
 using Shears.GraphViews.Editor;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -52,7 +53,7 @@ namespace Shears.StateMachineGraphs.Editor
         {
             if (parameterData is BoolParameterData boolParameter)
             {
-                Toggle toggle = new()
+                var toggle = new Toggle()
                 {
                     value = boolParameter.Value
                 };
@@ -61,6 +62,30 @@ namespace Shears.StateMachineGraphs.Editor
                 toggle.RegisterCallback<ChangeEvent<bool>>((evt) => SetValue(evt.newValue));
 
                 Add(toggle);
+            }
+            else if (parameterData is IntParameterData intParameter)
+            {
+                var field = new IntegerField()
+                {
+                    value = intParameter.Value
+                };
+
+                field.AddToClassList(SMEditorUtil.ParameterUIIntFieldClassName);
+                field.RegisterCallback<ChangeEvent<int>>((evt) => SetValue(evt.newValue));
+
+                Add(field);
+            }
+            else if (parameterData is FloatParameterData floatParameter)
+            {
+                var field = new FloatField()
+                {
+                    value = floatParameter.Value
+                };
+
+                field.AddToClassList(SMEditorUtil.ParameterUIIntFieldClassName);
+                field.RegisterCallback<ChangeEvent<float>>((evt) => SetValue(evt.newValue));
+
+                Add(field);
             }
         }
 

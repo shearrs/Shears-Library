@@ -32,6 +32,7 @@ namespace Shears.StateMachineGraphs.Editor
         #region ParameterUI Class Names
         public static string ParameterUIClassName => "parameterUI";
         public static string ParameterUIToggleClassName => "toggle";
+        public static string ParameterUIIntFieldClassName => "intField";
         public static string ParameterUISelectedClassName => "parameterUISelected";
         public static string EditableLabelClassName => "editableLabel";
         public static string EditableLabelLabelClassName => "elLabel";
@@ -56,7 +57,9 @@ namespace Shears.StateMachineGraphs.Editor
         public static readonly string ComparisonBodyClassName = "comparisonBody";
         public static readonly string ComparisonDropdownClassName = "comparisonDropdown";
         public static readonly string ComparisonToggleClassName = "comparisonToggle";
-        public static readonly string ComparisonToggleLabelClassName = "comparisonToggleLabel";
+        public static readonly string ComparisonLabelClassName = "comparisonLabel";
+        public static readonly string ComparisonIntFieldClassName = "comparisonIntField";
+        public static readonly string CompareTypeDropdownClassName = "compareTypeDropdown";
         #endregion
         #endregion
 

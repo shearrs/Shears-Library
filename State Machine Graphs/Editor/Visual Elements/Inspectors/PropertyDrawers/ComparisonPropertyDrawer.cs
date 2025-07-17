@@ -6,12 +6,12 @@ using UnityEngine.UIElements;
 
 namespace Shears.StateMachineGraphs.Editor
 {
-    [CustomPropertyDrawer(typeof(ParameterComparisonData))]
+    [CustomPropertyDrawer(typeof(ParameterComparisonData), true)]
     public abstract class ComparisonPropertyDrawer : PropertyDrawer
     {
         private readonly List<string> instanceParameterNames = new();
 
-        protected VisualElement CreateDropdownField(SerializedProperty comparisonProp)
+        protected VisualElement CreateParameterDropdown(SerializedProperty comparisonProp)
         {
             var graphSO = comparisonProp.serializedObject;
             var graphData = graphSO.targetObject as StateMachineGraph;

@@ -10,6 +10,7 @@ namespace Shears.StateMachineGraphs.Editor
     {
         private readonly Dictionary<ParameterData, ParameterUI> parameterUIs = new();
         private readonly List<ParameterData> instanceParameters = new();
+        private readonly ContentSelector contentSelector;
 
         private StateMachineGraph graphData;
         private VisualElement titlePanel;
@@ -22,8 +23,10 @@ namespace Shears.StateMachineGraphs.Editor
         private readonly Color resizeDefaultColor = new(.251f, .251f, .251f);
         private readonly Color resizeHighlightColor = new(.4f, .4f, .4f);
 
-        public SMParameterBar(StateMachineGraph graphData)
+        public SMParameterBar(SMGraphView graphView, StateMachineGraph graphData)
         {
+            contentSelector = new(graphView);
+
             AddToClassList(SMEditorUtil.ParameterBarClassName);
             this.AddStyleSheet(SMEditorUtil.ParameterBarStyleSheet);
 
@@ -167,6 +170,8 @@ namespace Shears.StateMachineGraphs.Editor
             this.graphData.ParameterDataAdded += AddParameterUI;
             this.graphData.ParameterDataRemoved += RemoveParameterUI;
 
+            this.AddManipulator(contentSelector);
+
             LoadParameters();
         }
 
@@ -182,6 +187,8 @@ namespace Shears.StateMachineGraphs.Editor
 
             addButton.enabledSelf = false;
             parametersPanel.Clear();
+
+            this.RemoveManipulator(contentSelector);
         }
     
         private void ShowContextMenu()
@@ -189,6 +196,8 @@ namespace Shears.StateMachineGraphs.Editor
             GenericMenu menu = new();
 
             menu.AddItem(new GUIContent("Bool Parameter"), false, AddParameter, new BoolParameterData());
+            menu.AddItem(new GUIContent("Int Parameter"), false, AddParameter, new IntParameterData());
+            menu.AddItem(new GUIContent("Float Parameter"), false, AddParameter, new FloatParameterData());
 
             menu.ShowAsContext();
         }

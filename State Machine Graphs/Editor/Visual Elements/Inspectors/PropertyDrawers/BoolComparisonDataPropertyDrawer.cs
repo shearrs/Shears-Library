@@ -12,7 +12,7 @@ namespace Shears.StateMachineGraphs.Editor
             var root = new VisualElement();
 
             root.AddToClassList(SMEditorUtil.ComparisonBodyClassName);
-            root.Add(CreateDropdownField(comparisonProp));
+            root.Add(CreateParameterDropdown(comparisonProp));
             root.Add(CreateToggle(comparisonProp));
             root.Add(CreateRemoveButton(comparisonProp));
 
@@ -22,8 +22,8 @@ namespace Shears.StateMachineGraphs.Editor
         private VisualElement CreateToggle(SerializedProperty comparisonProp)
         {
             var valueProp = comparisonProp.FindPropertyRelative("compareValue");
-            var toggle = new Toggle("Compare Value");
-            toggle.labelElement.AddToClassList(SMEditorUtil.ComparisonToggleLabelClassName);
+            var toggle = new Toggle();
+            toggle.labelElement.AddToClassList(SMEditorUtil.ComparisonLabelClassName);
             toggle.AddToClassList(SMEditorUtil.ComparisonToggleClassName);
 
             toggle.BindProperty(valueProp);

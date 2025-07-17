@@ -14,7 +14,7 @@ namespace Shears.StateMachineGraphs.Editor
             var root = new VisualElement();
 
             root.AddToClassList(SMEditorUtil.ComparisonBodyClassName);
-            root.Add(CreateDropdownField(comparisonProp));
+            root.Add(CreateParameterDropdown(comparisonProp));
             root.Add(CreateRemoveButton(comparisonProp));
 
             return root;

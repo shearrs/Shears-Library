@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -67,6 +68,7 @@ namespace Shears.GraphViews.Editor
 
             GraphViewEditorUtil.UndoRedoEvent += OnUndoRedo;
 
+            EditorWindow.GetWindow<GraphViewEditorWindow>(false, null, false).NonGraphWindowFocused += OnGraphLostFocus;
             RegisterCallback<KeyDownEvent>(OnKeyDown);
         }
 
@@ -78,11 +80,18 @@ namespace Shears.GraphViews.Editor
                 graphData.NodeDataAdded -= AddNodeFromData;
                 graphData.NodeDataRemoved -= RemoveNodeFromData;
             }
+
+            EditorWindow.GetWindow<GraphViewEditorWindow>(false, null, false).NonGraphWindowFocused -= OnGraphLostFocus;
         }
 
         private void OnUndoRedo()
         {
             ReloadLayer();
+        }
+
+        private void OnGraphLostFocus()
+        {
+            Select(null);
         }
 
         public void Record(string undoName = "Graph View Undo")
@@ -409,6 +418,10 @@ namespace Shears.GraphViews.Editor
                 RemoveNode(node);
         }
 
+        protected abstract GraphNode CreateNodeFromData(GraphNodeData data);
+        #endregion
+
+        #region Edges
         public void AddEdge(GraphEdge edge)
         {
             edges.Add(edge.GetData(), edge);
@@ -438,11 +451,8 @@ namespace Shears.GraphViews.Editor
                 RemoveEdge(edge);
         }
 
-        protected abstract GraphNode CreateNodeFromData(GraphNodeData data);
         protected abstract GraphEdge CreateEdgeFromData(GraphEdgeData data);
-        #endregion
 
-        #region Edges
         public GraphEdge GetEdge(string id)
         {
             if (!graphData.TryGetData(id, out GraphEdgeData data))

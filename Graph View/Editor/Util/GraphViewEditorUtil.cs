@@ -20,6 +20,7 @@ namespace Shears.GraphViews.Editor
         public static readonly string ContentViewContainerClassName = "contentViewContainer";
         public static readonly string GridBackgroundClassName = "gridBackground";
         public static readonly string GraphNodeClassName = "graphNode";
+        public static readonly string GraphMultiNodeClassName = "graphMultiNode";
         public static readonly string GraphNodeSelectedClassName = "graphNodeSelected";
         public static readonly string EdgeClassName = "edge";
         public static readonly string EdgeLineClassName = "edgeLine";

@@ -18,13 +18,11 @@ namespace Shears.GraphViews.Editor
         protected override void RegisterCallbacksOnTarget()
         {
             target.RegisterCallback<MouseDownEvent>(Select);
-            EditorWindow.GetWindow<GraphViewEditorWindow>(false, null, false).NonGraphWindowFocused += OnGraphLostFocus;
         }
 
         protected override void UnregisterCallbacksFromTarget()
         {
             target.UnregisterCallback<MouseDownEvent>(Select);
-            EditorWindow.GetWindow<GraphViewEditorWindow>(false, null, false).NonGraphWindowFocused -= OnGraphLostFocus;
         }
 
         private void Select(MouseDownEvent evt)
@@ -33,11 +31,6 @@ namespace Shears.GraphViews.Editor
                 graphView.Select(selectable, IsMultiSelect(evt.modifiers));
             else
                 graphView.Select(null);
-        }
-
-        private void OnGraphLostFocus()
-        {
-            graphView.Select(null);
         }
 
         private bool IsMultiSelect(EventModifiers modifiers) => modifiers == EventModifiers.Shift || modifiers == EventModifiers.Control;

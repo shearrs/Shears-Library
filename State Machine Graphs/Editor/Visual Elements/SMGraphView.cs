@@ -76,7 +76,7 @@ namespace Shears.StateMachineGraphs.Editor
             if (parameterBarData == null)
                 parameterBarData = (StateMachineGraph)GraphEditorState.instance.GraphData;
 
-            parameterBar = new SMParameterBar(parameterBarData);
+            parameterBar = new SMParameterBar(this, parameterBarData);
 
             BodyContainer.Insert(0, parameterBar);
         }

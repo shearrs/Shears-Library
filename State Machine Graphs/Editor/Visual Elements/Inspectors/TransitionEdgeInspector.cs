@@ -24,8 +24,6 @@ namespace Shears.StateMachineGraphs.Editor
             transitionData = data;
             transitionProp = GraphViewEditorUtil.GetElementProp(graphData, transitionData.ID);
 
-            Debug.Log("transition: " + transitionProp.boxedValue);
-
             var transitionField = new PropertyField();
             transitionField.BindProperty(transitionProp);
 
