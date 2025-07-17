@@ -21,10 +21,10 @@ namespace Shears.StateMachineGraphs.Editor
 
             var comparisonsContainer = CreateComparisonsContainer();
             var comparisonList = CreateComparisonList(transitionProp);
-            comparisonsContainer.Add(CreateAddComparisonButton(comparisonList, transitionProp));
+            root.Add(CreateAddComparisonButton(comparisonList, transitionProp));
+            comparisonsContainer.Add(comparisonList);
 
             root.Add(comparisonsContainer);
-            root.Add(comparisonList);
 
             return root;
         }

@@ -52,8 +52,11 @@ namespace Shears.StateMachineGraphs.Editor
         #region Comparison Class Names
         public static readonly string ComparisonsContainerClassName = "comparisonsContainer";
         public static readonly string AddComparisonButtonClassName = "addComparisonButton";
+        public static readonly string RemoveComparisonButtonClassName = "removeComparisonButton";
         public static readonly string ComparisonBodyClassName = "comparisonBody";
         public static readonly string ComparisonDropdownClassName = "comparisonDropdown";
+        public static readonly string ComparisonToggleClassName = "comparisonToggle";
+        public static readonly string ComparisonToggleLabelClassName = "comparisonToggleLabel";
         #endregion
         #endregion
 

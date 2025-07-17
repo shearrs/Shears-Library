@@ -5,21 +5,27 @@ namespace Shears.StateMachineGraphs
     [System.Serializable]
     public abstract class ParameterComparisonData
     {
-        public abstract ParameterData Parameter { get; }
+        [SerializeField] private string parameterID;
+
+        public string ParameterID => parameterID;
+
+        public ParameterComparisonData()
+        {
+        }
+
+        public ParameterComparisonData(ParameterData parameter)
+        {
+            parameterID = parameter.ID;
+        }
     }
 
     [System.Serializable]
     public abstract class ParameterComparisonData<T> : ParameterComparisonData
     {
-        [field: SerializeReference] private ParameterData<T> typedParameter;
         [SerializeField] private T compareValue;
 
-        public override ParameterData Parameter => typedParameter;
-        public ParameterData<T> TypedParameter => typedParameter;
-
-        public ParameterComparisonData(ParameterData<T> parameter)
+        public ParameterComparisonData(ParameterData<T> parameter) : base(parameter)
         {
-            typedParameter = parameter;
         }
     }
 }

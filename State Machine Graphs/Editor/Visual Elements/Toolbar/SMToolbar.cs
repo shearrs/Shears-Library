@@ -6,6 +6,7 @@ namespace Shears.StateMachineGraphs.Editor
     public class SMToolbar : VisualElement
     {
         private readonly SMGraphView graphView;
+        private StateMachineGraph graphData;
         private SMLayerDisplay layerDisplay;
         private ObjectField dataField;
 
@@ -25,6 +26,8 @@ namespace Shears.StateMachineGraphs.Editor
 
         public void SetGraphData(StateMachineGraph graphData)
         {
+            this.graphData = graphData;
+
             layerDisplay.SetGraphData(graphData);
             dataField.SetValueWithoutNotify(graphData);
 
@@ -33,6 +36,8 @@ namespace Shears.StateMachineGraphs.Editor
 
         public void ClearGraphData()
         {
+            graphData = null;
+
             layerDisplay.ClearGraphData();
             dataField.SetValueWithoutNotify(null);
 
@@ -41,6 +46,9 @@ namespace Shears.StateMachineGraphs.Editor
 
         private void OnFocusIn(FocusInEvent evt)
         {
+            if (graphData == null)
+                return;
+
             graphView.Select(null);
         }
 

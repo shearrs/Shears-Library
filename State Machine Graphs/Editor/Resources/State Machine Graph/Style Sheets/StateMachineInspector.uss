@@ -42,9 +42,6 @@
 
 .comparisonsContainer
 {
-	border-color: rgba(40, 40, 40, 1);
-	border-width: 1px;
-	border-radius: 4px;
 }
 
 .addComparisonButton
@@ -52,12 +49,34 @@
 	-unity-text-align: middle-center;
 }
 
+.removeComparisonButton
+{
+	margin-left: auto;
+	margin-right: 0px;
+}
+
 .comparisonBody
 {
 	flex-direction: row;
+	border-width: 1px;
+	border-color: rgba(40, 40, 40, 1);
+	border-radius: 4px;
 }
 
 .comparisonDropdown
 {
 	min-width: 100px;
+	margin-left: 0px;
+}
+
+.comparisonToggle
+{
+	margin-left: auto;
+	margin-right: 32px;
+	padding: 0px;
+}
+
+.comparisonToggleLabel
+{
+	margin-left: auto;
 }

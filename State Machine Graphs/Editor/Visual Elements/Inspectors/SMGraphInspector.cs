@@ -8,6 +8,7 @@ namespace Shears.StateMachineGraphs.Editor
     {
         private readonly StateMachineGraph graphData;
         private readonly StateNodeInspector stateNodeInspector;
+        private readonly TransitionEdgeInspector transitionEdgeInspector;
         private readonly VisualElement selectionDisplay;
 
         private IVisualElementScheduledItem inspectorPoll;
@@ -20,6 +21,7 @@ namespace Shears.StateMachineGraphs.Editor
             this.AddStyleSheet(SMEditorUtil.SMGraphInspectorStyleSheet);
 
             stateNodeInspector = new(graphData);
+            transitionEdgeInspector = new(graphData);
             selectionDisplay = new();
             UpdateSelectionDisplay();
             Add(selectionDisplay);
@@ -64,7 +66,10 @@ namespace Shears.StateMachineGraphs.Editor
             else if (element is StateMachineNodeData stateMachineNode)
                 testLabel.text = "State Machine: " + stateMachineNode.Name;
             else if (element is TransitionEdgeData transition)
-                testLabel.text = "Transition: " + transition.ID;
+            {
+                transitionEdgeInspector.SetTransition(transition);
+                selectionDisplay.Add(transitionEdgeInspector);
+            }
             else if (element is ParameterData parameter)
                 testLabel.text = "Parameter: " + parameter.Name;
             else
