@@ -29,6 +29,8 @@ namespace Shears.StateMachineGraphs.Editor
                 return CreateStateNode(stateNodeData);
             else if (nodeData is StateMachineNodeData stateMachineNodeData)
                 return CreateStateMachineNode(stateMachineNodeData);
+            else if (nodeData is ExternalStateMachineNodeData external)
+                return CreateExternalStateMachineNode(external);
 
             return null;
         }
@@ -44,7 +46,15 @@ namespace Shears.StateMachineGraphs.Editor
         private GraphNode CreateStateMachineNode(StateMachineNodeData nodeData)
         {
             var prop = GraphViewEditorUtil.GetElementProp(graphData, nodeData.ID);
-            var stateMachineNode = new SubStateMachineNode(nodeData, prop, graphView);
+            var stateMachineNode = new StateMachineNode(nodeData, prop, graphView);
+
+            return stateMachineNode;
+        }
+
+        private GraphNode CreateExternalStateMachineNode(ExternalStateMachineNodeData nodeData)
+        {
+            var prop = GraphViewEditorUtil.GetElementProp(graphData, nodeData.ID);
+            var stateMachineNode = new ExternalStateMachineNode(nodeData, prop, graphView);
 
             return stateMachineNode;
         }

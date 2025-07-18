@@ -104,6 +104,7 @@ namespace Shears.StateMachineGraphs.Editor
             if (graphData.SelectionCount == 1 && GetSelection()[0] is GraphNode node) evt.menu.AppendAction("Create Transition", (action) => BeginPlacingEdge(node, TryCreateTransition));
             evt.menu.AppendAction("Create State Node", (action) => CreateStateNode(mousePos));
             evt.menu.AppendAction("Create State Machine Node", (action) => CreateStateMachineNode(mousePos));
+            evt.menu.AppendAction("Create External State Machine Node", (action) => CreateExternalStateMachineNode(mousePos));
             if (graphData.SelectionCount > 0) evt.menu.AppendAction("Delete", (action) => DeleteSelection());
         }
         #endregion
@@ -122,6 +123,16 @@ namespace Shears.StateMachineGraphs.Editor
         {
             Record("Create State Machine Node");
             var nodeData = graphData.CreateStateMachineNodeData(pos);
+            Save();
+
+            var node = GetNode(nodeData);
+            Select(node);
+        }
+
+        private void CreateExternalStateMachineNode(Vector2 pos)
+        {
+            Record("Create External State Machine Node");
+            var nodeData = graphData.CreateExternalStateMachineNode(pos);
             Save();
 
             var node = GetNode(nodeData);

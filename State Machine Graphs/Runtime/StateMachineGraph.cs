@@ -50,6 +50,19 @@ namespace Shears.StateMachineGraphs
 
             return nodeData;
         }
+
+        public ExternalStateMachineNodeData CreateExternalStateMachineNode(Vector2 position)
+        {
+            var nodeData = new ExternalStateMachineNodeData
+            {
+                Position = position,
+                Name = "New External State Machine"
+            };
+
+            AddNodeData(nodeData);
+
+            return nodeData;
+        }
         #endregion
 
         #region Transitions
