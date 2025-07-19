@@ -9,6 +9,7 @@ namespace Shears.StateMachineGraphs.Editor
         private readonly StateMachineGraph graphData;
         private readonly StateNodeInspector stateNodeInspector;
         private readonly StateMachineNodeInspector stateMachineNodeInspector;
+        private readonly ExternalStateMachineNodeInspector externalNodeInspector;
         private readonly TransitionEdgeInspector transitionEdgeInspector;
         private readonly VisualElement selectionDisplay;
 
@@ -22,8 +23,9 @@ namespace Shears.StateMachineGraphs.Editor
             this.AddStyleSheet(SMEditorUtil.SMGraphInspectorStyleSheet);
 
             stateNodeInspector = new(graphData);
-            transitionEdgeInspector = new(graphData);
             stateMachineNodeInspector = new(graphData);
+            externalNodeInspector = new(graphData);
+            transitionEdgeInspector = new(graphData);
             selectionDisplay = new();
 
             UpdateSelectionDisplay();
@@ -70,6 +72,11 @@ namespace Shears.StateMachineGraphs.Editor
             {
                 stateMachineNodeInspector.SetNode(stateMachineNode);
                 selectionDisplay.Add(stateMachineNodeInspector);
+            }
+            else if (element is ExternalStateMachineNodeData external)
+            {
+                externalNodeInspector.SetNode(external);
+                selectionDisplay.Add(externalNodeInspector);
             }
             else if (element is TransitionEdgeData transition)
             {
