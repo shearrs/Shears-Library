@@ -1,5 +1,6 @@
 using Shears.GraphViews;
 using Shears.GraphViews.Editor;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Shears.StateMachineGraphs.Editor
@@ -53,6 +54,7 @@ namespace Shears.StateMachineGraphs.Editor
 
         private void UpdateSelectionDisplay()
         {
+            Debug.Log("update display");
             selectionDisplay.Clear();
 
             var testLabel = new Label();

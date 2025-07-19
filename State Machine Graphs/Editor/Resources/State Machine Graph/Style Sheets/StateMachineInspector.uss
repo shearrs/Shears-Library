@@ -3,6 +3,17 @@
 
 }
 
+.nodeTitle > .unity-label
+{
+	min-width: 120px;
+	width: auto;
+}
+
+.nodeTitle > * > .unity-base-field__input, .nodeTitle > .unity-base-field__input
+{
+	flex-shrink: 0
+}
+
 .stateNodeInspector
 {
 

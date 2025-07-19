@@ -50,6 +50,8 @@ namespace Shears.StateMachineGraphs.Editor
             var nameField = new TextField("Name");
             nameField.BindProperty(nameProp);
 
+            nameField.AddToClassList(SMEditorUtil.NodeTitleInspectorClassName);
+
             return nameField;
         }
 

@@ -91,7 +91,8 @@ namespace Shears.GraphViews.Editor
 
         private void OnGraphLostFocus()
         {
-            Select(null);
+            if (!GraphViewEditorUtil.IsInspectorLocked())
+                Select(null);
         }
 
         public void Record(string undoName = "Graph View Undo")

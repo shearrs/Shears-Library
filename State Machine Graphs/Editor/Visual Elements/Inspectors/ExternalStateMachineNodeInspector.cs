@@ -16,6 +16,8 @@ namespace Shears.StateMachineGraphs.Editor
             var graphField = new PropertyField();
             graphField.BindProperty(externalGraphProp);
 
+            graphField.AddToClassList(SMEditorUtil.NodeTitleInspectorClassName);
+
             Add(nameField);
             Add(graphField);
             Add(transitions);
