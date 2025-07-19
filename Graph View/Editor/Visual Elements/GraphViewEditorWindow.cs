@@ -24,7 +24,7 @@ namespace Shears.GraphViews.Editor
 
         private void OnWindowFocusChanged()
         {
-            if (focusedWindow != this && focusedWindow.titleContent.text != "Inspector" && focusedWindow.titleContent.text != "Debug")
+            if (focusedWindow != null && focusedWindow != this && focusedWindow.titleContent.text != "Inspector" && focusedWindow.titleContent.text != "Debug")
             {
                 windowFocusChanged -= OnWindowFocusChanged;
                 NonGraphWindowFocused?.Invoke();

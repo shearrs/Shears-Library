@@ -54,7 +54,6 @@ namespace Shears.StateMachineGraphs.Editor
 
         private void UpdateSelectionDisplay()
         {
-            Debug.Log("update display");
             selectionDisplay.Clear();
 
             var testLabel = new Label();
