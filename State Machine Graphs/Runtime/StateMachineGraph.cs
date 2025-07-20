@@ -24,6 +24,16 @@ namespace Shears.StateMachineGraphs
         {
             foreach (var element in selection)
             {
+                if (element is IStateNodeData stateNodeData && stateNodeData.ID == rootDefaultStateID)
+                {
+                    var activeNodes = GetActiveNodes();
+
+                    foreach (var node in activeNodes)
+                    {
+                        if (node is IStateNodeData activeStateNode)
+                            SetLayerDefault(activeStateNode);
+                    }
+                }
                 if (element is ParameterData parameterData)
                     RemoveParameter(parameterData);
             }
@@ -82,6 +92,9 @@ namespace Shears.StateMachineGraphs
 
             AddNodeData(nodeData);
 
+            if (rootDefaultStateID == string.Empty)
+                SetLayerDefault(nodeData);
+
             return nodeData;
         }
 
@@ -94,6 +107,9 @@ namespace Shears.StateMachineGraphs
             };
 
             AddNodeData(nodeData);
+
+            if (rootDefaultStateID == string.Empty)
+                SetLayerDefault(nodeData);
 
             return nodeData;
         }
