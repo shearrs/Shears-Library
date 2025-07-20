@@ -21,16 +21,58 @@ MonoBehaviour:
     scale: {x: 1, y: 1}
   graphElements:
     rid: 8604816929202372677
-  nodeData: []
-  edgeData: []
+  nodeData:
+  - ec16fb56-2450-468d-b897-9e753335ca83
+  - 811edb57-7031-4597-b274-53dfb3e2fe28
+  edgeData:
+  - 75baa33b-d1f5-4965-89b0-c0667de0c7ba
   selection: []
-  rootNodes: []
+  rootNodes:
+  - ec16fb56-2450-468d-b897-9e753335ca83
+  - 811edb57-7031-4597-b274-53dfb3e2fe28
   parameters: []
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 8604816929202372677
       type: {class: GraphElementDictionary, ns: Shears.GraphViews, asm: Shears.GraphViews}
       data:
-        keys: []
-        values: []
+        keys:
+        - ec16fb56-2450-468d-b897-9e753335ca83
+        - 811edb57-7031-4597-b274-53dfb3e2fe28
+        - 75baa33b-d1f5-4965-89b0-c0667de0c7ba
+        values:
+        - rid: 8604816929202372678
+        - rid: 8604816929202372679
+        - rid: 8604816929202372680
+    - rid: 8604816929202372678
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: ec16fb56-2450-468d-b897-9e753335ca83
+        name: Empty State
+        position: {x: 401.59998, y: 134.4}
+        edges:
+        - 75baa33b-d1f5-4965-89b0-c0667de0c7ba
+        parentID: $ROOT
+        state:
+          rid: -2
+    - rid: 8604816929202372679
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 811edb57-7031-4597-b274-53dfb3e2fe28
+        name: Empty State
+        position: {x: 909.60004, y: 165.6}
+        edges:
+        - 75baa33b-d1f5-4965-89b0-c0667de0c7ba
+        parentID: $ROOT
+        state:
+          rid: -2
+    - rid: 8604816929202372680
+      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 75baa33b-d1f5-4965-89b0-c0667de0c7ba
+        fromID: ec16fb56-2450-468d-b897-9e753335ca83
+        toID: 811edb57-7031-4597-b274-53dfb3e2fe28
+        comparisonData: []

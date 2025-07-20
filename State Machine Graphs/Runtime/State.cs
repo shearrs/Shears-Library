@@ -1,24 +1,17 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
     public abstract class State
     {
         private readonly List<Transition> transitions = new();
-        private readonly State parentState;
-        private readonly State initialSubState;
+        private State initialSubState;
+        private State parentState;
         private State subState;
 
-        public State ParentState => parentState;
-        public State InitialSubState => initialSubState;
-        public State SubState => subState;
-
-        public State(State parentState, State initialSubState)
-        {
-            this.parentState = parentState;
-            this.initialSubState = initialSubState;
-        }
+        public State ParentState { get => parentState; internal set => parentState = value; }
+        public State InitialSubState { get => initialSubState; internal set => initialSubState = value; }
+        public State SubState { get => subState; internal set => subState = value; }
 
         internal void AddTransition(Transition transition) => transitions.Add(transition);
 

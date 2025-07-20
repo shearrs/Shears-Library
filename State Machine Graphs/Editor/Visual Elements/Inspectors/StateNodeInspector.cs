@@ -1,7 +1,7 @@
 using Shears.GraphViews;
 using System;
-using System.Data.Common;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -9,12 +9,16 @@ namespace Shears.StateMachineGraphs.Editor
 {
     public class StateNodeInspector : GraphNodeInspector<StateNodeData>
     {
+        private SerializedProperty stateProp;
+
         public StateNodeInspector(GraphData graphData) : base(graphData)
         {
         }
 
         protected override void BuildInspector(VisualElement nameField, VisualElement transitions)
         {
+            stateProp = nodeProp.FindPropertyRelative("state");
+
             Add(nameField);
             Add(CreateStateField());
             Add(transitions);
@@ -22,10 +26,11 @@ namespace Shears.StateMachineGraphs.Editor
 
         private VisualElement CreateStateField()
         {
-            var stateButton = new Button(ShowContextMenu)
-            {
-                text = "State Type"
-            };
+            var stateButton = new Button(ShowContextMenu);
+
+            SetButtonText(stateButton, stateProp);
+
+            stateButton.TrackPropertyValue(stateProp, (prop) => SetButtonText(stateButton, prop));
 
             stateButton.style.marginTop = 8;
             stateButton.style.marginBottom = 8;
@@ -34,10 +39,20 @@ namespace Shears.StateMachineGraphs.Editor
             return stateButton;
         }
 
+        private void SetButtonText(Button button, SerializedProperty stateProp)
+        {
+            if (stateProp.boxedValue != null)
+                button.text = stateProp.boxedValue.GetType().Name;
+            else
+                button.text = "Select State";
+        }
+
         // CREATE SUB MENUS OUT OF HIERARCHY CHAINS (OR MAYBE EVEN ASSEMBLY DEFINITIONS)
         private void ShowContextMenu()
         {
             GenericMenu menu = new();
+
+            menu.AddItem(new GUIContent("Clear State"), false, ClearState);
 
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
@@ -51,9 +66,18 @@ namespace Shears.StateMachineGraphs.Editor
             menu.ShowAsContext();
         }
 
+        private void ClearState()
+        {
+            stateProp.boxedValue = null;
+
+            stateProp.serializedObject.ApplyModifiedProperties();
+        }
+
         private void SetState(Type type)
         {
-            Debug.Log("set state to new instance of " + type.Name);
+            stateProp.boxedValue = (State)Activator.CreateInstance(type);
+
+            stateProp.serializedObject.ApplyModifiedProperties();
         }
     }
 }
