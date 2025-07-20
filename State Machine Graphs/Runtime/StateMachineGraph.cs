@@ -10,6 +10,7 @@ namespace Shears.StateMachineGraphs
     {
         [Header("State Machine Elements")]
         [SerializeField] private List<string> parameters = new();
+        private readonly List<GraphNodeData> instanceNodes = new();
         private readonly List<ParameterData> instanceParameters = new();
 
         public event Action<ParameterData> ParameterDataAdded;

@@ -41,7 +41,7 @@
 
 .gridBackground
 {
-	--spacing: 50;
+	--spacing: 25;
 	--line-width: 1;
 	--thick-line-width: 5;
 	--thick-line-interval: 5;

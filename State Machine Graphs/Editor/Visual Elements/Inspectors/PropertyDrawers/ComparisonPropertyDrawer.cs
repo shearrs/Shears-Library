@@ -90,7 +90,7 @@ namespace Shears.StateMachineGraphs.Editor
                 return;
             }
 
-            comparisonProp.boxedValue = selectedParameter.CreateComparison();
+            comparisonProp.boxedValue = selectedParameter.CreateComparisonData();
             graphSO.ApplyModifiedProperties();
         }
     }

@@ -6,7 +6,7 @@ namespace Shears.GraphViews.Editor
 {
     public class GridBackground : VisualElement
     {
-        private static readonly CustomStylePropertyDefault<float> SpacingProperty = new("--spacing", 50f);
+        private static readonly CustomStylePropertyDefault<float> SpacingProperty = new("--spacing", 25f);
         private static readonly CustomStylePropertyDefault<int> LineWidthProperty = new("--line-width", 1);
         private static readonly CustomStylePropertyDefault<int> ThickLineWidthProperty = new("--thick-line-width", 5);
         private static readonly CustomStylePropertyDefault<int> ThickLineIntervalProperty = new("--thick-line-interval", 5);

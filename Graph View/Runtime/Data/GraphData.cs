@@ -22,7 +22,7 @@ namespace Shears.GraphViews
         [SerializeField] private List<string> rootNodes = new();
 
         private readonly List<GraphElementData> instanceSelection = new();
-        private readonly List<GraphNodeData> instanceSubNodes = new();
+        private readonly List<GraphNodeData> instanceNodes = new();
         private readonly List<GraphEdgeData> instanceEdges = new();
 
         public Vector2 Position { get => position; set => position = value; }
@@ -49,6 +49,17 @@ namespace Shears.GraphViews
             graphElements.Remove(data.ID);
         }
 
+        public bool TryGetData<GraphElementType>(string id, out GraphElementType data) where GraphElementType : GraphElementData
+        {
+            data = null;
+
+            if (!graphElements.TryGetValue(id, out var elementData))
+                return false;
+
+            data = (GraphElementType)elementData;
+            return data != null;
+        }
+
         #region Editor Validation
         public void Reset()
         {
@@ -67,6 +78,19 @@ namespace Shears.GraphViews
         public void SetNodePosition(GraphNodeData nodeData, Vector2 position)
         {
             nodeData.Position = position;
+        }
+
+        public IReadOnlyList<GraphNodeData> GetNodes()
+        {
+            instanceNodes.Clear();
+
+            foreach (var nodeID in nodeData)
+            {
+                if (TryGetData<GraphNodeData>(nodeID, out var parameter))
+                    instanceNodes.Add(parameter);
+            }
+
+            return instanceNodes;
         }
 
         protected void AddNodeData(GraphNodeData data)
@@ -135,17 +159,6 @@ namespace Shears.GraphViews
             }
 
             return instanceEdges;
-        }
-
-        public bool TryGetData<GraphElementType>(string id, out GraphElementType data) where GraphElementType : GraphElementData
-        {
-            data = null;
-
-            if (!graphElements.TryGetValue(id, out var elementData))
-                return false;
-
-            data = (GraphElementType)elementData;
-            return data != null;
         }
         #endregion
 
@@ -315,7 +328,7 @@ namespace Shears.GraphViews
 
         private IReadOnlyList<GraphNodeData> GetLayerSubNodes(GraphLayer layer)
         {
-            instanceSubNodes.Clear();
+            instanceNodes.Clear();
 
             TryGetData(layer.ParentID, out GraphMultiNodeData multiNode);
 
@@ -331,10 +344,10 @@ namespace Shears.GraphViews
                 if (!TryGetData(nodeID, out GraphNodeData node))
                     continue;
 
-                instanceSubNodes.Add(node);
+                instanceNodes.Add(node);
             }
 
-            return instanceSubNodes;
+            return instanceNodes;
         }
 
         private void CreateRootLayer()

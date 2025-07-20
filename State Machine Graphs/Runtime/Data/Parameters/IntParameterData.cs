@@ -6,6 +6,6 @@ namespace Shears.StateMachineGraphs
     {
         protected override string DefaultName => "Int Parameter";
 
-        protected override ParameterComparisonData<int> CreateTypedComparison() => new IntComparisonData(this);
+        protected override ParameterComparisonData<int> CreateTypedComparisonData() => new IntComparisonData(this);
     }
 }

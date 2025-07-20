@@ -16,7 +16,7 @@ namespace Shears.StateMachineGraphs
         public event Action Selected;
         public event Action Deselected;
 
-        public abstract ParameterComparisonData CreateComparison();
+        public abstract ParameterComparisonData CreateComparisonData();
 
         public override void Select()
         {
@@ -41,7 +41,7 @@ namespace Shears.StateMachineGraphs
             Name = DefaultName;
         }
 
-        public override ParameterComparisonData CreateComparison() => CreateTypedComparison();
-        protected abstract ParameterComparisonData<T> CreateTypedComparison();
+        public override ParameterComparisonData CreateComparisonData() => CreateTypedComparisonData();
+        protected abstract ParameterComparisonData<T> CreateTypedComparisonData();
     }
 }

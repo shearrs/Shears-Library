@@ -68,5 +68,5 @@
 
 .externalStateMachineNode
 {
-	background-color: rgba(65, 65, 145, 1);
+	background-color: rgba(105, 65, 65, 1);
 }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -91,7 +90,7 @@ namespace Shears.GraphViews.Editor
 
         private void OnGraphLostFocus()
         {
-            if (!GraphViewEditorUtil.IsInspectorLocked())
+            if (!GraphViewEditorUtil.IsInspectorLocked() && graphData != null)
                 Select(null);
         }
 

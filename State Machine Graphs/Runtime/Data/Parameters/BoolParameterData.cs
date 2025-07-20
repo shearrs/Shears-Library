@@ -6,6 +6,6 @@ namespace Shears.StateMachineGraphs
     {
         protected override string DefaultName => "Bool Parameter";
 
-        protected override ParameterComparisonData<bool> CreateTypedComparison() => new BoolComparisonData(this);
+        protected override ParameterComparisonData<bool> CreateTypedComparisonData() => new BoolComparisonData(this);
     }
 }

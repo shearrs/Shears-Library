@@ -8,6 +8,8 @@ namespace Shears.StateMachineGraphs
 
         [SerializeField] private CompareType compareType;
 
+        public CompareType ComparisonType => compareType;
+
         public FloatComparisonData(ParameterData<float> parameter) : base(parameter)
         {
         }

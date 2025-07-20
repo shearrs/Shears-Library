@@ -6,6 +6,6 @@ namespace Shears.StateMachineGraphs
     {
         protected override string DefaultName => "Trigger Parameter";
 
-        protected override ParameterComparisonData<bool> CreateTypedComparison() => new TriggerComparisonData(this);
+        protected override ParameterComparisonData<bool> CreateTypedComparisonData() => new TriggerComparisonData(this);
     }
 }
