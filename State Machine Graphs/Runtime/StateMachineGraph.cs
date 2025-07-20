@@ -31,7 +31,7 @@ namespace Shears.StateMachineGraphs
             var nodeData = new StateNodeData
             {
                 Position = position,
-                Name = "Empty State"
+                Name = "New State"
             };
 
             AddNodeData(nodeData);

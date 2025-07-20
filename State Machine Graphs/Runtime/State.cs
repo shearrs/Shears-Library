@@ -2,6 +2,7 @@ using System.Collections.Generic;
 
 namespace Shears.StateMachineGraphs
 {
+    [System.Serializable]
     public abstract class State
     {
         private readonly List<Transition> transitions = new();

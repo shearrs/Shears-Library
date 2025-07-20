@@ -1,11 +1,14 @@
 using Shears.GraphViews;
+using System;
 using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
-    [System.Serializable]
-    public class StateNodeData : GraphNodeData, ITransitionable
+    [Serializable]
+    public class StateNodeData : GraphNodeData, ITransitionable, IStateNodeData
     {
-        [SerializeReference] private State state;
+        [SerializeField] private SerializableSystemType stateType = new(typeof(EmptyState));
+
+        public State CreateStateInstance() => (State)Activator.CreateInstance(stateType.SystemType);
     }
 }

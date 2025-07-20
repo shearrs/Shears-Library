@@ -61,10 +61,7 @@ namespace Shears.StateMachineGraphs
             }
         }
 
-        private Parameter CreateParameter(ParameterData data)
-        {
-            return null;
-        }
+        private Parameter CreateParameter(ParameterData data) => data.CreateParameter();
 
         private State CreateState(GraphNodeData data)
         {

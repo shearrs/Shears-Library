@@ -6,14 +6,16 @@ namespace Shears
     [Serializable]
     public struct SerializableSystemType
     {
+        public static readonly SerializableSystemType Empty = new();
+        
         [SerializeField] private string name;
         [SerializeField] private string assemblyQualifiedName;
         [SerializeField] private string assemblyName;
         private Type systemType;
 
-        public string Name => name;
-        public string AssemblyQualifiedName => assemblyQualifiedName;
-        public string AssemblyName => assemblyName;
+        public readonly string Name => name;
+        public readonly string AssemblyQualifiedName => assemblyQualifiedName;
+        public readonly string AssemblyName => assemblyName;
         public Type SystemType
         {
             get
