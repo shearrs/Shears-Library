@@ -1,6 +1,5 @@
 using UnityEditor;
 using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Shears.GraphViews.Editor
@@ -8,27 +7,45 @@ namespace Shears.GraphViews.Editor
     public abstract class GraphNode : GraphElement, IEdgeAnchorable, ISelectable
     {
         private readonly GraphNodeData data;
-        private readonly SerializedProperty nodeProperty;
         private readonly GraphView graphView;
 
         string IEdgeAnchorable.ID => data.ID;
         GraphElement IEdgeAnchorable.Element => this;
 
-        protected GraphNode(GraphNodeData data, SerializedProperty nodeProperty, GraphView graphView)
+        // pass the graphData
+        // get elements prop
+        // get name prop
+        // bind to name prop
+        // track property value of elements prop
+        // on change, rebind name prop
+
+        protected GraphNode(GraphNodeData data, GraphView graphView, GraphData graphData)
         {
             this.data = data;
-            this.nodeProperty = nodeProperty;
             this.graphView = graphView;
 
             AddToClassList(GraphViewEditorUtil.GraphNodeClassName);
 
-            var nameProp = nodeProperty.FindPropertyRelative("name");
+            // every time the elements list changes, these need to update their name bindings
+            var graphSO = new SerializedObject(graphData);
+            var elementsProp = graphSO.FindProperty("graphElements").FindPropertyRelative("values");
+
+            var nameProp = GraphViewEditorUtil.GetElementProp(graphData, data.ID).FindPropertyRelative("name");
             var nameLabel = new Label()
             {
                 pickingMode = PickingMode.Ignore
             };
 
+            void rebind(SerializedProperty prop)
+            {
+                var nameProp = GraphViewEditorUtil.GetElementProp(graphData, data.ID).FindPropertyRelative("name");
+
+                nameLabel.Unbind();
+                nameLabel.BindProperty(nameProp);
+            }
+
             nameLabel.BindProperty(nameProp);
+            nameLabel.TrackPropertyValue(elementsProp, rebind);
 
             Add(nameLabel);
 

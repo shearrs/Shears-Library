@@ -19,8 +19,6 @@ namespace Shears.StateMachineGraphs.Editor
         {
             var root = rootVisualElement;
             root.name = "StateMachineGraphEditorWindow";
-            root.AddToClassList("editorWindow");
-            root.AddStyleSheet(SMEditorUtil.GraphStyleSheet);
 
             graph = new();
             

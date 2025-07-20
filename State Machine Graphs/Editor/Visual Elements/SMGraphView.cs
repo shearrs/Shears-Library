@@ -1,5 +1,6 @@
 using Shears.GraphViews;
 using Shears.GraphViews.Editor;
+using Shears.Logging;
 using System;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -16,6 +17,8 @@ namespace Shears.StateMachineGraphs.Editor
 
         public SMGraphView() : base()
         {
+            this.AddStyleSheet(SMEditorUtil.GraphStyleSheet);
+
             nodeManager = new(this);
             contextMenu = new(PopulateContextualMenu);
 
@@ -101,13 +104,37 @@ namespace Shears.StateMachineGraphs.Editor
 
             Vector2 mousePos = target.ChangeCoordinatesTo(ContentViewContainer, evt.localMousePosition);
 
-            if (graphData.SelectionCount == 1 && GetSelection()[0] is GraphNode node) evt.menu.AppendAction("Create Transition", (action) => BeginPlacingEdge(node, TryCreateTransition));
+            if (graphData.SelectionCount == 1 && GetSelection()[0] is IStateNode node)
+            {
+                evt.menu.AppendAction("Create Transition", (action) => BeginPlacingEdge(node, TryCreateTransition));
+                evt.menu.AppendAction("Set as Layer Default State", (action) => SetAsLayerDefault(node));
+            }
             evt.menu.AppendAction("Create State Node", (action) => CreateStateNode(mousePos));
             evt.menu.AppendAction("Create State Machine Node", (action) => CreateStateMachineNode(mousePos));
             evt.menu.AppendAction("Create External State Machine Node", (action) => CreateExternalStateMachineNode(mousePos));
             if (graphData.SelectionCount > 0) evt.menu.AppendAction("Delete", (action) => DeleteSelection());
         }
         #endregion
+
+        public bool IsLayerDefault(IStateNodeData nodeData)
+        {
+            if (nodeData.ParentID == GraphLayer.ROOT_ID)
+                return nodeData.ID == graphData.RootDefaultStateID;
+            else if (graphData.TryGetData(nodeData.ParentID, out StateMachineNodeData stateMachineData))
+                return stateMachineData.DefaultStateID == nodeData.ID;
+            else
+            {
+                SHLogger.Log("Could not find parent with ID: " +  nodeData.ParentID, SHLogLevels.Error);
+                return false;
+            }
+        }
+
+        private void SetAsLayerDefault(IStateNode node)
+        {
+            Record("Set Layer Default State");
+            graphData.SetLayerDefault(node.Data);
+            Save();
+        }
 
         private void CreateStateNode(Vector2 pos)
         {

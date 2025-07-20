@@ -1,3 +1,4 @@
+using Shears.GraphViews;
 using Shears.GraphViews.Editor;
 using UnityEditor;
 
@@ -5,9 +6,8 @@ namespace Shears.StateMachineGraphs.Editor
 {
     public class ExternalStateMachineNode : GraphNode
     {
-        public ExternalStateMachineNode(ExternalStateMachineNodeData data, SerializedProperty nodeProperty, GraphView graphView) : base(data, nodeProperty, graphView)
+        public ExternalStateMachineNode(ExternalStateMachineNodeData data, GraphView graphView, GraphData graphData) : base(data, graphView, graphData)
         {
-            this.AddStyleSheet(SMEditorUtil.GraphStyleSheet);
             AddToClassList(SMEditorUtil.ExternalStateMachineNodeClassName);
         }
     }

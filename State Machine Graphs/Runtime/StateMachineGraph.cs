@@ -1,4 +1,5 @@
 using Shears.GraphViews;
+using Shears.Logging;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,9 +10,12 @@ namespace Shears.StateMachineGraphs
     public class StateMachineGraph : GraphData
     {
         [Header("State Machine Elements")]
+        [SerializeField] private string rootDefaultStateID;
         [SerializeField] private List<string> parameters = new();
         private readonly List<IStateNodeData> instanceStateNodes = new();
         private readonly List<ParameterData> instanceParameters = new();
+
+        public string RootDefaultStateID => rootDefaultStateID;
 
         public event Action<ParameterData> ParameterDataAdded;
         public event Action<ParameterData> ParameterDataRemoved;
@@ -26,6 +30,34 @@ namespace Shears.StateMachineGraphs
         }
 
         #region States
+        public void SetLayerDefault(IStateNodeData stateNodeData)
+        {
+            if (stateNodeData.ParentID == GraphLayer.ROOT_ID)
+            {
+                if (rootDefaultStateID != string.Empty)
+                {
+                    if (TryGetData(rootDefaultStateID, out GraphNodeData defaultNode) && defaultNode is IStateNodeData defaultState)
+                        defaultState.OnRemoveLayerDefault();
+                }
+
+                rootDefaultStateID = stateNodeData.ID;
+                stateNodeData.OnSetAsLayerDefault();
+            }
+            else if (TryGetData(stateNodeData.ParentID, out StateMachineNodeData stateMachineData))
+            {
+                if (stateMachineData.DefaultStateID != string.Empty)
+                {
+                    if (TryGetData(stateMachineData.DefaultStateID, out GraphNodeData defaultNode) && defaultNode is IStateNodeData defaultState)
+                        defaultState.OnRemoveLayerDefault();
+                }
+
+                stateMachineData.SetInitialStateID(stateNodeData.ID);
+                stateNodeData.OnSetAsLayerDefault();
+            }
+            else
+                SHLogger.Log("Could not find layer for node with ID: " + stateNodeData.ID, SHLogLevels.Error);
+        }
+
         public IReadOnlyList<IStateNodeData> GetStateNodes()
         {
             instanceStateNodes.Clear();

@@ -8,6 +8,7 @@ namespace Shears.StateMachineGraphs.Editor
         private const string STYLE_SHEET_PATH = "State Machine Graph/Style Sheets";
 
         #region Node Class Names
+        public static readonly string LayerDefaultNodeClassName = "layerDefault";
         public static readonly string ExternalStateMachineNodeClassName = "externalStateMachineNode";
         #endregion
 

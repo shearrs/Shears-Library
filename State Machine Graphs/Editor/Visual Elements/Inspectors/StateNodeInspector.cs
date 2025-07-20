@@ -1,8 +1,4 @@
 using Shears.GraphViews;
-using System;
-using UnityEditor;
-using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Shears.StateMachineGraphs.Editor
@@ -15,10 +11,10 @@ namespace Shears.StateMachineGraphs.Editor
 
         protected override void BuildInspector(VisualElement nameField, VisualElement transitions)
         {
-            var stateProp = nodeProp.FindPropertyRelative("stateType");
+            var stateTypeProp = nodeProp.FindPropertyRelative("stateType");
 
             Add(nameField);
-            Add(new StateSelector(stateProp));
+            Add(new StateSelector(stateTypeProp));
             Add(transitions);
         }
     }

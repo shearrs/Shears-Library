@@ -5,10 +5,10 @@ namespace Shears.StateMachineGraphs.Editor
 {
     public class SMGraphNodeManager
     {
-        private readonly GraphView graphView;
+        private readonly SMGraphView graphView;
         private GraphData graphData;
 
-        public SMGraphNodeManager(GraphView graphView)
+        public SMGraphNodeManager(SMGraphView graphView)
         {
             this.graphView = graphView;
         }
@@ -37,24 +37,21 @@ namespace Shears.StateMachineGraphs.Editor
 
         private GraphNode CreateStateNode(StateNodeData nodeData)
         {
-            var prop = GraphViewEditorUtil.GetElementProp(graphData, nodeData.ID);
-            var stateNode = new StateNode(nodeData, prop, graphView);
+            var stateNode = new StateNode(nodeData, graphView, graphData);
 
             return stateNode;
         }
 
         private GraphNode CreateStateMachineNode(StateMachineNodeData nodeData)
         {
-            var prop = GraphViewEditorUtil.GetElementProp(graphData, nodeData.ID);
-            var stateMachineNode = new StateMachineNode(nodeData, prop, graphView);
+            var stateMachineNode = new StateMachineNode(nodeData, graphView, graphData);
 
             return stateMachineNode;
         }
 
         private GraphNode CreateExternalStateMachineNode(ExternalStateMachineNodeData nodeData)
         {
-            var prop = GraphViewEditorUtil.GetElementProp(graphData, nodeData.ID);
-            var stateMachineNode = new ExternalStateMachineNode(nodeData, prop, graphView);
+            var stateMachineNode = new ExternalStateMachineNode(nodeData, graphView, graphData);
 
             return stateMachineNode;
         }

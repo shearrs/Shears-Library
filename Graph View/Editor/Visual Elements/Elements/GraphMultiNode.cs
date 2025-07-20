@@ -9,7 +9,7 @@ namespace Shears.GraphViews.Editor
 
         public GraphMultiNodeData Data => data;
 
-        public GraphMultiNode(GraphMultiNodeData data, SerializedProperty nodeProperty, GraphView graphView) : base(data, nodeProperty, graphView)
+        public GraphMultiNode(GraphMultiNodeData data, GraphView graphView, GraphData graphData) : base(data, graphView, graphData)
         {
             this.data = data;
 

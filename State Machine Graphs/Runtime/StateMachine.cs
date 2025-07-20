@@ -11,7 +11,6 @@ namespace Shears.StateMachineGraphs
 
         private State initialState;
 
-        private readonly List<ParameterComparison> instanceComparisons = new();
         private readonly List<State> stateTree = new();
         private readonly List<State> swapStateTree = new();
 
@@ -87,12 +86,16 @@ namespace Shears.StateMachineGraphs
                     continue;
                 }
 
+                var comparisons = new List<ParameterComparison>();
+
                 foreach (var comparisonData in transitionData.ComparisonData)
                 {
-                    
+                    var comparison = comparisonData.CreateComparison(graphData);
+                    comparisons.Add(comparison);
                 }
 
-                //var transition = new Transition(state, toState, transitionData.)
+                var transition = new Transition(state, toState, comparisons);
+                state.AddTransition(transition);
             }
         }
 
