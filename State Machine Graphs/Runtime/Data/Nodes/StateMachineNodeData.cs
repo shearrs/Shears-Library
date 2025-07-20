@@ -1,5 +1,6 @@
 using Shears.GraphViews;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Shears.StateMachineGraphs
@@ -10,5 +11,7 @@ namespace Shears.StateMachineGraphs
         [SerializeField] private SerializableSystemType stateType = new(typeof(EmptyState));
 
         public State CreateStateInstance() => (State)Activator.CreateInstance(stateType.SystemType);
+
+        public IReadOnlyList<string> GetTransitionIDs() => Edges;
     }
 }

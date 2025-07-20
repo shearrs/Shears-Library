@@ -4,7 +4,7 @@ namespace Shears.StateMachineGraphs
 {
     public class BoolComparison : ParameterComparison<bool>
     {
-        public BoolComparison(BoolParameter parameter, bool compareValue) : base(parameter, compareValue)
+        public BoolComparison(BoolComparisonData data, BoolParameter parameter) : base(data, parameter)
         {
         }
 

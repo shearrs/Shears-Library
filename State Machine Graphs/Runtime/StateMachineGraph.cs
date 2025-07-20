@@ -10,7 +10,7 @@ namespace Shears.StateMachineGraphs
     {
         [Header("State Machine Elements")]
         [SerializeField] private List<string> parameters = new();
-        private readonly List<GraphNodeData> instanceNodes = new();
+        private readonly List<IStateNodeData> instanceStateNodes = new();
         private readonly List<ParameterData> instanceParameters = new();
 
         public event Action<ParameterData> ParameterDataAdded;
@@ -26,6 +26,20 @@ namespace Shears.StateMachineGraphs
         }
 
         #region States
+        public IReadOnlyList<IStateNodeData> GetStateNodes()
+        {
+            instanceStateNodes.Clear();
+            var nodes = GetNodes();
+
+            foreach (var node in nodes)
+            {
+                if (node is IStateNodeData stateNodeData)
+                    instanceStateNodes.Add(stateNodeData);
+            }
+
+            return instanceStateNodes;
+        }
+
         public StateNodeData CreateStateNodeData(Vector2 position)
         {
             var nodeData = new StateNodeData

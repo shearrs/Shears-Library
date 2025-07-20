@@ -13,5 +13,7 @@ namespace Shears.StateMachineGraphs
         public IntComparisonData(ParameterData<int> parameter) : base(parameter)
         {
         }
+
+        protected override ParameterComparison<int> CreateTypedComparison(Parameter<int> parameter) => new IntComparison(this, (IntParameter)parameter);
     }
 }

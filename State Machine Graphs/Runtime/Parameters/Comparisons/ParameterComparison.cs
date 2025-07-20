@@ -27,10 +27,10 @@ namespace Shears.StateMachineGraphs
         protected readonly Parameter<T> parameter;
         protected readonly T compareValue;
 
-        public ParameterComparison(Parameter<T> parameter, T compareValue) : base(parameter)
+        public ParameterComparison(ParameterComparisonData<T> data, Parameter<T> parameter) : base(parameter)
         {
+            this.compareValue = data.CompareValue;
             this.parameter = parameter;
-            this.compareValue = compareValue;
         }
     }
 }

@@ -6,9 +6,9 @@ namespace Shears.StateMachineGraphs
     {
         private readonly IntComparisonData.CompareType compareType;
 
-        public IntComparison(IntComparisonData comparisonData, IntParameter parameter, int compareValue) : base(parameter, compareValue)
+        public IntComparison(IntComparisonData data, IntParameter parameter) : base(data, parameter)
         {
-            compareType = comparisonData.ComparisonType;
+            compareType = data.ComparisonType;
         }
 
         public override bool EvaluateInternal()

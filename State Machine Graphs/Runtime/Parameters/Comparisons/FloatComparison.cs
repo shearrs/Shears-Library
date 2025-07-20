@@ -6,7 +6,7 @@ namespace Shears.StateMachineGraphs
     {
         private readonly FloatComparisonData.CompareType compareType;
 
-        public FloatComparison(FloatComparisonData data, FloatParameter parameter, float compareValue) : base(parameter, compareValue)
+        public FloatComparison(FloatComparisonData data, FloatParameter parameter) : base(data, parameter)
         {
             compareType = data.ComparisonType;
         }

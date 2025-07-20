@@ -13,5 +13,7 @@ namespace Shears.StateMachineGraphs
         public FloatComparisonData(ParameterData<float> parameter) : base(parameter)
         {
         }
+
+        protected override ParameterComparison<float> CreateTypedComparison(Parameter<float> parameter) => new FloatComparison(this, (FloatParameter)parameter);
     }
 }

@@ -11,11 +11,13 @@ namespace Shears
         [SerializeField] private string name;
         [SerializeField] private string assemblyQualifiedName;
         [SerializeField] private string assemblyName;
+        [SerializeField] private string prettyName;
         private Type systemType;
 
         public readonly string Name => name;
         public readonly string AssemblyQualifiedName => assemblyQualifiedName;
         public readonly string AssemblyName => assemblyName;
+        public readonly string PrettyName => prettyName;
         public Type SystemType
         {
             get
@@ -38,6 +40,7 @@ namespace Shears
             name = type.Name;
             assemblyQualifiedName = type.AssemblyQualifiedName;
             assemblyName = type.Assembly.FullName;
+            prettyName = StringUtil.PascalSpace(name);
         }
 
         public SerializableSystemType(string assemblyQualifiedName)
@@ -48,6 +51,7 @@ namespace Shears
             name = type.Name;
             this.assemblyQualifiedName = assemblyQualifiedName;
             assemblyName = type.Assembly.FullName;
+            prettyName = StringUtil.PascalSpace(name);
         }
 
         #region Operators

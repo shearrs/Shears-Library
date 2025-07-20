@@ -11,6 +11,7 @@ namespace Shears.StateMachineGraphs
 
         private State initialState;
 
+        private readonly List<ParameterComparison> instanceComparisons = new();
         private readonly List<State> stateTree = new();
         private readonly List<State> swapStateTree = new();
 
@@ -46,31 +47,53 @@ namespace Shears.StateMachineGraphs
                 parameters.Add(parameter.Name, parameter);
             }
 
-            var nodeData = graphData.GetNodes();
+            var nodeData = graphData.GetStateNodes();
 
-            foreach (var node in nodeData)
+            foreach (var stateNode in nodeData)
             {
-                var state = CreateState(node);
+                var state = CreateState(stateNode);
 
-                states.Add(node.ID, state);
+                states.Add(stateNode.ID, state);
             }
 
-            foreach (var node in nodeData)
+            foreach (var stateNode in nodeData)
             {
-                CreateTransitions(node, states[node.ID]);
+                CreateTransitions(stateNode, states[stateNode.ID]);
             }
         }
 
         private Parameter CreateParameter(ParameterData data) => data.CreateParameter();
 
-        private State CreateState(GraphNodeData data)
-        {
-            return null;
-        }
+        private State CreateState(IStateNodeData data) => data.CreateStateInstance();
 
-        private void CreateTransitions(GraphNodeData nodeData, State state)
+        private void CreateTransitions(IStateNodeData data, State state)
         {
+            var transitionIDs = data.GetTransitionIDs();
+            
+            foreach (var id in transitionIDs)
+            {
+                if (!graphData.TryGetData(id, out TransitionEdgeData transitionData))
+                {
+                    Log("Could not find transition with id: " + id, SHLogLevels.Error);
+                    continue;
+                }
 
+                if (transitionData.FromID != data.ID)
+                    continue;
+
+                if (!states.TryGetValue(transitionData.ToID, out var toState))
+                {
+                    Log("Could not find target state with id: " + transitionData.ToID, SHLogLevels.Error);
+                    continue;
+                }
+
+                foreach (var comparisonData in transitionData.ComparisonData)
+                {
+                    
+                }
+
+                //var transition = new Transition(state, toState, transitionData.)
+            }
         }
 
         #region States

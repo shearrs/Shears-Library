@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -8,16 +9,19 @@ namespace Shears.StateMachineGraphs.Editor
 {
     public class StateSelector : VisualElement
     {
+        private static readonly Type STATE_TYPE = typeof(State);
         private static readonly Type EMPTY_STATE_TYPE = typeof(EmptyState);
 
         private readonly SerializedProperty stateTypeProp;
         private readonly SerializedProperty stateNameProp;
         private readonly Button button;
+        private readonly StringBuilder stringBuilder;
 
         public StateSelector(SerializedProperty stateTypeProp)
         {
             this.stateTypeProp = stateTypeProp;
-            stateNameProp = stateTypeProp.FindPropertyRelative("name");
+            stateNameProp = stateTypeProp.FindPropertyRelative("prettyName");
+            stringBuilder = new(128);
 
             AddToClassList(SMEditorUtil.StateSelectorClassName);
 
@@ -56,12 +60,31 @@ namespace Shears.StateMachineGraphs.Editor
                     if (type == EMPTY_STATE_TYPE || type.IsAbstract)
                         continue;
 
-                    if (type.IsSubclassOf(typeof(State)))
-                        menu.AddItem(new GUIContent(type.Name), false, () => SetState(type));
+                    if (type.IsSubclassOf(STATE_TYPE))
+                        menu.AddItem(new GUIContent(GetTypePath(type)), false, () => SetState(type));
                 }
             }
 
             menu.ShowAsContext();
+        }
+
+        private string GetTypePath(Type type)
+        {
+            stringBuilder.Clear();
+
+            var name = StringUtil.PascalSpace(type.Name);
+            stringBuilder.Append(name);
+
+            while (type.BaseType != null && type.BaseType != STATE_TYPE)
+            {
+                type = type.BaseType;
+                name = StringUtil.PascalSpace(type.Name);
+                
+                stringBuilder.Insert(0, StringUtil.PascalSpace(name));
+                stringBuilder.Insert(name.Length, '/');
+            }
+
+            return stringBuilder.ToString();
         }
 
         private void SetEmptyState()

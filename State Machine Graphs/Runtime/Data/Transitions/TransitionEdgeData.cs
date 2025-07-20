@@ -9,6 +9,8 @@ namespace Shears.StateMachineGraphs
     {
         [SerializeReference] private List<ParameterComparisonData> comparisonData;
 
+        public IReadOnlyList<ParameterComparisonData> ComparisonData => comparisonData;
+
         public TransitionEdgeData(ITransitionable from, ITransitionable to) : base(from.ID, to.ID)
         {
         }
