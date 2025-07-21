@@ -8,6 +8,6 @@ namespace Shears.StateMachineGraphs
         {
         }
 
-        public override bool EvaluateInternal() => parameter.Value == compareValue;
+        public override bool EvaluateInternal() => parameter.Value == CompareValue;
     }
 }

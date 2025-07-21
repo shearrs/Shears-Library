@@ -1,15 +1,19 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
     [System.Serializable]
     public abstract class State
     {
-        private readonly List<Transition> transitions = new();
+        [SerializeField, ReadOnly] private string name;
+        [SerializeField] private List<Transition> transitions = new();
+
         private State initialSubState;
         private State parentState;
         private State subState;
 
+        public string Name { get => name; set => name = value; }
         public State ParentState { get => parentState; internal set => parentState = value; }
         public State InitialSubState { get => initialSubState; internal set => initialSubState = value; }
         public State SubState { get => subState; internal set => subState = value; }

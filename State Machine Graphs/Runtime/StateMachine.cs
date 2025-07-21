@@ -1,4 +1,3 @@
-using Shears.GraphViews;
 using Shears.Logging;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,15 +6,21 @@ namespace Shears.StateMachineGraphs
 {
     public class StateMachine : SHMonoBehaviourLogger
     {
+        [Header("State Machine")]
         [SerializeField] private StateMachineGraph graphData;
+        [SerializeReference] private List<State> stateTree = new();
 
-        private State initialState;
+#if UNITY_EDITOR
+        [Header("Parameters")]
+        [SerializeReference] private List<Parameter> parameterDisplay = new();
+#endif
 
-        private readonly List<State> stateTree = new();
+        private State defaultState;
         private readonly List<State> swapStateTree = new();
 
         private readonly Dictionary<string, State> states = new();
         private readonly Dictionary<string, Parameter> parameters = new();
+        private readonly Dictionary<string, Parameter> parameterIDs = new();
 
         private void Awake()
         {
@@ -24,7 +29,7 @@ namespace Shears.StateMachineGraphs
 
         private void Start()
         {
-            SetState(initialState);
+            SetState(defaultState);
         }
 
         private void Update()
@@ -44,11 +49,16 @@ namespace Shears.StateMachineGraphs
                 var parameter = CreateParameter(parameterData);
 
                 parameters.Add(parameter.Name, parameter);
+                parameterIDs.Add(parameterData.ID, parameter);
+
+#if UNITY_EDITOR
+                parameterDisplay.Add(parameter);
+#endif
             }
 
             var nodeData = graphData.GetStateNodes();
 
-            foreach (var stateNode in nodeData)
+            foreach (var stateNode in nodeData) 
             {
                 var state = CreateState(stateNode);
 
@@ -59,11 +69,19 @@ namespace Shears.StateMachineGraphs
             {
                 CreateTransitions(stateNode, states[stateNode.ID]);
             }
+
+            defaultState = states[graphData.RootDefaultStateID];
         }
 
         private Parameter CreateParameter(ParameterData data) => data.CreateParameter();
 
-        private State CreateState(IStateNodeData data) => data.CreateStateInstance();
+        private State CreateState(IStateNodeData data)
+        {
+            var state = data.CreateStateInstance();
+            state.Name = data.Name;
+
+            return state;
+        }
 
         private void CreateTransitions(IStateNodeData data, State state)
         {
@@ -77,7 +95,7 @@ namespace Shears.StateMachineGraphs
                     continue;
                 }
 
-                if (transitionData.FromID != data.ID)
+                if (transitionData.ToID == data.ID)
                     continue;
 
                 if (!states.TryGetValue(transitionData.ToID, out var toState))
@@ -90,7 +108,7 @@ namespace Shears.StateMachineGraphs
 
                 foreach (var comparisonData in transitionData.ComparisonData)
                 {
-                    var comparison = comparisonData.CreateComparison(graphData);
+                    var comparison = comparisonData.CreateComparison(parameterIDs[comparisonData.ParameterID]);
                     comparisons.Add(comparison);
                 }
 

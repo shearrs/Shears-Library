@@ -15,8 +15,8 @@ namespace Shears.StateMachineGraphs
         {
             return compareType switch
             {
-                FloatComparisonData.CompareType.LessThan => parameter.Value < compareValue,
-                FloatComparisonData.CompareType.GreaterThan => parameter.Value > compareValue,
+                FloatComparisonData.CompareType.LessThan => parameter.Value < CompareValue,
+                FloatComparisonData.CompareType.GreaterThan => parameter.Value > CompareValue,
                 _ => false
             };
         }

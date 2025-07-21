@@ -46,6 +46,6 @@ namespace Shears.StateMachineGraphs
         protected abstract ParameterComparisonData<T> CreateTypedComparisonData();
 
         public override Parameter CreateParameter() => CreateTypedParameter();
-        protected abstract Parameter<T> CreateTypedParameter();
+        public abstract Parameter<T> CreateTypedParameter();
     }
 }

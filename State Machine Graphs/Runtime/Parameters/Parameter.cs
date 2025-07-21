@@ -2,9 +2,10 @@ using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
+    [System.Serializable]
     public abstract class Parameter
     {
-        private string name;
+        [SerializeField] private string name;
         public string Name { get => name; set => name = value; }
 
         public Parameter(ParameterData data)
@@ -13,9 +14,10 @@ namespace Shears.StateMachineGraphs
         }
     }
 
+    [System.Serializable]
     public abstract class Parameter<T> : Parameter
     {
-        private T value;
+        [SerializeField] private T value;
 
         public T Value { get => value; set => this.value = value; }
 

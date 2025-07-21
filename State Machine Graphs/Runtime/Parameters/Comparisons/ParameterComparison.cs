@@ -1,10 +1,12 @@
+using Shears.Logging;
 using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
+    [System.Serializable]
     public abstract class ParameterComparison
     {
-        private readonly Parameter parameter;
+        [SerializeReference, ReadOnly] private Parameter parameter;
 
         public ParameterComparison(Parameter parameter)
         {
@@ -14,7 +16,10 @@ namespace Shears.StateMachineGraphs
         public bool Evaluate()
         {
             if (parameter == null)
+            {
+                SHLogger.Log("Parameter is null!", SHLogLevels.Error);
                 return false;
+            }
 
             return EvaluateInternal();
         }
@@ -24,12 +29,14 @@ namespace Shears.StateMachineGraphs
 
     public abstract class ParameterComparison<T> : ParameterComparison
     {
+        [SerializeField] protected T compareValue;
         protected readonly Parameter<T> parameter;
-        protected readonly T compareValue;
+
+        protected T CompareValue => compareValue;
 
         public ParameterComparison(ParameterComparisonData<T> data, Parameter<T> parameter) : base(parameter)
         {
-            this.compareValue = data.CompareValue;
+            compareValue = data.CompareValue;
             this.parameter = parameter;
         }
     }

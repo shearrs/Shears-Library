@@ -5,6 +5,7 @@ namespace Shears.StateMachineGraphs
 {
     public interface IStateNodeData
     {
+        public string Name { get; }
         public string ID { get; }
         public string ParentID { get; }
 

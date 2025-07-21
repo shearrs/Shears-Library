@@ -1,0 +1,289 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a3251f27db25e54d8fd770aee2cc34b, type: 3}
+  m_Name: Enemy State Machine Graph
+  m_EditorClassIdentifier: 
+  position: {x: -157.6, y: 40}
+  scale: {x: 0.7, y: 0.7}
+  layers:
+  - parentName: Root
+    parentID: $ROOT
+    position: {x: 0, y: 0}
+    scale: {x: 1, y: 1}
+  graphElements:
+    rid: 8604816929202372677
+  nodeData:
+  - 8f81f7a7-b8d6-4c46-b375-1818bcf64f19
+  - 28b2ad39-678c-4ea6-9d97-30e978fa9863
+  - 3441b7b1-ef2c-4602-97d7-9fafe83a5e24
+  - 82ec002a-6e37-4783-8b5e-8f300b14ffea
+  - 4e819c50-3ef1-41b5-b5bf-cf6a70b2edc2
+  edgeData:
+  - 6d0309eb-40f4-4646-b5e0-ba93925ea39c
+  - 0affe59e-e18e-4db5-ad47-0e421dd095a7
+  - 5d9ecb7e-5a79-4a41-bd2d-f856ebeb0e13
+  - 6eb746a5-8f6d-4816-9ffb-a152c0c88189
+  - 3e4718ce-91e7-4a20-b0ed-367d9d44032b
+  - ff2e70d9-0d66-45df-8478-0a2abdaf0e1b
+  - 0e3b7972-dd25-42c9-b32f-e2143a666166
+  selection: []
+  rootNodes:
+  - 8f81f7a7-b8d6-4c46-b375-1818bcf64f19
+  - 28b2ad39-678c-4ea6-9d97-30e978fa9863
+  - 4e819c50-3ef1-41b5-b5bf-cf6a70b2edc2
+  rootDefaultStateID: 8f81f7a7-b8d6-4c46-b375-1818bcf64f19
+  parameters:
+  - b4cbe984-0476-4dac-9ce5-827a33a47221
+  - aa7553ef-d52a-4d74-aa55-bd6520dc2e9d
+  - b9f66db7-ab08-4431-ad91-34d5d4423500
+  references:
+    version: 2
+    RefIds:
+    - rid: 8604816929202372677
+      type: {class: GraphElementDictionary, ns: Shears.GraphViews, asm: Shears.GraphViews}
+      data:
+        keys:
+        - 8f81f7a7-b8d6-4c46-b375-1818bcf64f19
+        - 28b2ad39-678c-4ea6-9d97-30e978fa9863
+        - 3441b7b1-ef2c-4602-97d7-9fafe83a5e24
+        - 82ec002a-6e37-4783-8b5e-8f300b14ffea
+        - 6d0309eb-40f4-4646-b5e0-ba93925ea39c
+        - b4cbe984-0476-4dac-9ce5-827a33a47221
+        - 0affe59e-e18e-4db5-ad47-0e421dd095a7
+        - 5d9ecb7e-5a79-4a41-bd2d-f856ebeb0e13
+        - aa7553ef-d52a-4d74-aa55-bd6520dc2e9d
+        - 6eb746a5-8f6d-4816-9ffb-a152c0c88189
+        - 0e3b7972-dd25-42c9-b32f-e2143a666166
+        - b9f66db7-ab08-4431-ad91-34d5d4423500
+        - ff2e70d9-0d66-45df-8478-0a2abdaf0e1b
+        - 3e4718ce-91e7-4a20-b0ed-367d9d44032b
+        - 4e819c50-3ef1-41b5-b5bf-cf6a70b2edc2
+        values:
+        - rid: 8604816979078152264
+        - rid: 8604816979078152265
+        - rid: 8604816979078152266
+        - rid: 8604816979078152267
+        - rid: 8604816979078152268
+        - rid: 8604816979078152269
+        - rid: 8604816979078152270
+        - rid: 8604816979078152275
+        - rid: 8604816979078152276
+        - rid: 8604816979078152279
+        - rid: 8604816979078152300
+        - rid: 8604816979078152283
+        - rid: 8604816979078152297
+        - rid: 8604816979078152296
+        - rid: 8604816979078152295
+    - rid: 8604816979078152264
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 8f81f7a7-b8d6-4c46-b375-1818bcf64f19
+        name: Idle
+        position: {x: 460, y: 240}
+        edges:
+        - 5d9ecb7e-5a79-4a41-bd2d-f856ebeb0e13
+        - 6eb746a5-8f6d-4816-9ffb-a152c0c88189
+        - 3e4718ce-91e7-4a20-b0ed-367d9d44032b
+        - 0e3b7972-dd25-42c9-b32f-e2143a666166
+        parentID: $ROOT
+        stateType:
+          name: EmptyState
+          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          prettyName: Empty State
+    - rid: 8604816979078152265
+      type: {class: StateMachineNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 28b2ad39-678c-4ea6-9d97-30e978fa9863
+        name: Locomotion
+        position: {x: 900, y: 240}
+        edges:
+        - 5d9ecb7e-5a79-4a41-bd2d-f856ebeb0e13
+        - 6eb746a5-8f6d-4816-9ffb-a152c0c88189
+        - ff2e70d9-0d66-45df-8478-0a2abdaf0e1b
+        parentID: $ROOT
+        subNodeIDs:
+        - 3441b7b1-ef2c-4602-97d7-9fafe83a5e24
+        - 82ec002a-6e37-4783-8b5e-8f300b14ffea
+        defaultStateID: 3441b7b1-ef2c-4602-97d7-9fafe83a5e24
+        stateType:
+          name: EmptyState
+          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          prettyName: Empty State
+    - rid: 8604816979078152266
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 3441b7b1-ef2c-4602-97d7-9fafe83a5e24
+        name: Walk
+        position: {x: 420, y: 220}
+        edges:
+        - 6d0309eb-40f4-4646-b5e0-ba93925ea39c
+        - 0affe59e-e18e-4db5-ad47-0e421dd095a7
+        parentID: 28b2ad39-678c-4ea6-9d97-30e978fa9863
+        stateType:
+          name: EmptyState
+          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          prettyName: Empty State
+    - rid: 8604816979078152267
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 82ec002a-6e37-4783-8b5e-8f300b14ffea
+        name: Run
+        position: {x: 900, y: 220}
+        edges:
+        - 6d0309eb-40f4-4646-b5e0-ba93925ea39c
+        - 0affe59e-e18e-4db5-ad47-0e421dd095a7
+        parentID: 28b2ad39-678c-4ea6-9d97-30e978fa9863
+        stateType:
+          name: EmptyState
+          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          prettyName: Empty State
+    - rid: 8604816979078152268
+      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 6d0309eb-40f4-4646-b5e0-ba93925ea39c
+        fromID: 3441b7b1-ef2c-4602-97d7-9fafe83a5e24
+        toID: 82ec002a-6e37-4783-8b5e-8f300b14ffea
+        comparisonData:
+        - rid: 8604816979078152272
+    - rid: 8604816979078152269
+      type: {class: BoolParameterData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: b4cbe984-0476-4dac-9ce5-827a33a47221
+        name: isRunning
+        value: 0
+    - rid: 8604816979078152270
+      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 0affe59e-e18e-4db5-ad47-0e421dd095a7
+        fromID: 82ec002a-6e37-4783-8b5e-8f300b14ffea
+        toID: 3441b7b1-ef2c-4602-97d7-9fafe83a5e24
+        comparisonData:
+        - rid: 8604816979078152274
+    - rid: 8604816979078152272
+      type: {class: BoolComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        parameterID: b4cbe984-0476-4dac-9ce5-827a33a47221
+        compareValue: 0
+    - rid: 8604816979078152274
+      type: {class: BoolComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        parameterID: b4cbe984-0476-4dac-9ce5-827a33a47221
+        compareValue: 0
+    - rid: 8604816979078152275
+      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 5d9ecb7e-5a79-4a41-bd2d-f856ebeb0e13
+        fromID: 8f81f7a7-b8d6-4c46-b375-1818bcf64f19
+        toID: 28b2ad39-678c-4ea6-9d97-30e978fa9863
+        comparisonData:
+        - rid: 8604816979078152278
+    - rid: 8604816979078152276
+      type: {class: FloatParameterData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: aa7553ef-d52a-4d74-aa55-bd6520dc2e9d
+        name: moveAmount
+        value: 0
+    - rid: 8604816979078152278
+      type: {class: FloatComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        parameterID: aa7553ef-d52a-4d74-aa55-bd6520dc2e9d
+        compareValue: 0.1
+        compareType: 1
+    - rid: 8604816979078152279
+      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 6eb746a5-8f6d-4816-9ffb-a152c0c88189
+        fromID: 28b2ad39-678c-4ea6-9d97-30e978fa9863
+        toID: 8f81f7a7-b8d6-4c46-b375-1818bcf64f19
+        comparisonData:
+        - rid: 8604816979078152281
+    - rid: 8604816979078152281
+      type: {class: FloatComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        parameterID: aa7553ef-d52a-4d74-aa55-bd6520dc2e9d
+        compareValue: 0.1
+        compareType: 0
+    - rid: 8604816979078152283
+      type: {class: BoolParameterData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: b9f66db7-ab08-4431-ad91-34d5d4423500
+        name: isDead
+        value: 0
+    - rid: 8604816979078152295
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 4e819c50-3ef1-41b5-b5bf-cf6a70b2edc2
+        name: Dead
+        position: {x: 680, y: 500}
+        edges:
+        - 3e4718ce-91e7-4a20-b0ed-367d9d44032b
+        - ff2e70d9-0d66-45df-8478-0a2abdaf0e1b
+        - 0e3b7972-dd25-42c9-b32f-e2143a666166
+        parentID: $ROOT
+        stateType:
+          name: EmptyState
+          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          prettyName: Empty State
+    - rid: 8604816979078152296
+      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 3e4718ce-91e7-4a20-b0ed-367d9d44032b
+        fromID: 8f81f7a7-b8d6-4c46-b375-1818bcf64f19
+        toID: 4e819c50-3ef1-41b5-b5bf-cf6a70b2edc2
+        comparisonData:
+        - rid: 8604816979078152302
+    - rid: 8604816979078152297
+      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: ff2e70d9-0d66-45df-8478-0a2abdaf0e1b
+        fromID: 28b2ad39-678c-4ea6-9d97-30e978fa9863
+        toID: 4e819c50-3ef1-41b5-b5bf-cf6a70b2edc2
+        comparisonData:
+        - rid: 8604816979759726956
+    - rid: 8604816979078152300
+      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 0e3b7972-dd25-42c9-b32f-e2143a666166
+        fromID: 4e819c50-3ef1-41b5-b5bf-cf6a70b2edc2
+        toID: 8f81f7a7-b8d6-4c46-b375-1818bcf64f19
+        comparisonData:
+        - rid: 8604816979078152304
+    - rid: 8604816979078152302
+      type: {class: BoolComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        parameterID: b9f66db7-ab08-4431-ad91-34d5d4423500
+        compareValue: 1
+    - rid: 8604816979078152304
+      type: {class: BoolComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        parameterID: b9f66db7-ab08-4431-ad91-34d5d4423500
+        compareValue: 0
+    - rid: 8604816979759726956
+      type: {class: BoolComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        parameterID: b9f66db7-ab08-4431-ad91-34d5d4423500
+        compareValue: 1

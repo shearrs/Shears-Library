@@ -8,6 +8,6 @@ namespace Shears.StateMachineGraphs
 
         protected override ParameterComparisonData<bool> CreateTypedComparisonData() => new BoolComparisonData(this);
 
-        protected override Parameter<bool> CreateTypedParameter() => new BoolParameter(this);
+        public override Parameter<bool> CreateTypedParameter() => new BoolParameter(this);
     }
 }

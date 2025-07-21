@@ -19,7 +19,7 @@ namespace Shears.StateMachineGraphs
             parameterID = parameter.ID;
         }
 
-        public abstract ParameterComparison CreateComparison(StateMachineGraph graphData);
+        public abstract ParameterComparison CreateComparison(Parameter parameter);
     }
 
     [System.Serializable]
@@ -33,14 +33,9 @@ namespace Shears.StateMachineGraphs
         {
         }
 
-        public override ParameterComparison CreateComparison(StateMachineGraph graphData)
+        public override ParameterComparison CreateComparison(Parameter parameter)
         {
-            if (!graphData.TryGetData<ParameterData>(ParameterID, out var parameter))
-            {
-                SHLogger.Log("Could not find parameter with ID: " + ParameterID, SHLogLevels.Error);
-                return null;
-            }
-            else if (parameter is not Parameter<T> typedParameter)
+            if (parameter is not Parameter<T> typedParameter)
             {
                 SHLogger.Log($"Parameter {parameter.Name} is not of type {typeof(T).Name}!", SHLogLevels.Error);
                 return null;
