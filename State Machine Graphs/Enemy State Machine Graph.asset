@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a3251f27db25e54d8fd770aee2cc34b, type: 3}
   m_Name: Enemy State Machine Graph
   m_EditorClassIdentifier: 
-  position: {x: -157.6, y: 40}
-  scale: {x: 0.7, y: 0.7}
+  position: {x: -239.2, y: -59.2}
+  scale: {x: 1, y: 1}
   layers:
   - parentName: Root
     parentID: $ROOT
@@ -27,6 +27,7 @@ MonoBehaviour:
   - 3441b7b1-ef2c-4602-97d7-9fafe83a5e24
   - 82ec002a-6e37-4783-8b5e-8f300b14ffea
   - 4e819c50-3ef1-41b5-b5bf-cf6a70b2edc2
+  - f23a6ed7-add1-4206-b497-4e5ec097df87
   edgeData:
   - 6d0309eb-40f4-4646-b5e0-ba93925ea39c
   - 0affe59e-e18e-4db5-ad47-0e421dd095a7
@@ -40,6 +41,7 @@ MonoBehaviour:
   - 8f81f7a7-b8d6-4c46-b375-1818bcf64f19
   - 28b2ad39-678c-4ea6-9d97-30e978fa9863
   - 4e819c50-3ef1-41b5-b5bf-cf6a70b2edc2
+  - f23a6ed7-add1-4206-b497-4e5ec097df87
   rootDefaultStateID: 8f81f7a7-b8d6-4c46-b375-1818bcf64f19
   parameters:
   - b4cbe984-0476-4dac-9ce5-827a33a47221
@@ -67,6 +69,7 @@ MonoBehaviour:
         - ff2e70d9-0d66-45df-8478-0a2abdaf0e1b
         - 3e4718ce-91e7-4a20-b0ed-367d9d44032b
         - 4e819c50-3ef1-41b5-b5bf-cf6a70b2edc2
+        - f23a6ed7-add1-4206-b497-4e5ec097df87
         values:
         - rid: 8604816979078152264
         - rid: 8604816979078152265
@@ -83,6 +86,7 @@ MonoBehaviour:
         - rid: 8604816979078152297
         - rid: 8604816979078152296
         - rid: 8604816979078152295
+        - rid: 8604816979759727005
     - rid: 8604816979078152264
       type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
@@ -287,3 +291,12 @@ MonoBehaviour:
       data:
         parameterID: b9f66db7-ab08-4431-ad91-34d5d4423500
         compareValue: 1
+    - rid: 8604816979759727005
+      type: {class: ExternalStateMachineNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: f23a6ed7-add1-4206-b497-4e5ec097df87
+        name: New External State Machine
+        position: {x: 380, y: 60}
+        edges: []
+        parentID: $ROOT
+        externalGraphData: {fileID: 0}

@@ -52,6 +52,8 @@ namespace Shears.GraphViews
             }
         }
 
+        public static bool IsRootID(string id) => id == ROOT_ID;
+
         public readonly bool IsRoot() => parentID == ROOT_ID;
     }
 }

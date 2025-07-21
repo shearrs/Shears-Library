@@ -28,13 +28,19 @@ namespace Shears.StateMachineGraphs
                 {
                     var activeNodes = GetActiveNodes();
 
+                    if (activeNodes.Count == 0)
+                    {
+                        SetLayerDefault(null);
+                        return;
+                    }
+
                     foreach (var node in activeNodes)
                     {
                         if (node is IStateNodeData activeStateNode)
                             SetLayerDefault(activeStateNode);
                     }
                 }
-                if (element is ParameterData parameterData)
+                else if (element is ParameterData parameterData)
                     RemoveParameter(parameterData);
             }
         }
@@ -42,9 +48,15 @@ namespace Shears.StateMachineGraphs
         #region States
         public void SetLayerDefault(IStateNodeData stateNodeData)
         {
-            if (stateNodeData.ParentID == GraphLayer.ROOT_ID)
+            if (stateNodeData == null)
             {
-                if (rootDefaultStateID != string.Empty)
+                rootDefaultStateID = string.Empty;
+                return;
+            }
+
+            if (GraphLayer.IsRootID(stateNodeData.ParentID))
+            {
+                if (!string.IsNullOrEmpty(rootDefaultStateID))
                 {
                     if (TryGetData(rootDefaultStateID, out GraphNodeData defaultNode) && defaultNode is IStateNodeData defaultState)
                         defaultState.OnRemoveLayerDefault();
@@ -55,7 +67,7 @@ namespace Shears.StateMachineGraphs
             }
             else if (TryGetData(stateNodeData.ParentID, out StateMachineNodeData stateMachineData))
             {
-                if (stateMachineData.DefaultStateID != string.Empty)
+                if (!string.IsNullOrEmpty(stateMachineData.DefaultStateID))
                 {
                     if (TryGetData(stateMachineData.DefaultStateID, out GraphNodeData defaultNode) && defaultNode is IStateNodeData defaultState)
                         defaultState.OnRemoveLayerDefault();
@@ -92,7 +104,7 @@ namespace Shears.StateMachineGraphs
 
             AddNodeData(nodeData);
 
-            if (rootDefaultStateID == string.Empty)
+            if (IsDefaultAvailable(nodeData))
                 SetLayerDefault(nodeData);
 
             return nodeData;
@@ -108,7 +120,7 @@ namespace Shears.StateMachineGraphs
 
             AddNodeData(nodeData);
 
-            if (rootDefaultStateID == string.Empty)
+            if (IsDefaultAvailable(nodeData))
                 SetLayerDefault(nodeData);
 
             return nodeData;
@@ -125,6 +137,23 @@ namespace Shears.StateMachineGraphs
             AddNodeData(nodeData);
 
             return nodeData;
+        }
+
+        private bool IsDefaultAvailable(IStateNodeData stateNode)
+        {
+            // if state has a parent...
+            if (!GraphLayer.IsRootID(stateNode.ParentID))
+            {
+                if (!TryGetData(stateNode.ParentID, out StateMachineNodeData stateMachine))
+                {
+                    SHLogger.Log("Could not find parent with ID: " + stateNode.ParentID);
+                    return false;
+                }
+
+                return string.IsNullOrEmpty(stateMachine.DefaultStateID) || !TryGetData<GraphNodeData>(stateMachine.DefaultStateID, out _);
+            }
+
+            return string.IsNullOrEmpty(rootDefaultStateID) || !TryGetData<GraphNodeData>(rootDefaultStateID, out _);
         }
         #endregion
 
