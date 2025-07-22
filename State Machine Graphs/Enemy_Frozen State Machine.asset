@@ -22,14 +22,12 @@ MonoBehaviour:
   graphElements:
     rid: 8604816979759727006
   nodeData:
-  - 950ca714-423d-432b-8dcd-b40f0f95bb48
-  - 2e8f3376-a889-4641-976e-635acd4bce6d
+  - 24f1e58b-2fbe-4294-a26c-3161669f56f1
   edgeData: []
   selection: []
   rootNodes:
-  - 950ca714-423d-432b-8dcd-b40f0f95bb48
-  - 2e8f3376-a889-4641-976e-635acd4bce6d
-  rootDefaultStateID: 950ca714-423d-432b-8dcd-b40f0f95bb48
+  - 24f1e58b-2fbe-4294-a26c-3161669f56f1
+  rootDefaultStateID: 24f1e58b-2fbe-4294-a26c-3161669f56f1
   parameters: []
   references:
     version: 2
@@ -38,32 +36,15 @@ MonoBehaviour:
       type: {class: GraphElementDictionary, ns: Shears.GraphViews, asm: Shears.GraphViews}
       data:
         keys:
-        - 950ca714-423d-432b-8dcd-b40f0f95bb48
-        - 2e8f3376-a889-4641-976e-635acd4bce6d
+        - 24f1e58b-2fbe-4294-a26c-3161669f56f1
         values:
-        - rid: 8604816979759727032
-        - rid: 8604816979759727033
-    - rid: 8604816979759727032
+        - rid: 8604816979759727134
+    - rid: 8604816979759727134
       type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
-        id: 950ca714-423d-432b-8dcd-b40f0f95bb48
+        id: 24f1e58b-2fbe-4294-a26c-3161669f56f1
         name: New State
-        position: {x: 540, y: -60}
-        edges: []
-        parentID: $ROOT
-        stateType:
-          name: EmptyState
-          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
-            PublicKeyToken=null
-          prettyName: Empty State
-    - rid: 8604816979759727033
-      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 2e8f3376-a889-4641-976e-635acd4bce6d
-        name: New State
-        position: {x: 860, y: -60}
+        position: {x: 600, y: 20}
         edges: []
         parentID: $ROOT
         stateType:

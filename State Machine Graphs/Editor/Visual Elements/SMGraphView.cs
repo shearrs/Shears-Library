@@ -104,10 +104,12 @@ namespace Shears.StateMachineGraphs.Editor
 
             Vector2 mousePos = target.ChangeCoordinatesTo(ContentViewContainer, evt.localMousePosition);
 
-            if (graphData.SelectionCount == 1 && GetSelection()[0] is IStateNode node)
+            if (graphData.SelectionCount == 1 && GetSelection()[0] is IEdgeAnchorable anchorable)
             {
-                evt.menu.AppendAction("Create Transition", (action) => BeginPlacingEdge(node, TryCreateTransition));
-                evt.menu.AppendAction("Set as Layer Default State", (action) => SetAsLayerDefault(node));
+                evt.menu.AppendAction("Create Transition", (action) => BeginPlacingEdge(anchorable, TryCreateTransition));
+
+                if (GetSelection()[0] is IStateNode node)
+                    evt.menu.AppendAction("Set as Layer Default State", (action) => SetAsLayerDefault(node));
             }
             evt.menu.AppendAction("Create State Node", (action) => CreateStateNode(mousePos));
             evt.menu.AppendAction("Create State Machine Node", (action) => CreateStateMachineNode(mousePos));

@@ -25,9 +25,8 @@ namespace Shears.GraphViews
         public void RemoveSubNode(GraphNodeData data)
         {
             subNodeIDs.Remove(data.ID);
-            data.SetParent(null);
 
-            SubNodeAdded?.Invoke(data.ID);
+            SubNodeRemoved?.Invoke(data.ID);
         }
     }
 }

@@ -24,12 +24,13 @@ namespace Shears.StateMachineGraphs
         {
             foreach (var element in selection)
             {
-                if (element is IStateNodeData stateNodeData && stateNodeData.ID == rootDefaultStateID)
+                if (element is IStateNodeData stateNodeData && IsLayerDefault(stateNodeData))
                 {
                     var activeNodes = GetActiveNodes();
 
                     if (activeNodes.Count == 0)
                     {
+                        Debug.Log("set null");
                         SetLayerDefault(null);
                         return;
                     }
@@ -37,7 +38,11 @@ namespace Shears.StateMachineGraphs
                     foreach (var node in activeNodes)
                     {
                         if (node is IStateNodeData activeStateNode)
+                        {
                             SetLayerDefault(activeStateNode);
+
+                            break;
+                        }
                     }
                 }
                 else if (element is ParameterData parameterData)
@@ -137,6 +142,23 @@ namespace Shears.StateMachineGraphs
             AddNodeData(nodeData);
 
             return nodeData;
+        }
+
+        // TODO: this is also currently being duplicated in StateMachineNodeData...
+        private bool IsLayerDefault(IStateNodeData stateNode)
+        {
+            if (GraphLayer.IsRootID(stateNode.ParentID))
+            {
+                return stateNode.ID == rootDefaultStateID;
+            }
+
+            if (!TryGetData(stateNode.ParentID, out StateMachineNodeData stateMachine))
+            {
+                SHLogger.Log("Could not find parent with ID: " + stateNode.ParentID);
+                return false;
+            }
+
+            return stateNode.ID == stateMachine.DefaultStateID;
         }
 
         private bool IsDefaultAvailable(IStateNodeData stateNode)

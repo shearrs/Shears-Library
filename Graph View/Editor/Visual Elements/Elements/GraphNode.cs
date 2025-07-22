@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Shears.GraphViews.Editor
@@ -12,13 +13,6 @@ namespace Shears.GraphViews.Editor
         string IEdgeAnchorable.ID => data.ID;
         GraphElement IEdgeAnchorable.Element => this;
 
-        // pass the graphData
-        // get elements prop
-        // get name prop
-        // bind to name prop
-        // track property value of elements prop
-        // on change, rebind name prop
-
         protected GraphNode(GraphNodeData data, GraphView graphView, GraphData graphData)
         {
             this.data = data;
@@ -26,7 +20,6 @@ namespace Shears.GraphViews.Editor
 
             AddToClassList(GraphViewEditorUtil.GraphNodeClassName);
 
-            // every time the elements list changes, these need to update their name bindings
             var graphSO = new SerializedObject(graphData);
             var elementsProp = graphSO.FindProperty("graphElements").FindPropertyRelative("values");
 
@@ -39,6 +32,7 @@ namespace Shears.GraphViews.Editor
             void rebind(SerializedProperty prop)
             {
                 var nameProp = GraphViewEditorUtil.GetElementProp(graphData, data.ID).FindPropertyRelative("name");
+                Debug.Log("rebind");
 
                 nameLabel.Unbind();
                 nameLabel.BindProperty(nameProp);

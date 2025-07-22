@@ -4,7 +4,7 @@ using UnityEditor;
 
 namespace Shears.StateMachineGraphs.Editor
 {
-    public class ExternalStateMachineNode : GraphNode
+    public class ExternalStateMachineNode : GraphNode, IEdgeAnchorable
     {
         public ExternalStateMachineNode(ExternalStateMachineNodeData data, GraphView graphView, GraphData graphData) : base(data, graphView, graphData)
         {

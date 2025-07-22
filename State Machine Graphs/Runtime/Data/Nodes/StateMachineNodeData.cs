@@ -36,11 +36,11 @@ namespace Shears.StateMachineGraphs
 
         private void OnSubNodeRemoved(string id)
         {
-            if (id != defaultStateID)
-                return;
+            //if (id != defaultStateID)
+            //    return;
 
-            if (SubNodeIDs.Count > 0)
-                defaultStateID = SubNodeIDs[0];
+            //if (SubNodeIDs.Count > 0)
+            //    defaultStateID = SubNodeIDs[0];
         }
 
         void IStateNodeData.OnSetAsLayerDefault() => SetAsLayerDefault?.Invoke();
