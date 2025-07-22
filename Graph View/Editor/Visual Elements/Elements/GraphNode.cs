@@ -32,10 +32,10 @@ namespace Shears.GraphViews.Editor
             void rebind(SerializedProperty prop)
             {
                 var nameProp = GraphViewEditorUtil.GetElementProp(graphData, data.ID).FindPropertyRelative("name");
-                Debug.Log("rebind");
 
                 nameLabel.Unbind();
                 nameLabel.BindProperty(nameProp);
+                nameLabel.TrackPropertyValue(prop, rebind);
             }
 
             nameLabel.BindProperty(nameProp);

@@ -30,7 +30,6 @@ namespace Shears.StateMachineGraphs
 
                     if (activeNodes.Count == 0)
                     {
-                        Debug.Log("set null");
                         SetLayerDefault(null);
                         return;
                     }
@@ -144,7 +143,6 @@ namespace Shears.StateMachineGraphs
             return nodeData;
         }
 
-        // TODO: this is also currently being duplicated in StateMachineNodeData...
         private bool IsLayerDefault(IStateNodeData stateNode)
         {
             if (GraphLayer.IsRootID(stateNode.ParentID))

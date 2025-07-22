@@ -39,6 +39,7 @@ namespace Shears.GraphViews
         public event Action<GraphEdgeData> EdgeDataRemoved;
         #endregion
 
+        #region Element Data
         protected void AddGraphElementData(GraphElementData data)
         {
             graphElements.Add(data.ID, data);
@@ -59,6 +60,7 @@ namespace Shears.GraphViews
             data = (GraphElementType)elementData;
             return data != null;
         }
+        #endregion
 
         #region Editor Validation
         public void Reset()

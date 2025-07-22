@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a3251f27db25e54d8fd770aee2cc34b, type: 3}
   m_Name: Enemy Movement Graph
   m_EditorClassIdentifier: 
-  position: {x: 76, y: 15.2}
-  scale: {x: 0.94, y: 0.94}
+  position: {x: 127.2, y: 32.8}
+  scale: {x: 0.88, y: 0.88}
   layers:
   - parentName: Root
     parentID: $ROOT
@@ -33,6 +33,7 @@ MonoBehaviour:
   rootDefaultStateID: 2498546f-34b8-4f1e-b905-f052a7391c7c
   parameters:
   - b4cbe984-0476-4dac-9ce5-827a33a47221
+  - 58731721-79c0-49f7-ac2f-2933a85de4e0
   references:
     version: 2
     RefIds:
@@ -44,11 +45,13 @@ MonoBehaviour:
         - c6a4d043-417a-42a8-ba63-74815463323c
         - 2498546f-34b8-4f1e-b905-f052a7391c7c
         - 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
+        - 58731721-79c0-49f7-ac2f-2933a85de4e0
         values:
         - rid: 8604816979078152269
         - rid: 8604816979759727169
         - rid: 8604816979759727167
         - rid: 8604816979759727168
+        - rid: 8604816979759727175
     - rid: 8604816979078152269
       type: {class: BoolParameterData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
@@ -83,12 +86,11 @@ MonoBehaviour:
         subNodeIDs: []
         defaultStateID: 
         stateType:
-          name: EmptyState
-          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+          name: EnemyMovementState
+          assemblyQualifiedName: SoulTower.Enemies.EnemyMovementState, SoulTower.Enemies,
             Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
-            PublicKeyToken=null
-          prettyName: Empty State
+          assemblyName: SoulTower.Enemies, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          prettyName: Enemy Movement State
     - rid: 8604816979759727169
       type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
@@ -96,3 +98,9 @@ MonoBehaviour:
         fromID: 2498546f-34b8-4f1e-b905-f052a7391c7c
         toID: 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
         comparisonData: []
+    - rid: 8604816979759727175
+      type: {class: FloatParameterData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 58731721-79c0-49f7-ac2f-2933a85de4e0
+        name: moveAmount
+        value: 0
