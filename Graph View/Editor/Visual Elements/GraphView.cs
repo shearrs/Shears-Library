@@ -262,6 +262,8 @@ namespace Shears.GraphViews.Editor
                 FocusCamera(GetSelection());
             else if (evt.keyCode == KeyCode.A)
                 FocusCamera(nodes.Values);
+            else if (hasSelection && evt.keyCode == KeyCode.Return)
+                TryOpenSelection();
         }
 
         protected void DeleteSelection()
@@ -301,6 +303,17 @@ namespace Shears.GraphViews.Editor
 
             UpdateViewTransform(averagePosition, ViewTransform.scale);
             SaveViewTransform();
+        }
+        
+        private void TryOpenSelection()
+        {
+            var selection = GetSelection();
+
+            if (selection.Count > 1)
+                return;
+
+            if (selection[0] is GraphMultiNode multiNode)
+                graphData.OpenLayer(new(multiNode.Data));
         }
         #endregion
 

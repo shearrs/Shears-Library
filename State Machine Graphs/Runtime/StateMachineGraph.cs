@@ -50,6 +50,19 @@ namespace Shears.StateMachineGraphs
         }
 
         #region States
+        public bool IsLayerDefault(IStateNodeData stateNode)
+        {
+            if (stateNode.ParentID == GraphLayer.ROOT_ID)
+                return stateNode.ID == RootDefaultStateID;
+            else if (TryGetData(stateNode.ParentID, out StateMachineNodeData stateMachineData))
+                return stateMachineData.DefaultStateID == stateNode.ID;
+            else
+            {
+                SHLogger.Log("Could not find parent with ID: " + stateNode.ParentID, SHLogLevels.Error);
+                return false;
+            }
+        }
+
         public void SetLayerDefault(IStateNodeData stateNodeData)
         {
             if (stateNodeData == null)
@@ -141,22 +154,6 @@ namespace Shears.StateMachineGraphs
             AddNodeData(nodeData);
 
             return nodeData;
-        }
-
-        private bool IsLayerDefault(IStateNodeData stateNode)
-        {
-            if (GraphLayer.IsRootID(stateNode.ParentID))
-            {
-                return stateNode.ID == rootDefaultStateID;
-            }
-
-            if (!TryGetData(stateNode.ParentID, out StateMachineNodeData stateMachine))
-            {
-                SHLogger.Log("Could not find parent with ID: " + stateNode.ParentID);
-                return false;
-            }
-
-            return stateNode.ID == stateMachine.DefaultStateID;
         }
 
         private bool IsDefaultAvailable(IStateNodeData stateNode)

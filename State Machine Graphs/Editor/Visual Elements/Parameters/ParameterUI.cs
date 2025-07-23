@@ -116,6 +116,7 @@ namespace Shears.StateMachineGraphs.Editor
 
         public void RenameParameter()
         {
+            graphData.Select(parameterData);
             editableLabel.BeginEditing();
         }
 

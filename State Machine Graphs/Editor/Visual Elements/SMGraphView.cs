@@ -118,18 +118,7 @@ namespace Shears.StateMachineGraphs.Editor
         }
         #endregion
 
-        public bool IsLayerDefault(IStateNodeData nodeData)
-        {
-            if (nodeData.ParentID == GraphLayer.ROOT_ID)
-                return nodeData.ID == graphData.RootDefaultStateID;
-            else if (graphData.TryGetData(nodeData.ParentID, out StateMachineNodeData stateMachineData))
-                return stateMachineData.DefaultStateID == nodeData.ID;
-            else
-            {
-                SHLogger.Log("Could not find parent with ID: " +  nodeData.ParentID, SHLogLevels.Error);
-                return false;
-            }
-        }
+        public bool IsLayerDefault(IStateNodeData nodeData) => graphData.IsLayerDefault(nodeData);
 
         private void SetAsLayerDefault(IStateNode node)
         {

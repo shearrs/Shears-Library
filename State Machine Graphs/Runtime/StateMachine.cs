@@ -1,3 +1,4 @@
+using Shears.GraphViews;
 using Shears.Logging;
 using System.Collections.Generic;
 using UnityEngine;
@@ -63,6 +64,25 @@ namespace Shears.StateMachineGraphs
                 var state = CreateState(stateNode);
 
                 states.Add(stateNode.ID, state);
+            }
+
+            foreach (var stateNode in nodeData)
+            {
+                if (GraphLayer.IsRootID(stateNode.ParentID))
+                {
+                    if (graphData.IsLayerDefault(stateNode))
+                        defaultState = states[stateNode.ID];
+
+                    continue;
+                }
+
+                var state = states[stateNode.ID];
+                var parent = states[stateNode.ParentID];
+
+                state.ParentState = parent;
+
+                if (graphData.IsLayerDefault(stateNode))
+                    parent.DefaultSubState = state;
             }
 
             foreach (var stateNode in nodeData)
@@ -194,7 +214,7 @@ namespace Shears.StateMachineGraphs
                 }
             }
 
-            State currentSubState = newStateTree[^1].InitialSubState;
+            State currentSubState = newStateTree[^1].DefaultSubState;
 
             while (currentSubState != null && !stateTree.Contains(currentSubState))
             {
@@ -202,7 +222,7 @@ namespace Shears.StateMachineGraphs
                 currentSubState.Enter();
 
                 currentSubState.ParentState.SetSubState(currentSubState);
-                currentSubState = currentSubState.InitialSubState;
+                currentSubState = currentSubState.DefaultSubState;
             }
         }
         #endregion 
