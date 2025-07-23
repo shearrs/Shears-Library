@@ -8,7 +8,7 @@ namespace Shears.StateMachineGraphs.Editor
 {
     public class SMParameterBar : VisualElement
     {
-        private readonly Dictionary<ParameterData, ParameterUI> parameterUIs = new();
+        private readonly Dictionary<string, ParameterUI> parameterUIs = new();
         private readonly List<ParameterData> instanceParameters = new();
         private readonly ContentSelector contentSelector;
 
@@ -22,6 +22,8 @@ namespace Shears.StateMachineGraphs.Editor
 
         private readonly Color resizeDefaultColor = new(.251f, .251f, .251f);
         private readonly Color resizeHighlightColor = new(.4f, .4f, .4f);
+
+        public IReadOnlyDictionary<string, ParameterUI> ParameterUIs => parameterUIs;
 
         public SMParameterBar(SMGraphView graphView, StateMachineGraph graphData)
         {
@@ -141,11 +143,8 @@ namespace Shears.StateMachineGraphs.Editor
 
         public void Reload()
         {
-            instanceParameters.Clear();
-            instanceParameters.AddRange(parameterUIs.Keys);
-
-            foreach (var parameter in instanceParameters)
-                RemoveParameterUI(parameter);
+            foreach (var parameterID in parameterUIs.Keys)
+                RemoveParameterUI(parameterID);
 
             LoadParameters();
         }
@@ -232,18 +231,19 @@ namespace Shears.StateMachineGraphs.Editor
             var parameterUI = new ParameterUI(parameterData, graphData);
 
             parametersPanel.Add(parameterUI);
-            parameterUIs.Add(parameterData, parameterUI);
+            parameterUIs.Add(parameterData.ID, parameterUI);
 
             if (renameByDefault)
                 parameterUI.RenameParameter();
         }
 
-        private void RemoveParameterUI(ParameterData parameterData)
+        private void RemoveParameterUI(ParameterData parameterData) => RemoveParameterUI(parameterData.ID);
+        private void RemoveParameterUI(string parameterID)
         {
-            if (!parameterUIs.TryGetValue(parameterData, out var parameterUI))
+            if (!parameterUIs.TryGetValue(parameterID, out var parameterUI))
                 return;
 
-            parameterUIs.Remove(parameterData);
+            parameterUIs.Remove(parameterID);
             parametersPanel.Remove(parameterUI);
         }
     }

@@ -254,16 +254,16 @@ namespace Shears.GraphViews.Editor
             if (graphData == null)
                 return;
 
-            bool hasSelection = graphData.GetSelection().Count > 0;
+            bool hasSelection = GetSelection().Count > 0;
 
             if (hasSelection && evt.keyCode == KeyCode.Delete)
                 DeleteSelection();
             else if (hasSelection && evt.keyCode == KeyCode.F)
                 FocusCamera(GetSelection());
-            else if (evt.keyCode == KeyCode.A)
-                FocusCamera(nodes.Values);
             else if (hasSelection && evt.keyCode == KeyCode.Return)
                 TryOpenSelection();
+            else if (evt.keyCode == KeyCode.A)
+                FocusCamera(nodes.Values);
         }
 
         protected void DeleteSelection()
@@ -309,7 +309,7 @@ namespace Shears.GraphViews.Editor
         {
             var selection = GetSelection();
 
-            if (selection.Count > 1)
+            if (selection.Count != 1)
                 return;
 
             if (selection[0] is GraphMultiNode multiNode)
@@ -553,8 +553,15 @@ namespace Shears.GraphViews.Editor
                     instanceSelection.Add(edge);
             }
 
+            var extraSelection = GetExtraSelection();
+
+            if (extraSelection != null)
+                instanceSelection.AddRange(extraSelection);
+
             return instanceSelection;
         }
+
+        protected virtual IReadOnlyList<ISelectable> GetExtraSelection() => null;
         #endregion
     }
 }

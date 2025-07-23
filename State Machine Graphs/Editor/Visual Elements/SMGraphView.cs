@@ -2,6 +2,7 @@ using Shears.GraphViews;
 using Shears.GraphViews.Editor;
 using Shears.Logging;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -11,6 +12,7 @@ namespace Shears.StateMachineGraphs.Editor
     {
         private readonly SMGraphNodeManager nodeManager;
         private readonly ContextualMenuManipulator contextMenu;
+        private readonly List<ISelectable> instanceSelection = new();
         private StateMachineGraph graphData;
         private SMToolbar toolbar;
         private SMParameterBar parameterBar;
@@ -28,11 +30,32 @@ namespace Shears.StateMachineGraphs.Editor
             GraphDataSet += OnGraphDataSet;
             GraphDataCleared += OnGraphDataCleared;
             GraphViewEditorUtil.UndoRedoEvent += OnUndoRedo;
+            RegisterCallback<KeyDownEvent>(OnKeyDown);
         }
 
         private void OnUndoRedo()
         {
             parameterBar.Reload();
+        }
+
+        private void OnKeyDown(KeyDownEvent evt)
+        {
+            bool hasSelection = GetSelection().Count > 0;
+
+
+            if (hasSelection && evt.keyCode == KeyCode.F2)
+                TryRenameSelection();
+        }
+
+        private void TryRenameSelection()
+        {
+            var selection = GetSelection();
+
+            if (selection.Count != 1)
+                return;
+
+            if (selection[0] is ParameterUI parameter)
+                parameter.RenameParameter();
         }
 
         #region Initialization
@@ -197,6 +220,20 @@ namespace Shears.StateMachineGraphs.Editor
             var edge = new TransitionEdge(transitionData, from, to);
 
             return edge;
+        }
+
+        protected override IReadOnlyList<ISelectable> GetExtraSelection()
+        {
+            var selectionData = graphData.GetSelection();
+            instanceSelection.Clear();
+
+            foreach (var data in selectionData)
+            {
+                if (data is ParameterData)
+                    instanceSelection.Add(parameterBar.ParameterUIs[data.ID]);
+            }
+
+            return instanceSelection;
         }
     }
 }
