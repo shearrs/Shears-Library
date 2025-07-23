@@ -1,7 +1,6 @@
 using Shears.GraphViews;
 using Shears.GraphViews.Editor;
 using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -44,7 +43,8 @@ namespace Shears.StateMachineGraphs.Editor
             };
 
             editableLabel.AddToClassList(SMEditorUtil.EditableLabelClassName);
-            editableLabel.OnEndEditing += UpdateParameterName;
+            editableLabel.ValidationCallback = graphData.IsUsableParameterName;
+            editableLabel.SuccessfulEditFinished += UpdateParameterName;
 
             Add(editableLabel);
         }
@@ -114,7 +114,7 @@ namespace Shears.StateMachineGraphs.Editor
             menu.ShowAsContext();
         }
 
-        private void RenameParameter()
+        public void RenameParameter()
         {
             editableLabel.BeginEditing();
         }

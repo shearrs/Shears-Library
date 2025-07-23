@@ -11,7 +11,8 @@ namespace Shears.StateMachineGraphs.Editor
 
         public string Text => textField.text;
 
-        public event Action OnEndEditing;
+        public Func<string, bool> ValidationCallback { get; set; }
+        public event Action SuccessfulEditFinished;
 
         public EditableLabel(string text)
         {
@@ -45,17 +46,25 @@ namespace Shears.StateMachineGraphs.Editor
 
         public void EndEditing()
         {
-            if (textField.text == "")
-                textField.value = label.text;
+            bool isValid = ValidationCallback == null || ValidationCallback(textField.text);
 
-            label.text = textField.text;
+            if (!isValid)
+                textField.value = label.text;
+            else
+            {
+                if (textField.text == "")
+                    textField.value = label.text;
+
+                label.text = textField.text;
+            }
 
             Remove(textField);
             Add(label);
 
             textField.UnregisterCallback<FocusOutEvent>(OnFocusOut);
 
-            OnEndEditing?.Invoke();
+            if (isValid)
+                SuccessfulEditFinished?.Invoke();
         }
 
         private void OnFocusOut(FocusOutEvent evt) => EndEditing();

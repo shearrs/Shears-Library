@@ -222,6 +222,19 @@ namespace Shears.StateMachineGraphs
             ParameterDataRemoved?.Invoke(parameter);
         }
 
+        public bool IsUsableParameterName(string name)
+        {
+            var parameters = GetParameters();
+
+            foreach (var parameter in parameters)
+            {
+                if (parameter.Name == name)
+                    return false;
+            }
+
+            return true;
+        }
+
         public void SetParameterName(ParameterData parameter, string name)
         {
             parameter.Name = name;

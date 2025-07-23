@@ -153,7 +153,7 @@ namespace Shears.StateMachineGraphs.Editor
         private void LoadParameters()
         {
             foreach (var parameter in graphData.GetParameters())
-                AddParameterUI(parameter);
+                AddParameterUI(parameter, false);
         }
 
         public void SetGraphData(StateMachineGraph graphData)
@@ -208,17 +208,34 @@ namespace Shears.StateMachineGraphs.Editor
             if (parameterObj is not ParameterData parameter)
                 throw new System.ArgumentException("Invalid argument for adding a parameter!");
 
+            if (!graphData.IsUsableParameterName(parameter.Name))
+            {
+                var name = parameter.Name;
+                int count = 0;
+                while (!graphData.IsUsableParameterName(name))
+                {
+                    name = parameter.Name + " " + count;
+                    ++count;
+                }
+
+                parameter.Name = name;
+            }
+
             GraphViewEditorUtil.Record(graphData, "Add Parameter");
             graphData.AddParameter(parameter);
             GraphViewEditorUtil.Save(graphData);
         }
 
-        private void AddParameterUI(ParameterData parameterData)
+        private void AddParameterUI(ParameterData parameterData) => AddParameterUI(parameterData, true);
+        private void AddParameterUI(ParameterData parameterData, bool renameByDefault)
         {
             var parameterUI = new ParameterUI(parameterData, graphData);
 
             parametersPanel.Add(parameterUI);
             parameterUIs.Add(parameterData, parameterUI);
+
+            if (renameByDefault)
+                parameterUI.RenameParameter();
         }
 
         private void RemoveParameterUI(ParameterData parameterData)
