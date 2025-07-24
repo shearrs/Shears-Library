@@ -29,7 +29,7 @@ namespace Shears.GraphViews
         public Vector2 Scale { get => scale; set => scale = value; }
 
         public int SelectionCount => selection.Count;
-        public IReadOnlyCollection<GraphLayer> Layers => layers;
+        public IReadOnlyList<GraphLayer> Layers => layers;
 
         public event Action LayersChanged;
         public event Action SelectionChanged;
@@ -38,11 +38,6 @@ namespace Shears.GraphViews
         public event Action<GraphEdgeData> EdgeDataAdded;
         public event Action<GraphEdgeData> EdgeDataRemoved;
         #endregion
-
-        public void PasteFromClipboard(IReadOnlyList<GraphElementClipboardData> data)
-        {
-            Debug.Log("paste: " + data[0]);
-        }
 
         #region Element Data
         protected void AddGraphElementData(GraphElementData data)

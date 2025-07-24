@@ -82,6 +82,7 @@ namespace Shears.GraphViews.Editor
             }
 
             EditorWindow.GetWindow<GraphViewEditorWindow>(false, null, false).NonGraphWindowFocused -= OnGraphLostFocus;
+            GraphViewClipboard.OnPaste -= PasteFromClipboard;
         }
 
         private void OnUndoRedo()
@@ -122,7 +123,7 @@ namespace Shears.GraphViews.Editor
             graphData.NodeDataRemoved += RemoveNodeFromData;
             graphData.EdgeDataAdded += AddEdgeFromData;
             graphData.EdgeDataRemoved += RemoveEdgeFromData;
-            GraphViewClipboard.OnPaste += graphData.PasteFromClipboard;
+            GraphViewClipboard.OnPaste += PasteFromClipboard;
 
             CreateBackground();
             AddManipulators();
@@ -145,6 +146,7 @@ namespace Shears.GraphViews.Editor
             graphData.NodeDataRemoved -= RemoveNodeFromData;
             graphData.EdgeDataAdded -= AddEdgeFromData;
             graphData.EdgeDataRemoved -= RemoveEdgeFromData;
+            GraphViewClipboard.OnPaste -= PasteFromClipboard;
             graphData = null;
 
             nodes.Clear();
@@ -241,6 +243,15 @@ namespace Shears.GraphViews.Editor
             graphViewContainer.RemoveManipulator(nodeDragger);
             graphViewContainer.RemoveManipulator(rectangleSelector);
             graphViewContainer.RemoveManipulator(edgePlacer);
+        }
+
+        private void PasteFromClipboard(IReadOnlyList<GraphElementClipboardData> data)
+        {
+            foreach (var clipboardData in data)
+            {
+                if (clipboardData is GraphNodeClipboardData nodeData)
+                    AddNodeFromClipboard(nodeData);
+            }
         }
         #endregion
 
@@ -452,6 +463,8 @@ namespace Shears.GraphViews.Editor
         }
 
         protected abstract GraphNode CreateNodeFromData(GraphNodeData data);
+        
+        protected abstract void AddNodeFromClipboard(GraphNodeClipboardData data);
         #endregion
 
         #region Edges

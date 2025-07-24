@@ -12,11 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a3251f27db25e54d8fd770aee2cc34b, type: 3}
   m_Name: Enemy Movement Graph
   m_EditorClassIdentifier: 
-  position: {x: 196, y: 80.8}
+  position: {x: 82.4, y: 79.2}
   scale: {x: 0.61, y: 0.61}
   layers:
   - parentName: Root
     parentID: $ROOT
+    position: {x: 0, y: 0}
+    scale: {x: 1, y: 1}
+  - parentName: Locomotion
+    parentID: 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
     position: {x: 0, y: 0}
     scale: {x: 1, y: 1}
   graphElements:

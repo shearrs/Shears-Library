@@ -70,7 +70,7 @@ namespace Shears.StateMachineGraphs.Editor
             this.graphData = stateGraphData;
             toolbar.SetGraphData(stateGraphData);
             parameterBar.SetGraphData(stateGraphData);
-            nodeManager.SetGraphData(graphData);
+            nodeManager.SetGraphData(stateGraphData);
             AddManipulators();
         }
 
@@ -220,6 +220,16 @@ namespace Shears.StateMachineGraphs.Editor
             var edge = new TransitionEdge(transitionData, from, to);
 
             return edge;
+        }
+
+        protected override void AddNodeFromClipboard(GraphNodeClipboardData data)
+        {
+            Record("Paste Node From Clipboard");
+            var nodeData = graphData.CreateNodeFromClipboard(data);
+            Save();
+
+            var node = GetNode(nodeData);
+            Select(node);
         }
 
         protected override IReadOnlyList<ISelectable> GetExtraSelection()

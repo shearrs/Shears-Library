@@ -14,10 +14,5 @@ namespace Shears.StateMachineGraphs
         public TransitionEdgeData(ITransitionable from, ITransitionable to) : base(from.ID, to.ID)
         {
         }
-
-        public override GraphElementClipboardData CopyToClipboard()
-        {
-            throw new System.NotImplementedException();
-        }
     }
 }

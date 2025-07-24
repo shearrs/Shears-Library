@@ -6,14 +6,14 @@ namespace Shears.StateMachineGraphs.Editor
     public class SMGraphNodeManager
     {
         private readonly SMGraphView graphView;
-        private GraphData graphData;
+        private StateMachineGraph graphData;
 
         public SMGraphNodeManager(SMGraphView graphView)
         {
             this.graphView = graphView;
         }
 
-        public void SetGraphData(GraphData data)
+        public void SetGraphData(StateMachineGraph data)
         {
             graphData = data;
         }

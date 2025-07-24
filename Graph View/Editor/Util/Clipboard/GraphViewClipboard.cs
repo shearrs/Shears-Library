@@ -20,13 +20,10 @@ namespace Shears.GraphViews.Editor
 
         public static void PasteFromClipboard()
         {
-            Debug.Log("paste");
             var buffer = GUIUtility.systemCopyBuffer;
 
             if (!buffer.StartsWith(CLIPBOARD_KEY))
                 return;
-
-            Debug.Log("valid buffer");
 
             buffer = buffer[CLIPBOARD_KEY.Length..];
 

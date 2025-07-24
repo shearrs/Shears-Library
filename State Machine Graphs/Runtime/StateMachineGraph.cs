@@ -49,6 +49,21 @@ namespace Shears.StateMachineGraphs
             }
         }
 
+        public GraphNodeData CreateNodeFromClipboard(GraphNodeClipboardData data)
+        {
+            GraphNodeData nodeData = null;
+
+            if (data is StateNodeClipboardData stateNodeData)
+                nodeData = StateNodeData.PasteFromClipboard(stateNodeData, Layers[^1].ParentID);
+
+            AddNodeData(nodeData);
+
+            if (nodeData is IStateNodeData state && IsDefaultAvailable(state))
+                SetLayerDefault(state);
+
+            return nodeData;
+        }
+
         #region States
         public bool IsLayerDefault(IStateNodeData stateNode)
         {

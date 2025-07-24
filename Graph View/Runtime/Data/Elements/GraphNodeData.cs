@@ -7,10 +7,10 @@ namespace Shears.GraphViews
     [Serializable]
     public abstract class GraphNodeData : GraphElementData
     {
-        [SerializeField] private string name;
-        [SerializeField] private Vector2 position;
+        [SerializeField] protected string name;
+        [SerializeField] protected Vector2 position;
         [SerializeField] protected List<string> edges = new();
-        [SerializeField] private string parentID = GraphLayer.ROOT_ID;
+        [SerializeField] protected string parentID = GraphLayer.ROOT_ID;
 
         public string Name { get => name; set => name = value; }
         public Vector2 Position { get => position; set => position = value; }
