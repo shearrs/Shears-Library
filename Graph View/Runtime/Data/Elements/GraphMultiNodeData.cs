@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Shears.GraphViews
 {
     [Serializable]
-    public class GraphMultiNodeData : GraphNodeData
+    public abstract class GraphMultiNodeData : GraphNodeData
     {
         [SerializeField] private List<string> subNodeIDs = new();
 

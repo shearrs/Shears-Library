@@ -22,6 +22,7 @@ namespace Shears.GraphViews.Editor
         private readonly List<ISelectable> instanceSelection = new();
         private readonly List<GraphNode> instanceNodes = new();
         private readonly List<GraphEdge> instanceEdges = new();
+        private readonly JsonList<GraphElementClipboardData> clipboardData = new();
         private GraphData graphData;
         private VisualElement rootContainer; // holds everything
         private VisualElement bodyContainer; // holds graph container and possible bars
@@ -121,6 +122,7 @@ namespace Shears.GraphViews.Editor
             graphData.NodeDataRemoved += RemoveNodeFromData;
             graphData.EdgeDataAdded += AddEdgeFromData;
             graphData.EdgeDataRemoved += RemoveEdgeFromData;
+            GraphViewClipboard.OnPaste += graphData.PasteFromClipboard;
 
             CreateBackground();
             AddManipulators();
@@ -262,6 +264,10 @@ namespace Shears.GraphViews.Editor
                 FocusCamera(GetSelection());
             else if (hasSelection && evt.keyCode == KeyCode.Return)
                 TryOpenSelection();
+            else if (hasSelection && evt.keyCode == KeyCode.C && evt.modifiers.HasFlag(EventModifiers.Control))
+                CopySelectionToClipboard();
+            else if (evt.keyCode == KeyCode.V && evt.modifiers.HasFlag(EventModifiers.Control))
+                GraphViewClipboard.PasteFromClipboard();
             else if (evt.keyCode == KeyCode.A)
                 FocusCamera(nodes.Values);
         }
@@ -314,6 +320,20 @@ namespace Shears.GraphViews.Editor
 
             if (selection[0] is GraphMultiNode multiNode)
                 graphData.OpenLayer(new(multiNode.Data));
+        }
+
+        private void CopySelectionToClipboard()
+        {
+            clipboardData.Clear();
+            var selection = graphData.GetSelection();
+
+            if (selection.Count == 0)
+                return;
+
+            foreach (var element in selection)
+                clipboardData.Add(element.CopyToClipboard());
+
+            GraphViewClipboard.CopyToClipboard(clipboardData);
         }
         #endregion
 

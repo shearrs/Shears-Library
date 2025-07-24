@@ -1,4 +1,5 @@
 using Shears.GraphViews;
+using Shears.Logging;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,5 +21,10 @@ namespace Shears.StateMachineGraphs
         void IStateNodeData.OnSetAsLayerDefault() => SetAsLayerDefault?.Invoke();
 
         void IStateNodeData.OnRemoveLayerDefault() => RemovedAsLayerDefault?.Invoke();
+
+        public override GraphElementClipboardData CopyToClipboard()
+        {
+            return new StateNodeClipboardData(Name, Position, edges, ParentID, stateType);
+        }
     }
 }

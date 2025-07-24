@@ -25,5 +25,10 @@ namespace Shears.StateMachineGraphs
         void IStateNodeData.OnSetAsLayerDefault() => SetAsLayerDefault?.Invoke();
 
         void IStateNodeData.OnRemoveLayerDefault() => RemovedAsLayerDefault?.Invoke();
+
+        public override GraphElementClipboardData CopyToClipboard()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

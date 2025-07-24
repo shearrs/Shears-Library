@@ -114,6 +114,9 @@ namespace Shears.GraphViews.Editor
 
             isDragging = false;
 
+            // if hovering over a multinode, put these nodes inside it
+            // each with a little offset
+
             SaveEndPositions();
             evt.StopPropagation();
         }

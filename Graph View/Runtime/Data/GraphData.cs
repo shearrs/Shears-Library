@@ -39,6 +39,11 @@ namespace Shears.GraphViews
         public event Action<GraphEdgeData> EdgeDataRemoved;
         #endregion
 
+        public void PasteFromClipboard(IReadOnlyList<GraphElementClipboardData> data)
+        {
+            Debug.Log("paste: " + data[0]);
+        }
+
         #region Element Data
         protected void AddGraphElementData(GraphElementData data)
         {
