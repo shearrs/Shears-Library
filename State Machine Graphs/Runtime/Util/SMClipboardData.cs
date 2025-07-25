@@ -12,7 +12,7 @@ namespace Shears.StateMachineGraphs
 
         public SerializableSystemType StateType => stateType;
 
-        public StateNodeClipboardData(string name, Vector2 position, List<string> edges, SerializableSystemType stateType) : base(name, position, edges)
+        public StateNodeClipboardData(string name, Vector2 position, SerializableSystemType stateType) : base(name, position)
         {
             this.stateType = stateType;
         }

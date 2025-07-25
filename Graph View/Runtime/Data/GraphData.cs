@@ -7,6 +7,8 @@ namespace Shears.GraphViews
     public abstract class GraphData : ScriptableObject
     {
         #region Variables
+        const string CLIPBOARD_KEY = "Graph View - ";
+
         [Header("Transform")]
         [SerializeField] private Vector2 position;
         [SerializeField] private Vector2 scale = Vector2.one;
@@ -20,6 +22,10 @@ namespace Shears.GraphViews
         [SerializeField] private List<string> edgeData = new();
         [SerializeField] private List<string> selection = new();
         [SerializeField] private List<string> rootNodes = new();
+
+        [Header("Clipboard")]
+        [SerializeField] private string copyBuffer;
+        [SerializeField] private JsonList<GraphElementClipboardData> clipboardData = new();
 
         private readonly List<GraphElementData> instanceSelection = new();
         private readonly List<GraphNodeData> instanceNodes = new();
@@ -38,6 +44,46 @@ namespace Shears.GraphViews
         public event Action<GraphEdgeData> EdgeDataAdded;
         public event Action<GraphEdgeData> EdgeDataRemoved;
         #endregion
+
+        public void CopySelectionToClipboard()
+        {
+            clipboardData.Clear();
+            var selection = GetSelection();
+
+            if (selection.Count == 0)
+                return;
+
+            foreach (var element in selection)
+                clipboardData.Add(element.CopyToClipboard());
+
+            var json = CLIPBOARD_KEY + JsonUtility.ToJson(clipboardData);
+            Debug.Log("copy to clipboard: " + json);
+
+            copyBuffer = json;
+        }
+
+        public void PasteFromClipboard()
+        {
+            var buffer = copyBuffer;
+
+            if (!buffer.StartsWith(CLIPBOARD_KEY))
+                return;
+
+            buffer = buffer[CLIPBOARD_KEY.Length..];
+
+            var data = JsonUtility.FromJson<JsonList<GraphElementClipboardData>>(buffer);
+
+            if (data == null)
+                return;
+
+            foreach (var clipboardData in data)
+            {
+                if (clipboardData is GraphNodeClipboardData nodeData)
+                    CreateNodeFromClipboard(nodeData);
+            }
+        }
+
+        protected abstract void CreateNodeFromClipboard(GraphNodeClipboardData data);
 
         #region Element Data
         protected void AddGraphElementData(GraphElementData data)

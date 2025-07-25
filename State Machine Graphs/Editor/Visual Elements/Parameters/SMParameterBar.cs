@@ -9,7 +9,7 @@ namespace Shears.StateMachineGraphs.Editor
     public class SMParameterBar : VisualElement
     {
         private readonly Dictionary<string, ParameterUI> parameterUIs = new();
-        private readonly List<ParameterData> instanceParameters = new();
+        private readonly List<string> instanceParameterIDs = new();
         private readonly ContentSelector contentSelector;
 
         private StateMachineGraph graphData;
@@ -143,7 +143,10 @@ namespace Shears.StateMachineGraphs.Editor
 
         public void Reload()
         {
-            foreach (var parameterID in parameterUIs.Keys)
+            instanceParameterIDs.Clear();
+            instanceParameterIDs.AddRange(parameterUIs.Keys);
+
+            foreach (var parameterID in instanceParameterIDs)
                 RemoveParameterUI(parameterID);
 
             LoadParameters();

@@ -49,7 +49,7 @@ namespace Shears.StateMachineGraphs
             }
         }
 
-        public GraphNodeData CreateNodeFromClipboard(GraphNodeClipboardData data)
+        protected override void CreateNodeFromClipboard(GraphNodeClipboardData data)
         {
             GraphNodeData nodeData = null;
 
@@ -60,8 +60,6 @@ namespace Shears.StateMachineGraphs
 
             if (nodeData is IStateNodeData state && IsDefaultAvailable(state))
                 SetLayerDefault(state);
-
-            return nodeData;
         }
 
         #region States

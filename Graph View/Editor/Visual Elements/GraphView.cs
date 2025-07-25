@@ -22,7 +22,6 @@ namespace Shears.GraphViews.Editor
         private readonly List<ISelectable> instanceSelection = new();
         private readonly List<GraphNode> instanceNodes = new();
         private readonly List<GraphEdge> instanceEdges = new();
-        private readonly JsonList<GraphElementClipboardData> clipboardData = new();
         private GraphData graphData;
         private VisualElement rootContainer; // holds everything
         private VisualElement bodyContainer; // holds graph container and possible bars
@@ -82,7 +81,6 @@ namespace Shears.GraphViews.Editor
             }
 
             EditorWindow.GetWindow<GraphViewEditorWindow>(false, null, false).NonGraphWindowFocused -= OnGraphLostFocus;
-            GraphViewClipboard.OnPaste -= PasteFromClipboard;
         }
 
         private void OnUndoRedo()
@@ -123,7 +121,6 @@ namespace Shears.GraphViews.Editor
             graphData.NodeDataRemoved += RemoveNodeFromData;
             graphData.EdgeDataAdded += AddEdgeFromData;
             graphData.EdgeDataRemoved += RemoveEdgeFromData;
-            GraphViewClipboard.OnPaste += PasteFromClipboard;
 
             CreateBackground();
             AddManipulators();
@@ -146,7 +143,6 @@ namespace Shears.GraphViews.Editor
             graphData.NodeDataRemoved -= RemoveNodeFromData;
             graphData.EdgeDataAdded -= AddEdgeFromData;
             graphData.EdgeDataRemoved -= RemoveEdgeFromData;
-            GraphViewClipboard.OnPaste -= PasteFromClipboard;
             graphData = null;
 
             nodes.Clear();
@@ -244,15 +240,6 @@ namespace Shears.GraphViews.Editor
             graphViewContainer.RemoveManipulator(rectangleSelector);
             graphViewContainer.RemoveManipulator(edgePlacer);
         }
-
-        private void PasteFromClipboard(IReadOnlyList<GraphElementClipboardData> data)
-        {
-            foreach (var clipboardData in data)
-            {
-                if (clipboardData is GraphNodeClipboardData nodeData)
-                    AddNodeFromClipboard(nodeData);
-            }
-        }
         #endregion
 
         #region Keybinds
@@ -278,9 +265,23 @@ namespace Shears.GraphViews.Editor
             else if (hasSelection && evt.keyCode == KeyCode.C && evt.modifiers.HasFlag(EventModifiers.Control))
                 CopySelectionToClipboard();
             else if (evt.keyCode == KeyCode.V && evt.modifiers.HasFlag(EventModifiers.Control))
-                GraphViewClipboard.PasteFromClipboard();
+                PasteFromClipboard();
             else if (evt.keyCode == KeyCode.A)
                 FocusCamera(nodes.Values);
+        }
+
+        private void CopySelectionToClipboard()
+        {
+            Record("Copy Selection");
+            graphData.CopySelectionToClipboard();
+            Save();
+        }
+
+        private void PasteFromClipboard()
+        {
+            Record("Paste From Clipboard");
+            graphData.PasteFromClipboard();
+            Save();
         }
 
         protected void DeleteSelection()
@@ -331,20 +332,6 @@ namespace Shears.GraphViews.Editor
 
             if (selection[0] is GraphMultiNode multiNode)
                 graphData.OpenLayer(new(multiNode.Data));
-        }
-
-        private void CopySelectionToClipboard()
-        {
-            clipboardData.Clear();
-            var selection = graphData.GetSelection();
-
-            if (selection.Count == 0)
-                return;
-
-            foreach (var element in selection)
-                clipboardData.Add(element.CopyToClipboard());
-
-            GraphViewClipboard.CopyToClipboard(clipboardData);
         }
         #endregion
 
@@ -463,8 +450,6 @@ namespace Shears.GraphViews.Editor
         }
 
         protected abstract GraphNode CreateNodeFromData(GraphNodeData data);
-        
-        protected abstract void AddNodeFromClipboard(GraphNodeClipboardData data);
         #endregion
 
         #region Edges

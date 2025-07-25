@@ -222,16 +222,6 @@ namespace Shears.StateMachineGraphs.Editor
             return edge;
         }
 
-        protected override void AddNodeFromClipboard(GraphNodeClipboardData data)
-        {
-            Record("Paste Node From Clipboard");
-            var nodeData = graphData.CreateNodeFromClipboard(data);
-            Save();
-
-            var node = GetNode(nodeData);
-            Select(node);
-        }
-
         protected override IReadOnlyList<ISelectable> GetExtraSelection()
         {
             var selectionData = graphData.GetSelection();

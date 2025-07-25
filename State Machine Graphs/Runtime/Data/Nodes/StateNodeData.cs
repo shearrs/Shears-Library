@@ -20,7 +20,6 @@ namespace Shears.StateMachineGraphs
             {
                 name = data.Name,
                 position = data.Position,
-                edges = data.Edges != null ? new List<string>(data.Edges) : new List<string>(),
                 parentID = parentID,
                 stateType = data.StateType
             };
@@ -38,7 +37,7 @@ namespace Shears.StateMachineGraphs
 
         public override GraphElementClipboardData CopyToClipboard()
         {
-            return new StateNodeClipboardData(Name, Position, edges, stateType);
+            return new StateNodeClipboardData(Name, Position, stateType);
         }
     }
 }
