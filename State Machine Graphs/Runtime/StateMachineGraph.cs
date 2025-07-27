@@ -96,6 +96,20 @@ namespace Shears.StateMachineGraphs
 
                 return stateMachineNode;
             }
+            else if (data is ExternalStateMachineNodeClipboardData externalStateMachineNodeData)
+            {
+                var externalNode = ExternalStateMachineNodeData.PasteFromClipboard(externalStateMachineNodeData, parentID);
+
+                AddNodeData(externalNode);
+
+                if (parentID == Layers[^1].ParentID)
+                    MoveNodeToCurrentLayer(externalNode);
+
+                if (IsDefaultAvailable(externalNode))
+                    SetLayerDefault(externalNode);
+
+                return externalNode;
+            }
 
             return null;
         }

@@ -11,8 +11,6 @@ namespace Shears.GraphViews.Editor
         public ContentSelector(GraphView graphView)
         {
             this.graphView = graphView;
-
-            activators.Add(new ManipulatorActivationFilter { button = MouseButton.LeftMouse });
         }
 
         protected override void RegisterCallbacksOnTarget()
@@ -27,10 +25,14 @@ namespace Shears.GraphViews.Editor
 
         private void Select(MouseDownEvent evt)
         {
+            Debug.Log("select: " + evt.target);
+
             if (evt.target is ISelectable selectable)
                 graphView.Select(selectable, IsMultiSelect(evt.modifiers));
             else
                 graphView.Select(null);
+
+            evt.StopImmediatePropagation();
         }
 
         private bool IsMultiSelect(EventModifiers modifiers) => modifiers == EventModifiers.Shift || modifiers == EventModifiers.Control;

@@ -1,7 +1,5 @@
 using Shears.GraphViews;
 using Shears.GraphViews.Editor;
-using Shears.Logging;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -119,6 +117,8 @@ namespace Shears.StateMachineGraphs.Editor
 
         private void PopulateContextualMenu(ContextualMenuPopulateEvent evt)
         {
+            Debug.Log("context menu");
+
             var target = evt.target as VisualElement;
             Vector2 parameterMousePos = target.ChangeCoordinatesTo(parameterBar, evt.localMousePosition);
 

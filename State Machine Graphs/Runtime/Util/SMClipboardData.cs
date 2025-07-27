@@ -31,4 +31,18 @@ namespace Shears.StateMachineGraphs
 
         public SerializableSystemType StateType => stateType;
     }
+
+    [Serializable]
+    public class ExternalStateMachineNodeClipboardData : GraphNodeClipboardData
+    {
+        [SerializeField] private StateMachineGraph externalGraphData;
+
+        public StateMachineGraph ExternalGraphData => externalGraphData;
+
+        public ExternalStateMachineNodeClipboardData(string name, Vector2 position, StateMachineGraph externalGraphData) 
+            : base(name, position)
+        {
+            this.externalGraphData = externalGraphData;
+        }
+    }
 }

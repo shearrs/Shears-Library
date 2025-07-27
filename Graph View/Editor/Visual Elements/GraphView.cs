@@ -264,6 +264,8 @@ namespace Shears.GraphViews.Editor
                 TryOpenSelection();
             else if (hasSelection && evt.keyCode == KeyCode.C && evt.modifiers.HasFlag(EventModifiers.Control))
                 CopySelectionToClipboard();
+            else if (hasSelection && evt.keyCode == KeyCode.X && evt.modifiers.HasFlag(EventModifiers.Control))
+                CutSelectionToClipboard();
             else if (evt.keyCode == KeyCode.V && evt.modifiers.HasFlag(EventModifiers.Control))
                 PasteFromClipboard();
             else if (evt.keyCode == KeyCode.A)
@@ -273,6 +275,13 @@ namespace Shears.GraphViews.Editor
         private void CopySelectionToClipboard()
         {
             graphData.CopySelectionToClipboard();
+            Save();
+        }
+
+        private void CutSelectionToClipboard()
+        {
+            graphData.CopySelectionToClipboard();
+            DeleteSelection();
             Save();
         }
 

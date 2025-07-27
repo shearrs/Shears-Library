@@ -16,15 +16,25 @@ namespace Shears.StateMachineGraphs
 
         State IStateNodeData.CreateStateInstance() => new ExternalGraphState();
 
-        public override GraphElementClipboardData CopyToClipboard()
-        {
-            throw new NotImplementedException();
-        }
-
         IReadOnlyList<string> ITransitionable.GetTransitionIDs() => Edges;
 
         void ILayerDefaultTarget.OnSetAsLayerDefault() => SetAsLayerDefault?.Invoke();
 
         void ILayerDefaultTarget.OnRemoveLayerDefault() => RemovedAsLayerDefault?.Invoke();
+
+        public override GraphElementClipboardData CopyToClipboard() => new ExternalStateMachineNodeClipboardData(Name, Position, externalGraphData);
+
+        public static ExternalStateMachineNodeData PasteFromClipboard(ExternalStateMachineNodeClipboardData data, string parentID)
+        {
+            var node = new ExternalStateMachineNodeData
+            {
+                name = data.Name,
+                position = data.Position,
+                parentID = parentID,
+                externalGraphData = data.ExternalGraphData
+            };
+
+            return node;
+        }
     }
 }
