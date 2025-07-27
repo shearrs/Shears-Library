@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Shears.StateMachineGraphs
 {
     [Serializable]
-    public class StateMachineNodeData : GraphMultiNodeData, ITransitionable, IStateNodeData
+    public class StateMachineNodeData : GraphMultiNodeData, IStateNodeData
     {
         [SerializeField] private string defaultStateID;
         [SerializeField] private SerializableSystemType stateType = new(typeof(EmptyState));
@@ -22,9 +22,9 @@ namespace Shears.StateMachineGraphs
 
         public void SetInitialStateID(string id) => defaultStateID = id;
 
-        void IStateNodeData.OnSetAsLayerDefault() => SetAsLayerDefault?.Invoke();
+        void ILayerDefaultTarget.OnSetAsLayerDefault() => SetAsLayerDefault?.Invoke();
 
-        void IStateNodeData.OnRemoveLayerDefault() => RemovedAsLayerDefault?.Invoke();
+        void ILayerDefaultTarget.OnRemoveLayerDefault() => RemovedAsLayerDefault?.Invoke();
 
         public static StateMachineNodeData PasteFromClipboard(StateMachineNodeClipboardData data, string parentID)
         {

@@ -100,29 +100,172 @@ namespace Shears.StateMachineGraphs
             return null;
         }
 
-        #region States
-        public bool IsLayerDefault(IStateNodeData stateNode)
+        #region Compilation
+        public readonly struct GraphCompilationData
         {
-            if (stateNode.ParentID == GraphLayer.ROOT_ID)
-                return stateNode.ID == RootDefaultStateID;
-            else if (TryGetData(stateNode.ParentID, out StateMachineNodeData stateMachineData))
-                return stateMachineData.DefaultStateID == stateNode.ID;
+            private readonly Dictionary<string, Parameter> parameterNames;
+            private readonly Dictionary<string, Parameter> parameterIDs;
+            private readonly Dictionary<string, State> stateIDs;
+            private readonly State defaultState;
+
+            public readonly Dictionary<string, Parameter> ParameterNames => parameterNames;
+            public readonly Dictionary<string, Parameter> ParameterIDs => parameterIDs;
+            public readonly Dictionary<string, State> StateIDs => stateIDs;
+            public readonly State DefaultState => defaultState;
+
+            public GraphCompilationData(Dictionary<string, Parameter> parameterNames, Dictionary<string, Parameter> parameterIDs, Dictionary<string, State> stateIDs, State defaultState)
+            {
+                this.parameterNames = parameterNames;
+                this.parameterIDs = parameterIDs;
+                this.stateIDs = stateIDs;
+                this.defaultState = defaultState;
+            }
+        }
+
+        public GraphCompilationData Compile()
+        {
+            var parameterNames = new Dictionary<string, Parameter>();
+            var parameterIDs = new Dictionary<string, Parameter>();
+            var stateIDs = new Dictionary<string, State>();
+            State defaultState;
+
+            foreach (var parameterData in GetParameters())
+            {
+                var parameter = CreateParameter(parameterData);
+
+                parameterNames.Add(parameter.Name, parameter);
+                parameterIDs.Add(parameterData.ID, parameter);
+            }
+
+            var stateNodes = GetStateNodes();
+
+            foreach (var stateNode in stateNodes)
+            {
+                var state = CreateState(stateNode);
+
+                stateIDs.Add(stateNode.ID, state);
+
+                // TODO: prevent cyclic dependencies
+                if (stateNode is ExternalStateMachineNodeData externalNode)
+                {
+                    var graphData = externalNode.ExternalGraphData;
+
+                    if (graphData == null)
+                        continue;
+
+                    var compileData = graphData.Compile();
+
+                    foreach (var stateID in compileData.StateIDs)
+                    {
+                        var subState = compileData.StateIDs[stateID.Key];
+
+                        stateIDs.Add(stateID.Key, subState);
+
+                        subState.ParentState ??= state;
+                    }
+
+                    state.DefaultSubState = compileData.DefaultState;
+                }
+            }
+
+            foreach (var stateNode in stateNodes)
+            {
+                if (GraphLayer.IsRootID(stateNode.ParentID))
+                {
+                    if (IsLayerDefault(stateNode))
+                        defaultState = stateIDs[stateNode.ID];
+
+                    continue;
+                }
+
+                var state = stateIDs[stateNode.ID];
+                var parent = stateIDs[stateNode.ParentID];
+
+                state.ParentState = parent;
+
+                if (IsLayerDefault(stateNode))
+                    parent.DefaultSubState = state;
+            }
+
+            foreach (var stateNode in stateNodes)
+                CreateTransitions(stateNode, stateIDs[stateNode.ID], stateIDs, parameterIDs);
+
+            defaultState = stateIDs[RootDefaultStateID];
+
+            return new GraphCompilationData(parameterNames, parameterIDs, stateIDs, defaultState);
+        }
+
+        private Parameter CreateParameter(ParameterData data) => data.CreateParameter();
+
+        private State CreateState(IStateNodeData data)
+        {
+            var state = data.CreateStateInstance();
+            state.Name = data.Name;
+
+            return state;
+        }
+
+        private void CreateTransitions(IStateNodeData data, State state, Dictionary<string, State> states, Dictionary<string, Parameter> parameterIDs)
+        {
+            if (state.TransitionCount > 0) // already initialized
+                return;
+
+            var transitionIDs = data.GetTransitionIDs();
+
+            foreach (var id in transitionIDs)
+            {
+                if (!TryGetData(id, out TransitionEdgeData transitionData))
+                {
+                    SHLogger.Log("Could not find transition with id: " + id, SHLogLevels.Error);
+                    continue;
+                }
+
+                if (transitionData.ToID == data.ID)
+                    continue;
+
+                if (!states.TryGetValue(transitionData.ToID, out var toState))
+                {
+                    SHLogger.Log("Could not find target state with id: " + transitionData.ToID, SHLogLevels.Error);
+                    continue;
+                }
+
+                var comparisons = new List<ParameterComparison>();
+
+                foreach (var comparisonData in transitionData.ComparisonData)
+                {
+                    var comparison = comparisonData.CreateComparison(parameterIDs[comparisonData.ParameterID]);
+                    comparisons.Add(comparison);
+                }
+
+                var transition = new Transition(state, toState, comparisons);
+                state.AddTransition(transition);
+            }
+        }
+        #endregion
+
+        #region States
+        public bool IsLayerDefault(ILayerDefaultTarget layerNode)
+        {
+            if (layerNode.ParentID == GraphLayer.ROOT_ID)
+                return layerNode.ID == RootDefaultStateID;
+            else if (TryGetData(layerNode.ParentID, out StateMachineNodeData stateMachineData))
+                return stateMachineData.DefaultStateID == layerNode.ID;
             else
             {
-                SHLogger.Log("Could not find parent with ID: " + stateNode.ParentID, SHLogLevels.Error);
+                SHLogger.Log("Could not find parent with ID: " + layerNode.ParentID, SHLogLevels.Error);
                 return false;
             }
         }
 
-        public void SetLayerDefault(IStateNodeData stateNodeData)
+        public void SetLayerDefault(ILayerDefaultTarget layerNode)
         {
-            if (stateNodeData == null)
+            if (layerNode == null)
             {
                 rootDefaultStateID = string.Empty;
                 return;
             }
 
-            if (GraphLayer.IsRootID(stateNodeData.ParentID))
+            if (GraphLayer.IsRootID(layerNode.ParentID))
             {
                 if (!string.IsNullOrEmpty(rootDefaultStateID))
                 {
@@ -130,10 +273,10 @@ namespace Shears.StateMachineGraphs
                         defaultState.OnRemoveLayerDefault();
                 }
 
-                rootDefaultStateID = stateNodeData.ID;
-                stateNodeData.OnSetAsLayerDefault();
+                rootDefaultStateID = layerNode.ID;
+                layerNode.OnSetAsLayerDefault();
             }
-            else if (TryGetData(stateNodeData.ParentID, out StateMachineNodeData stateMachineData))
+            else if (TryGetData(layerNode.ParentID, out StateMachineNodeData stateMachineData))
             {
                 if (!string.IsNullOrEmpty(stateMachineData.DefaultStateID))
                 {
@@ -141,14 +284,14 @@ namespace Shears.StateMachineGraphs
                         defaultState.OnRemoveLayerDefault();
                 }
 
-                stateMachineData.SetInitialStateID(stateNodeData.ID);
-                stateNodeData.OnSetAsLayerDefault();
+                stateMachineData.SetInitialStateID(layerNode.ID);
+                layerNode.OnSetAsLayerDefault();
             }
             else
-                SHLogger.Log("Could not find layer for node with ID: " + stateNodeData.ID, SHLogLevels.Error);
+                SHLogger.Log("Could not find layer for node with ID: " + layerNode.ID, SHLogLevels.Error);
         }
 
-        public IReadOnlyList<IStateNodeData> GetStateNodes()
+        private IReadOnlyList<IStateNodeData> GetStateNodes()
         {
             instanceStateNodes.Clear();
             var nodes = GetNodes();
@@ -210,14 +353,14 @@ namespace Shears.StateMachineGraphs
             return nodeData;
         }
 
-        private bool IsDefaultAvailable(IStateNodeData stateNode)
+        private bool IsDefaultAvailable(ILayerDefaultTarget layerNode)
         {
             // if state has a parent...
-            if (!GraphLayer.IsRootID(stateNode.ParentID))
+            if (!GraphLayer.IsRootID(layerNode.ParentID))
             {
-                if (!TryGetData(stateNode.ParentID, out StateMachineNodeData stateMachine))
+                if (!TryGetData(layerNode.ParentID, out StateMachineNodeData stateMachine))
                 {
-                    SHLogger.Log("Could not find parent with ID: " + stateNode.ParentID, SHLogLevels.Error);
+                    SHLogger.Log("Could not find parent with ID: " + layerNode.ParentID, SHLogLevels.Error);
                     return false;
                 }
 

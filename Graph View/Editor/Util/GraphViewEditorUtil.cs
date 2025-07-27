@@ -99,5 +99,10 @@ namespace Shears.GraphViews.Editor
 
             return (bool)info.GetValue(window, null);
         }
+
+        public static bool IsObjectSelectorFocused()
+        {
+            return EditorWindow.focusedWindow.titleContent.text == "UnityEditor.ObjectSelector";
+        }
     }
 }

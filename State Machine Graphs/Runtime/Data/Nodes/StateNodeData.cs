@@ -7,20 +7,20 @@ using UnityEngine;
 namespace Shears.StateMachineGraphs
 {
     [Serializable]
-    public class StateNodeData : GraphNodeData, ITransitionable, IStateNodeData
+    public class StateNodeData : GraphNodeData, IStateNodeData
     {
         [SerializeField] private SerializableSystemType stateType = new(typeof(EmptyState));
 
         public event Action SetAsLayerDefault;
         public event Action RemovedAsLayerDefault;
 
-        public State CreateStateInstance() => (State)Activator.CreateInstance(stateType.SystemType);
+        IReadOnlyList<string> ITransitionable.GetTransitionIDs() => Edges;
 
-        public IReadOnlyList<string> GetTransitionIDs() => Edges;
+        State IStateNodeData.CreateStateInstance() => (State)Activator.CreateInstance(stateType.SystemType);
 
-        void IStateNodeData.OnSetAsLayerDefault() => SetAsLayerDefault?.Invoke();
+        void ILayerDefaultTarget.OnSetAsLayerDefault() => SetAsLayerDefault?.Invoke();
 
-        void IStateNodeData.OnRemoveLayerDefault() => RemovedAsLayerDefault?.Invoke();
+        void ILayerDefaultTarget.OnRemoveLayerDefault() => RemovedAsLayerDefault?.Invoke();
 
         public static StateNodeData PasteFromClipboard(StateNodeClipboardData data, string parentID)
         {

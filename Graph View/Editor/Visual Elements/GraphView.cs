@@ -90,7 +90,7 @@ namespace Shears.GraphViews.Editor
 
         private void OnGraphLostFocus()
         {
-            if (!GraphViewEditorUtil.IsInspectorLocked() && graphData != null)
+            if (!GraphViewEditorUtil.IsInspectorLocked() && !GraphViewEditorUtil.IsObjectSelectorFocused() && graphData != null)
                 Select(null);
         }
 

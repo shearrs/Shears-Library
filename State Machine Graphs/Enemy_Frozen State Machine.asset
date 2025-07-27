@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a3251f27db25e54d8fd770aee2cc34b, type: 3}
   m_Name: Enemy_Frozen State Machine
   m_EditorClassIdentifier: 
-  position: {x: -116.8, y: 269.6}
-  scale: {x: 0.79, y: 0.79}
+  position: {x: -157.6, y: 247.2}
+  scale: {x: 0.67, y: 0.67}
   layers:
   - parentName: Root
     parentID: $ROOT
@@ -22,13 +22,23 @@ MonoBehaviour:
   graphElements:
     rid: 8604816979759727006
   nodeData:
-  - 24f1e58b-2fbe-4294-a26c-3161669f56f1
-  edgeData: []
+  - 2af2a49f-8141-4c0e-9f49-75624d90d171
+  - 95b507fd-179e-49f6-82e1-4946ffdfc8f9
+  - f2145beb-a829-4d4e-a4e2-b6d973bc4a47
+  - edc5eb51-3323-4a0a-95e7-9fd05d871722
+  edgeData:
+  - 3ffa27a3-6780-46e7-968b-2ef22a87c009
+  - e3f2e77b-4055-4ebb-a930-1ea02e5c5d02
   selection: []
   rootNodes:
-  - 24f1e58b-2fbe-4294-a26c-3161669f56f1
-  rootDefaultStateID: 24f1e58b-2fbe-4294-a26c-3161669f56f1
-  parameters: []
+  - 2af2a49f-8141-4c0e-9f49-75624d90d171
+  - 95b507fd-179e-49f6-82e1-4946ffdfc8f9
+  copyBuffer: 
+  clipboardData:
+    list: []
+  rootDefaultStateID: 2af2a49f-8141-4c0e-9f49-75624d90d171
+  parameters:
+  - 8cb1914a-e5b5-45be-98e5-20e531a48f3d
   references:
     version: 2
     RefIds:
@@ -36,16 +46,29 @@ MonoBehaviour:
       type: {class: GraphElementDictionary, ns: Shears.GraphViews, asm: Shears.GraphViews}
       data:
         keys:
-        - 24f1e58b-2fbe-4294-a26c-3161669f56f1
+        - 2af2a49f-8141-4c0e-9f49-75624d90d171
+        - 3ffa27a3-6780-46e7-968b-2ef22a87c009
+        - 8cb1914a-e5b5-45be-98e5-20e531a48f3d
+        - 95b507fd-179e-49f6-82e1-4946ffdfc8f9
+        - f2145beb-a829-4d4e-a4e2-b6d973bc4a47
+        - edc5eb51-3323-4a0a-95e7-9fd05d871722
+        - e3f2e77b-4055-4ebb-a930-1ea02e5c5d02
         values:
-        - rid: 8604816979759727134
-    - rid: 8604816979759727134
+        - rid: 8604817109611708550
+        - rid: 8604817109611708557
+        - rid: 8604817109611708553
+        - rid: 8604817109611708556
+        - rid: 8604817109611708560
+        - rid: 8604817109611708561
+        - rid: 8604817109611708563
+    - rid: 8604817109611708550
       type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
-        id: 24f1e58b-2fbe-4294-a26c-3161669f56f1
-        name: New State
-        position: {x: 600, y: 20}
-        edges: []
+        id: 2af2a49f-8141-4c0e-9f49-75624d90d171
+        name: Frozen Solid
+        position: {x: 660, y: -20}
+        edges:
+        - 3ffa27a3-6780-46e7-968b-2ef22a87c009
         parentID: $ROOT
         stateType:
           name: EmptyState
@@ -54,3 +77,89 @@ MonoBehaviour:
           assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
             PublicKeyToken=null
           prettyName: Empty State
+    - rid: 8604817109611708553
+      type: {class: FloatParameterData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 8cb1914a-e5b5-45be-98e5-20e531a48f3d
+        name: freezeAmount
+        value: 0
+    - rid: 8604817109611708556
+      type: {class: StateMachineNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 95b507fd-179e-49f6-82e1-4946ffdfc8f9
+        name: Melting
+        position: {x: 1180, y: -20}
+        edges:
+        - 3ffa27a3-6780-46e7-968b-2ef22a87c009
+        parentID: $ROOT
+        subNodeIDs:
+        - f2145beb-a829-4d4e-a4e2-b6d973bc4a47
+        - edc5eb51-3323-4a0a-95e7-9fd05d871722
+        defaultStateID: f2145beb-a829-4d4e-a4e2-b6d973bc4a47
+        stateType:
+          name: EmptyState
+          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          prettyName: Empty State
+    - rid: 8604817109611708557
+      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 3ffa27a3-6780-46e7-968b-2ef22a87c009
+        fromID: 2af2a49f-8141-4c0e-9f49-75624d90d171
+        toID: 95b507fd-179e-49f6-82e1-4946ffdfc8f9
+        comparisonData:
+        - rid: 8604817109611708559
+    - rid: 8604817109611708559
+      type: {class: FloatComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        parameterID: 8cb1914a-e5b5-45be-98e5-20e531a48f3d
+        compareValue: 50
+        compareType: 0
+    - rid: 8604817109611708560
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: f2145beb-a829-4d4e-a4e2-b6d973bc4a47
+        name: Melt Start
+        position: {x: 680, y: 0}
+        edges:
+        - e3f2e77b-4055-4ebb-a930-1ea02e5c5d02
+        parentID: 95b507fd-179e-49f6-82e1-4946ffdfc8f9
+        stateType:
+          name: EmptyState
+          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          prettyName: Empty State
+    - rid: 8604817109611708561
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: edc5eb51-3323-4a0a-95e7-9fd05d871722
+        name: Melt End
+        position: {x: 1180, y: 0}
+        edges:
+        - e3f2e77b-4055-4ebb-a930-1ea02e5c5d02
+        parentID: 95b507fd-179e-49f6-82e1-4946ffdfc8f9
+        stateType:
+          name: EmptyState
+          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          prettyName: Empty State
+    - rid: 8604817109611708563
+      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: e3f2e77b-4055-4ebb-a930-1ea02e5c5d02
+        fromID: f2145beb-a829-4d4e-a4e2-b6d973bc4a47
+        toID: edc5eb51-3323-4a0a-95e7-9fd05d871722
+        comparisonData:
+        - rid: 8604817109611708565
+    - rid: 8604817109611708565
+      type: {class: FloatComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        parameterID: 8cb1914a-e5b5-45be-98e5-20e531a48f3d
+        compareValue: 25
+        compareType: 0

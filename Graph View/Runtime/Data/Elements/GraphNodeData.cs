@@ -9,7 +9,7 @@ namespace Shears.GraphViews
     {
         [SerializeField] protected string name;
         [SerializeField] protected Vector2 position;
-        [SerializeField] protected List<string> edges = new();
+        [SerializeField] private List<string> edges = new();
         [SerializeField] protected string parentID = GraphLayer.ROOT_ID;
 
         public string Name { get => name; set => name = value; }

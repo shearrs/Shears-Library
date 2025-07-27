@@ -17,6 +17,7 @@ namespace Shears.StateMachineGraphs
         public State ParentState { get => parentState; internal set => parentState = value; }
         public State DefaultSubState { get => initialSubState; internal set => initialSubState = value; }
         public State SubState { get => subState; internal set => subState = value; }
+        public int TransitionCount => transitions.Count;
 
         internal void AddTransition(Transition transition) => transitions.Add(transition);
 

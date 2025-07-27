@@ -19,9 +19,9 @@ namespace Shears.StateMachineGraphs
         private State defaultState;
         private readonly List<State> swapStateTree = new();
 
-        private readonly Dictionary<string, State> states = new();
-        private readonly Dictionary<string, Parameter> parameters = new();
-        private readonly Dictionary<string, Parameter> parameterIDs = new();
+        private Dictionary<string, State> states;
+        private Dictionary<string, Parameter> parameters;
+        private Dictionary<string, Parameter> parameterIDs;
 
         private void Awake()
         {
@@ -43,99 +43,21 @@ namespace Shears.StateMachineGraphs
             UpdateState();
         }
 
+        #region Graph Compilation
         private void CompileGraph()
         {
-            foreach (var parameterData in graphData.GetParameters())
-            {
-                var parameter = CreateParameter(parameterData);
+            var compiledData = graphData.Compile();
 
-                parameters.Add(parameter.Name, parameter);
-                parameterIDs.Add(parameterData.ID, parameter);
+            states = compiledData.StateIDs;
+            defaultState = compiledData.DefaultState;
+            parameters = compiledData.ParameterNames;
+            parameterIDs = compiledData.ParameterIDs;
 
 #if UNITY_EDITOR
-                parameterDisplay.Add(parameter);
+            parameterDisplay.AddRange(parameters.Values);
 #endif
-            }
-
-            var nodeData = graphData.GetStateNodes();
-
-            foreach (var stateNode in nodeData) 
-            {
-                var state = CreateState(stateNode);
-
-                states.Add(stateNode.ID, state);
-            }
-
-            foreach (var stateNode in nodeData)
-            {
-                if (GraphLayer.IsRootID(stateNode.ParentID))
-                {
-                    if (graphData.IsLayerDefault(stateNode))
-                        defaultState = states[stateNode.ID];
-
-                    continue;
-                }
-
-                var state = states[stateNode.ID];
-                var parent = states[stateNode.ParentID];
-
-                state.ParentState = parent;
-
-                if (graphData.IsLayerDefault(stateNode))
-                    parent.DefaultSubState = state;
-            }
-
-            foreach (var stateNode in nodeData)
-            {
-                CreateTransitions(stateNode, states[stateNode.ID]);
-            }
-
-            defaultState = states[graphData.RootDefaultStateID];
         }
-
-        private Parameter CreateParameter(ParameterData data) => data.CreateParameter();
-
-        private State CreateState(IStateNodeData data)
-        {
-            var state = data.CreateStateInstance();
-            state.Name = data.Name;
-
-            return state;
-        }
-
-        private void CreateTransitions(IStateNodeData data, State state)
-        {
-            var transitionIDs = data.GetTransitionIDs();
-            
-            foreach (var id in transitionIDs)
-            {
-                if (!graphData.TryGetData(id, out TransitionEdgeData transitionData))
-                {
-                    Log("Could not find transition with id: " + id, SHLogLevels.Error);
-                    continue;
-                }
-
-                if (transitionData.ToID == data.ID)
-                    continue;
-
-                if (!states.TryGetValue(transitionData.ToID, out var toState))
-                {
-                    Log("Could not find target state with id: " + transitionData.ToID, SHLogLevels.Error);
-                    continue;
-                }
-
-                var comparisons = new List<ParameterComparison>();
-
-                foreach (var comparisonData in transitionData.ComparisonData)
-                {
-                    var comparison = comparisonData.CreateComparison(parameterIDs[comparisonData.ParameterID]);
-                    comparisons.Add(comparison);
-                }
-
-                var transition = new Transition(state, toState, comparisons);
-                state.AddTransition(transition);
-            }
-        }
+        #endregion
 
         #region States
         /// <summary>
