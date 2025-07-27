@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Shears.GraphViews
@@ -19,6 +20,20 @@ namespace Shears.GraphViews
             this.name = name;
             this.position = position;
             this.position.y += COPY_OFFSET;
+        }
+    }
+
+    [Serializable]
+    public class GraphMultiNodeClipboardData : GraphNodeClipboardData
+    {
+        [SerializeField] private List<string> subNodeIDs = new();
+
+        public IReadOnlyList<string> SubNodeIDs => subNodeIDs;
+
+        public GraphMultiNodeClipboardData(string name, Vector2 position, List<string> subNodeIDs)
+            : base(name, position)
+        {
+            this.subNodeIDs = subNodeIDs;
         }
     }
 }

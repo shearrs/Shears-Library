@@ -26,9 +26,22 @@ namespace Shears.StateMachineGraphs
 
         void IStateNodeData.OnRemoveLayerDefault() => RemovedAsLayerDefault?.Invoke();
 
+        public static StateMachineNodeData PasteFromClipboard(StateMachineNodeClipboardData data, string parentID)
+        {
+            var stateNode = new StateMachineNodeData
+            {
+                name = data.Name,
+                position = data.Position,
+                parentID = parentID,
+                stateType = data.StateType
+            };
+
+            return stateNode;
+        }
+
         public override GraphElementClipboardData CopyToClipboard()
         {
-            throw new NotImplementedException();
+            return new StateMachineNodeClipboardData(Name, Position, subNodeIDs, stateType);
         }
     }
 }

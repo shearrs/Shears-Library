@@ -14,6 +14,14 @@ namespace Shears.StateMachineGraphs
         public event Action SetAsLayerDefault;
         public event Action RemovedAsLayerDefault;
 
+        public State CreateStateInstance() => (State)Activator.CreateInstance(stateType.SystemType);
+
+        public IReadOnlyList<string> GetTransitionIDs() => Edges;
+
+        void IStateNodeData.OnSetAsLayerDefault() => SetAsLayerDefault?.Invoke();
+
+        void IStateNodeData.OnRemoveLayerDefault() => RemovedAsLayerDefault?.Invoke();
+
         public static StateNodeData PasteFromClipboard(StateNodeClipboardData data, string parentID)
         {
             var stateNode = new StateNodeData
@@ -26,14 +34,6 @@ namespace Shears.StateMachineGraphs
 
             return stateNode;
         }
-
-        public State CreateStateInstance() => (State)Activator.CreateInstance(stateType.SystemType);
-
-        public IReadOnlyList<string> GetTransitionIDs() => Edges;
-
-        void IStateNodeData.OnSetAsLayerDefault() => SetAsLayerDefault?.Invoke();
-
-        void IStateNodeData.OnRemoveLayerDefault() => RemovedAsLayerDefault?.Invoke();
 
         public override GraphElementClipboardData CopyToClipboard()
         {

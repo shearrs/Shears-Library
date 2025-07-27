@@ -76,7 +76,7 @@ namespace Shears.GraphViews.Editor
             if (graphData != null)
             {
                 graphData.LayersChanged -= ReloadLayer;
-                graphData.NodeDataAdded -= AddNodeFromData;
+                graphData.NodeDataAddedToLayer -= AddNodeFromData;
                 graphData.NodeDataRemoved -= RemoveNodeFromData;
             }
 
@@ -117,7 +117,7 @@ namespace Shears.GraphViews.Editor
             nodeDragger.SetGraphData(graphData);
 
             graphData.LayersChanged += ReloadLayer;
-            graphData.NodeDataAdded += AddNodeFromData;
+            graphData.NodeDataAddedToLayer += AddNodeFromData;
             graphData.NodeDataRemoved += RemoveNodeFromData;
             graphData.EdgeDataAdded += AddEdgeFromData;
             graphData.EdgeDataRemoved += RemoveEdgeFromData;
@@ -139,7 +139,7 @@ namespace Shears.GraphViews.Editor
                 return; 
 
             graphData.LayersChanged -= ReloadLayer;
-            graphData.NodeDataAdded -= AddNodeFromData;
+            graphData.NodeDataAddedToLayer -= AddNodeFromData;
             graphData.NodeDataRemoved -= RemoveNodeFromData;
             graphData.EdgeDataAdded -= AddEdgeFromData;
             graphData.EdgeDataRemoved -= RemoveEdgeFromData;
@@ -272,7 +272,6 @@ namespace Shears.GraphViews.Editor
 
         private void CopySelectionToClipboard()
         {
-            Record("Copy Selection");
             graphData.CopySelectionToClipboard();
             Save();
         }

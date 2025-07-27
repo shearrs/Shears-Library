@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a3251f27db25e54d8fd770aee2cc34b, type: 3}
   m_Name: Enemy Movement Graph
   m_EditorClassIdentifier: 
-  position: {x: 92.8, y: 112}
-  scale: {x: 0.55, y: 0.55}
+  position: {x: 200.8, y: 36}
+  scale: {x: 0.76, y: 0.76}
   layers:
   - parentName: Root
     parentID: $ROOT
@@ -39,18 +39,13 @@ MonoBehaviour:
   rootNodes:
   - 2498546f-34b8-4f1e-b905-f052a7391c7c
   - 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
-  copyBuffer: Graph View - {"list":[{"rid":1000},{"rid":1001}],"references":{"version":2,"RefIds":[{"rid":1000,"type":{"class":"StateNodeClipboardData","ns":"Shears.StateMachineGraphs","asm":"Shears.StateMachineGraphs"},"data":{"name":"New
-    State","position":{"x":1058.9090576171875,"y":119.09091186523438},"stateType":{"name":"EnemyMovementState","assemblyQualifiedName":"SoulTower.Enemies.EnemyMovementState,
-    SoulTower.Enemies, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","assemblyName":"SoulTower.Enemies,
-    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","prettyName":"Enemy Movement
-    State"}}},{"rid":1001,"type":{"class":"StateNodeClipboardData","ns":"Shears.StateMachineGraphs","asm":"Shears.StateMachineGraphs"},"data":{"name":"Run","position":{"x":620.0,"y":90.0},"stateType":{"name":"EnemyDeathState","assemblyQualifiedName":"SoulTower.Enemies.EnemyDeathState,
+  copyBuffer: Graph View - {"list":[{"rid":1000}],"references":{"version":2,"RefIds":[{"rid":1000,"type":{"class":"StateNodeClipboardData","ns":"Shears.StateMachineGraphs","asm":"Shears.StateMachineGraphs"},"data":{"name":"Run","position":{"x":620.0,"y":90.0},"stateType":{"name":"EnemyDeathState","assemblyQualifiedName":"SoulTower.Enemies.EnemyDeathState,
     SoulTower.Enemies, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","assemblyName":"SoulTower.Enemies,
     Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","prettyName":"Enemy Death
     State"}}}]}}
   clipboardData:
     list:
-    - rid: 8604817047753588864
-    - rid: 8604817047753588865
+    - rid: 8604817047753588914
   rootDefaultStateID: 2498546f-34b8-4f1e-b905-f052a7391c7c
   parameters:
   - b4cbe984-0476-4dac-9ce5-827a33a47221
@@ -161,7 +156,7 @@ MonoBehaviour:
       data:
         id: 669f3548-af2c-4eb0-9b9b-fee5ba9e3b26
         name: Run
-        position: {x: 620, y: 240}
+        position: {x: 580, y: 240}
         edges:
         - 38622057-f7e4-4b04-90ed-442fd0661032
         - 5b518d99-8387-4db4-99a3-4da92f585b36
@@ -218,18 +213,7 @@ MonoBehaviour:
         parameterID: 58731721-79c0-49f7-ac2f-2933a85de4e0
         compareValue: 0.1
         compareType: 0
-    - rid: 8604817047753588864
-      type: {class: StateNodeClipboardData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        name: New State
-        position: {x: 1058.909, y: 119.09091}
-        stateType:
-          name: EnemyMovementState
-          assemblyQualifiedName: SoulTower.Enemies.EnemyMovementState, SoulTower.Enemies,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: SoulTower.Enemies, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          prettyName: Enemy Movement State
-    - rid: 8604817047753588865
+    - rid: 8604817047753588914
       type: {class: StateNodeClipboardData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
         name: Run

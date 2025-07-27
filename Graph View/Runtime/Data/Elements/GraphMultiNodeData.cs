@@ -7,7 +7,7 @@ namespace Shears.GraphViews
     [Serializable]
     public abstract class GraphMultiNodeData : GraphNodeData
     {
-        [SerializeField] private List<string> subNodeIDs = new();
+        [SerializeField] protected List<string> subNodeIDs = new();
 
         public IReadOnlyList<string> SubNodeIDs => subNodeIDs;
 

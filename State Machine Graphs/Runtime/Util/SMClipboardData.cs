@@ -17,4 +17,18 @@ namespace Shears.StateMachineGraphs
             this.stateType = stateType;
         }
     }
+
+    [Serializable]
+    public class StateMachineNodeClipboardData : GraphMultiNodeClipboardData
+    {
+        [SerializeField] private SerializableSystemType stateType;
+
+        public StateMachineNodeClipboardData(string name, Vector2 position, List<string> subNodeIDs, 
+            SerializableSystemType stateType) : base(name, position, subNodeIDs)
+        {
+            this.stateType = stateType;
+        }
+
+        public SerializableSystemType StateType => stateType;
+    }
 }

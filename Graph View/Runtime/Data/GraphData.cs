@@ -39,7 +39,7 @@ namespace Shears.GraphViews
 
         public event Action LayersChanged;
         public event Action SelectionChanged;
-        public event Action<GraphNodeData> NodeDataAdded;
+        public event Action<GraphNodeData> NodeDataAddedToLayer;
         public event Action<GraphNodeData> NodeDataRemoved;
         public event Action<GraphEdgeData> EdgeDataAdded;
         public event Action<GraphEdgeData> EdgeDataRemoved;
@@ -57,7 +57,6 @@ namespace Shears.GraphViews
                 clipboardData.Add(element.CopyToClipboard());
 
             var json = CLIPBOARD_KEY + JsonUtility.ToJson(clipboardData);
-            Debug.Log("copy to clipboard: " + json);
 
             copyBuffer = json;
         }
@@ -83,7 +82,7 @@ namespace Shears.GraphViews
             }
         }
 
-        protected abstract void CreateNodeFromClipboard(GraphNodeClipboardData data);
+        protected abstract GraphNodeData CreateNodeFromClipboard(GraphNodeClipboardData data, string parentID = "");
 
         #region Element Data
         protected void AddGraphElementData(GraphElementData data)
@@ -145,7 +144,10 @@ namespace Shears.GraphViews
         {
             nodeData.Add(data.ID);
             AddGraphElementData(data);
+        }
 
+        protected void MoveNodeToCurrentLayer(GraphNodeData data)
+        {
             if (layers[^1].IsRoot())
                 rootNodes.Add(data.ID);
             else
@@ -159,7 +161,7 @@ namespace Shears.GraphViews
                 parent.AddSubNode(data);
             }
 
-            NodeDataAdded?.Invoke(data);
+            NodeDataAddedToLayer?.Invoke(data);
         }
 
         protected void RemoveNodeData(GraphNodeData data)

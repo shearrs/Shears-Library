@@ -49,17 +49,55 @@ namespace Shears.StateMachineGraphs
             }
         }
 
-        protected override void CreateNodeFromClipboard(GraphNodeClipboardData data)
+        protected override GraphNodeData CreateNodeFromClipboard(GraphNodeClipboardData data, string parentID = "")
         {
-            GraphNodeData nodeData = null;
+            if (parentID == "")
+                parentID = Layers[^1].ParentID;
 
             if (data is StateNodeClipboardData stateNodeData)
-                nodeData = StateNodeData.PasteFromClipboard(stateNodeData, Layers[^1].ParentID);
+            {
+                var stateNode = StateNodeData.PasteFromClipboard(stateNodeData, parentID);
 
-            AddNodeData(nodeData);
+                AddNodeData(stateNode);
 
-            if (nodeData is IStateNodeData state && IsDefaultAvailable(state))
-                SetLayerDefault(state);
+                if (parentID == Layers[^1].ParentID)
+                    MoveNodeToCurrentLayer(stateNode);
+
+                if (IsDefaultAvailable(stateNode))
+                    SetLayerDefault(stateNode);
+
+                return stateNode;
+            }
+            else if (data is StateMachineNodeClipboardData stateMachineNodeData)
+            {
+                var stateMachineNode = StateMachineNodeData.PasteFromClipboard(stateMachineNodeData, parentID);
+
+                AddNodeData(stateMachineNode);
+
+                if (parentID == Layers[^1].ParentID)
+                    MoveNodeToCurrentLayer(stateMachineNode);
+
+                if (IsDefaultAvailable(stateMachineNode))
+                    SetLayerDefault(stateMachineNode);
+
+                foreach (var subNodeID in stateMachineNodeData.SubNodeIDs)
+                {
+                    if (!TryGetData(subNodeID, out GraphNodeData subNode))
+                    {
+                        SHLogger.Log("Could not find sub-node with ID: " + subNodeID, SHLogLevels.Error);
+                        continue;
+                    }
+                    
+                    var clipboard = (GraphNodeClipboardData)subNode.CopyToClipboard();
+                    var copy = CreateNodeFromClipboard(clipboard, stateMachineNode.ID);
+
+                    stateMachineNode.AddSubNode(copy);
+                }
+
+                return stateMachineNode;
+            }
+
+            return null;
         }
 
         #region States
@@ -133,6 +171,7 @@ namespace Shears.StateMachineGraphs
             };
 
             AddNodeData(nodeData);
+            MoveNodeToCurrentLayer(nodeData);
 
             if (IsDefaultAvailable(nodeData))
                 SetLayerDefault(nodeData);
@@ -149,6 +188,7 @@ namespace Shears.StateMachineGraphs
             };
 
             AddNodeData(nodeData);
+            MoveNodeToCurrentLayer(nodeData);
 
             if (IsDefaultAvailable(nodeData))
                 SetLayerDefault(nodeData);
@@ -165,6 +205,7 @@ namespace Shears.StateMachineGraphs
             };
 
             AddNodeData(nodeData);
+            MoveNodeToCurrentLayer(nodeData);
 
             return nodeData;
         }
@@ -176,7 +217,7 @@ namespace Shears.StateMachineGraphs
             {
                 if (!TryGetData(stateNode.ParentID, out StateMachineNodeData stateMachine))
                 {
-                    SHLogger.Log("Could not find parent with ID: " + stateNode.ParentID);
+                    SHLogger.Log("Could not find parent with ID: " + stateNode.ParentID, SHLogLevels.Error);
                     return false;
                 }
 
