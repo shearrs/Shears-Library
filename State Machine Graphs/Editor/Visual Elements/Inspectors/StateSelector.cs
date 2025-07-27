@@ -11,6 +11,7 @@ namespace Shears.StateMachineGraphs.Editor
     {
         private static readonly Type STATE_TYPE = typeof(State);
         private static readonly Type EMPTY_STATE_TYPE = typeof(EmptyState);
+        private static readonly Type EXTERNAL_STATE_TYPE = typeof(ExternalGraphState);
 
         private readonly SerializedProperty stateTypeProp;
         private readonly SerializedProperty stateNameProp;
@@ -57,7 +58,7 @@ namespace Shears.StateMachineGraphs.Editor
             {
                 foreach (var type in assembly.GetTypes())
                 {
-                    if (type == EMPTY_STATE_TYPE || type.IsAbstract)
+                    if (type == EMPTY_STATE_TYPE || type == EXTERNAL_STATE_TYPE || type.IsAbstract)
                         continue;
 
                     if (type.IsSubclassOf(STATE_TYPE))

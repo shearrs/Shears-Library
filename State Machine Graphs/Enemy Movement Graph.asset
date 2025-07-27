@@ -12,294 +12,87 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a3251f27db25e54d8fd770aee2cc34b, type: 3}
   m_Name: Enemy Movement Graph
   m_EditorClassIdentifier: 
-  position: {x: 258.4, y: -13.6}
-  scale: {x: 0.64, y: 0.64}
+  position: {x: -26.4, y: -118.4}
+  scale: {x: 1, y: 1}
   layers:
   - parentName: Root
     parentID: $ROOT
     position: {x: 0, y: 0}
     scale: {x: 1, y: 1}
   graphElements:
-    rid: 8604816929202372677
+    rid: 8604817109611708635
   nodeData:
-  - 2498546f-34b8-4f1e-b905-f052a7391c7c
-  - 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
-  - 776e36b6-de57-4431-9bbd-19228411d721
-  - 669f3548-af2c-4eb0-9b9b-fee5ba9e3b26
-  - fe80950f-4fdc-4125-906e-5e7634919813
-  - e184babe-88c7-460a-9e1b-a190bea33b8d
-  - 4a0458f0-fb08-4088-b3b5-789aa47f2333
-  - c9651f30-8b37-48a2-9bac-74ad95b071c1
-  - cfed9894-09ce-41b9-8ff3-df1cdac8445c
-  - ebc8440b-c1c7-454e-ab88-6eef0e828c33
-  - b4262fd1-ba5c-419b-9258-1b8831abb125
-  - 16ce014f-9fc1-49a4-be78-5b4eab0a7320
-  - 92010612-91db-4cfa-a03e-6e5d8c525066
-  - 318597c4-858d-4fd8-b8f4-79cc039f86d8
-  - 952984fc-8eec-4df6-b6d6-2baa975e7a6b
-  - fac374f1-2fd4-452b-93f5-ab8275514079
-  - 20594997-647e-4728-9d5d-855c7531d6a9
-  - edf9043c-6ba5-4628-933c-febb614be1eb
-  - 97f6075b-5455-40ee-9d41-f84c1f911033
-  - 78a26115-8395-4383-adea-eb59136b432e
-  - 75d7f567-b4e9-4aae-8a00-3b6f94b5fdf9
-  - 498ca88e-b2d4-4610-89a5-cd6bcd50df07
-  - b16cea20-dcac-477b-b003-1027f3b5e75c
-  - de4fc457-e549-45c4-be7d-2bf9ae378329
+  - 6c708147-c5c9-4a08-ad2b-f65ffdf34609
+  - c1a0a55a-9233-4884-a76e-d42677ce0137
+  - 9bb13af5-fd82-4d0c-b97e-97fb7ddb6824
+  - 495c4086-6889-4233-b82f-454cc7e2944d
+  - 3725422e-6708-4d1d-87e5-57fd35334a54
+  - da706fa6-3fca-43bb-acef-28f8d79cd9c2
   edgeData:
-  - c6a4d043-417a-42a8-ba63-74815463323c
-  - 38622057-f7e4-4b04-90ed-442fd0661032
-  - 5b518d99-8387-4db4-99a3-4da92f585b36
-  - fb1d700a-5400-4785-8d85-433c91b5c5e1
-  - 8e78563f-937b-4408-9dc4-e9b968903ce3
-  - 95013f99-ac57-43b2-af2b-ab5acdcb17eb
-  - eb7c5cb0-c20d-4b19-a048-a04bcd12db6a
-  - 3549216e-c275-48ea-b995-bd1736db79b6
+  - b78ea9ba-77fe-49eb-b472-04c218a409ed
+  - 03ad2af2-a9c4-4ab6-ac30-98f4e19f9290
+  - 977615d2-0b66-42c3-be36-85615cd7a873
+  - e7b8b580-ec4e-4dfb-bd41-102e6ff6cb98
+  - 7ca334ca-618e-46a2-95c1-842bdc11e271
   selection: []
   rootNodes:
-  - 2498546f-34b8-4f1e-b905-f052a7391c7c
-  - 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
-  - de4fc457-e549-45c4-be7d-2bf9ae378329
-  copyBuffer: Graph View - {"list":[{"rid":1000}],"references":{"version":2,"RefIds":[{"rid":1000,"type":{"class":"StateMachineNodeClipboardData","ns":"Shears.StateMachineGraphs","asm":"Shears.StateMachineGraphs"},"data":{"name":"New
-    State Machine","position":{"x":300.0,"y":330.0},"subNodeIDs":["3face97c-eb27-4451-a153-177618da9596","2275c6e4-81ab-4937-9cf0-7b83b1a4da40"],"stateType":{"name":"EmptyState","assemblyQualifiedName":"Shears.StateMachineGraphs.EmptyState,
-    Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","assemblyName":"Shears.StateMachineGraphs,
-    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","prettyName":"Empty State"}}}]}}
+  - 6c708147-c5c9-4a08-ad2b-f65ffdf34609
+  - c1a0a55a-9233-4884-a76e-d42677ce0137
+  copyBuffer: 
   clipboardData:
     list: []
-  rootDefaultStateID: 2498546f-34b8-4f1e-b905-f052a7391c7c
+  rootDefaultStateID: 
   parameters:
-  - b4cbe984-0476-4dac-9ce5-827a33a47221
-  - 58731721-79c0-49f7-ac2f-2933a85de4e0
-  - 24fec26f-9f9c-4010-a161-5c9fb5aa4313
+  - dbbd44d7-c629-4879-b18d-ed450cffeadc
+  - b37ed17c-4544-45e8-ac87-3318dbb5ed73
   references:
     version: 2
     RefIds:
-    - rid: 8604816929202372677
+    - rid: 8604817109611708635
       type: {class: GraphElementDictionary, ns: Shears.GraphViews, asm: Shears.GraphViews}
       data:
         keys:
-        - b4cbe984-0476-4dac-9ce5-827a33a47221
-        - c6a4d043-417a-42a8-ba63-74815463323c
-        - 2498546f-34b8-4f1e-b905-f052a7391c7c
-        - 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
-        - 58731721-79c0-49f7-ac2f-2933a85de4e0
-        - 776e36b6-de57-4431-9bbd-19228411d721
-        - 669f3548-af2c-4eb0-9b9b-fee5ba9e3b26
-        - 38622057-f7e4-4b04-90ed-442fd0661032
-        - 5b518d99-8387-4db4-99a3-4da92f585b36
-        - fb1d700a-5400-4785-8d85-433c91b5c5e1
-        - fe80950f-4fdc-4125-906e-5e7634919813
-        - e184babe-88c7-460a-9e1b-a190bea33b8d
-        - 4a0458f0-fb08-4088-b3b5-789aa47f2333
-        - c9651f30-8b37-48a2-9bac-74ad95b071c1
-        - cfed9894-09ce-41b9-8ff3-df1cdac8445c
-        - ebc8440b-c1c7-454e-ab88-6eef0e828c33
-        - b4262fd1-ba5c-419b-9258-1b8831abb125
-        - 16ce014f-9fc1-49a4-be78-5b4eab0a7320
-        - 92010612-91db-4cfa-a03e-6e5d8c525066
-        - 318597c4-858d-4fd8-b8f4-79cc039f86d8
-        - 952984fc-8eec-4df6-b6d6-2baa975e7a6b
-        - fac374f1-2fd4-452b-93f5-ab8275514079
-        - 20594997-647e-4728-9d5d-855c7531d6a9
-        - edf9043c-6ba5-4628-933c-febb614be1eb
-        - 97f6075b-5455-40ee-9d41-f84c1f911033
-        - 78a26115-8395-4383-adea-eb59136b432e
-        - 75d7f567-b4e9-4aae-8a00-3b6f94b5fdf9
-        - 498ca88e-b2d4-4610-89a5-cd6bcd50df07
-        - b16cea20-dcac-477b-b003-1027f3b5e75c
-        - de4fc457-e549-45c4-be7d-2bf9ae378329
-        - 8e78563f-937b-4408-9dc4-e9b968903ce3
-        - 95013f99-ac57-43b2-af2b-ab5acdcb17eb
-        - 24fec26f-9f9c-4010-a161-5c9fb5aa4313
-        - eb7c5cb0-c20d-4b19-a048-a04bcd12db6a
-        - 3549216e-c275-48ea-b995-bd1736db79b6
+        - 6c708147-c5c9-4a08-ad2b-f65ffdf34609
+        - c1a0a55a-9233-4884-a76e-d42677ce0137
+        - dbbd44d7-c629-4879-b18d-ed450cffeadc
+        - b78ea9ba-77fe-49eb-b472-04c218a409ed
+        - 03ad2af2-a9c4-4ab6-ac30-98f4e19f9290
+        - 9bb13af5-fd82-4d0c-b97e-97fb7ddb6824
+        - 495c4086-6889-4233-b82f-454cc7e2944d
+        - 977615d2-0b66-42c3-be36-85615cd7a873
+        - e7b8b580-ec4e-4dfb-bd41-102e6ff6cb98
+        - b37ed17c-4544-45e8-ac87-3318dbb5ed73
+        - 3725422e-6708-4d1d-87e5-57fd35334a54
+        - da706fa6-3fca-43bb-acef-28f8d79cd9c2
+        - 7ca334ca-618e-46a2-95c1-842bdc11e271
         values:
-        - rid: 8604816979078152269
-        - rid: 8604816979759727169
-        - rid: 8604816979759727167
-        - rid: 8604816979759727168
-        - rid: 8604816979759727175
-        - rid: 8604817002265051201
-        - rid: 8604817002265051202
-        - rid: 8604817003320705108
-        - rid: 8604817003320705111
-        - rid: 8604817003320705114
-        - rid: 8604817109611708489
-        - rid: 8604817109611708490
-        - rid: 8604817109611708491
-        - rid: 8604817109611708493
-        - rid: 8604817109611708496
-        - rid: 8604817109611708497
-        - rid: 8604817109611708499
-        - rid: 8604817109611708500
-        - rid: 8604817109611708501
-        - rid: 8604817109611708502
-        - rid: 8604817109611708503
-        - rid: 8604817109611708504
-        - rid: 8604817109611708505
-        - rid: 8604817109611708506
-        - rid: 8604817109611708507
-        - rid: 8604817109611708508
-        - rid: 8604817109611708509
-        - rid: 8604817109611708510
-        - rid: 8604817109611708514
-        - rid: 8604817109611708567
-        - rid: 8604817109611708568
-        - rid: 8604817109611708569
-        - rid: 8604817109611708570
-        - rid: 8604817109611708577
-        - rid: 8604817109611708578
-    - rid: 8604816979078152269
-      type: {class: BoolParameterData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: b4cbe984-0476-4dac-9ce5-827a33a47221
-        name: isRunning
-        value: 0
-    - rid: 8604816979759727167
-      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 2498546f-34b8-4f1e-b905-f052a7391c7c
-        name: Idle
-        position: {x: 140, y: 260}
-        edges:
-        - c6a4d043-417a-42a8-ba63-74815463323c
-        - fb1d700a-5400-4785-8d85-433c91b5c5e1
-        - 8e78563f-937b-4408-9dc4-e9b968903ce3
-        - eb7c5cb0-c20d-4b19-a048-a04bcd12db6a
-        parentID: $ROOT
-        stateType:
-          name: EmptyState
-          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
-            PublicKeyToken=null
-          prettyName: Empty State
-    - rid: 8604816979759727168
+        - rid: 8604817109611708639
+        - rid: 8604817109611708640
+        - rid: 8604817109611708641
+        - rid: 8604817109611708642
+        - rid: 8604817109611708643
+        - rid: 8604817109611708648
+        - rid: 8604817109611708649
+        - rid: 8604817109611708650
+        - rid: 8604817109611708651
+        - rid: 8604817109611708652
+        - rid: 8604817109611708658
+        - rid: 8604817109611708659
+        - rid: 8604817109611708660
+    - rid: 8604817109611708639
       type: {class: StateMachineNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
-        id: 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
-        name: Locomotion
-        position: {x: 580, y: 260}
+        id: 6c708147-c5c9-4a08-ad2b-f65ffdf34609
+        name: Default State Machine
+        position: {x: 480, y: 220}
         edges:
-        - c6a4d043-417a-42a8-ba63-74815463323c
-        - fb1d700a-5400-4785-8d85-433c91b5c5e1
-        - 95013f99-ac57-43b2-af2b-ab5acdcb17eb
-        - 3549216e-c275-48ea-b995-bd1736db79b6
+        - b78ea9ba-77fe-49eb-b472-04c218a409ed
+        - 03ad2af2-a9c4-4ab6-ac30-98f4e19f9290
         parentID: $ROOT
         subNodeIDs:
-        - 776e36b6-de57-4431-9bbd-19228411d721
-        - 669f3548-af2c-4eb0-9b9b-fee5ba9e3b26
-        - 53ad861f-d308-460e-ac63-7fc8418122bc
-        - eb4e60a7-9ec4-4575-8d37-feb32a4f2293
-        - 87838709-f192-4551-8f8c-0246f0998872
-        - bbcd2955-8563-4397-bd46-768ff71b0fbe
-        defaultStateID: 776e36b6-de57-4431-9bbd-19228411d721
-        stateType:
-          name: EnemyMovementState
-          assemblyQualifiedName: SoulTower.Enemies.EnemyMovementState, SoulTower.Enemies,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: SoulTower.Enemies, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          prettyName: Enemy Movement State
-    - rid: 8604816979759727169
-      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: c6a4d043-417a-42a8-ba63-74815463323c
-        fromID: 2498546f-34b8-4f1e-b905-f052a7391c7c
-        toID: 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
-        comparisonData:
-        - rid: 8604817003320705107
-    - rid: 8604816979759727175
-      type: {class: FloatParameterData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 58731721-79c0-49f7-ac2f-2933a85de4e0
-        name: moveAmount
-        value: 0
-    - rid: 8604817002265051201
-      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 776e36b6-de57-4431-9bbd-19228411d721
-        name: Walk
-        position: {x: 0, y: 240}
-        edges:
-        - 38622057-f7e4-4b04-90ed-442fd0661032
-        - 5b518d99-8387-4db4-99a3-4da92f585b36
-        parentID: 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
-        stateType:
-          name: EnemyMovementState
-          assemblyQualifiedName: SoulTower.Enemies.EnemyMovementState, SoulTower.Enemies,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: SoulTower.Enemies, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          prettyName: Enemy Movement State
-    - rid: 8604817002265051202
-      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 669f3548-af2c-4eb0-9b9b-fee5ba9e3b26
-        name: Run
-        position: {x: 580, y: 240}
-        edges:
-        - 38622057-f7e4-4b04-90ed-442fd0661032
-        - 5b518d99-8387-4db4-99a3-4da92f585b36
-        parentID: 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
-        stateType:
-          name: EnemyDeathState
-          assemblyQualifiedName: SoulTower.Enemies.EnemyDeathState, SoulTower.Enemies,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: SoulTower.Enemies, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          prettyName: Enemy Death State
-    - rid: 8604817003320705107
-      type: {class: FloatComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        parameterID: 58731721-79c0-49f7-ac2f-2933a85de4e0
-        compareValue: 0.1
-        compareType: 1
-    - rid: 8604817003320705108
-      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 38622057-f7e4-4b04-90ed-442fd0661032
-        fromID: 776e36b6-de57-4431-9bbd-19228411d721
-        toID: 669f3548-af2c-4eb0-9b9b-fee5ba9e3b26
-        comparisonData:
-        - rid: 8604817003320705110
-    - rid: 8604817003320705110
-      type: {class: BoolComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        parameterID: b4cbe984-0476-4dac-9ce5-827a33a47221
-        compareValue: 1
-    - rid: 8604817003320705111
-      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 5b518d99-8387-4db4-99a3-4da92f585b36
-        fromID: 669f3548-af2c-4eb0-9b9b-fee5ba9e3b26
-        toID: 776e36b6-de57-4431-9bbd-19228411d721
-        comparisonData:
-        - rid: 8604817003320705113
-    - rid: 8604817003320705113
-      type: {class: BoolComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        parameterID: b4cbe984-0476-4dac-9ce5-827a33a47221
-        compareValue: 0
-    - rid: 8604817003320705114
-      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: fb1d700a-5400-4785-8d85-433c91b5c5e1
-        fromID: 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
-        toID: 2498546f-34b8-4f1e-b905-f052a7391c7c
-        comparisonData:
-        - rid: 8604817003320705116
-    - rid: 8604817003320705116
-      type: {class: FloatComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        parameterID: 58731721-79c0-49f7-ac2f-2933a85de4e0
-        compareValue: 0.1
-        compareType: 0
-    - rid: 8604817109611708489
-      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: fe80950f-4fdc-4125-906e-5e7634919813
-        name: New State
-        position: {x: 0, y: 350}
-        edges: []
-        parentID: 4a0458f0-fb08-4088-b3b5-789aa47f2333
+        - 9bb13af5-fd82-4d0c-b97e-97fb7ddb6824
+        - 495c4086-6889-4233-b82f-454cc7e2944d
+        defaultStateID: 9bb13af5-fd82-4d0c-b97e-97fb7ddb6824
         stateType:
           name: EmptyState
           assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
@@ -307,357 +100,163 @@ MonoBehaviour:
           assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
             PublicKeyToken=null
           prettyName: Empty State
-    - rid: 8604817109611708490
-      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: e184babe-88c7-460a-9e1b-a190bea33b8d
-        name: New State
-        position: {x: 420, y: 330}
-        edges: []
-        parentID: 4a0458f0-fb08-4088-b3b5-789aa47f2333
-        stateType:
-          name: EmptyState
-          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
-            PublicKeyToken=null
-          prettyName: Empty State
-    - rid: 8604817109611708491
-      type: {class: StateMachineNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 4a0458f0-fb08-4088-b3b5-789aa47f2333
-        name: my node
-        position: {x: 120, y: 350}
-        edges: []
-        parentID: 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
-        subNodeIDs:
-        - fe80950f-4fdc-4125-906e-5e7634919813
-        - e184babe-88c7-460a-9e1b-a190bea33b8d
-        defaultStateID: f8ea40b9-2f29-4531-9508-c6480b4be147
-        stateType:
-          name: EnemyMovementState
-          assemblyQualifiedName: SoulTower.Enemies.EnemyMovementState, SoulTower.Enemies,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: SoulTower.Enemies, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          prettyName: Enemy Movement State
-    - rid: 8604817109611708493
-      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: c9651f30-8b37-48a2-9bac-74ad95b071c1
-        name: Run
-        position: {x: 580, y: 90}
-        edges: []
-        parentID: 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
-        stateType:
-          name: EnemyDeathState
-          assemblyQualifiedName: SoulTower.Enemies.EnemyDeathState, SoulTower.Enemies,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: SoulTower.Enemies, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          prettyName: Enemy Death State
-    - rid: 8604817109611708496
-      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: cfed9894-09ce-41b9-8ff3-df1cdac8445c
-        name: Run
-        position: {x: 580, y: 90}
-        edges: []
-        parentID: 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
-        stateType:
-          name: EnemyDeathState
-          assemblyQualifiedName: SoulTower.Enemies.EnemyDeathState, SoulTower.Enemies,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: SoulTower.Enemies, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          prettyName: Enemy Death State
-    - rid: 8604817109611708497
-      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: ebc8440b-c1c7-454e-ab88-6eef0e828c33
-        name: Walk
-        position: {x: 0, y: 90}
-        edges: []
-        parentID: 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
-        stateType:
-          name: EnemyMovementState
-          assemblyQualifiedName: SoulTower.Enemies.EnemyMovementState, SoulTower.Enemies,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: SoulTower.Enemies, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          prettyName: Enemy Movement State
-    - rid: 8604817109611708499
-      type: {class: StateMachineNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: b4262fd1-ba5c-419b-9258-1b8831abb125
-        name: my node
-        position: {x: 120, y: 350}
-        edges: []
-        parentID: 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
-        subNodeIDs:
-        - 16ce014f-9fc1-49a4-be78-5b4eab0a7320
-        - 92010612-91db-4cfa-a03e-6e5d8c525066
-        defaultStateID: f8ea40b9-2f29-4531-9508-c6480b4be147
-        stateType:
-          name: EnemyMovementState
-          assemblyQualifiedName: SoulTower.Enemies.EnemyMovementState, SoulTower.Enemies,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: SoulTower.Enemies, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          prettyName: Enemy Movement State
-    - rid: 8604817109611708500
-      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 16ce014f-9fc1-49a4-be78-5b4eab0a7320
-        name: New State
-        position: {x: 0, y: 350}
-        edges: []
-        parentID: b4262fd1-ba5c-419b-9258-1b8831abb125
-        stateType:
-          name: EmptyState
-          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
-            PublicKeyToken=null
-          prettyName: Empty State
-    - rid: 8604817109611708501
-      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 92010612-91db-4cfa-a03e-6e5d8c525066
-        name: New State
-        position: {x: 420, y: 330}
-        edges: []
-        parentID: b4262fd1-ba5c-419b-9258-1b8831abb125
-        stateType:
-          name: EmptyState
-          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
-            PublicKeyToken=null
-          prettyName: Empty State
-    - rid: 8604817109611708502
-      type: {class: StateMachineNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 318597c4-858d-4fd8-b8f4-79cc039f86d8
-        name: my node
-        position: {x: 120, y: 350}
-        edges: []
-        parentID: 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
-        subNodeIDs:
-        - 952984fc-8eec-4df6-b6d6-2baa975e7a6b
-        - fac374f1-2fd4-452b-93f5-ab8275514079
-        defaultStateID: f8ea40b9-2f29-4531-9508-c6480b4be147
-        stateType:
-          name: EnemyMovementState
-          assemblyQualifiedName: SoulTower.Enemies.EnemyMovementState, SoulTower.Enemies,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: SoulTower.Enemies, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          prettyName: Enemy Movement State
-    - rid: 8604817109611708503
-      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 952984fc-8eec-4df6-b6d6-2baa975e7a6b
-        name: New State
-        position: {x: 0, y: 350}
-        edges: []
-        parentID: 318597c4-858d-4fd8-b8f4-79cc039f86d8
-        stateType:
-          name: EmptyState
-          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
-            PublicKeyToken=null
-          prettyName: Empty State
-    - rid: 8604817109611708504
-      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: fac374f1-2fd4-452b-93f5-ab8275514079
-        name: New State
-        position: {x: 420, y: 330}
-        edges: []
-        parentID: 318597c4-858d-4fd8-b8f4-79cc039f86d8
-        stateType:
-          name: EmptyState
-          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
-            PublicKeyToken=null
-          prettyName: Empty State
-    - rid: 8604817109611708505
-      type: {class: StateMachineNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 20594997-647e-4728-9d5d-855c7531d6a9
-        name: my node
-        position: {x: 120, y: 350}
-        edges: []
-        parentID: 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
-        subNodeIDs:
-        - edf9043c-6ba5-4628-933c-febb614be1eb
-        - 97f6075b-5455-40ee-9d41-f84c1f911033
-        defaultStateID: f8ea40b9-2f29-4531-9508-c6480b4be147
-        stateType:
-          name: EnemyMovementState
-          assemblyQualifiedName: SoulTower.Enemies.EnemyMovementState, SoulTower.Enemies,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: SoulTower.Enemies, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          prettyName: Enemy Movement State
-    - rid: 8604817109611708506
-      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: edf9043c-6ba5-4628-933c-febb614be1eb
-        name: New State
-        position: {x: 0, y: 350}
-        edges: []
-        parentID: 20594997-647e-4728-9d5d-855c7531d6a9
-        stateType:
-          name: EmptyState
-          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
-            PublicKeyToken=null
-          prettyName: Empty State
-    - rid: 8604817109611708507
-      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 97f6075b-5455-40ee-9d41-f84c1f911033
-        name: New State
-        position: {x: 420, y: 330}
-        edges: []
-        parentID: 20594997-647e-4728-9d5d-855c7531d6a9
-        stateType:
-          name: EmptyState
-          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
-            PublicKeyToken=null
-          prettyName: Empty State
-    - rid: 8604817109611708508
-      type: {class: StateMachineNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 78a26115-8395-4383-adea-eb59136b432e
-        name: my node
-        position: {x: 120, y: 350}
-        edges: []
-        parentID: 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
-        subNodeIDs:
-        - 75d7f567-b4e9-4aae-8a00-3b6f94b5fdf9
-        - 498ca88e-b2d4-4610-89a5-cd6bcd50df07
-        defaultStateID: f8ea40b9-2f29-4531-9508-c6480b4be147
-        stateType:
-          name: EnemyMovementState
-          assemblyQualifiedName: SoulTower.Enemies.EnemyMovementState, SoulTower.Enemies,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: SoulTower.Enemies, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          prettyName: Enemy Movement State
-    - rid: 8604817109611708509
-      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 75d7f567-b4e9-4aae-8a00-3b6f94b5fdf9
-        name: New State
-        position: {x: 0, y: 350}
-        edges: []
-        parentID: 78a26115-8395-4383-adea-eb59136b432e
-        stateType:
-          name: EmptyState
-          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
-            PublicKeyToken=null
-          prettyName: Empty State
-    - rid: 8604817109611708510
-      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 498ca88e-b2d4-4610-89a5-cd6bcd50df07
-        name: New State
-        position: {x: 420, y: 330}
-        edges: []
-        parentID: 78a26115-8395-4383-adea-eb59136b432e
-        stateType:
-          name: EmptyState
-          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
-            PublicKeyToken=null
-          prettyName: Empty State
-    - rid: 8604817109611708514
-      type: {class: StateMachineNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: b16cea20-dcac-477b-b003-1027f3b5e75c
-        name: my node
-        position: {x: 120, y: 350}
-        edges: []
-        parentID: 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
-        subNodeIDs: []
-        defaultStateID: f8ea40b9-2f29-4531-9508-c6480b4be147
-        stateType:
-          name: EnemyMovementState
-          assemblyQualifiedName: SoulTower.Enemies.EnemyMovementState, SoulTower.Enemies,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: SoulTower.Enemies, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          prettyName: Enemy Movement State
-    - rid: 8604817109611708567
+    - rid: 8604817109611708640
       type: {class: ExternalStateMachineNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
-        id: de4fc457-e549-45c4-be7d-2bf9ae378329
-        name: Freeze
-        position: {x: 360, y: 560}
+        id: c1a0a55a-9233-4884-a76e-d42677ce0137
+        name: Frozen
+        position: {x: 480, y: 440}
         edges:
-        - 8e78563f-937b-4408-9dc4-e9b968903ce3
-        - 95013f99-ac57-43b2-af2b-ab5acdcb17eb
-        - eb7c5cb0-c20d-4b19-a048-a04bcd12db6a
-        - 3549216e-c275-48ea-b995-bd1736db79b6
+        - b78ea9ba-77fe-49eb-b472-04c218a409ed
+        - 03ad2af2-a9c4-4ab6-ac30-98f4e19f9290
         parentID: $ROOT
-        externalGraphData: {fileID: 0}
-    - rid: 8604817109611708568
-      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 8e78563f-937b-4408-9dc4-e9b968903ce3
-        fromID: 2498546f-34b8-4f1e-b905-f052a7391c7c
-        toID: de4fc457-e549-45c4-be7d-2bf9ae378329
-        comparisonData:
-        - rid: 8604817109611708572
-    - rid: 8604817109611708569
-      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 95013f99-ac57-43b2-af2b-ab5acdcb17eb
-        fromID: 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
-        toID: de4fc457-e549-45c4-be7d-2bf9ae378329
-        comparisonData:
-        - rid: 8604817109611708574
-    - rid: 8604817109611708570
+        externalGraphData: {fileID: 11400000, guid: f577b97a682156d49a8b5d989b3500e4, type: 2}
+    - rid: 8604817109611708641
       type: {class: BoolParameterData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
-        id: 24fec26f-9f9c-4010-a161-5c9fb5aa4313
+        id: dbbd44d7-c629-4879-b18d-ed450cffeadc
         name: isFrozen
         value: 0
-    - rid: 8604817109611708572
-      type: {class: BoolComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        parameterID: 24fec26f-9f9c-4010-a161-5c9fb5aa4313
-        compareValue: 1
-    - rid: 8604817109611708574
-      type: {class: BoolComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        parameterID: 24fec26f-9f9c-4010-a161-5c9fb5aa4313
-        compareValue: 1
-    - rid: 8604817109611708577
+    - rid: 8604817109611708642
       type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
-        id: eb7c5cb0-c20d-4b19-a048-a04bcd12db6a
-        fromID: de4fc457-e549-45c4-be7d-2bf9ae378329
-        toID: 2498546f-34b8-4f1e-b905-f052a7391c7c
+        id: b78ea9ba-77fe-49eb-b472-04c218a409ed
+        fromID: 6c708147-c5c9-4a08-ad2b-f65ffdf34609
+        toID: c1a0a55a-9233-4884-a76e-d42677ce0137
         comparisonData:
-        - rid: 8604817109611708582
-    - rid: 8604817109611708578
+        - rid: 8604817109611708645
+    - rid: 8604817109611708643
       type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
-        id: 3549216e-c275-48ea-b995-bd1736db79b6
-        fromID: de4fc457-e549-45c4-be7d-2bf9ae378329
-        toID: 2a05ad41-1315-4a17-8f72-d6bc1c8c03ce
+        id: 03ad2af2-a9c4-4ab6-ac30-98f4e19f9290
+        fromID: c1a0a55a-9233-4884-a76e-d42677ce0137
+        toID: 6c708147-c5c9-4a08-ad2b-f65ffdf34609
         comparisonData:
-        - rid: 8604817109611708580
-    - rid: 8604817109611708580
+        - rid: 8604817109611708647
+    - rid: 8604817109611708645
       type: {class: BoolComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
-        parameterID: 24fec26f-9f9c-4010-a161-5c9fb5aa4313
-        compareValue: 0
-    - rid: 8604817109611708582
+        parameterID: dbbd44d7-c629-4879-b18d-ed450cffeadc
+        compareValue: 1
+    - rid: 8604817109611708647
       type: {class: BoolComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
-        parameterID: 24fec26f-9f9c-4010-a161-5c9fb5aa4313
+        parameterID: dbbd44d7-c629-4879-b18d-ed450cffeadc
         compareValue: 0
+    - rid: 8604817109611708648
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 9bb13af5-fd82-4d0c-b97e-97fb7ddb6824
+        name: Idle
+        position: {x: 200, y: 360}
+        edges:
+        - 977615d2-0b66-42c3-be36-85615cd7a873
+        - e7b8b580-ec4e-4dfb-bd41-102e6ff6cb98
+        parentID: 6c708147-c5c9-4a08-ad2b-f65ffdf34609
+        stateType:
+          name: EmptyState
+          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          prettyName: Empty State
+    - rid: 8604817109611708649
+      type: {class: StateMachineNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 495c4086-6889-4233-b82f-454cc7e2944d
+        name: Locomotion
+        position: {x: 820, y: 360}
+        edges:
+        - 977615d2-0b66-42c3-be36-85615cd7a873
+        - e7b8b580-ec4e-4dfb-bd41-102e6ff6cb98
+        parentID: 6c708147-c5c9-4a08-ad2b-f65ffdf34609
+        subNodeIDs:
+        - 3725422e-6708-4d1d-87e5-57fd35334a54
+        - da706fa6-3fca-43bb-acef-28f8d79cd9c2
+        defaultStateID: 3725422e-6708-4d1d-87e5-57fd35334a54
+        stateType:
+          name: EnemyMovementState
+          assemblyQualifiedName: SoulTower.Enemies.EnemyMovementState, SoulTower.Enemies,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: SoulTower.Enemies, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          prettyName: Enemy Movement State
+    - rid: 8604817109611708650
+      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 977615d2-0b66-42c3-be36-85615cd7a873
+        fromID: 9bb13af5-fd82-4d0c-b97e-97fb7ddb6824
+        toID: 495c4086-6889-4233-b82f-454cc7e2944d
+        comparisonData:
+        - rid: 8604817109611708654
+    - rid: 8604817109611708651
+      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: e7b8b580-ec4e-4dfb-bd41-102e6ff6cb98
+        fromID: 495c4086-6889-4233-b82f-454cc7e2944d
+        toID: 9bb13af5-fd82-4d0c-b97e-97fb7ddb6824
+        comparisonData:
+        - rid: 8604817109611708656
+    - rid: 8604817109611708652
+      type: {class: FloatParameterData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: b37ed17c-4544-45e8-ac87-3318dbb5ed73
+        name: moveAmount
+        value: 0
+    - rid: 8604817109611708654
+      type: {class: FloatComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        parameterID: b37ed17c-4544-45e8-ac87-3318dbb5ed73
+        compareValue: 0.1
+        compareType: 1
+    - rid: 8604817109611708656
+      type: {class: FloatComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        parameterID: b37ed17c-4544-45e8-ac87-3318dbb5ed73
+        compareValue: 0.1
+        compareType: 0
+    - rid: 8604817109611708658
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 3725422e-6708-4d1d-87e5-57fd35334a54
+        name: Walk
+        position: {x: 300, y: 280}
+        edges:
+        - 7ca334ca-618e-46a2-95c1-842bdc11e271
+        parentID: 495c4086-6889-4233-b82f-454cc7e2944d
+        stateType:
+          name: EmptyState
+          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          prettyName: Empty State
+    - rid: 8604817109611708659
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: da706fa6-3fca-43bb-acef-28f8d79cd9c2
+        name: Run
+        position: {x: 840, y: 280}
+        edges:
+        - 7ca334ca-618e-46a2-95c1-842bdc11e271
+        parentID: 495c4086-6889-4233-b82f-454cc7e2944d
+        stateType:
+          name: EmptyState
+          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          prettyName: Empty State
+    - rid: 8604817109611708660
+      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 7ca334ca-618e-46a2-95c1-842bdc11e271
+        fromID: 3725422e-6708-4d1d-87e5-57fd35334a54
+        toID: da706fa6-3fca-43bb-acef-28f8d79cd9c2
+        comparisonData:
+        - rid: 8604817109611708662
+    - rid: 8604817109611708662
+      type: {class: FloatComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        parameterID: b37ed17c-4544-45e8-ac87-3318dbb5ed73
+        compareValue: 5
+        compareType: 1

@@ -69,8 +69,7 @@
 .layerDefault .unity-label
 {
 	background-color: rgba(105, 85, 65, 1);
-	border-width: 1px;
-	border-radius: 4px;
+	border-width: 1px 0px 1px 0px;
 	border-color: rgba(65, 45, 25, 1);
 	flex-grow: 1; 
 	margin: 16px 0px 16px 0px;

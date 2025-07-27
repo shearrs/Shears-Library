@@ -72,6 +72,12 @@
 	-unity-text-align: middle-center;
 }
 
+.graphNode > Label
+{
+	padding-left: 8px;
+	padding-right: 8px;
+}
+
 .graphMultiNode
 {
 	background-color: rgba(65, 65, 105, 1);
