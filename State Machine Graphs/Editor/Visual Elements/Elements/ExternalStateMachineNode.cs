@@ -8,9 +8,25 @@ namespace Shears.StateMachineGraphs.Editor
     {
         IStateNodeData IStateNode.Data => (IStateNodeData)GetData();
 
-        public ExternalStateMachineNode(ExternalStateMachineNodeData data, GraphView graphView, GraphData graphData) : base(data, graphView, graphData)
+        public ExternalStateMachineNode(ExternalStateMachineNodeData data, SMGraphView graphView, GraphData graphData) : base(data, graphView, graphData)
         {
             AddToClassList(SMEditorUtil.ExternalStateMachineNodeClassName);
+
+            data.SetAsLayerDefault += OnSetAsLayerDefault;
+            data.RemovedAsLayerDefault += OnRemovedAsLayerDefault;
+
+            if (graphView.IsLayerDefault(data))
+                OnSetAsLayerDefault();
+        }
+
+        private void OnSetAsLayerDefault()
+        {
+            AddToClassList(SMEditorUtil.LayerDefaultNodeClassName);
+        }
+
+        private void OnRemovedAsLayerDefault()
+        {
+            RemoveFromClassList(SMEditorUtil.LayerDefaultNodeClassName);
         }
     }
 }

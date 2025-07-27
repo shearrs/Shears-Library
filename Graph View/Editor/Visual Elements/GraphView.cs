@@ -1,3 +1,4 @@
+using Shears.Logging;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
@@ -417,7 +418,7 @@ namespace Shears.GraphViews.Editor
         {
             if (!graphData.TryGetData(id, out GraphNodeData data))
             {
-                Debug.LogError("Could not find node data for id: " + id);
+                SHLogger.Log("Could not find node data for id: " + id, SHLogLevels.Error);
                 return null;
             }
 
@@ -496,7 +497,7 @@ namespace Shears.GraphViews.Editor
         {
             if (!graphData.TryGetData(id, out GraphEdgeData data))
             {
-                Debug.LogError("Could not find edge data for id: " + id);
+                SHLogger.Log("Could not find edge data for id: " + id, SHLogLevels.Error);
                 return null;
             }
 
@@ -556,6 +557,9 @@ namespace Shears.GraphViews.Editor
 
         public void Select(ISelectable selectable, bool isMultiSelect = false)
         {
+            if (graphData == null)
+                return;
+
             if (selectable == null)
                 graphData.Select(null);
             else

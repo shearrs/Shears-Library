@@ -70,7 +70,6 @@
 	border-color: rgba(40, 40, 40, 1);
 	font-size: 28px;
 	-unity-text-align: middle-center;
-	padding: 32px;
 }
 
 .graphMultiNode
