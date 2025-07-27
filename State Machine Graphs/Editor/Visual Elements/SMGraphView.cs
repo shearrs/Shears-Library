@@ -107,7 +107,7 @@ namespace Shears.StateMachineGraphs.Editor
 
         private void AddManipulators()
         {
-            GraphViewContainer.AddManipulator(contextMenu);
+            //GraphViewContainer.AddManipulator(contextMenu);
         }
 
         private void RemoveManipulators()
