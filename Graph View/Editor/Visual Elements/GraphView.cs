@@ -68,7 +68,6 @@ namespace Shears.GraphViews.Editor
 
             GraphViewEditorUtil.UndoRedoEvent += OnUndoRedo;
 
-            EditorWindow.GetWindow<GraphViewEditorWindow>(false, null, false).NonGraphWindowFocused += OnGraphLostFocus;
             RegisterCallback<KeyDownEvent>(OnKeyDown);
         }
 
@@ -80,19 +79,11 @@ namespace Shears.GraphViews.Editor
                 graphData.NodeDataAddedToLayer -= AddNodeFromData;
                 graphData.NodeDataRemoved -= RemoveNodeFromData;
             }
-
-            EditorWindow.GetWindow<GraphViewEditorWindow>(false, null, false).NonGraphWindowFocused -= OnGraphLostFocus;
         }
 
         private void OnUndoRedo()
         {
             ReloadLayer();
-        }
-
-        private void OnGraphLostFocus()
-        {
-            if (!GraphViewEditorUtil.IsInspectorLocked() && !GraphViewEditorUtil.IsObjectSelectorFocused() && graphData != null)
-                Select(null);
         }
 
         public void Record(string undoName = "Graph View Undo")

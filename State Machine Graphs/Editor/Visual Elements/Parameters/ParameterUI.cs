@@ -1,4 +1,4 @@
-using Shears.GraphViews;
+﻿using Shears.GraphViews;
 using Shears.GraphViews.Editor;
 using UnityEditor;
 using UnityEngine;
@@ -20,6 +20,7 @@ namespace Shears.StateMachineGraphs.Editor
 
             AddToClassList(SMEditorUtil.ParameterUIClassName);
 
+            CreateMovementButtons();
             CreateTextField();
             CreateValueField();
 
@@ -33,6 +34,27 @@ namespace Shears.StateMachineGraphs.Editor
         {
             parameterData.Selected -= Select;
             parameterData.Deselected -= Deselect;
+        }
+
+        // TODO: make moving these work
+        private void CreateMovementButtons()
+        {
+            var buttonContainer = new VisualElement();
+
+            var upButton = new Button
+            {
+                text = "↑"
+            };
+            var downButton = new Button
+            {
+                text = "↓"
+            };
+
+            buttonContainer.AddToClassList(SMEditorUtil.ParameterUIMovementButtonsClassName);
+            buttonContainer.Add(upButton);
+            buttonContainer.Add(downButton);
+
+            Add(buttonContainer);
         }
 
         private void CreateTextField()

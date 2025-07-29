@@ -26,14 +26,13 @@ namespace Shears.GraphViews
     [Serializable]
     public class GraphMultiNodeClipboardData : GraphNodeClipboardData
     {
-        [SerializeField] private List<string> subNodeIDs = new();
+        [SerializeReference] private List<GraphElementClipboardData> subElements = new();
 
-        public IReadOnlyList<string> SubNodeIDs => subNodeIDs;
+        public List<GraphElementClipboardData> SubElements => subElements;
 
-        public GraphMultiNodeClipboardData(string name, Vector2 position, List<string> subNodeIDs)
+        public GraphMultiNodeClipboardData(string name, Vector2 position)
             : base(name, position)
         {
-            this.subNodeIDs = subNodeIDs;
         }
     }
 }

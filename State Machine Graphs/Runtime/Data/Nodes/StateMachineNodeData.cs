@@ -41,7 +41,7 @@ namespace Shears.StateMachineGraphs
 
         public override GraphElementClipboardData CopyToClipboard()
         {
-            return new StateMachineNodeClipboardData(Name, Position, subNodeIDs, stateType);
+            return new StateMachineNodeClipboardData(Name, Position, stateType);
         }
     }
 }

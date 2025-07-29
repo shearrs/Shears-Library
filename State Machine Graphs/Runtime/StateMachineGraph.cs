@@ -80,18 +80,14 @@ namespace Shears.StateMachineGraphs
                 if (IsDefaultAvailable(stateMachineNode))
                     SetLayerDefault(stateMachineNode);
 
-                foreach (var subNodeID in stateMachineNodeData.SubNodeIDs)
-                {
-                    if (!TryGetData(subNodeID, out GraphNodeData subNode))
+                foreach (var subElementClipboard in stateMachineNodeData.SubElements)
+                {                  
+                    if (subElementClipboard is GraphNodeClipboardData nodeClipboard)
                     {
-                        SHLogger.Log("Could not find sub-node with ID: " + subNodeID, SHLogLevels.Error);
-                        continue;
-                    }
-                    
-                    var clipboard = (GraphNodeClipboardData)subNode.CopyToClipboard();
-                    var copy = CreateNodeFromClipboard(clipboard, stateMachineNode.ID);
+                        var copy = CreateNodeFromClipboard(nodeClipboard, stateMachineNode.ID);
 
-                    stateMachineNode.AddSubNode(copy);
+                        stateMachineNode.AddSubNode(copy);
+                    }
                 }
 
                 return stateMachineNode;
@@ -112,6 +108,14 @@ namespace Shears.StateMachineGraphs
             }
 
             return null;
+        }
+
+        public override void OnValidate()
+        {
+            base.OnValidate();
+
+            if (string.IsNullOrEmpty(rootDefaultStateID) && rootNodes.Count > 0)
+                rootDefaultStateID = rootNodes[0];
         }
 
         #region Compilation

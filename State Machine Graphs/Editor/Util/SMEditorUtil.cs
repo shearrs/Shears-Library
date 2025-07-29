@@ -39,6 +39,7 @@ namespace Shears.StateMachineGraphs.Editor
         public static string ParameterUIToggleClassName => "toggle";
         public static string ParameterUIIntFieldClassName => "intField";
         public static string ParameterUISelectedClassName => "parameterUISelected";
+        public static string ParameterUIMovementButtonsClassName => "movementButtons";
         public static string EditableLabelClassName => "editableLabel";
         public static string EditableLabelLabelClassName => "elLabel";
         public static string EditableLabelTextFieldClassName => "elTextField";

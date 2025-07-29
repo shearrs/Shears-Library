@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a3251f27db25e54d8fd770aee2cc34b, type: 3}
   m_Name: Slime Graph
   m_EditorClassIdentifier: 
-  position: {x: 265.6, y: 114.4}
-  scale: {x: 0.52, y: 0.52}
+  position: {x: 466.4, y: 100.8}
+  scale: {x: 0.7, y: 0.7}
   layers:
   - parentName: Root
     parentID: $ROOT
@@ -22,21 +22,39 @@ MonoBehaviour:
   graphElements:
     rid: 8604816979759727150
   nodeData:
-  - de7d2f78-d007-46bd-b590-79a7915cefd9
-  - b69a2787-6213-401a-990f-9da9dfb07ee6
-  - 07f91405-460e-499e-bd9d-05fb58d64042
-  - dc90831d-51d8-4fd4-890e-847f06c66bfb
-  edgeData:
-  - 6cbfda52-a8fe-4e97-895c-685de9243f6d
-  - 4c281e95-e85c-4d6a-8822-fd3e339993e8
+  - 27fdfe7a-07df-422f-9b71-4a488952020c
+  - c3ec6251-dfcb-478e-ae06-2815ebd1f649
+  - d4b953e4-a2f8-4a95-bd7e-aaa51c61f9e3
+  - c40a488d-73e2-43bc-b60e-abf135144128
+  - 32f47be2-c4c4-4677-a6bf-49ede2506830
+  - b677f8d3-d33b-4242-ad35-412769c09eae
+  - a14a3484-6891-42ea-b0b1-5ac6ac635b99
+  - 6d220110-ccbd-48aa-b0f4-70a0a5a67a1d
+  - c44c1f44-949d-46fd-bd92-3adff1c6e98f
+  - 13ee285c-25c1-418d-87be-131025e42b34
+  - 8c9b957c-ebce-4819-8690-b94311579803
+  - 34ed959b-4f7c-4d6d-9205-81012c94dcc2
+  - 5dd73889-b595-4b92-8cce-03d2343c8467
+  edgeData: []
   selection: []
   rootNodes:
-  - de7d2f78-d007-46bd-b590-79a7915cefd9
-  - b69a2787-6213-401a-990f-9da9dfb07ee6
-  rootDefaultStateID: b69a2787-6213-401a-990f-9da9dfb07ee6
+  - 27fdfe7a-07df-422f-9b71-4a488952020c
+  - c3ec6251-dfcb-478e-ae06-2815ebd1f649
+  - 6d220110-ccbd-48aa-b0f4-70a0a5a67a1d
+  - c44c1f44-949d-46fd-bd92-3adff1c6e98f
+  - 13ee285c-25c1-418d-87be-131025e42b34
+  - 8c9b957c-ebce-4819-8690-b94311579803
+  - 34ed959b-4f7c-4d6d-9205-81012c94dcc2
+  - 5dd73889-b595-4b92-8cce-03d2343c8467
+  copyBuffer: 
+  clipboardData:
+    list: []
+  rootDefaultStateID: 27fdfe7a-07df-422f-9b71-4a488952020c
   parameters:
-  - 9d610982-a2ae-44fb-abe1-dbe249fec213
-  - 50d222aa-36df-40b4-8a88-30e42c472091
+  - fcd20116-b31a-49bf-809f-3efe87dc7cb7
+  - 59967385-eecd-4104-bd74-3c07293f6535
+  - ff418548-86d1-4d6d-b117-f82374391ac5
+  - 17af067d-35cc-47c4-b6c3-adff8ba01a00
   references:
     version: 2
     RefIds:
@@ -44,46 +62,65 @@ MonoBehaviour:
       type: {class: GraphElementDictionary, ns: Shears.GraphViews, asm: Shears.GraphViews}
       data:
         keys:
-        - de7d2f78-d007-46bd-b590-79a7915cefd9
-        - b69a2787-6213-401a-990f-9da9dfb07ee6
-        - 6cbfda52-a8fe-4e97-895c-685de9243f6d
-        - 9d610982-a2ae-44fb-abe1-dbe249fec213
-        - 07f91405-460e-499e-bd9d-05fb58d64042
-        - dc90831d-51d8-4fd4-890e-847f06c66bfb
-        - 50d222aa-36df-40b4-8a88-30e42c472091
-        - 4c281e95-e85c-4d6a-8822-fd3e339993e8
+        - 27fdfe7a-07df-422f-9b71-4a488952020c
+        - c3ec6251-dfcb-478e-ae06-2815ebd1f649
+        - d4b953e4-a2f8-4a95-bd7e-aaa51c61f9e3
+        - c40a488d-73e2-43bc-b60e-abf135144128
+        - 32f47be2-c4c4-4677-a6bf-49ede2506830
+        - b677f8d3-d33b-4242-ad35-412769c09eae
+        - a14a3484-6891-42ea-b0b1-5ac6ac635b99
+        - 6d220110-ccbd-48aa-b0f4-70a0a5a67a1d
+        - c44c1f44-949d-46fd-bd92-3adff1c6e98f
+        - 13ee285c-25c1-418d-87be-131025e42b34
+        - 8c9b957c-ebce-4819-8690-b94311579803
+        - 34ed959b-4f7c-4d6d-9205-81012c94dcc2
+        - 5dd73889-b595-4b92-8cce-03d2343c8467
+        - fcd20116-b31a-49bf-809f-3efe87dc7cb7
+        - 59967385-eecd-4104-bd74-3c07293f6535
+        - ff418548-86d1-4d6d-b117-f82374391ac5
+        - 17af067d-35cc-47c4-b6c3-adff8ba01a00
         values:
-        - rid: 8604816979759727151
-        - rid: 8604816979759727152
-        - rid: 8604816979759727153
-        - rid: 8604816979759727155
-        - rid: 8604816979759727158
-        - rid: 8604816979759727159
-        - rid: 8604816979759727161
-        - rid: 8604816979759727162
-    - rid: 8604816979759727151
+        - rid: 8604817138044895350
+        - rid: 8604817138044895351
+        - rid: 8604817138044895352
+        - rid: 8604817138044895353
+        - rid: 8604817138044895354
+        - rid: 8604817138044895355
+        - rid: 8604817138044895356
+        - rid: 8604817138044895357
+        - rid: 8604817138044895358
+        - rid: 8604817138044895359
+        - rid: 8604817138044895360
+        - rid: 8604817138044895361
+        - rid: 8604817138044895362
+        - rid: 8604817138044895367
+        - rid: 8604817138044895368
+        - rid: 8604817138044895369
+        - rid: 8604817138044895370
+    - rid: 8604817138044895350
       type: {class: ExternalStateMachineNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
-        id: de7d2f78-d007-46bd-b590-79a7915cefd9
-        name: Simple Movement
-        position: {x: 180, y: 240}
-        edges:
-        - 6cbfda52-a8fe-4e97-895c-685de9243f6d
+        id: 27fdfe7a-07df-422f-9b71-4a488952020c
+        name: Movement
+        position: {x: 140, y: 60}
+        edges: []
         parentID: $ROOT
-        externalGraphData: {fileID: 0}
-    - rid: 8604816979759727152
+        externalGraphData: {fileID: 11400000, guid: 946f241ea378cce45b8b1f2ae8d4132a, type: 2}
+    - rid: 8604817138044895351
       type: {class: StateMachineNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
-        id: b69a2787-6213-401a-990f-9da9dfb07ee6
-        name: Death
-        position: {x: 640, y: 240}
-        edges:
-        - 6cbfda52-a8fe-4e97-895c-685de9243f6d
+        id: c3ec6251-dfcb-478e-ae06-2815ebd1f649
+        name: Damaged
+        position: {x: 780, y: 60}
+        edges: []
         parentID: $ROOT
         subNodeIDs:
-        - 07f91405-460e-499e-bd9d-05fb58d64042
-        - dc90831d-51d8-4fd4-890e-847f06c66bfb
-        defaultStateID: 07f91405-460e-499e-bd9d-05fb58d64042
+        - d4b953e4-a2f8-4a95-bd7e-aaa51c61f9e3
+        - c40a488d-73e2-43bc-b60e-abf135144128
+        - 32f47be2-c4c4-4677-a6bf-49ede2506830
+        - b677f8d3-d33b-4242-ad35-412769c09eae
+        - a14a3484-6891-42ea-b0b1-5ac6ac635b99
+        defaultStateID: 32f47be2-c4c4-4677-a6bf-49ede2506830
         stateType:
           name: EmptyState
           assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
@@ -91,74 +128,192 @@ MonoBehaviour:
           assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
             PublicKeyToken=null
           prettyName: Empty State
-    - rid: 8604816979759727153
-      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+    - rid: 8604817138044895352
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
-        id: 6cbfda52-a8fe-4e97-895c-685de9243f6d
-        fromID: de7d2f78-d007-46bd-b590-79a7915cefd9
-        toID: b69a2787-6213-401a-990f-9da9dfb07ee6
-        comparisonData:
-        - rid: 8604816979759727157
-    - rid: 8604816979759727155
+        id: d4b953e4-a2f8-4a95-bd7e-aaa51c61f9e3
+        name: Physical Damaged
+        position: {x: 120, y: -60}
+        edges: []
+        parentID: c3ec6251-dfcb-478e-ae06-2815ebd1f649
+        stateType:
+          name: EmptyState
+          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          prettyName: Empty State
+    - rid: 8604817138044895353
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: c40a488d-73e2-43bc-b60e-abf135144128
+        name: Electric Damaged
+        position: {x: 560, y: -60}
+        edges: []
+        parentID: c3ec6251-dfcb-478e-ae06-2815ebd1f649
+        stateType:
+          name: EmptyState
+          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          prettyName: Empty State
+    - rid: 8604817138044895354
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 32f47be2-c4c4-4677-a6bf-49ede2506830
+        name: Entry
+        position: {x: 340, y: 140}
+        edges: []
+        parentID: c3ec6251-dfcb-478e-ae06-2815ebd1f649
+        stateType:
+          name: EmptyState
+          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          prettyName: Empty State
+    - rid: 8604817138044895355
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: b677f8d3-d33b-4242-ad35-412769c09eae
+        name: Fire Damaged
+        position: {x: 560, y: 340}
+        edges: []
+        parentID: c3ec6251-dfcb-478e-ae06-2815ebd1f649
+        stateType:
+          name: EmptyState
+          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          prettyName: Empty State
+    - rid: 8604817138044895356
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: a14a3484-6891-42ea-b0b1-5ac6ac635b99
+        name: Water Damaged
+        position: {x: 120, y: 340}
+        edges: []
+        parentID: c3ec6251-dfcb-478e-ae06-2815ebd1f649
+        stateType:
+          name: EmptyState
+          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          prettyName: Empty State
+    - rid: 8604817138044895357
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 6d220110-ccbd-48aa-b0f4-70a0a5a67a1d
+        name: Heat Death
+        position: {x: 1280, y: -40}
+        edges: []
+        parentID: $ROOT
+        stateType:
+          name: EmptyState
+          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          prettyName: Empty State
+    - rid: 8604817138044895358
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: c44c1f44-949d-46fd-bd92-3adff1c6e98f
+        name: Dissolve Death
+        position: {x: 1280, y: 180}
+        edges: []
+        parentID: $ROOT
+        stateType:
+          name: EmptyState
+          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          prettyName: Empty State
+    - rid: 8604817138044895359
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 13ee285c-25c1-418d-87be-131025e42b34
+        name: Grow
+        position: {x: 366.85712, y: 396.5714}
+        edges: []
+        parentID: $ROOT
+        stateType:
+          name: EmptyState
+          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          prettyName: Empty State
+    - rid: 8604817138044895360
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 8c9b957c-ebce-4819-8690-b94311579803
+        name: Shatter Death
+        position: {x: -700, y: 240}
+        edges: []
+        parentID: $ROOT
+        stateType:
+          name: EmptyState
+          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          prettyName: Empty State
+    - rid: 8604817138044895361
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 34ed959b-4f7c-4d6d-9205-81012c94dcc2
+        name: Frozen
+        position: {x: -320, y: 240}
+        edges: []
+        parentID: $ROOT
+        stateType:
+          name: EmptyState
+          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          prettyName: Empty State
+    - rid: 8604817138044895362
+      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+      data:
+        id: 5dd73889-b595-4b92-8cce-03d2343c8467
+        name: Split
+        position: {x: -126.85715, y: -107.42855}
+        edges: []
+        parentID: $ROOT
+        stateType:
+          name: EmptyState
+          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
+            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
+            PublicKeyToken=null
+          prettyName: Empty State
+    - rid: 8604817138044895367
       type: {class: TriggerParameterData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
-        id: 9d610982-a2ae-44fb-abe1-dbe249fec213
-        name: die
+        id: fcd20116-b31a-49bf-809f-3efe87dc7cb7
+        name: tookPhysicalDamage
         value: 0
-    - rid: 8604816979759727157
-      type: {class: TriggerComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+    - rid: 8604817138044895368
+      type: {class: TriggerParameterData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
-        parameterID: 9d610982-a2ae-44fb-abe1-dbe249fec213
-        compareValue: 0
-    - rid: 8604816979759727158
-      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 07f91405-460e-499e-bd9d-05fb58d64042
-        name: Split
-        position: {x: 620, y: 260}
-        edges:
-        - 4c281e95-e85c-4d6a-8822-fd3e339993e8
-        parentID: b69a2787-6213-401a-990f-9da9dfb07ee6
-        stateType:
-          name: EmptyState
-          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
-            PublicKeyToken=null
-          prettyName: Empty State
-    - rid: 8604816979759727159
-      type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: dc90831d-51d8-4fd4-890e-847f06c66bfb
-        name: Entry
-        position: {x: 100, y: 260}
-        edges:
-        - 4c281e95-e85c-4d6a-8822-fd3e339993e8
-        parentID: b69a2787-6213-401a-990f-9da9dfb07ee6
-        stateType:
-          name: EmptyState
-          assemblyQualifiedName: Shears.StateMachineGraphs.EmptyState, Shears.StateMachineGraphs,
-            Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-          assemblyName: Shears.StateMachineGraphs, Version=0.0.0.0, Culture=neutral,
-            PublicKeyToken=null
-          prettyName: Empty State
-    - rid: 8604816979759727161
-      type: {class: IntParameterData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 50d222aa-36df-40b4-8a88-30e42c472091
-        name: slimeLevel
+        id: 59967385-eecd-4104-bd74-3c07293f6535
+        name: tookFireDamage
         value: 0
-    - rid: 8604816979759727162
-      type: {class: TransitionEdgeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+    - rid: 8604817138044895369
+      type: {class: TriggerParameterData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
-        id: 4c281e95-e85c-4d6a-8822-fd3e339993e8
-        fromID: dc90831d-51d8-4fd4-890e-847f06c66bfb
-        toID: 07f91405-460e-499e-bd9d-05fb58d64042
-        comparisonData:
-        - rid: 8604816979759727164
-    - rid: 8604816979759727164
-      type: {class: IntComparisonData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
+        id: ff418548-86d1-4d6d-b117-f82374391ac5
+        name: tookElectricDamage
+        value: 0
+    - rid: 8604817138044895370
+      type: {class: TriggerParameterData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
       data:
-        parameterID: 50d222aa-36df-40b4-8a88-30e42c472091
-        compareValue: 1
-        compareType: 2
+        id: 17af067d-35cc-47c4-b6c3-adff8ba01a00
+        name: tookWaterDamage
+        value: 0

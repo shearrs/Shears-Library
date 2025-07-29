@@ -21,7 +21,7 @@ namespace Shears.GraphViews
         [SerializeField] private List<string> nodeData = new();
         [SerializeField] private List<string> edgeData = new();
         [SerializeField] private List<string> selection = new();
-        [SerializeField] private List<string> rootNodes = new();
+        [SerializeField] protected List<string> rootNodes = new();
 
         [Header("Clipboard")]
         [SerializeField] private string copyBuffer;
@@ -54,7 +54,24 @@ namespace Shears.GraphViews
                 return;
 
             foreach (var element in selection)
-                clipboardData.Add(element.CopyToClipboard());
+            {
+                var elementClipboard = element.CopyToClipboard();
+
+                if (elementClipboard is GraphMultiNodeClipboardData multiNodeClipboard)
+                {
+                    var multiNode = (GraphMultiNodeData)element;
+
+                    foreach (var subElementID in multiNode.SubNodeIDs)
+                    {
+                        if (!TryGetData<GraphElementData>(subElementID, out var subElement))
+                            continue;
+
+                        multiNodeClipboard.SubElements.Add(subElement.CopyToClipboard());
+                    }
+                }
+
+                clipboardData.Add(elementClipboard);
+            }
 
             var json = CLIPBOARD_KEY + JsonUtility.ToJson(clipboardData);
 
@@ -114,7 +131,7 @@ namespace Shears.GraphViews
                 CreateRootLayer();
         }
 
-        public void OnValidate()
+        public virtual void OnValidate()
         {
             if (layers.Count == 0)
                 CreateRootLayer();

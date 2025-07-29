@@ -23,8 +23,8 @@ namespace Shears.StateMachineGraphs
     {
         [SerializeField] private SerializableSystemType stateType;
 
-        public StateMachineNodeClipboardData(string name, Vector2 position, List<string> subNodeIDs, 
-            SerializableSystemType stateType) : base(name, position, subNodeIDs)
+        public StateMachineNodeClipboardData(string name, Vector2 position, 
+            SerializableSystemType stateType) : base(name, position)
         {
             this.stateType = stateType;
         }
