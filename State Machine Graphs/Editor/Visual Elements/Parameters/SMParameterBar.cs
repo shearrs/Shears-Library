@@ -154,7 +154,9 @@ namespace Shears.StateMachineGraphs.Editor
 
         private void LoadParameters()
         {
-            foreach (var parameter in graphData.GetParameters())
+            var parameters = new List<ParameterData>(graphData.GetParameters());
+
+            foreach (var parameter in parameters)
                 AddParameterUI(parameter, false);
         }
 
@@ -231,7 +233,7 @@ namespace Shears.StateMachineGraphs.Editor
         private void AddParameterUI(ParameterData parameterData) => AddParameterUI(parameterData, true);
         private void AddParameterUI(ParameterData parameterData, bool renameByDefault)
         {
-            var parameterUI = new ParameterUI(parameterData, graphData);
+            var parameterUI = new ParameterUI(parameterData, graphData, Reload);
 
             parametersPanel.Add(parameterUI);
             parameterUIs.Add(parameterData.ID, parameterUI);

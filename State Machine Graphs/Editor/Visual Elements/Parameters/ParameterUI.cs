@@ -1,5 +1,6 @@
 ﻿using Shears.GraphViews;
 using Shears.GraphViews.Editor;
+using System;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -10,13 +11,18 @@ namespace Shears.StateMachineGraphs.Editor
     {
         private readonly StateMachineGraph graphData;
         private readonly ParameterData parameterData;
+        private readonly Action reloadCallback;
 
         private EditableLabel editableLabel;
+        private Button moveUpButton;
+        private Button moveDownButton;
 
-        public ParameterUI(ParameterData parameterData, StateMachineGraph graphData)
+        // needs reload callback
+        public ParameterUI(ParameterData parameterData, StateMachineGraph graphData, Action reloadCallback)
         {
             this.graphData = graphData;
             this.parameterData = parameterData;
+            this.reloadCallback = reloadCallback;
 
             AddToClassList(SMEditorUtil.ParameterUIClassName);
 
@@ -28,33 +34,62 @@ namespace Shears.StateMachineGraphs.Editor
 
             parameterData.Selected += Select;
             parameterData.Deselected += Deselect;
+
+            graphData.ParameterDataAdded += UpdateMovementButtons;
+            graphData.ParameterDataRemoved += UpdateMovementButtons;
         }
 
         ~ParameterUI()
         {
             parameterData.Selected -= Select;
             parameterData.Deselected -= Deselect;
+            graphData.ParameterDataAdded -= UpdateMovementButtons;
+            graphData.ParameterDataRemoved -= UpdateMovementButtons;
         }
 
-        // TODO: make moving these work
         private void CreateMovementButtons()
         {
+            var parameters = graphData.GetParameters();
             var buttonContainer = new VisualElement();
 
-            var upButton = new Button
+            moveUpButton = new Button(MoveParameterUp)
             {
                 text = "↑"
             };
-            var downButton = new Button
+            moveDownButton = new Button(MoveParameterDown)
             {
                 text = "↓"
             };
 
+            if (parameters[0] == parameterData)
+                moveUpButton.SetEnabled(false);
+            if (parameters[^1] == parameterData)
+                moveDownButton.SetEnabled(false);
+
             buttonContainer.AddToClassList(SMEditorUtil.ParameterUIMovementButtonsClassName);
-            buttonContainer.Add(upButton);
-            buttonContainer.Add(downButton);
+            buttonContainer.Add(moveUpButton);
+            buttonContainer.Add(moveDownButton);
 
             Add(buttonContainer);
+        }
+
+        private void UpdateMovementButtons(ParameterData data)
+        {
+            var parameters = graphData.GetParameters();
+            moveUpButton.SetEnabled(parameters[0] != parameterData);
+            moveDownButton.SetEnabled(parameters[^1] != parameterData);
+        }
+
+        private void MoveParameterUp()
+        {
+            graphData.MoveParameterUp(parameterData);
+            reloadCallback();
+        }
+
+        private void MoveParameterDown()
+        {
+            graphData.MoveParameterDown(parameterData);
+            reloadCallback();
         }
 
         private void CreateTextField()

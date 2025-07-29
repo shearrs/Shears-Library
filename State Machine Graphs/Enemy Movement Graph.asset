@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a3251f27db25e54d8fd770aee2cc34b, type: 3}
   m_Name: Enemy Movement Graph
   m_EditorClassIdentifier: 
-  position: {x: 56.8, y: 39.2}
+  position: {x: 8, y: 23.2}
   scale: {x: 0.7, y: 0.7}
   layers:
   - parentName: Root
@@ -47,7 +47,6 @@ MonoBehaviour:
   - a35e8c76-4320-4c51-bc74-f6c02613e598
   - 4ad8c0ec-b19f-4667-b48e-db12d51976fb
   - 58ccaf33-851a-4a56-ada8-46c92e722019
-  - 3e7c37db-a4da-4a14-bae2-e784f4ffeb2a
   references:
     version: 2
     RefIds:
@@ -58,7 +57,6 @@ MonoBehaviour:
         - a35e8c76-4320-4c51-bc74-f6c02613e598
         - 4ad8c0ec-b19f-4667-b48e-db12d51976fb
         - 58ccaf33-851a-4a56-ada8-46c92e722019
-        - 3e7c37db-a4da-4a14-bae2-e784f4ffeb2a
         - 26557e2d-6fc9-490b-88e5-d73d70ed1e38
         - c018f78b-ff0d-44b2-9c92-5c0d3b1a2488
         - b76cf6b1-e526-41f2-b3cd-60692ef1d5bc
@@ -73,7 +71,6 @@ MonoBehaviour:
         - rid: 8604817138044895326
         - rid: 8604817138044895327
         - rid: 8604817138044895328
-        - rid: 8604817138044895329
         - rid: 8604817138044895330
         - rid: 8604817138044895331
         - rid: 8604817138044895332
@@ -101,12 +98,6 @@ MonoBehaviour:
       data:
         id: 58ccaf33-851a-4a56-ada8-46c92e722019
         name: isClimbingStairs
-        value: 0
-    - rid: 8604817138044895329
-      type: {class: BoolParameterData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}
-      data:
-        id: 3e7c37db-a4da-4a14-bae2-e784f4ffeb2a
-        name: isAtCatalyst
         value: 0
     - rid: 8604817138044895330
       type: {class: StateNodeData, ns: Shears.StateMachineGraphs, asm: Shears.StateMachineGraphs}

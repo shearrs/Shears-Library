@@ -434,6 +434,22 @@ namespace Shears.StateMachineGraphs
             ParameterDataRemoved?.Invoke(parameter);
         }
 
+        public void MoveParameterUp(ParameterData parameter)
+        {
+            var index = parameters.IndexOf(parameter.ID);
+            var upIndex = index - 1;
+
+            (parameters[index], parameters[upIndex]) = (parameters[upIndex], parameters[index]);
+        }
+
+        public void MoveParameterDown(ParameterData parameter)
+        {
+            var index = parameters.IndexOf(parameter.ID);
+            var downIndex = index + 1;
+
+            (parameters[index], parameters[downIndex]) = (parameters[downIndex], parameters[index]);
+        }
+
         public bool IsUsableParameterName(string name)
         {
             var parameters = GetParameters();
