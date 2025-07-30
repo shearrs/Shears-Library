@@ -81,7 +81,9 @@ namespace Shears.StateMachineGraphs
         private void UpdateState()
         {
             foreach (var state in stateTree)
+            {
                 state.Update();
+            }
         }
 
         private void SetState(State newState)

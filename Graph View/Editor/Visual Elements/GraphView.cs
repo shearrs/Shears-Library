@@ -563,8 +563,12 @@ namespace Shears.GraphViews.Editor
     
         protected IReadOnlyList<ISelectable> GetSelection()
         {
-            var selectionData = graphData.GetSelection();
             instanceSelection.Clear();
+
+            if (graphData == null)
+                return instanceSelection;
+
+            var selectionData = graphData.GetSelection();
 
             foreach (var data in selectionData)
             {
