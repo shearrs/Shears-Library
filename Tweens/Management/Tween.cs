@@ -15,7 +15,7 @@ namespace Shears.Tweens
     public delegate bool TweenStopEvent();
 
     [Serializable]
-    internal class Tween : ITween
+    public class Tween
     {
         [ReadOnly, SerializeField] private float progress = 0;
         [ReadOnly, SerializeField] private bool forceFinalValue;
@@ -47,7 +47,7 @@ namespace Shears.Tweens
             }
         }
 
-        public Tween()
+        internal Tween()
         {
             Application.quitting += Dispose;
         }

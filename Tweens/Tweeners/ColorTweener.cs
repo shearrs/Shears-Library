@@ -14,7 +14,7 @@ namespace Shears.Tweens
         [Header("References")]
         [SerializeField] private InterfaceReference<IColorTweenable> target;
         [SerializeField] private TweenData data;
-        private ITween tween;
+        private Tween tween;
 
         [Header("Colors")]
         [SerializeField] private Color color1 = Color.white;
@@ -80,7 +80,7 @@ namespace Shears.Tweens
             Play(GetTween(initial, color2, color1));
         }
 
-        private void Play(ITween tween)
+        private void Play(Tween tween)
         {
             ClearTween();
 
@@ -98,9 +98,9 @@ namespace Shears.Tweens
             tween = null;
         }
 
-        private ITween GetTween(Color initial, Color from, Color to)
+        private Tween GetTween(Color initial, Color from, Color to)
         {
-            ITween tween = null;
+            Tween tween = null;
 
             Target.CurrentColor = initial;
 
