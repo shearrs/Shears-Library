@@ -182,6 +182,12 @@ namespace Shears.StateMachineGraphs
                         subState.ParentState ??= state;
                     }
 
+                    foreach (var parameterID in compileData.ParameterIDs)
+                    {
+                        parameterIDs.Add(parameterID.Key, parameterID.Value);
+                        parameterNames.Add(parameterID.Value.Name, parameterID.Value);
+                    }
+
                     state.DefaultSubState = compileData.DefaultState;
                 }
             }

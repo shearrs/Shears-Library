@@ -21,7 +21,6 @@ namespace Shears.StateMachineGraphs
 
         private Dictionary<string, State> states;
         private Dictionary<string, Parameter> parameters;
-        private Dictionary<string, Parameter> parameterIDs;
 
         private void Awake()
         {
@@ -51,7 +50,6 @@ namespace Shears.StateMachineGraphs
             states = compiledData.StateIDs;
             defaultState = compiledData.DefaultState;
             parameters = compiledData.ParameterNames;
-            parameterIDs = compiledData.ParameterIDs;
 
 #if UNITY_EDITOR
             parameterDisplay.AddRange(parameters.Values);
