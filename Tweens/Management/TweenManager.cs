@@ -9,7 +9,7 @@ namespace Shears.Tweens
     {
         [SerializeField] private List<Tween> tweens = new();
         private ObjectPool<Tween> tweenPool;
-        private TweenData defaultTweenData;
+        private ITweenData defaultTweenData;
 
         protected override void Awake()
         {
@@ -17,13 +17,13 @@ namespace Shears.Tweens
 
             tweenPool = new(PoolCreate, PoolGet);
 
-            defaultTweenData = Resources.Load<TweenData>("Tween Data/Default Tween Data");
+            defaultTweenData = Resources.Load<TweenDataObject>("Tween Data/Default Tween Data");
         }
 
         #region Custom Tween
-        public static Tween DoTween(Action<float> update, TweenData data) => Do(CreateTween(update, data));
-        public static Tween CreateTween(Action<float> update, TweenData data) => Instance.InstCreateTween(update, data);
-        private Tween InstCreateTween(Action<float> update, TweenData data)
+        public static Tween DoTween(Action<float> update, ITweenData data) => Do(CreateTween(update, data));
+        public static Tween CreateTween(Action<float> update, ITweenData data) => Instance.InstCreateTween(update, data);
+        private Tween InstCreateTween(Action<float> update, ITweenData data)
         {
             Tween tween = tweenPool.Get();
 

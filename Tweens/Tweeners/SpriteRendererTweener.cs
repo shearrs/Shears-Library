@@ -9,7 +9,7 @@ namespace Shears.Tweens
         [Header("Data")]
         [SerializeField] private bool playOnEnable;
         [SerializeField] private SpriteRenderer spriteRenderer;
-        [SerializeField] private TweenData data;
+        [SerializeField] private TweenDataObject data;
         [SerializeField] private TweenType type;
         private Tween tween;
 
@@ -17,7 +17,7 @@ namespace Shears.Tweens
         [SerializeField] private Color color1 = Color.white;
         [SerializeField] private Color color2 = Color.gray;
 
-        public TweenData TweenData { get => data; set => data = value; }
+        public TweenDataObject TweenData { get => data; set => data = value; }
         public SpriteRenderer SpriteRenderer { get => spriteRenderer; set => spriteRenderer = value; }
         public TweenType Type { get => type; set => type = value; }
         public Color Color1 { get => color1; set => color1 = value; }

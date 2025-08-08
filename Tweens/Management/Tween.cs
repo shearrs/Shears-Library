@@ -218,7 +218,7 @@ namespace Shears.Tweens
         }
         #endregion
 
-        internal void SetData(TweenData data)
+        internal void SetData(ITweenData data)
         {
             Duration = data.Duration;
             forceFinalValue = data.ForceFinalValue;

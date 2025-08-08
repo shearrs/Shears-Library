@@ -1,6 +1,9 @@
 using UnityEditor;
 using UnityEngine;
 using System.Reflection;
+using UnityEngine.UIElements;
+using UnityEditor.UIElements;
+using System.Linq;
 
 namespace Shears.Editor
 {
@@ -10,23 +13,31 @@ namespace Shears.Editor
     [CustomPropertyDrawer(typeof(ShowIfAttribute))]
     public class ShowIfPropertyDrawer : PropertyDrawer
     {
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        public override VisualElement CreatePropertyGUI(SerializedProperty targetProperty)
         {
+            var root = new VisualElement();
             var displayAttribute = attribute as ShowIfAttribute;
 
-            var conditionField = fieldInfo.DeclaringType.GetField(displayAttribute.ConditionName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            var parent = targetProperty.FindParentProperty();
+            var conditionProperty = parent.FindPropertyRelative(displayAttribute.ConditionName);
             
-            if (conditionField == null)
+            if (conditionProperty == null)
+                return root;
+
+            var propertyField = new PropertyField(targetProperty);
+
+            void onValueChanged(SerializedProperty prop)
             {
-                Debug.Log($"Condition {displayAttribute.ConditionName} doesn't exist!");
-                return;
+                if (conditionProperty.boxedValue.Equals(displayAttribute.CompareValue))
+                    root.Add(propertyField);
+                else if (root.Children().Contains(propertyField))
+                    root.Remove(propertyField);
             }
 
-            SerializedProperty parent = property.FindParentProperty();
-            object target = parent == null ? property.serializedObject.targetObject : parent.boxedValue;
+            root.TrackPropertyValue(conditionProperty, onValueChanged);
+            onValueChanged(conditionProperty);
 
-            if (conditionField.GetValue(target).Equals(displayAttribute.CompareValue))
-                EditorGUI.PropertyField(position, property, label);
+            return root;
         }
     }
 }
