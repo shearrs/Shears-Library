@@ -25,7 +25,7 @@ namespace Shears.Tweens
         [SerializeField] private Vector3 rotation2;
         [SerializeField] private Vector3 scale2 = Vector3.one;
 
-        private ITween tween;
+        private Tween tween;
 
         private struct TransformTweenData
         {
@@ -80,7 +80,7 @@ namespace Shears.Tweens
             Play(GetTween(from, to));
         }
 
-        private void Play(ITween tween)
+        private void Play(Tween tween)
         {
             ClearTween();
 
@@ -98,9 +98,9 @@ namespace Shears.Tweens
             tween = null;
         }
 
-        private ITween GetTween(TransformTweenData fromData, TransformTweenData toData)
+        private Tween GetTween(TransformTweenData fromData, TransformTweenData toData)
         {
-            ITween tween = null;
+            Tween tween = null;
 
             switch (type)
             {

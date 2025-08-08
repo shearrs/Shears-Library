@@ -23,7 +23,7 @@ namespace Shears
         public object CompareValue => _compareValue;
 
         /// <summary>
-        /// Shows the field if the condition with <see cref="conditionName"/> has a value of <c>true</c>
+        /// Shows the field if the condition with <see cref="conditionName"/> has a value of <c>true</c>.
         /// </summary>
         /// <param name="conditionName">The name of the condition to evaluate.</param>
         public ShowIfAttribute(string conditionName)

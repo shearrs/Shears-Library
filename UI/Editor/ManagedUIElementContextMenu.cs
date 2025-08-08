@@ -46,9 +46,9 @@ namespace Shears.UI.Editor
             public string Name { get; set; }
             public Transform Parent { get; set; }
             public Image Image { get; set; }
-            public TweenData Data { get; set; }
+            public TweenDataObject Data { get; set; }
 
-            public TweenerData(string name, Transform parent, Image image, TweenData data)
+            public TweenerData(string name, Transform parent, Image image, TweenDataObject data)
             {
                 Name = name;
                 Parent = parent;
@@ -65,7 +65,7 @@ namespace Shears.UI.Editor
             var (backgroundImageChild, backgroundImage) = CreateBackgroundImage(button.transform);
             var (focusImageChild, focusImage) = CreateFocusImage(button.transform);
 
-            var tweenData = Resources.Load<TweenData>(defaultTweenPath);
+            var tweenData = Resources.Load<TweenDataObject>(defaultTweenPath);
 
             if (tweenData == null)
             {
@@ -182,7 +182,7 @@ namespace Shears.UI.Editor
             return textGameObject;
         }
 
-        private static TweenerGroup CreateTweeners(Transform backgroundParent, Transform focusParent, Image backgroundImage, Image focusHighlight, TweenData data)
+        private static TweenerGroup CreateTweeners(Transform backgroundParent, Transform focusParent, Image backgroundImage, Image focusHighlight, TweenDataObject data)
         {
             var mainImageData = new TweenerData("", backgroundParent, backgroundImage, data);
             var focusImageData = new TweenerData("Focus Tweener", focusParent, focusHighlight, data);

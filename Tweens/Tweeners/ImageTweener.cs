@@ -10,15 +10,15 @@ namespace Shears.Tweens
         [Header("Data")]
         [SerializeField] private bool playOnEnable;
         [SerializeField] private Image image;
-        [SerializeField] private TweenData data;
+        [SerializeField] private TweenDataObject data;
         [SerializeField] private TweenType type;
-        private ITween tween;
+        private Tween tween;
 
         [Header("Colors")]
         [SerializeField] private Color color1 = Color.white;
         [SerializeField] private Color color2 = Color.gray;
 
-        public TweenData TweenData { get => data; set => data = value; }
+        public TweenDataObject TweenData { get => data; set => data = value; }
         public Image Image { get => image; set => image = value; }
         public TweenType Type { get => type; set => type = value; }
         public Color Color1 { get => color1; set => color1 = value; }
@@ -33,7 +33,7 @@ namespace Shears.Tweens
         public void Play1To2() => Play(GetTween(color1, color2));
         public void Play2To1() => Play(GetTween(color2, color1));
 
-        private void Play(ITween tween)
+        private void Play(Tween tween)
         {
             ClearTween();
 
@@ -51,9 +51,9 @@ namespace Shears.Tweens
             tween = null;
         }
 
-        private ITween GetTween(Color from, Color to)
+        private Tween GetTween(Color from, Color to)
         {
-            ITween tween = null;
+            Tween tween = null;
 
             image.color = from;
 
