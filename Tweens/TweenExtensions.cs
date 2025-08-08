@@ -1,4 +1,5 @@
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -171,6 +172,21 @@ namespace Shears.Tweens
             }
 
             return CreateAutoDisposeTween(spriteRenderer, update, data);
+        }
+        #endregion
+
+        #region TextMesh Tweens
+        public static Tween DoColorTween(this TextMeshProUGUI textMesh, Color targetColor, ITweenData data = null) => Do(GetColorTween(textMesh, targetColor, data));
+        public static Tween GetColorTween(this TextMeshProUGUI textMesh, Color targetColor, ITweenData data = null)
+        {
+            Color start = textMesh.color;
+
+            void update(float t)
+            {
+                textMesh.color = Color.LerpUnclamped(start, targetColor, t);
+            }
+
+            return CreateAutoDisposeTween(textMesh, update, data);
         }
         #endregion
 
