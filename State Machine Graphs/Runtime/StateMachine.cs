@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
-    public class StateMachine : SHMonoBehaviourLogger
+    public class StateMachine : SHMonoBehaviourLogger, IParameterProvider
     {
         [Header("State Machine")]
         [SerializeField] private StateMachineGraph graphData;
@@ -14,6 +14,7 @@ namespace Shears.StateMachineGraphs
 #if UNITY_EDITOR
         [Header("Parameters")]
         [SerializeReference] private List<Parameter> parameterDisplay = new();
+        [SerializeField] private List<LocalParameterProvider> externalParameters = new();
 #endif
 
         private State defaultState;
@@ -48,11 +49,16 @@ namespace Shears.StateMachineGraphs
             var compiledData = graphData.Compile();
 
             states = compiledData.StateIDs;
+
+            foreach (var state in states.Values)
+                state.ParameterProvider ??= this;
+
             defaultState = compiledData.DefaultState;
             parameters = compiledData.ParameterNames;
 
 #if UNITY_EDITOR
             parameterDisplay.AddRange(parameters.Values);
+            externalParameters = compiledData.ParameterProviders;
 #endif
         }
         #endregion

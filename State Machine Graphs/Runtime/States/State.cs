@@ -9,10 +9,12 @@ namespace Shears.StateMachineGraphs
         [SerializeField, ReadOnly] private string name;
         [SerializeField] private List<Transition> transitions = new();
 
+        private IParameterProvider parameterProvider;
         private State initialSubState;
         private State parentState;
         private State subState;
 
+        internal IParameterProvider ParameterProvider { get => parameterProvider; set => parameterProvider = value; }
         public string Name { get => name; set => name = value; }
         public State ParentState { get => parentState; internal set => parentState = value; }
         public State DefaultSubState { get => initialSubState; internal set => initialSubState = value; }
@@ -59,5 +61,8 @@ namespace Shears.StateMachineGraphs
         protected abstract void OnEnter();
         protected abstract void OnUpdate();
         protected abstract void OnExit();
+
+        protected T GetParameter<T>(string name) => parameterProvider.GetParameter<T>(name);
+        protected void SetParameter<T>(string name, T value) => parameterProvider.SetParameter(name, value);
     }
 }

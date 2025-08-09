@@ -124,18 +124,21 @@ namespace Shears.StateMachineGraphs
             private readonly Dictionary<string, Parameter> parameterNames;
             private readonly Dictionary<string, Parameter> parameterIDs;
             private readonly Dictionary<string, State> stateIDs;
+            private readonly List<LocalParameterProvider> parameterProviders;
             private readonly State defaultState;
 
             public readonly Dictionary<string, Parameter> ParameterNames => parameterNames;
             public readonly Dictionary<string, Parameter> ParameterIDs => parameterIDs;
             public readonly Dictionary<string, State> StateIDs => stateIDs;
+            public readonly List<LocalParameterProvider> ParameterProviders => parameterProviders;
             public readonly State DefaultState => defaultState;
 
-            public GraphCompilationData(Dictionary<string, Parameter> parameterNames, Dictionary<string, Parameter> parameterIDs, Dictionary<string, State> stateIDs, State defaultState)
+            public GraphCompilationData(Dictionary<string, Parameter> parameterNames, Dictionary<string, Parameter> parameterIDs, Dictionary<string, State> stateIDs, List<LocalParameterProvider> parameterProviders, State defaultState)
             {
                 this.parameterNames = parameterNames;
                 this.parameterIDs = parameterIDs;
                 this.stateIDs = stateIDs;
+                this.parameterProviders = parameterProviders;
                 this.defaultState = defaultState;
             }
         }
@@ -145,6 +148,7 @@ namespace Shears.StateMachineGraphs
             var parameterNames = new Dictionary<string, Parameter>();
             var parameterIDs = new Dictionary<string, Parameter>();
             var stateIDs = new Dictionary<string, State>();
+            var parameterProviders = new List<LocalParameterProvider>();
             State defaultState;
 
             foreach (var parameterData in GetParameters())
@@ -172,20 +176,19 @@ namespace Shears.StateMachineGraphs
                         continue;
 
                     var compileData = graphData.Compile();
+                    var parameterProvider = new LocalParameterProvider(state.Name, compileData.ParameterNames);
+                    parameterProviders.Add(parameterProvider);
+
+                    state.ParameterProvider = parameterProvider;
 
                     foreach (var stateID in compileData.StateIDs)
                     {
                         var subState = compileData.StateIDs[stateID.Key];
 
+                        subState.ParameterProvider = parameterProvider;
+
                         stateIDs.Add(stateID.Key, subState);
-
                         subState.ParentState ??= state;
-                    }
-
-                    foreach (var parameterID in compileData.ParameterIDs)
-                    {
-                        parameterIDs.Add(parameterID.Key, parameterID.Value);
-                        parameterNames.Add(parameterID.Value.Name, parameterID.Value);
                     }
 
                     state.DefaultSubState = compileData.DefaultState;
@@ -216,7 +219,7 @@ namespace Shears.StateMachineGraphs
 
             defaultState = stateIDs[RootDefaultStateID];
 
-            return new GraphCompilationData(parameterNames, parameterIDs, stateIDs, defaultState);
+            return new GraphCompilationData(parameterNames, parameterIDs, stateIDs, parameterProviders, defaultState);
         }
 
         private Parameter CreateParameter(ParameterData data) => data.CreateParameter();

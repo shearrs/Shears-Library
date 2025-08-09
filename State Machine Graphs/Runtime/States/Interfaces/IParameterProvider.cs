@@ -2,18 +2,9 @@ using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
-    public class IParameterProvider : MonoBehaviour
+    public interface IParameterProvider
     {
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Start()
-        {
-        
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-        
-        }
+        public T GetParameter<T>(string name);
+        public void SetParameter<T>(string name, T value);
     }
 }
