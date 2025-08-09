@@ -35,12 +35,12 @@ namespace Shears.Tweens
             this.easingFunction = easingFunction;
         }
 
-        public float Duration => HasDataObject() ? tweenDataObject.Duration : duration;
-        public bool ForceFinalValue => HasDataObject() ? tweenDataObject.ForceFinalValue : forceFinalValue;
-        public int Loops => HasDataObject() ? tweenDataObject.Loops : loops;
-        public LoopMode LoopMode => HasDataObject() ? tweenDataObject.LoopMode : loopMode;
-        public Ease EasingFunction => HasDataObject() ? tweenDataObject.EasingFunction : easingFunction;
+        public float Duration => UsesDataObject() ? tweenDataObject.Duration : duration;
+        public bool ForceFinalValue => UsesDataObject() ? tweenDataObject.ForceFinalValue : forceFinalValue;
+        public int Loops => UsesDataObject() ? tweenDataObject.Loops : loops;
+        public LoopMode LoopMode => UsesDataObject() ? tweenDataObject.LoopMode : loopMode;
+        public Ease EasingFunction => UsesDataObject() ? tweenDataObject.EasingFunction : easingFunction;
 
-        private bool HasDataObject() => tweenDataObject != null;
+        private bool UsesDataObject() => useDataObject && tweenDataObject != null;
     }
 }
