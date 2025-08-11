@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using System.Text;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -62,30 +63,21 @@ namespace Shears.StateMachineGraphs.Editor
                         continue;
 
                     if (type.IsSubclassOf(STATE_TYPE))
-                        menu.AddItem(new GUIContent(GetTypePath(type)), false, () => SetState(type));
+                        TryAddMenuItem(menu, type);
                 }
             }
 
             menu.ShowAsContext();
         }
 
-        private string GetTypePath(Type type)
+        private void TryAddMenuItem(GenericMenu menu, Type type)
         {
-            stringBuilder.Clear();
+            var attribute = type.GetCustomAttribute<StateMenuItem>();
 
-            var name = StringUtil.PascalSpace(type.Name);
-            stringBuilder.Append(name);
+            if (attribute == null)
+                return;
 
-            while (type.BaseType != null && type.BaseType != STATE_TYPE)
-            {
-                type = type.BaseType;
-                name = StringUtil.PascalSpace(type.Name);
-                
-                stringBuilder.Insert(0, StringUtil.PascalSpace(name));
-                stringBuilder.Insert(name.Length, '/');
-            }
-
-            return stringBuilder.ToString();
+            menu.AddItem(new GUIContent(attribute.MenuPath), false, () => SetState(type));
         }
 
         private void SetEmptyState()
