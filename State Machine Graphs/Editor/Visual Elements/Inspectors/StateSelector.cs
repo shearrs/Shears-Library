@@ -57,9 +57,11 @@ namespace Shears.StateMachineGraphs.Editor
 
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                foreach (var type in assembly.GetTypes())
+                var types = TypeCache.GetTypesWithAttribute<StateMenuItem>();
+
+                foreach (var type in types)
                 {
-                    if (type == EMPTY_STATE_TYPE || type == EXTERNAL_STATE_TYPE || type.IsAbstract)
+                    if (type.IsAbstract)
                         continue;
 
                     if (type.IsSubclassOf(STATE_TYPE))
