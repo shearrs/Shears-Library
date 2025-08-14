@@ -3,11 +3,12 @@ using Shears.Logging;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Shears.StateMachineGraphs
 {
     [Serializable]
-    public class StateNodeData : GraphNodeData, IStateNodeData
+    public class StateNodeData : GraphNodeData, IStateNodeData, ICopyable<StateNodeClipboardData>
     {
         [SerializeField] private SerializableSystemType stateType = new(typeof(EmptyState));
 
@@ -35,9 +36,11 @@ namespace Shears.StateMachineGraphs
             return stateNode;
         }
 
-        public override GraphElementClipboardData CopyToClipboard()
+        public StateNodeClipboardData CopyToClipboard(CopyData data) => new(Name, Position, stateType);
+
+        GraphElementClipboardData ICopyable.CopyToClipboard(CopyData data)
         {
-            return new StateNodeClipboardData(Name, Position, stateType);
+            return CopyToClipboard(data);
         }
     }
 }

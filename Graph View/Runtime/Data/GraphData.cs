@@ -53,24 +53,16 @@ namespace Shears.GraphViews
             if (selection.Count == 0)
                 return;
 
+            // foreach element, if it is ICopyable, then copy to clipboard
+
             foreach (var element in selection)
             {
-                var elementClipboard = element.CopyToClipboard();
+                if (element is not ICopyable copyable)
+                    continue;
 
-                if (elementClipboard is GraphMultiNodeClipboardData multiNodeClipboard)
-                {
-                    var multiNode = (GraphMultiNodeData)element;
+                var data = copyable.CopyToClipboard(new(this, clipboardData));
 
-                    foreach (var subElementID in multiNode.SubNodeIDs)
-                    {
-                        if (!TryGetData<GraphElementData>(subElementID, out var subElement))
-                            continue;
-
-                        multiNodeClipboard.SubElements.Add(subElement.CopyToClipboard());
-                    }
-                }
-
-                clipboardData.Add(elementClipboard);
+                clipboardData.Add(data);
             }
 
             var json = CLIPBOARD_KEY + JsonUtility.ToJson(clipboardData);

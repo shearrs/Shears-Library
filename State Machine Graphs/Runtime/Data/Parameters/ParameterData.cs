@@ -47,10 +47,5 @@ namespace Shears.StateMachineGraphs
 
         public override Parameter CreateParameter() => CreateTypedParameter();
         public abstract Parameter<T> CreateTypedParameter();
-
-        public override GraphElementClipboardData CopyToClipboard()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
-    public class ExternalStateMachineNodeData : GraphNodeData, IStateNodeData
+    public class ExternalStateMachineNodeData : GraphNodeData, IStateNodeData, ICopyable<ExternalStateMachineNodeClipboardData>
     {
         [SerializeField] private StateMachineGraph externalGraphData;
 
@@ -22,7 +22,7 @@ namespace Shears.StateMachineGraphs
 
         void ILayerDefaultTarget.OnRemoveLayerDefault() => RemovedAsLayerDefault?.Invoke();
 
-        public override GraphElementClipboardData CopyToClipboard() => new ExternalStateMachineNodeClipboardData(Name, Position, externalGraphData);
+        //public override GraphElementClipboardData CopyToClipboard() => new ExternalStateMachineNodeClipboardData(Name, Position, externalGraphData);
 
         public static ExternalStateMachineNodeData PasteFromClipboard(ExternalStateMachineNodeClipboardData data, string parentID)
         {
@@ -35,6 +35,13 @@ namespace Shears.StateMachineGraphs
             };
 
             return node;
+        }
+
+        public ExternalStateMachineNodeClipboardData CopyToClipboard(CopyData data) => new(Name, Position, externalGraphData);
+
+        GraphElementClipboardData ICopyable.CopyToClipboard(CopyData data)
+        {
+            return CopyToClipboard(data);
         }
     }
 }

@@ -40,7 +40,6 @@ namespace Shears.StateMachineGraphs.Editor
         {
             bool hasSelection = GetSelection().Count > 0;
 
-
             if (hasSelection && evt.keyCode == KeyCode.F2)
                 TryRenameSelection();
         }

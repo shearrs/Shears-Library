@@ -21,10 +21,5 @@ namespace Shears.GraphViews
 
         public abstract void Select();
         public abstract void Deselect();
-
-        public virtual GraphElementClipboardData CopyToClipboard()
-        {
-            return null;
-        }
     }
 }

@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Shears.StateMachineGraphs
 {
     [Serializable]
-    public class StateMachineNodeData : GraphMultiNodeData, IStateNodeData
+    public class StateMachineNodeData : GraphMultiNodeData, IStateNodeData, ICopyable<StateMachineNodeClipboardData>
     {
         [SerializeField] private string defaultStateID;
         [SerializeField] private SerializableSystemType stateType = new(typeof(EmptyState));
@@ -39,9 +39,27 @@ namespace Shears.StateMachineGraphs
             return stateNode;
         }
 
-        public override GraphElementClipboardData CopyToClipboard()
+        public StateMachineNodeClipboardData CopyToClipboard(CopyData data)
         {
-            return new StateMachineNodeClipboardData(Name, Position, stateType);
+            var clipboardData = new StateMachineNodeClipboardData(Name, Position, stateType);
+
+            foreach (var subElementID in SubNodeIDs)
+            {
+                if (!data.GraphData.TryGetData<GraphElementData>(subElementID, out var subElement))
+                    continue;
+
+                if (subElement is not ICopyable copyable)
+                    continue;
+
+                clipboardData.SubElements.Add(copyable.CopyToClipboard(data));
+            }
+
+            return clipboardData;
+        }
+
+        GraphElementClipboardData ICopyable.CopyToClipboard(CopyData data)
+        {
+            return CopyToClipboard(data);
         }
     }
 }
