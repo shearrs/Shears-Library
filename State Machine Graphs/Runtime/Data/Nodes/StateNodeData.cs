@@ -1,9 +1,7 @@
 using Shears.GraphViews;
-using Shears.Logging;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Shears.StateMachineGraphs
 {
@@ -15,13 +13,23 @@ namespace Shears.StateMachineGraphs
         public event Action SetAsLayerDefault;
         public event Action RemovedAsLayerDefault;
 
+        public StateNodeData() { }
+
+        public StateNodeData(string name, Vector2 position, string parentID, SerializableSystemType stateType)
+        {
+            this.name = name;
+            this.position = position;
+            this.parentID = parentID;
+            this.stateType = stateType;
+        }
+
         IReadOnlyList<string> ITransitionable.GetTransitionIDs() => Edges;
 
         State IStateNodeData.CreateStateInstance() => (State)Activator.CreateInstance(stateType.SystemType);
 
-        void ILayerDefaultTarget.OnSetAsLayerDefault() => SetAsLayerDefault?.Invoke();
+        void ILayerElement.OnSetAsLayerDefault() => SetAsLayerDefault?.Invoke();
 
-        void ILayerDefaultTarget.OnRemoveLayerDefault() => RemovedAsLayerDefault?.Invoke();
+        void ILayerElement.OnRemoveLayerDefault() => RemovedAsLayerDefault?.Invoke();
 
         public static StateNodeData PasteFromClipboard(StateNodeClipboardData data, string parentID)
         {

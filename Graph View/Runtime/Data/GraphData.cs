@@ -53,8 +53,6 @@ namespace Shears.GraphViews
             if (selection.Count == 0)
                 return;
 
-            // foreach element, if it is ICopyable, then copy to clipboard
-
             foreach (var element in selection)
             {
                 if (element is not ICopyable copyable)
@@ -84,14 +82,11 @@ namespace Shears.GraphViews
             if (data == null)
                 return;
 
-            foreach (var clipboardData in data)
-            {
-                if (clipboardData is GraphNodeClipboardData nodeData)
-                    CreateNodeFromClipboard(nodeData);
-            }
-        }
+            string parentID = Layers[^1].ParentID;
 
-        protected abstract GraphNodeData CreateNodeFromClipboard(GraphNodeClipboardData data, string parentID = "");
+            foreach (var clipboardData in data)
+                clipboardData.Paste(new(this, parentID));
+        }
 
         #region Element Data
         protected void AddGraphElementData(GraphElementData data)
@@ -120,13 +115,19 @@ namespace Shears.GraphViews
         public void Reset()
         {
             if (layers.Count == 0)
-                CreateRootLayer();
+            {
+                var root = CreateRootLayer();
+                layers.Add(root);
+            }
         }
 
         public virtual void OnValidate()
         {
             if (layers.Count == 0)
-                CreateRootLayer();
+            {
+                var root = CreateRootLayer();
+                layers.Add(root);
+            }
         }
         #endregion
 
@@ -149,13 +150,13 @@ namespace Shears.GraphViews
             return instanceNodes;
         }
 
-        protected void AddNodeData(GraphNodeData data)
+        public void AddNodeData(GraphNodeData data)
         {
             nodeData.Add(data.ID);
             AddGraphElementData(data);
         }
 
-        protected void MoveNodeToCurrentLayer(GraphNodeData data)
+        public void MoveNodeToCurrentLayer(GraphNodeData data)
         {
             if (layers[^1].IsRoot())
                 rootNodes.Add(data.ID);
@@ -349,8 +350,9 @@ namespace Shears.GraphViews
                 return;
 
             ClearLayers();
-            CreateRootLayer();
+            var root = CreateRootLayer();
 
+            layers.Add(root);
             LayersChanged?.Invoke();
         }
 
@@ -360,7 +362,9 @@ namespace Shears.GraphViews
                 return;
 
             ClearLayers();
-            CreateRootLayer();
+            var root = CreateRootLayer();
+
+            layers.Add(root);
             layers.Add(CreateLayer(node));
 
             string parentID = node.ParentID;
@@ -409,12 +413,11 @@ namespace Shears.GraphViews
             return instanceNodes;
         }
 
-        private void CreateRootLayer()
+        protected GraphLayer CreateRootLayer()
         {
-            var layer = CreateLayer(Vector2.zero, Vector2.one, null);
-            layers.Add(layer);
+            return CreateLayer(Vector2.zero, Vector2.one, null);
         }
-        private GraphLayer CreateLayer(GraphMultiNodeData parent) => CreateLayer(Vector2.zero, Vector2.one, parent);
+        protected GraphLayer CreateLayer(GraphMultiNodeData parent) => CreateLayer(Vector2.zero, Vector2.one, parent);
         private GraphLayer CreateLayer(Vector2 position, Vector2 scale, GraphMultiNodeData parent)
         {
             return new GraphLayer(position, scale, parent);

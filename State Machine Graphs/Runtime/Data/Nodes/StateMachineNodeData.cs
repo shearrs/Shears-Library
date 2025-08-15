@@ -16,15 +16,25 @@ namespace Shears.StateMachineGraphs
 
         public string DefaultStateID => defaultStateID;
 
+        public StateMachineNodeData() { }
+
+        public StateMachineNodeData(string name, Vector2 position, string parentID, SerializableSystemType stateType)
+        {
+            this.name = name;
+            this.position = position;
+            this.parentID = parentID;
+            this.stateType = stateType;
+        }
+
         public State CreateStateInstance() => (State)Activator.CreateInstance(stateType.SystemType);
 
         public IReadOnlyList<string> GetTransitionIDs() => Edges;
 
         public void SetInitialStateID(string id) => defaultStateID = id;
 
-        void ILayerDefaultTarget.OnSetAsLayerDefault() => SetAsLayerDefault?.Invoke();
+        void ILayerElement.OnSetAsLayerDefault() => SetAsLayerDefault?.Invoke();
 
-        void ILayerDefaultTarget.OnRemoveLayerDefault() => RemovedAsLayerDefault?.Invoke();
+        void ILayerElement.OnRemoveLayerDefault() => RemovedAsLayerDefault?.Invoke();
 
         public static StateMachineNodeData PasteFromClipboard(StateMachineNodeClipboardData data, string parentID)
         {

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Shears.GraphViews
 {
     [Serializable]
-    public class GraphNodeClipboardData : GraphElementClipboardData
+    public abstract class GraphNodeClipboardData : GraphElementClipboardData
     {
         private const float COPY_OFFSET = -150f;
 
@@ -24,7 +24,7 @@ namespace Shears.GraphViews
     }
 
     [Serializable]
-    public class GraphMultiNodeClipboardData : GraphNodeClipboardData
+    public abstract class GraphMultiNodeClipboardData : GraphNodeClipboardData
     {
         [SerializeReference] private List<GraphElementClipboardData> subElements = new();
 

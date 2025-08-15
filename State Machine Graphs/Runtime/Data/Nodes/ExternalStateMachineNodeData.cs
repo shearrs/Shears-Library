@@ -14,15 +14,23 @@ namespace Shears.StateMachineGraphs
         public event Action SetAsLayerDefault;
         public event Action RemovedAsLayerDefault;
 
+        public ExternalStateMachineNodeData() { }
+
+        public ExternalStateMachineNodeData(string name, Vector2 position, string parentID, StateMachineGraph externalGraphData)
+        {
+            this.name = name;
+            this.position = position;
+            this.parentID = parentID;
+            this.externalGraphData = externalGraphData;
+        }
+
         State IStateNodeData.CreateStateInstance() => new ExternalGraphState();
 
         IReadOnlyList<string> ITransitionable.GetTransitionIDs() => Edges;
 
-        void ILayerDefaultTarget.OnSetAsLayerDefault() => SetAsLayerDefault?.Invoke();
+        void ILayerElement.OnSetAsLayerDefault() => SetAsLayerDefault?.Invoke();
 
-        void ILayerDefaultTarget.OnRemoveLayerDefault() => RemovedAsLayerDefault?.Invoke();
-
-        //public override GraphElementClipboardData CopyToClipboard() => new ExternalStateMachineNodeClipboardData(Name, Position, externalGraphData);
+        void ILayerElement.OnRemoveLayerDefault() => RemovedAsLayerDefault?.Invoke();
 
         public static ExternalStateMachineNodeData PasteFromClipboard(ExternalStateMachineNodeClipboardData data, string parentID)
         {

@@ -26,6 +26,7 @@ namespace Shears.StateMachineGraphs
             {
                 if (element is IStateNodeData stateNodeData && IsLayerDefault(stateNodeData))
                 {
+                    Debug.Log("change default");
                     var activeNodes = GetActiveNodes();
 
                     if (activeNodes.Count == 0)
@@ -47,67 +48,6 @@ namespace Shears.StateMachineGraphs
                 else if (element is ParameterData parameterData)
                     RemoveParameter(parameterData);
             }
-        }
-
-        protected override GraphNodeData CreateNodeFromClipboard(GraphNodeClipboardData data, string parentID = "")
-        {
-            if (parentID == "")
-                parentID = Layers[^1].ParentID;
-
-            if (data is StateNodeClipboardData stateNodeData)
-            {
-                var stateNode = StateNodeData.PasteFromClipboard(stateNodeData, parentID);
-
-                AddNodeData(stateNode);
-
-                if (parentID == Layers[^1].ParentID)
-                    MoveNodeToCurrentLayer(stateNode);
-
-                if (IsDefaultAvailable(stateNode))
-                    SetLayerDefault(stateNode);
-
-                return stateNode;
-            }
-            else if (data is StateMachineNodeClipboardData stateMachineNodeData)
-            {
-                var stateMachineNode = StateMachineNodeData.PasteFromClipboard(stateMachineNodeData, parentID);
-
-                AddNodeData(stateMachineNode);
-
-                if (parentID == Layers[^1].ParentID)
-                    MoveNodeToCurrentLayer(stateMachineNode);
-
-                if (IsDefaultAvailable(stateMachineNode))
-                    SetLayerDefault(stateMachineNode);
-
-                foreach (var subElementClipboard in stateMachineNodeData.SubElements)
-                {                  
-                    if (subElementClipboard is GraphNodeClipboardData nodeClipboard)
-                    {
-                        var copy = CreateNodeFromClipboard(nodeClipboard, stateMachineNode.ID);
-
-                        stateMachineNode.AddSubNode(copy);
-                    }
-                }
-
-                return stateMachineNode;
-            }
-            else if (data is ExternalStateMachineNodeClipboardData externalStateMachineNodeData)
-            {
-                var externalNode = ExternalStateMachineNodeData.PasteFromClipboard(externalStateMachineNodeData, parentID);
-
-                AddNodeData(externalNode);
-
-                if (parentID == Layers[^1].ParentID)
-                    MoveNodeToCurrentLayer(externalNode);
-
-                if (IsDefaultAvailable(externalNode))
-                    SetLayerDefault(externalNode);
-
-                return externalNode;
-            }
-
-            return null;
         }
 
         public override void OnValidate()
@@ -271,7 +211,7 @@ namespace Shears.StateMachineGraphs
         #endregion
 
         #region States
-        public bool IsLayerDefault(ILayerDefaultTarget layerNode)
+        public bool IsLayerDefault(ILayerElement layerNode)
         {
             if (layerNode.ParentID == GraphLayer.ROOT_ID)
                 return layerNode.ID == RootDefaultStateID;
@@ -284,16 +224,18 @@ namespace Shears.StateMachineGraphs
             }
         }
 
-        public void SetLayerDefault(ILayerDefaultTarget layerNode)
+        public void SetLayerDefault(ILayerElement layerNode)
         {
-            if (layerNode == null)
-            {
-                rootDefaultStateID = string.Empty;
-                return;
-            }
+            GraphLayer layer = GetLayer(layerNode);
 
-            if (GraphLayer.IsRootID(layerNode.ParentID))
+            if (layer.IsRoot())
             {
+                if (layerNode == null)
+                {
+                    rootDefaultStateID = string.Empty;
+                    return;
+                }
+
                 if (!string.IsNullOrEmpty(rootDefaultStateID))
                 {
                     if (TryGetData(rootDefaultStateID, out GraphNodeData defaultNode) && defaultNode is IStateNodeData defaultState)
@@ -303,8 +245,14 @@ namespace Shears.StateMachineGraphs
                 rootDefaultStateID = layerNode.ID;
                 layerNode.OnSetAsLayerDefault();
             }
-            else if (TryGetData(layerNode.ParentID, out StateMachineNodeData stateMachineData))
+            else if (TryGetData(layer.ParentID, out StateMachineNodeData stateMachineData))
             {
+                if (layerNode == null)
+                {
+                    stateMachineData.SetInitialStateID(string.Empty);
+                    return;
+                }
+
                 if (!string.IsNullOrEmpty(stateMachineData.DefaultStateID))
                 {
                     if (TryGetData(stateMachineData.DefaultStateID, out GraphNodeData defaultNode) && defaultNode is IStateNodeData defaultState)
@@ -377,10 +325,13 @@ namespace Shears.StateMachineGraphs
             AddNodeData(nodeData);
             MoveNodeToCurrentLayer(nodeData);
 
+            if (IsDefaultAvailable(nodeData))
+                SetLayerDefault(nodeData);
+
             return nodeData;
         }
 
-        private bool IsDefaultAvailable(ILayerDefaultTarget layerNode)
+        public bool IsDefaultAvailable(ILayerElement layerNode)
         {
             // if state has a parent...
             if (!GraphLayer.IsRootID(layerNode.ParentID))
@@ -395,6 +346,19 @@ namespace Shears.StateMachineGraphs
             }
 
             return string.IsNullOrEmpty(rootDefaultStateID) || !TryGetData<GraphNodeData>(rootDefaultStateID, out _);
+        }
+
+        private GraphLayer GetLayer(ILayerElement element)
+        {
+            if (element == null || GraphLayer.IsRootID(element.ParentID))
+                return CreateRootLayer();
+            else if (TryGetData(element.ParentID, out StateMachineNodeData stateMachine))
+                return CreateLayer(stateMachine);
+            else
+            {
+                SHLogger.Log("Could not find layer with ID: " + element.ParentID, SHLogLevels.Error);
+                return CreateRootLayer();
+            }
         }
         #endregion
 

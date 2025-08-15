@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
-    public interface ILayerDefaultTarget : IGraphElementData
+    public interface ILayerElement : IGraphElementData
     {
         public string ParentID { get; }
 
