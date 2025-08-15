@@ -36,22 +36,9 @@ namespace Shears.StateMachineGraphs
 
         void ILayerElement.OnRemoveLayerDefault() => RemovedAsLayerDefault?.Invoke();
 
-        public static StateMachineNodeData PasteFromClipboard(StateMachineNodeClipboardData data, string parentID)
-        {
-            var stateNode = new StateMachineNodeData
-            {
-                name = data.Name,
-                position = data.Position,
-                parentID = parentID,
-                stateType = data.StateType
-            };
-
-            return stateNode;
-        }
-
         public StateMachineNodeClipboardData CopyToClipboard(CopyData data)
         {
-            var clipboardData = new StateMachineNodeClipboardData(Name, Position, stateType);
+            var clipboardData = new StateMachineNodeClipboardData(ID, Name, Position, stateType);
 
             foreach (var subElementID in SubNodeIDs)
             {

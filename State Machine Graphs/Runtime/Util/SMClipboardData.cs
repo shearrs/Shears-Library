@@ -1,5 +1,6 @@
 using Shears.GraphViews;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Shears.StateMachineGraphs
@@ -11,8 +12,8 @@ namespace Shears.StateMachineGraphs
 
         public SerializableSystemType StateType => stateType;
 
-        public StateNodeClipboardData(string name, Vector2 position,
-            SerializableSystemType stateType) : base(name, position)
+        public StateNodeClipboardData(string id, string name, Vector2 position,
+            SerializableSystemType stateType) : base(id, name, position)
         {
             this.stateType = stateType;
         }
@@ -32,6 +33,11 @@ namespace Shears.StateMachineGraphs
 
             return nodeData;
         }
+
+        public override GraphElementData PasteDependents(Dictionary<string, GraphElementData> data)
+        {
+            return base.PasteDependents(data);
+        }
     }
 
     [Serializable]
@@ -39,8 +45,8 @@ namespace Shears.StateMachineGraphs
     {
         [SerializeField] private SerializableSystemType stateType;
 
-        public StateMachineNodeClipboardData(string name, Vector2 position,
-            SerializableSystemType stateType) : base(name, position)
+        public StateMachineNodeClipboardData(string id, string name, Vector2 position,
+            SerializableSystemType stateType) : base(id, name, position)
         {
             this.stateType = stateType;
         }
@@ -62,7 +68,7 @@ namespace Shears.StateMachineGraphs
 
             foreach (var subElement in SubElements)
             {
-                if (subElement is GraphNodeClipboardData nodeClipboard)
+                if (subElement is GraphNodeClipboardData)
                 {
                     var copy = subElement.Paste(new(data.GraphData, nodeData.ID)) as GraphNodeData;
 
@@ -81,9 +87,9 @@ namespace Shears.StateMachineGraphs
 
         public StateMachineGraph ExternalGraphData => externalGraphData;
 
-        public ExternalStateMachineNodeClipboardData(string name, Vector2 position,
+        public ExternalStateMachineNodeClipboardData(string id, string name, Vector2 position,
             StateMachineGraph externalGraphData) 
-            : base(name, position)
+            : base(id, name, position)
         {
             this.externalGraphData = externalGraphData;
         }

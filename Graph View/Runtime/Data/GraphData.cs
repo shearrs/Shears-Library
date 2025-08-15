@@ -30,6 +30,7 @@ namespace Shears.GraphViews
         private readonly List<GraphElementData> instanceSelection = new();
         private readonly List<GraphNodeData> instanceNodes = new();
         private readonly List<GraphEdgeData> instanceEdges = new();
+        private readonly Dictionary<string, GraphElementData> pasteBuffer = new();
 
         public Vector2 Position { get => position; set => position = value; }
         public Vector2 Scale { get => scale; set => scale = value; }
@@ -84,8 +85,18 @@ namespace Shears.GraphViews
 
             string parentID = Layers[^1].ParentID;
 
+            pasteBuffer.Clear();
+            // we can use another function - PasteDependents() - passing in a dictionary of original IDs to new elements
+
             foreach (var clipboardData in data)
-                clipboardData.Paste(new(this, parentID));
+            {
+                var element = clipboardData.Paste(new(this, parentID));
+
+                pasteBuffer.Add(clipboardData.OriginalID, element);
+            }
+
+            foreach (var clipboardData in data)
+                clipboardData.PasteDependents(pasteBuffer);
         }
 
         #region Element Data

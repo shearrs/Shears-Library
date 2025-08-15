@@ -32,20 +32,7 @@ namespace Shears.StateMachineGraphs
 
         void ILayerElement.OnRemoveLayerDefault() => RemovedAsLayerDefault?.Invoke();
 
-        public static ExternalStateMachineNodeData PasteFromClipboard(ExternalStateMachineNodeClipboardData data, string parentID)
-        {
-            var node = new ExternalStateMachineNodeData
-            {
-                name = data.Name,
-                position = data.Position,
-                parentID = parentID,
-                externalGraphData = data.ExternalGraphData
-            };
-
-            return node;
-        }
-
-        public ExternalStateMachineNodeClipboardData CopyToClipboard(CopyData data) => new(Name, Position, externalGraphData);
+        public ExternalStateMachineNodeClipboardData CopyToClipboard(CopyData data) => new(ID, Name, Position, externalGraphData);
 
         GraphElementClipboardData ICopyable.CopyToClipboard(CopyData data)
         {

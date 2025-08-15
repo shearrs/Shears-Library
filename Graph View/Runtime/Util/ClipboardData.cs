@@ -15,7 +15,7 @@ namespace Shears.GraphViews
         public string Name => name;
         public Vector2 Position => position;
 
-        public GraphNodeClipboardData(string name, Vector2 position)
+        public GraphNodeClipboardData(string id, string name, Vector2 position) : base(id)
         {
             this.name = name;
             this.position = position;
@@ -30,8 +30,8 @@ namespace Shears.GraphViews
 
         public List<GraphElementClipboardData> SubElements => subElements;
 
-        public GraphMultiNodeClipboardData(string name, Vector2 position)
-            : base(name, position)
+        public GraphMultiNodeClipboardData(string id, string name, Vector2 position)
+            : base(id, name, position)
         {
         }
     }
