@@ -1,5 +1,6 @@
 using Shears.GraphViews;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Shears.StateMachineGraphs
@@ -8,11 +9,12 @@ namespace Shears.StateMachineGraphs
     public class StateMachineNodeClipboardData : GraphMultiNodeClipboardData
     {
         [SerializeField] private SerializableSystemType stateType;
+        [SerializeField] private List<TransitionEdgeClipboardData> transitions;
 
-        public StateMachineNodeClipboardData(string id, string name, Vector2 position,
-            SerializableSystemType stateType) : base(id, name, position)
+        public StateMachineNodeClipboardData(StateMachineNodeData data, List<TransitionEdgeClipboardData> transitions) : base(data.ID, data.Name, data.Position)
         {
-            this.stateType = stateType;
+            stateType = data.StateType;
+            this.transitions = transitions;
         }
 
         public SerializableSystemType StateType => stateType;
@@ -37,10 +39,20 @@ namespace Shears.StateMachineGraphs
                     var copy = subElement.Paste(new(data.GraphData, nodeData.ID, data.Mapping)) as GraphNodeData;
 
                     nodeData.AddSubNode(copy);
+                    data.Mapping.Add(subElement.OriginalID, copy);
                 }
             }
 
             return nodeData;
+        }
+
+        public override void PasteDependents(PasteData data)
+        {
+            foreach (var subElement in SubElements)
+                subElement.PasteDependents(data);
+
+            foreach (var transition in transitions)
+                transition.Paste(data);
         }
     }
 }

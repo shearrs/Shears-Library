@@ -26,7 +26,6 @@ namespace Shears.StateMachineGraphs
             {
                 if (element is IStateNodeData stateNodeData && IsLayerDefault(stateNodeData))
                 {
-                    Debug.Log("change default");
                     var activeNodes = GetActiveNodes();
 
                     if (activeNodes.Count == 0)

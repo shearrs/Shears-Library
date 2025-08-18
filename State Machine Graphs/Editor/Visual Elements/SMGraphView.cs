@@ -214,6 +214,10 @@ namespace Shears.StateMachineGraphs.Editor
 
             var from = GetNode(data.FromID);
             var to = GetNode(data.ToID);
+
+            if (from == null || to == null)
+                return null;
+
             var edge = new TransitionEdge(transitionData, from, to);
 
             return edge;

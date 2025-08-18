@@ -21,6 +21,9 @@ namespace Shears.StateMachineGraphs
 
         public override GraphElementData Paste(PasteData data)
         {
+            if (data.Mapping.ContainsKey(OriginalID))
+                return null;
+
             var stateGraph = data.GraphData as StateMachineGraph;
 
             if (!data.Mapping.TryGetValue(fromID, out var from))
@@ -44,6 +47,8 @@ namespace Shears.StateMachineGraphs
 
             foreach (var comparison in comparisonData)
                 transition.AddComparisonData(comparison);
+
+            data.Mapping.Add(OriginalID, transition);
 
             return transition;
         }

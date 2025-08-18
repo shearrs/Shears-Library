@@ -15,6 +15,7 @@ namespace Shears.StateMachineGraphs
         public event Action RemovedAsLayerDefault;
 
         public string DefaultStateID => defaultStateID;
+        public SerializableSystemType StateType => stateType;
 
         public StateMachineNodeData() { }
 
@@ -38,7 +39,17 @@ namespace Shears.StateMachineGraphs
 
         public StateMachineNodeClipboardData CopyToClipboard(CopyData data)
         {
-            var clipboardData = new StateMachineNodeClipboardData(ID, Name, Position, stateType);
+            var transitions = new List<TransitionEdgeClipboardData>();
+
+            foreach (var edgeID in Edges)
+            {
+                if (!data.GraphData.TryGetData(edgeID, out TransitionEdgeData transition))
+                    continue;
+
+                transitions.Add(new(transition));
+            }
+
+            var clipboardData = new StateMachineNodeClipboardData(this, transitions);
 
             foreach (var subElementID in SubNodeIDs)
             {

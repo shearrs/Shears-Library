@@ -416,9 +416,13 @@ namespace Shears.GraphViews.Editor
             return GetNode(data);
         }
 
+        // TODO: should be TryGetNode
         public GraphNode GetNode(GraphNodeData nodeData)
         {
-            return nodes[nodeData];
+            if (nodes.ContainsKey(nodeData))
+                return nodes[nodeData];
+
+            return null;
         }
 
         private void AddNode(GraphNode node)
@@ -472,6 +476,9 @@ namespace Shears.GraphViews.Editor
         private void AddEdgeFromData(GraphEdgeData data)
         {
             var edge = CreateEdgeFromData(data);
+
+            if (edge == null)
+                return;
 
             AddEdge(edge);
         }
