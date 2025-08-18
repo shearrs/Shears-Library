@@ -84,19 +84,19 @@ namespace Shears.GraphViews
                 return;
 
             string parentID = Layers[^1].ParentID;
+            var pasteData = new PasteData(this, parentID, pasteBuffer);
 
             pasteBuffer.Clear();
-            // we can use another function - PasteDependents() - passing in a dictionary of original IDs to new elements
 
             foreach (var clipboardData in data)
             {
-                var element = clipboardData.Paste(new(this, parentID));
+                var element = clipboardData.Paste(pasteData);
 
                 pasteBuffer.Add(clipboardData.OriginalID, element);
             }
 
             foreach (var clipboardData in data)
-                clipboardData.PasteDependents(pasteBuffer);
+                clipboardData.PasteDependents(pasteData);
         }
 
         #region Element Data

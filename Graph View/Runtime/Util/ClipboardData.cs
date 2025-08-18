@@ -11,7 +11,7 @@ namespace Shears.GraphViews
 
         [SerializeField] private string name;
         [SerializeField] private Vector2 position;
-
+        
         public string Name => name;
         public Vector2 Position => position;
 

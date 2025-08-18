@@ -6,7 +6,7 @@ namespace Shears.GraphViews
     [System.Serializable]
     public abstract class GraphElementClipboardData
     {
-        private readonly string id;
+        [SerializeField] private string id;
 
         public string OriginalID => id;
 
@@ -17,9 +17,8 @@ namespace Shears.GraphViews
 
         public abstract GraphElementData Paste(PasteData data);
 
-        public virtual GraphElementData PasteDependents(Dictionary<string, GraphElementData> data)
+        public virtual void PasteDependents(PasteData data)
         {
-            return null;
         }
     }
 }

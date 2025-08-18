@@ -13,6 +13,8 @@ namespace Shears.StateMachineGraphs
         public event Action SetAsLayerDefault;
         public event Action RemovedAsLayerDefault;
 
+        public SerializableSystemType StateType => stateType;
+
         public StateNodeData() { }
 
         public StateNodeData(string name, Vector2 position, string parentID, SerializableSystemType stateType)
@@ -31,7 +33,20 @@ namespace Shears.StateMachineGraphs
 
         void ILayerElement.OnRemoveLayerDefault() => RemovedAsLayerDefault?.Invoke();
 
-        public StateNodeClipboardData CopyToClipboard(CopyData data) => new(ID, Name, Position, stateType);
+        public StateNodeClipboardData CopyToClipboard(CopyData data)
+        {
+            var transitions = new List<TransitionEdgeClipboardData>();
+
+            foreach (var edgeID in Edges)
+            {
+                if (!data.GraphData.TryGetData(edgeID, out TransitionEdgeData transition))
+                    continue;
+
+                transitions.Add(new(transition));
+            }
+
+            return new(this, transitions);
+        }
 
         GraphElementClipboardData ICopyable.CopyToClipboard(CopyData data)
         {
