@@ -390,6 +390,11 @@ namespace Shears.GraphViews.Editor
         #region Transformations
         public void UpdateViewTransform(Vector2 newPosition, Vector2 newScale)
         {
+            const float MAX_DISTANCE = 5000.0f;
+            float maxDistance = MAX_DISTANCE * ViewTransform.scale.x;
+
+            newPosition = newPosition.ClampComponents(-maxDistance, maxDistance);
+
             newPosition.x = EditorGUIHelper.RoundToPixelGrid(newPosition.x);
             newPosition.y = EditorGUIHelper.RoundToPixelGrid(newPosition.y);
 
