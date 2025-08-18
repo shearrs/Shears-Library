@@ -30,7 +30,7 @@ namespace Shears.StateMachineGraphs
 
                     if (activeNodes.Count == 0)
                     {
-                        SetLayerDefault(null);
+                        ClearLayerDefault(GetLayer(stateNodeData));
                         return;
                     }
 
@@ -263,6 +263,30 @@ namespace Shears.StateMachineGraphs
             }
             else
                 SHLogger.Log("Could not find layer for node with ID: " + layerNode.ID, SHLogLevels.Error);
+        }
+
+        private void ClearLayerDefault(GraphLayer layer)
+        {
+            if (layer.IsRoot())
+            {
+                if (!string.IsNullOrEmpty(rootDefaultStateID))
+                {
+                    if (TryGetData(rootDefaultStateID, out GraphNodeData defaultNode) && defaultNode is IStateNodeData defaultState)
+                        defaultState.OnRemoveLayerDefault();
+                }
+
+                rootDefaultStateID = string.Empty;
+            }
+            else if (TryGetData(layer.ParentID, out StateMachineNodeData stateMachineData))
+            {
+                if (!string.IsNullOrEmpty(stateMachineData.DefaultStateID))
+                {
+                    if (TryGetData(stateMachineData.DefaultStateID, out GraphNodeData defaultNode) && defaultNode is IStateNodeData defaultState)
+                        defaultState.OnRemoveLayerDefault();
+                }
+
+                stateMachineData.SetInitialStateID(string.Empty);
+            }
         }
 
         private IReadOnlyList<IStateNodeData> GetStateNodes()
