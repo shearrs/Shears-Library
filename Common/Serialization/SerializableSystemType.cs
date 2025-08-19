@@ -57,10 +57,13 @@ namespace Shears
         #region Operators
         public override bool Equals(object obj)
         {
-            if (obj is not SerializableSystemType type)
+            if (obj is Type type)
+                return SystemType.Equals(type);
+
+            if (obj is not SerializableSystemType sType)
                 return false;
 
-            return Equals(type);
+            return Equals(sType);
         }
 
         public bool Equals(SerializableSystemType type) 
@@ -68,12 +71,17 @@ namespace Shears
             return SystemType == type.SystemType;
         }
 
+        public bool Equals(Type type)
+        {
+            return SystemType == type;
+        }
+
         public override int GetHashCode()
         {
             return HashCode.Combine(Name, AssemblyQualifiedName, AssemblyName, SystemType);
         }
 
-        public override string ToString()
+        public readonly override string ToString()
         {
             return name;
         }
@@ -83,13 +91,20 @@ namespace Shears
             if (ReferenceEquals(a, b))
                 return true;
 
-            if (a == null || b == null)
-                return false;
+            return a.Equals(b);
+        }
 
+        public static bool operator==(SerializableSystemType a, Type b)
+        {
             return a.Equals(b);
         }
 
         public static bool operator!=(SerializableSystemType a, SerializableSystemType b)
+        {
+            return !(a == b);
+        }
+
+        public static bool operator!=(SerializableSystemType a, Type b)
         {
             return !(a == b);
         }

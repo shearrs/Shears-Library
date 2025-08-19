@@ -289,7 +289,7 @@ namespace Shears.StateMachineGraphs
             }
         }
 
-        private IReadOnlyList<IStateNodeData> GetStateNodes()
+        public IReadOnlyList<IStateNodeData> GetStateNodes()
         {
             instanceStateNodes.Clear();
             var nodes = GetNodes();

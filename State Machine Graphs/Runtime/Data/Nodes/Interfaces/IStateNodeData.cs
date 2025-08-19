@@ -6,6 +6,7 @@ namespace Shears.StateMachineGraphs
     public interface IStateNodeData : ITransitionable, ILayerElement
     {
         public string Name { get; }
+        public SerializableSystemType StateType { get; }
 
         public State CreateStateInstance();
     }
