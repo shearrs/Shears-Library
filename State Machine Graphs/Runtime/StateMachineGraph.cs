@@ -305,7 +305,7 @@ namespace Shears.StateMachineGraphs
 
         public StateNodeData CreateStateNodeData(Vector2 position)
         {
-            var nodeData = new StateNodeData
+            var nodeData = new StateNodeData(typeof(EmptyState))
             {
                 Position = position,
                 Name = "New State"

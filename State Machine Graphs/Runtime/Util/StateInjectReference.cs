@@ -1,21 +1,20 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
     [System.Serializable]
-    public class StateInjectReference
+    public class StateInjectReference // make this a map to each individual field in each individual type instead of one type and reference combo
     {
-        [SerializeField, ReadOnly] private string stateID;
-        [SerializeField, ReadOnly] private SerializableSystemType type;
+        [SerializeField] private SerializableSystemType parentType;
+        [SerializeField] private SerializableSystemType type;
         [SerializeField] private Object reference;
 
-        public string StateID => stateID;
         public SerializableSystemType Type => type;
         public Object Reference => reference;
 
-        public StateInjectReference(string stateID, SerializableSystemType type)
+        public StateInjectReference(SerializableSystemType type)
         {
-            this.stateID = stateID;
             this.type = type;
         }
     }

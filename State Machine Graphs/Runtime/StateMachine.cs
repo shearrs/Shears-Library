@@ -10,7 +10,7 @@ namespace Shears.StateMachineGraphs
     {
         [Header("State Machine")]
         [SerializeField] private StateMachineGraph graphData;
-        [SerializeField] private List<StateInjectReference> injectReferences;
+        [SerializeField] private List<StateInjectReference> injectReferences = new();
         [SerializeReference] private List<State> stateTree = new();
 
 #if UNITY_EDITOR
@@ -64,11 +64,11 @@ namespace Shears.StateMachineGraphs
 #endif
         }
         
-        public bool HasInjectedReference(string stateID, Type type)
+        public bool HasInjectedReference(Type type)
         {
             foreach (var reference in injectReferences)
             {
-                if (reference.StateID == stateID && reference.Type == type)
+                if (reference.Type == type)
                     return true;
             }
 

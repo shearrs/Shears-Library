@@ -8,14 +8,17 @@ namespace Shears.StateMachineGraphs
     [Serializable]
     public class StateNodeData : GraphNodeData, IStateNodeData, ICopyable<StateNodeClipboardData>
     {
-        [SerializeField] private SerializableSystemType stateType = new(typeof(EmptyState));
+        [SerializeField] private SerializableSystemType stateType;
 
         public event Action SetAsLayerDefault;
         public event Action RemovedAsLayerDefault;
 
         public SerializableSystemType StateType => stateType;
 
-        public StateNodeData() { }
+        public StateNodeData(SerializableSystemType stateType)
+        {
+            this.stateType = stateType;
+        }
 
         public StateNodeData(string name, Vector2 position, string parentID, SerializableSystemType stateType)
         {
