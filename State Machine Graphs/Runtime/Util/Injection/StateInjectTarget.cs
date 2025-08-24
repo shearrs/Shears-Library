@@ -6,17 +6,17 @@ namespace Shears.StateMachineGraphs
     public struct StateInjectTarget
     {
         [SerializeField] private string targetID;
-        [SerializeField] private SerializableSystemType targetType;
+        [SerializeField] private string fieldName;
         [SerializeField] private SerializableSystemType fieldType;
 
         public readonly string TargetID => targetID;
-        public readonly SerializableSystemType TargetType => targetType;
+        public readonly string FieldName => fieldName;
         public readonly SerializableSystemType FieldType => fieldType;
 
-        public StateInjectTarget(string targetID, SerializableSystemType targetType, SerializableSystemType fieldType)
+        public StateInjectTarget(string targetID, string fieldName, SerializableSystemType fieldType)
         {
             this.targetID = targetID;
-            this.targetType = targetType;
+            this.fieldName = fieldName;
             this.fieldType = fieldType;
         }
     }

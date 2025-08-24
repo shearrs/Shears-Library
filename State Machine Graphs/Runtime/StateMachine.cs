@@ -1,8 +1,5 @@
-using Shears.GraphViews;
 using Shears.Logging;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Shears.StateMachineGraphs
@@ -11,8 +8,8 @@ namespace Shears.StateMachineGraphs
     {
         [Header("State Machine")]
         [SerializeField] private StateMachineGraph graphData;
-        [SerializeField] private List<StateInjectReference> injectReferences = new();
         [SerializeReference] private List<State> stateTree = new();
+        [SerializeField] private List<StateInjectReference> injectReferences = new();
 
 #if UNITY_EDITOR
         [Header("Parameters")]
@@ -63,28 +60,6 @@ namespace Shears.StateMachineGraphs
             parameterDisplay.AddRange(parameters.Values);
             externalParameters = compiledData.ParameterProviders;
 #endif
-        }
-        
-        public bool HasInjectType(Type type)
-        {
-            foreach (var reference in injectReferences)
-            {
-                if (reference.FieldType == type)
-                    return true;
-            }
-
-            return false;
-        }
-
-        public bool HasInjectTarget(StateInjectTarget target)
-        {
-            foreach (var reference in injectReferences)
-            {
-                if (reference.Targets.Contains(target))
-                    return true;
-            }
-
-            return false;
         }
         #endregion
 
