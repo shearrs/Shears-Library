@@ -3,26 +3,15 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Shears.StateMachineGraphs.Editor
 {
-    //    [Header("State Machine")]
-    //    [SerializeField] private StateMachineGraph graphData;
-    //    [SerializeField] private List<StateInjectReference> injectReferences;
-    //    [SerializeReference] private List<State> stateTree = new();
-
-    //#if UNITY_EDITOR
-    //    [Header("Parameters")]
-    //    [SerializeReference] private List<Parameter> parameterDisplay = new();
-    //    [SerializeField] private List<LocalParameterProvider> externalParameters = new();
-    //#endif
-
     [CustomEditor(typeof(StateMachine))]
     public class StateMachineEditor : UnityEditor.Editor
     {
-        private readonly HashSet<Type> injectTargets = new();
+        private readonly List<StateInjectTarget> injectTargets = new();
+        private readonly List<StateInjectReference> injectReferences = new();
         private SerializedProperty injectReferencesProp;
         private StateMachine stateMachine;
 
@@ -55,6 +44,7 @@ namespace Shears.StateMachineGraphs.Editor
         {
             var states = graph.GetStateNodes();
             injectTargets.Clear();
+            injectReferences.Clear();
 
             foreach (var state in states)
             {
@@ -68,10 +58,7 @@ namespace Shears.StateMachineGraphs.Editor
 
                     var fieldType = field.FieldType;
 
-                    if (injectTargets.Contains(fieldType))
-                        continue;
-
-                    injectTargets.Add(fieldType);
+                    injectTargets.Add(new(state.ID, state.GetType(), fieldType));
                 }
             }
 
@@ -79,24 +66,44 @@ namespace Shears.StateMachineGraphs.Editor
             {
                 var reference = injectReferencesProp.GetArrayElementAtIndex(i).boxedValue as StateInjectReference;
 
-                if (!injectTargets.Contains(reference.Type))
+                if (!injectTargets.Exists((t) => t.FieldType == reference.FieldType))
                 {
                     injectReferencesProp.DeleteArrayElementAtIndex(i);
                     i--;
                 }
             }
 
+            // for each target, if we have the type injected, just assign the target to that reference
+            // else, create a new reference and add the target to it
+
+            // TODO: add a simple API to add a state target to the state machine and the state machine handles it
             foreach (var target in injectTargets)
             {
-                if (stateMachine.HasInjectedReference(target))
-                    continue;
+                if (stateMachine.HasInjectType(target.FieldType))
+                {
+                    for (int i = 0; i < injectReferencesProp.arraySize; i++)
+                    {
+                        var reference = injectReferencesProp.GetArrayElementAtIndex(i).boxedValue as StateInjectReference;
 
-                injectReferencesProp.InsertArrayElementAtIndex(injectReferencesProp.arraySize);
+                        if (reference.FieldType == target.FieldType)
+                        {
+                            if (!stateMachine.HasInjectTarget(target))
+                                reference.AddTarget(target);
 
-                var element = injectReferencesProp.GetArrayElementAtIndex(injectReferencesProp.arraySize - 1);
-                var injectReference = new StateInjectReference(target);
+                            break;
+                        }
+                    }
+                }
 
-                element.boxedValue = injectReference;
+                //if (stateMachine.HasInjectTarget(target))
+                //    continue;
+
+                //injectReferencesProp.InsertArrayElementAtIndex(injectReferencesProp.arraySize);
+
+                //var element = injectReferencesProp.GetArrayElementAtIndex(injectReferencesProp.arraySize - 1);
+                //var injectReference = new StateInjectReference(target);
+
+                //element.boxedValue = injectReference;
             }
 
             serializedObject.ApplyModifiedProperties();

@@ -2,6 +2,7 @@ using Shears.GraphViews;
 using Shears.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Shears.StateMachineGraphs
@@ -64,11 +65,22 @@ namespace Shears.StateMachineGraphs
 #endif
         }
         
-        public bool HasInjectedReference(Type type)
+        public bool HasInjectType(Type type)
         {
             foreach (var reference in injectReferences)
             {
-                if (reference.Type == type)
+                if (reference.FieldType == type)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public bool HasInjectTarget(StateInjectTarget target)
+        {
+            foreach (var reference in injectReferences)
+            {
+                if (reference.Targets.Contains(target))
                     return true;
             }
 
