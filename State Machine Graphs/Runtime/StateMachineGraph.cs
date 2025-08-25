@@ -55,41 +55,14 @@ namespace Shears.StateMachineGraphs
 
             if (string.IsNullOrEmpty(rootDefaultStateID) && rootNodes.Count > 0)
                 rootDefaultStateID = rootNodes[0];
-
-            Debug.Log("validate");
         }
 
         #region Compilation
-        [Serializable]
-        public struct GraphCompilationData
-        {
-            [SerializeField] private Dictionary<string, Parameter> parameterNames;
-            [SerializeField] private Dictionary<string, Parameter> parameterIDs;
-            [SerializeField] private Dictionary<string, State> stateIDs;
-            [SerializeField] private List<LocalParameterProvider> parameterProviders;
-            [SerializeField] private State defaultState;
-
-            public readonly Dictionary<string, Parameter> ParameterNames => parameterNames;
-            public readonly Dictionary<string, Parameter> ParameterIDs => parameterIDs;
-            public readonly Dictionary<string, State> StateIDs => stateIDs;
-            public readonly List<LocalParameterProvider> ParameterProviders => parameterProviders;
-            public readonly State DefaultState => defaultState;
-
-            public GraphCompilationData(Dictionary<string, Parameter> parameterNames, Dictionary<string, Parameter> parameterIDs, Dictionary<string, State> stateIDs, List<LocalParameterProvider> parameterProviders, State defaultState)
-            {
-                this.parameterNames = parameterNames;
-                this.parameterIDs = parameterIDs;
-                this.stateIDs = stateIDs;
-                this.parameterProviders = parameterProviders;
-                this.defaultState = defaultState;
-            }
-        }
-
         public GraphCompilationData Compile()
         {
-            var parameterNames = new Dictionary<string, Parameter>();
-            var parameterIDs = new Dictionary<string, Parameter>();
-            var stateIDs = new Dictionary<string, State>();
+            var parameterNames = new ParameterDictionary();
+            var parameterIDs = new ParameterDictionary();
+            var stateIDs = new StateDictionary();
             var parameterProviders = new List<LocalParameterProvider>();
             State defaultState;
 

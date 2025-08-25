@@ -44,9 +44,12 @@ namespace Shears.StateMachineGraphs.Editor
             foreach (var stateNode in stateNodes)
             {
                 if (!typeof(IStateInjectable).IsAssignableFrom(stateNode.StateType))
+                {
+                    Debug.Log("non injectable state type: " + stateNode.Name);
                     continue;
+                }
 
-                Debug.Log("injectable state type: " + stateNode.StateType);
+                Debug.Log("injectable state type: " + stateNode.Name);
 
                 var stateInstance = Activator.CreateInstance(stateNode.StateType) as IStateInjectable;
                 var injectableTypes = stateInstance.GetInjectableTypes();
