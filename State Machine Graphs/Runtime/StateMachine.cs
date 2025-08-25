@@ -9,7 +9,7 @@ namespace Shears.StateMachineGraphs
         [Header("State Machine")]
         [SerializeField] private StateMachineGraph graphData;
         [SerializeReference] private List<State> stateTree = new();
-        [SerializeField] private List<StateInjectReference> injectReferences = new();
+        [SerializeField] private StateInjectReferenceDictionary injectedReferences = new();
 
 #if UNITY_EDITOR
         [Header("Parameters")]

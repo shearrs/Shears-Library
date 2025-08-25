@@ -7,5 +7,7 @@ namespace Shears.StateMachineGraphs
     public interface IStateInjectable
     {
         public IReadOnlyCollection<Type> GetInjectableTypes();
+
+        public void InjectType(object dependency);
     }
 }

@@ -1,8 +1,5 @@
-using Shears.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -13,9 +10,8 @@ namespace Shears.StateMachineGraphs.Editor
     [CustomEditor(typeof(StateMachine))]
     public class StateMachineEditor : UnityEditor.Editor
     {
-        private readonly List<StateInjectTarget> injectTargets = new();
-        private readonly Dictionary<Type, ObjectField> injectFields = new();
         private VisualElement root;
+        private SerializedProperty injectedReferencesProp;
 
         public override VisualElement CreateInspectorGUI()
         {
@@ -29,8 +25,12 @@ namespace Shears.StateMachineGraphs.Editor
             if (graphDataProp.objectReferenceValue != null)
             {
                 var graph = graphDataProp.objectReferenceValue as StateMachineGraph;
+                injectedReferencesProp = serializedObject.FindProperty("injectedReferences");
 
                 UpdateInjectTargets(graph);
+
+                var injectedReferencesField = new PropertyField(injectedReferencesProp);
+                root.Add(injectedReferencesField);
             }
 
             return root;
@@ -38,30 +38,35 @@ namespace Shears.StateMachineGraphs.Editor
 
         private void UpdateInjectTargets(StateMachineGraph graph)
         {
-            var graphSO = new SerializedObject(graph);
-            var states = graph.GetStateNodes();
-            injectTargets.Clear();
+            var stateNodes = graph.GetStateNodes();
+            var injectedReferences = injectedReferencesProp.boxedValue as StateInjectReferenceDictionary;
 
-            foreach (var state in states)
+            foreach (var stateNode in stateNodes)
             {
-                if (state is not IStateInjectable injectable)
+                if (!typeof(IStateInjectable).IsAssignableFrom(stateNode.StateType))
                     continue;
 
-                var injectableTypes = injectable.GetInjectableTypes();
+                Debug.Log("injectable state type: " + stateNode.StateType);
 
-                var stateType = state.StateType.SystemType;
-                var fields = stateType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                
-                foreach (var field in fields)
+                var stateInstance = Activator.CreateInstance(stateNode.StateType) as IStateInjectable;
+                var injectableTypes = stateInstance.GetInjectableTypes();
+
+                foreach (var type in injectableTypes)
                 {
-                    var fieldType = field.FieldType;
-
-                    if (!injectableTypes.Contains(fieldType))
+                    if (injectedReferences.TryGetValue(type, out var reference))
+                    {
+                        reference.AddTarget(stateNode.ID);
                         continue;
+                    }
 
-                    injectTargets.Add(new(state.ID, field.Name, fieldType));
+                    reference = new StateInjectReference(new SerializableSystemType(type));
+                    reference.AddTarget(stateNode.ID);
+
+                    injectedReferences[type] = reference;
                 }
             }
+
+            injectedReferencesProp.boxedValue = injectedReferences;
 
             serializedObject.ApplyModifiedProperties();
             serializedObject.Update();

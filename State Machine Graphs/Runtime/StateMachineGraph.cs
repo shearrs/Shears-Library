@@ -55,16 +55,19 @@ namespace Shears.StateMachineGraphs
 
             if (string.IsNullOrEmpty(rootDefaultStateID) && rootNodes.Count > 0)
                 rootDefaultStateID = rootNodes[0];
+
+            Debug.Log("validate");
         }
 
         #region Compilation
-        public readonly struct GraphCompilationData
+        [Serializable]
+        public struct GraphCompilationData
         {
-            private readonly Dictionary<string, Parameter> parameterNames;
-            private readonly Dictionary<string, Parameter> parameterIDs;
-            private readonly Dictionary<string, State> stateIDs;
-            private readonly List<LocalParameterProvider> parameterProviders;
-            private readonly State defaultState;
+            [SerializeField] private Dictionary<string, Parameter> parameterNames;
+            [SerializeField] private Dictionary<string, Parameter> parameterIDs;
+            [SerializeField] private Dictionary<string, State> stateIDs;
+            [SerializeField] private List<LocalParameterProvider> parameterProviders;
+            [SerializeField] private State defaultState;
 
             public readonly Dictionary<string, Parameter> ParameterNames => parameterNames;
             public readonly Dictionary<string, Parameter> ParameterIDs => parameterIDs;
