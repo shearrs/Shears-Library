@@ -33,6 +33,10 @@ namespace Shears.StateMachineGraphs.Editor
                 root.Add(injectedReferencesField);
             }
 
+            var stateTreeProp = serializedObject.FindProperty("stateTree");
+            var stateTreeField = new PropertyField(stateTreeProp);
+            root.Add(stateTreeField);
+
             return root;
         }
 
@@ -44,12 +48,7 @@ namespace Shears.StateMachineGraphs.Editor
             foreach (var stateNode in stateNodes)
             {
                 if (!typeof(IStateInjectable).IsAssignableFrom(stateNode.StateType))
-                {
-                    Debug.Log("non injectable state type: " + stateNode.Name);
                     continue;
-                }
-
-                Debug.Log("injectable state type: " + stateNode.Name);
 
                 var stateInstance = Activator.CreateInstance(stateNode.StateType) as IStateInjectable;
                 var injectableTypes = stateInstance.GetInjectableTypes();

@@ -46,7 +46,7 @@ namespace Shears.StateMachineGraphs
         #region Graph Compilation
         private void CompileGraph()
         {
-            var compiledData = graphData.Compile();
+            var compiledData = graphData.CompilationData;
 
             states = compiledData.StateIDs;
 

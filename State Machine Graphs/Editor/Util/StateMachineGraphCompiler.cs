@@ -5,29 +5,35 @@ using UnityEngine;
 
 namespace Shears.StateMachineGraphs.Editor
 {
-    public class StateMachineGraphCompiler : IPreprocessBuildWithReport
+    public class StateMachineGraphCompiler : BuildPlayerProcessor
     {
-        int IOrderedCallback.callbackOrder => 100;
-
-        void IPreprocessBuildWithReport.OnPreprocessBuild(BuildReport report)
+        public override void PrepareForBuild(BuildPlayerContext buildPlayerContext)
         {
-            // find every StateMachineGraph in the project and call Compile on it
-            var guids = AssetDatabase.FindAssets("t:StateMachineGraph");
+            Debug.Log("Preparing for build: Compiling StateMachineGraphs...");
+        }
 
-            foreach (var guid in guids)
-            {
-                var path = AssetDatabase.GUIDToAssetPath(guid);
-                var graph = AssetDatabase.LoadAssetAtPath<StateMachineGraph>(path);
+        public void OnPreprocessBuild(BuildReport report)
+        {
+            Debug.Log("Starting StateMachineGraph compilation...");
 
-                if (graph == null)
-                {
-                    Debug.LogError($"Failed to load StateMachineGraph at path: {path}");
-                    continue;
-                }
+            //var guids = AssetDatabase.FindAssets("t:StateMachineGraph");
 
-                graph.Compile();
-                EditorUtility.SetDirty(graph);
-            }
+            //foreach (var guid in guids)
+            //{
+            //    var path = AssetDatabase.GUIDToAssetPath(guid);
+            //    var graph = AssetDatabase.LoadAssetAtPath<StateMachineGraph>(path);
+
+            //    Debug.Log($"Compiling StateMachineGraph at path: {path}");
+
+            //    if (graph == null)
+            //    {
+            //        Debug.LogError($"Failed to load StateMachineGraph at path: {path}");
+            //        continue;
+            //    }
+
+            //    graph.Compile();
+            //    EditorUtility.SetDirty(graph);
+            //}
         }
     }
 }
