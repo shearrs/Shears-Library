@@ -51,9 +51,6 @@ namespace Shears.StateMachineGraphs
         {
             var compiledData = graphData.CompilationData;
 
-            Debug.Log("state count: " + compiledData.StateIDs.Count);
-            Debug.Log("default state: " + compiledData.DefaultState.Name);
-
             states = compiledData.StateIDs;
 
             foreach (var state in states.Values)
