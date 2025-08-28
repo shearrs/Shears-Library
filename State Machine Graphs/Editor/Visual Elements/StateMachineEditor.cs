@@ -5,6 +5,10 @@ using UnityEngine.UIElements;
 
 namespace Shears.StateMachineGraphs.Editor
 {
+    //[Header("Parameters")]
+    //[SerializeReference] private List<Parameter> parameterDisplay = new();
+    //[SerializeField] private List<LocalParameterProvider> externalParameters = new();
+
     [CustomEditor(typeof(StateMachine))]
     public class StateMachineEditor : UnityEditor.Editor
     {
@@ -18,7 +22,16 @@ namespace Shears.StateMachineGraphs.Editor
             var graphDataProp = serializedObject.FindProperty("graphData");
             var graphDataField = new PropertyField(graphDataProp);
 
-            root.Add(graphDataField);
+            var stateTreeProp = serializedObject.FindProperty("stateTree");
+            var stateTreeField = new PropertyField(stateTreeProp);
+
+            var parameterDisplayProp = serializedObject.FindProperty("parameterDisplay");
+            var parameterDisplayField = new PropertyField(parameterDisplayProp);
+
+            var externalParametersProp = serializedObject.FindProperty("externalParameters");
+            var externalParametersField = new PropertyField(externalParametersProp);
+
+            root.AddAll(graphDataField, stateTreeField, parameterDisplayField, externalParametersField);
 
             if (graphDataProp.objectReferenceValue != null)
             {
@@ -30,10 +43,6 @@ namespace Shears.StateMachineGraphs.Editor
                 var injectedReferencesField = new PropertyField(injectedReferencesProp);
                 root.Add(injectedReferencesField);
             }
-
-            var stateTreeProp = serializedObject.FindProperty("stateTree");
-            var stateTreeField = new PropertyField(stateTreeProp);
-            root.Add(stateTreeField);
 
             return root;
         }
