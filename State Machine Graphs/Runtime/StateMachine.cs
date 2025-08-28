@@ -26,6 +26,7 @@ namespace Shears.StateMachineGraphs
         private void Awake()
         {
             CompileGraph();
+            InjectStateReferences();
         }
 
         private void Start()
@@ -48,6 +49,9 @@ namespace Shears.StateMachineGraphs
         {
             var compiledData = graphData.CompilationData;
 
+            Debug.Log("state count: " + compiledData.StateIDs.Count);
+            Debug.Log("default state: " + compiledData.DefaultState.Name);
+
             states = compiledData.StateIDs;
 
             foreach (var state in states.Values)
@@ -60,6 +64,21 @@ namespace Shears.StateMachineGraphs
             parameterDisplay.AddRange(parameters.Values);
             externalParameters = compiledData.ParameterProviders;
 #endif
+        }
+
+        private void InjectStateReferences()
+        {
+            foreach (var state in states.Values)
+            {
+                if (state is not IStateInjectable injectable)
+                    continue;
+
+                foreach (var reference in injectedReferences.Values)
+                {
+                    if (injectable.CanInjectType(reference.FieldType))
+                        injectable.InjectType(reference.Value);
+                }
+            }
         }
         #endregion
 

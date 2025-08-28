@@ -19,6 +19,11 @@ namespace Shears.StateMachineGraphs
                 this.Log($"Failed to inject dependency of type {dependency.GetType()} into state {GetType()}. Expected type: {typeof(T)}.", SHLogLevels.Error);
         }
 
+        bool IStateInjectable.CanInjectType(Type type)
+        {
+            return type == typeof(T);
+        }
+
         protected abstract void Inject(T dependency);
     }
 
@@ -30,6 +35,11 @@ namespace Shears.StateMachineGraphs
         IReadOnlyCollection<Type> IStateInjectable.GetInjectableTypes()
         {
             return new[] { typeof(T1), typeof(T2) };
+        }
+
+        bool IStateInjectable.CanInjectType(Type type)
+        {
+            return type == typeof(T1) || type == typeof(T2);
         }
 
         void IStateInjectable.InjectType(object dependency)
@@ -60,10 +70,17 @@ namespace Shears.StateMachineGraphs
         private T1 dependency1;
         private T2 dependency2;
         private T3 dependency3;
+
         IReadOnlyCollection<Type> IStateInjectable.GetInjectableTypes()
         {
             return new[] { typeof(T1), typeof(T2), typeof(T3) };
         }
+
+        bool IStateInjectable.CanInjectType(Type type)
+        {
+            return type == typeof(T1) || type == typeof(T2) || type == typeof(T3);
+        }
+
         void IStateInjectable.InjectType(object dependency)
         {
             if (dependency is T1 dependency1)
@@ -90,6 +107,7 @@ namespace Shears.StateMachineGraphs
             else
                 Log($"Failed to inject dependency of type {dependency.GetType()} into state {GetType()}. Expected type: {typeof(T1)}, {typeof(T2)}, or {typeof(T3)}.", SHLogLevels.Error);
         }
+
         protected abstract void Inject(T1 dependency1, T2 dependency2, T3 dependency3);
     }
 }

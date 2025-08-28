@@ -5,35 +5,51 @@ using UnityEngine;
 
 namespace Shears.StateMachineGraphs.Editor
 {
-    public class StateMachineGraphCompiler : BuildPlayerProcessor
+    [InitializeOnLoad]
+    public class StateMachineGraphCompiler : IPreprocessBuildWithReport
     {
-        public override void PrepareForBuild(BuildPlayerContext buildPlayerContext)
+        public int callbackOrder => 0;
+
+        static StateMachineGraphCompiler()
         {
-            Debug.Log("Preparing for build: Compiling StateMachineGraphs...");
+            EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
         }
 
         public void OnPreprocessBuild(BuildReport report)
         {
             Debug.Log("Starting StateMachineGraph compilation...");
+            CompileAllStateMachineGraphs();
+        }
 
-            //var guids = AssetDatabase.FindAssets("t:StateMachineGraph");
+        private static void OnPlayModeStateChanged(PlayModeStateChange stateChange)
+        {
+            if (stateChange != PlayModeStateChange.ExitingEditMode) 
+                return;
 
-            //foreach (var guid in guids)
-            //{
-            //    var path = AssetDatabase.GUIDToAssetPath(guid);
-            //    var graph = AssetDatabase.LoadAssetAtPath<StateMachineGraph>(path);
+            Debug.Log("Entering Play Mode: Compiling StateMachineGraphs...");
+            CompileAllStateMachineGraphs();
+        }
 
-            //    Debug.Log($"Compiling StateMachineGraph at path: {path}");
+        private static void CompileAllStateMachineGraphs()
+        {
+            var guids = AssetDatabase.FindAssets("t:StateMachineGraph");
 
-            //    if (graph == null)
-            //    {
-            //        Debug.LogError($"Failed to load StateMachineGraph at path: {path}");
-            //        continue;
-            //    }
+            foreach (var guid in guids)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                var graph = AssetDatabase.LoadAssetAtPath<StateMachineGraph>(path);
 
-            //    graph.Compile();
-            //    EditorUtility.SetDirty(graph);
-            //}
+                Debug.Log($"Compiling StateMachineGraph at path: {path}");
+
+                if (graph == null)
+                {
+                    Debug.LogError($"Failed to load StateMachineGraph at path: {path}");
+                    continue;
+                }
+
+                graph.Compile();
+                EditorUtility.SetDirty(graph);
+            }
         }
     }
 }

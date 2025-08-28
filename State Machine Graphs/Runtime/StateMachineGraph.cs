@@ -115,12 +115,7 @@ namespace Shears.StateMachineGraphs
             foreach (var stateNode in stateNodes)
             {
                 if (GraphLayer.IsRootID(stateNode.ParentID))
-                {
-                    if (IsLayerDefault(stateNode))
-                        defaultState = stateIDs[stateNode.ID];
-
                     continue;
-                }
 
                 var state = stateIDs[stateNode.ID];
                 var parent = stateIDs[stateNode.ParentID];

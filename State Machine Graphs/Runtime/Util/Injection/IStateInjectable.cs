@@ -8,6 +8,8 @@ namespace Shears.StateMachineGraphs
     {
         public IReadOnlyCollection<Type> GetInjectableTypes();
 
+        public bool CanInjectType(Type type);
+
         public void InjectType(object dependency);
     }
 }

@@ -6,16 +6,16 @@ namespace Shears.StateMachineGraphs
     [System.Serializable]
     public abstract class ParameterComparison
     {
-        [SerializeReference, ReadOnly] private Parameter parameter;
+        [SerializeReference, ReadOnly] private Parameter untypedParameter;
 
         public ParameterComparison(Parameter parameter)
         {
-            this.parameter = parameter;
+            untypedParameter = parameter;
         }
 
         public bool Evaluate()
         {
-            if (parameter == null)
+            if (untypedParameter == null)
             {
                 SHLogger.Log("Parameter is null!", SHLogLevels.Error);
                 return false;
@@ -27,10 +27,11 @@ namespace Shears.StateMachineGraphs
         public abstract bool EvaluateInternal();
     }
 
+    [System.Serializable]
     public abstract class ParameterComparison<T> : ParameterComparison
     {
         [SerializeField] protected T compareValue;
-        protected readonly Parameter<T> parameter;
+        [SerializeReference, ReadOnly] protected Parameter<T> parameter;
 
         protected T CompareValue => compareValue;
 

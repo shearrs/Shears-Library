@@ -10,7 +10,7 @@ namespace Shears.StateMachineGraphs
     }
 
     [Serializable]
-    public class StateDictionary : SerializableDictionary<string, State>
+    public class StateDictionary : SerializableReferenceDictionary<string, State>
     {
     }
 
@@ -21,7 +21,7 @@ namespace Shears.StateMachineGraphs
         [SerializeField] private ParameterDictionary parameterIDs;
         [SerializeField] private StateDictionary stateIDs;
         [SerializeField] private List<LocalParameterProvider> parameterProviders;
-        [SerializeField] private State defaultState;
+        [SerializeReference] private State defaultState;
 
         public readonly Dictionary<string, Parameter> ParameterNames => parameterNames;
         public readonly Dictionary<string, Parameter> ParameterIDs => parameterIDs;
