@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
-    [System.Serializable]
+    [Serializable]
     public class StateInjectReferenceDictionary : SerializableDictionary<SerializableSystemType, StateInjectReference>
     {
     }

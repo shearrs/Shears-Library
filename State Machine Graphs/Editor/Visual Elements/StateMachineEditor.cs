@@ -39,9 +39,7 @@ namespace Shears.StateMachineGraphs.Editor
                 injectedReferencesProp = serializedObject.FindProperty("injectedReferences");
 
                 UpdateInjectTargets(graph);
-
-                var injectedReferencesField = new PropertyField(injectedReferencesProp);
-                root.Add(injectedReferencesField);
+                CreateInjectReferencesField();
             }
 
             return root;
@@ -79,6 +77,24 @@ namespace Shears.StateMachineGraphs.Editor
 
             serializedObject.ApplyModifiedProperties();
             serializedObject.Update();
+        }
+    
+        private void CreateInjectReferencesField()
+        {
+            var entriesProp = injectedReferencesProp.FindPropertyRelative("entries");
+            var entryContainer = new VisualElement();
+
+            for (int i = 0; i < entriesProp.arraySize; i++)
+            {
+                var entryProp = entriesProp.GetArrayElementAtIndex(i);
+                var valueProp = entryProp.FindPropertyRelative("value");
+
+                var valueField = new PropertyField(valueProp);
+
+                entryContainer.Add(valueField);
+            }
+
+            root.Add(entryContainer);
         }
     }
 }
