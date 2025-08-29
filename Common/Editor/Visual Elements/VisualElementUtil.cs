@@ -20,5 +20,28 @@ namespace Shears.Editor
 
             return element;
         }
+
+        public static VisualElement CreateHeader(string text)
+        {
+            var header = new Label(text)
+            {
+                style =
+                {
+                    unityFontStyleAndWeight = FontStyle.Bold,
+                    marginTop = 10,
+                    marginBottom = 5
+                }
+            };
+
+            return header;
+        }
+
+        public static void SetAllPadding(this VisualElement element, int padding)
+        {
+            element.style.paddingTop = padding;
+            element.style.paddingBottom = padding;
+            element.style.paddingLeft = padding;
+            element.style.paddingRight = padding;
+        }
     }
 }

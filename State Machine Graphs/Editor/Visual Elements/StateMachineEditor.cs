@@ -1,14 +1,12 @@
+using Shears.Editor;
 using System;
 using UnityEditor;
 using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Shears.StateMachineGraphs.Editor
 {
-    //[Header("Parameters")]
-    //[SerializeReference] private List<Parameter> parameterDisplay = new();
-    //[SerializeField] private List<LocalParameterProvider> externalParameters = new();
-
     [CustomEditor(typeof(StateMachine))]
     public class StateMachineEditor : UnityEditor.Editor
     {
@@ -84,6 +82,10 @@ namespace Shears.StateMachineGraphs.Editor
             var entriesProp = injectedReferencesProp.FindPropertyRelative("entries");
             var entryContainer = new VisualElement();
 
+            entryContainer.SetAllPadding(4);
+
+            var header = VisualElementUtil.CreateHeader("Injected References");
+
             for (int i = 0; i < entriesProp.arraySize; i++)
             {
                 var entryProp = entriesProp.GetArrayElementAtIndex(i);
@@ -94,7 +96,7 @@ namespace Shears.StateMachineGraphs.Editor
                 entryContainer.Add(valueField);
             }
 
-            root.Add(entryContainer);
+            root.AddAll(header, entryContainer);
         }
     }
 }
