@@ -11,8 +11,14 @@ namespace Shears.StateMachineGraphs.Editor
     public class StateMachineEditor : UnityEditor.Editor
     {
         private VisualElement root;
+
         private SerializedProperty injectedReferencesProp;
-        private VisualElement injectedEntryContainer;
+        private SerializedProperty stateTreeProp;
+        private SerializedProperty parameterDisplayProp;
+        private SerializedProperty externalParametersProp;
+
+        private Foldout injectedEntryContainer;
+        private Foldout runtimeContainer;
 
         public override VisualElement CreateInspectorGUI()
         {
@@ -23,33 +29,38 @@ namespace Shears.StateMachineGraphs.Editor
 
             root.AddStyleSheet(ShearsStyles.InspectorStyles);
 
-            injectedEntryContainer = new()
-            {
-                name = "Injected Entry Container"
-            };
-            injectedEntryContainer.SetAllPadding(4);
             injectedReferencesProp = serializedObject.FindProperty("injectedReferences");
-
+            stateTreeProp = serializedObject.FindProperty("stateTree");
+            parameterDisplayProp = serializedObject.FindProperty("parameterDisplay");
+            externalParametersProp = serializedObject.FindProperty("externalParameters");
             var graphDataProp = serializedObject.FindProperty("graphData");
-            var graphDataField = new PropertyField(graphDataProp);
 
-            graphDataField.AddToClassList(ShearsStyles.DarkContainerClass);
-            graphDataField.style.marginTop = 4;
-            graphDataField.style.marginBottom = 4;
+            CreateInjectionContainer();
+            CreateRuntimeContainer();
+            var graphDataField = CreateGraphDataField(graphDataProp);
 
-            var runtimeFields = CreateRuntimeFields(graphDataProp);
+            UpdateGraphFields(graphDataProp);
 
-            injectedEntryContainer.TrackPropertyValue(graphDataProp, RefreshInjectReferences);
-            RefreshInjectReferences(graphDataProp);
-
-            root.AddAll(graphDataField, runtimeFields, injectedEntryContainer);
+            root.TrackPropertyValue(graphDataProp, UpdateGraphFields);
+            root.AddAll(graphDataField, injectedEntryContainer, runtimeContainer);
 
             return root;
         }
 
-        private VisualElement CreateRuntimeFields(SerializedProperty graphDataProp)
+        private void CreateInjectionContainer()
         {
-            var runtimeContainer = new Foldout()
+            injectedEntryContainer = new Foldout()
+            {
+                text = "Injected References",
+                name = "Injected Entry Container",
+                value = false
+            };
+            injectedEntryContainer.AddToClassList(ShearsStyles.DarkFoldoutClass);
+        }
+
+        private void CreateRuntimeContainer()
+        {
+            runtimeContainer = new Foldout()
             {
                 text = "Runtime Info",
                 name = "Runtime Container",
@@ -57,28 +68,59 @@ namespace Shears.StateMachineGraphs.Editor
             };
 
             runtimeContainer.AddToClassList(ShearsStyles.DarkFoldoutClass);
+        }
 
-            var stateTreeProp = serializedObject.FindProperty("stateTree");
+        private VisualElement CreateGraphDataField(SerializedProperty graphDataProp)
+        {
+            var graphDataField = new PropertyField(graphDataProp);
+
+            graphDataField.AddToClassList(ShearsStyles.DarkContainerClass);
+            graphDataField.style.marginTop = 4;
+
+            return graphDataField;
+        }
+
+        private void UpdateGraphFields(SerializedProperty graphDataProp)
+        {
+            RefreshInjectReferences(graphDataProp);
+            UpdateRuntimeFields(graphDataProp);
+        }
+
+        private void UpdateRuntimeFields(SerializedProperty graphDataProp)
+        {
+            runtimeContainer.Clear();
+
+            if (graphDataProp.objectReferenceValue == null)
+            {
+                runtimeContainer.style.display = DisplayStyle.None;
+                return;
+            }
+            else
+                runtimeContainer.style.display = DisplayStyle.Flex;
+
             var stateTreeField = new PropertyField(stateTreeProp);
-
-            var parameterDisplayProp = serializedObject.FindProperty("parameterDisplay");
             var parameterDisplayField = new PropertyField(parameterDisplayProp);
-
-            var externalParametersProp = serializedObject.FindProperty("externalParameters");
             var externalParametersField = new PropertyField(externalParametersProp);
 
-            runtimeContainer.AddAll(stateTreeField, parameterDisplayField, externalParametersField);
+            stateTreeField.Bind(serializedObject);
+            parameterDisplayField.Bind(serializedObject);
+            externalParametersField.Bind(serializedObject);
 
-            return runtimeContainer;
+            runtimeContainer.AddAll(stateTreeField, parameterDisplayField, externalParametersField);
         }
 
         private void RefreshInjectReferences(SerializedProperty graphDataProp)
         {
+            injectedEntryContainer.Clear();
+
             if (graphDataProp.objectReferenceValue == null)
             {
-                injectedEntryContainer.Clear();
+                injectedEntryContainer.style.display = DisplayStyle.None;
                 return;
             }
+            else
+                injectedEntryContainer.style.display = DisplayStyle.Flex;
+
             var graph = graphDataProp.objectReferenceValue as StateMachineGraph;
 
             UpdateInjectReferences(graph);
@@ -124,9 +166,6 @@ namespace Shears.StateMachineGraphs.Editor
             injectedEntryContainer.Clear();
 
             var entriesProp = injectedReferencesProp.FindPropertyRelative("entries");
-            var header = VisualElementUtil.CreateHeader("Injected References");
-
-            injectedEntryContainer.Add(header);
 
             for (int i = 0; i < entriesProp.arraySize; i++)
             {
@@ -135,6 +174,7 @@ namespace Shears.StateMachineGraphs.Editor
 
                 var valueField = new PropertyField(valueProp);
                 valueField.Bind(serializedObject);
+
                 injectedEntryContainer.Add(valueField);
             }
         }
