@@ -23,15 +23,10 @@ namespace Shears.Editor
 
         public static VisualElement CreateHeader(string text)
         {
-            var header = new Label(text)
-            {
-                style =
-                {
-                    unityFontStyleAndWeight = FontStyle.Bold,
-                    marginTop = 10,
-                    marginBottom = 5
-                }
-            };
+            var header = new Label(text);
+
+            header.AddStyleSheet(ShearsStyles.InspectorStyles);
+            header.AddToClassList(ShearsStyles.HeaderClass);
 
             return header;
         }

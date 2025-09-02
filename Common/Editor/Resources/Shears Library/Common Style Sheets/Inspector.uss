@@ -1,0 +1,15 @@
+.header
+{
+	-unity-font-style: bold;
+	margin-top: 10px;
+	margin-bottom: 2px;
+}
+
+.darkContainer
+{
+	background-color: rgba(40, 40, 40, 0.5);
+	padding: 4px;
+	border-radius: 4px;
+	border-color: rgba(20, 20, 20, 1);
+	border-width: 1px;
+}

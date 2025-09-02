@@ -12,10 +12,20 @@ namespace Shears.StateMachineGraphs.Editor
     {
         private VisualElement root;
         private SerializedProperty injectedReferencesProp;
+        private VisualElement injectedEntryContainer;
 
         public override VisualElement CreateInspectorGUI()
         {
-            root = new VisualElement();
+            root = new VisualElement()
+            {
+                name = "State Machine Editor"
+            };
+            injectedEntryContainer = new()
+            {
+                name = "Injected Entry Container"
+            };
+            injectedEntryContainer.SetAllPadding(4);
+            injectedReferencesProp = serializedObject.FindProperty("injectedReferences");
 
             var graphDataProp = serializedObject.FindProperty("graphData");
             var graphDataField = new PropertyField(graphDataProp);
@@ -29,21 +39,32 @@ namespace Shears.StateMachineGraphs.Editor
             var externalParametersProp = serializedObject.FindProperty("externalParameters");
             var externalParametersField = new PropertyField(externalParametersProp);
 
-            root.AddAll(graphDataField, stateTreeField, parameterDisplayField, externalParametersField);
+            root.AddAll(graphDataField, injectedEntryContainer);
 
-            if (graphDataProp.objectReferenceValue != null)
-            {
-                var graph = graphDataProp.objectReferenceValue as StateMachineGraph;
-                injectedReferencesProp = serializedObject.FindProperty("injectedReferences");
-
-                UpdateInjectTargets(graph);
-                CreateInjectReferencesField();
-            }
+            //graphDataField.RegisterValueChangeCallback((evt) => RefreshInjectReferences(evt.changedProperty));
+            RefreshInjectReferences(graphDataProp);
 
             return root;
         }
 
-        private void UpdateInjectTargets(StateMachineGraph graph)
+        private void RefreshInjectReferences(SerializedProperty graphDataProp)
+        {
+            Debug.Log("refresh");
+
+            if (graphDataProp.objectReferenceValue == null)
+            {
+                injectedEntryContainer.Clear();
+                return;
+            }
+
+            Debug.Log("inject");
+            var graph = graphDataProp.objectReferenceValue as StateMachineGraph;
+
+            UpdateInjectReferences(graph);
+            CreateInjectReferenceFields();
+        }
+
+        private void UpdateInjectReferences(StateMachineGraph graph)
         {
             var stateNodes = graph.GetStateNodes();
             var injectedReferences = injectedReferencesProp.boxedValue as StateInjectReferenceDictionary;
@@ -77,14 +98,14 @@ namespace Shears.StateMachineGraphs.Editor
             serializedObject.Update();
         }
     
-        private void CreateInjectReferencesField()
+        private void CreateInjectReferenceFields()
         {
+            injectedEntryContainer.Clear();
+
             var entriesProp = injectedReferencesProp.FindPropertyRelative("entries");
-            var entryContainer = new VisualElement();
-
-            entryContainer.SetAllPadding(4);
-
             var header = VisualElementUtil.CreateHeader("Injected References");
+
+            injectedEntryContainer.Add(header);
 
             for (int i = 0; i < entriesProp.arraySize; i++)
             {
@@ -92,11 +113,10 @@ namespace Shears.StateMachineGraphs.Editor
                 var valueProp = entryProp.FindPropertyRelative("value");
 
                 var valueField = new PropertyField(valueProp);
+                injectedEntryContainer.Add(valueField);
 
-                entryContainer.Add(valueField);
+                Debug.Log("add value: " + valueProp.boxedValue);
             }
-
-            root.AddAll(header, entryContainer);
         }
     }
 }
