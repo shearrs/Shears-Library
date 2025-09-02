@@ -13,8 +13,6 @@ namespace Shears.StateMachineGraphs.Editor
     {
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
-            Debug.Log("Drawing StateInjectReference property drawer");
-
             var root = new VisualElement();
             root.AddStyleSheet(ShearsStyles.InspectorStyles);
             root.AddToClassList(ShearsStyles.DarkContainerClass);

@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Shears
 {
     [DefaultExecutionOrder(-100)]
-    public class ProtectedSingleton<T> : MonoBehaviour where T : MonoBehaviour
+    public abstract class ProtectedSingleton<T> : MonoBehaviour where T : MonoBehaviour
     {
         protected static T instance;
         protected static T Instance
@@ -57,13 +57,22 @@ namespace Shears
         public static void CreateInstanceIfNoneExists()
         {
             if (instance == null)
+            {
                 instance = CreateInstance();
+                
+                var singleton = instance as ProtectedSingleton<T>;
+                singleton.OnInstanceCreated();
+            }
+        }
+
+        protected virtual void OnInstanceCreated()
+        {
         }
     }
 
     // overrides instance with new instances rather than destroying them
     [DefaultExecutionOrder(-100)]
-    public class StaticInstance<T> : MonoBehaviour where T : MonoBehaviour
+    public abstract class StaticInstance<T> : MonoBehaviour where T : MonoBehaviour
     {
         protected static T instance;
         public static T Instance

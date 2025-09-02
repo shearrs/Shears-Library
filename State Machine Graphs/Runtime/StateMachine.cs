@@ -6,15 +6,11 @@ namespace Shears.StateMachineGraphs
 {
     public class StateMachine : SHMonoBehaviourLogger, IParameterProvider
     {
-        [Header("State Machine")]
         [SerializeField] private StateMachineGraph graphData;
         [SerializeReference] private List<State> stateTree = new();
-
-        [Header("Injection")]
         [SerializeField] private StateInjectReferenceDictionary injectedReferences = new();
 
 #if UNITY_EDITOR
-        [Header("Parameters")]
         [SerializeReference] private List<Parameter> parameterDisplay = new();
         [SerializeField] private List<LocalParameterProvider> externalParameters = new();
 #endif

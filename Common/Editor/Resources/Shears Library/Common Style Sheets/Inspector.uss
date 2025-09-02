@@ -13,3 +13,13 @@
 	border-color: rgba(20, 20, 20, 1);
 	border-width: 1px;
 }
+
+.darkFoldout
+{
+	background-color: rgba(40, 40, 40, 0.5);
+	padding: 8px;
+	padding-left: 16px;
+	border-radius: 4px;
+	border-color: rgba(20, 20, 20, 1);
+	border-width: 1px;
+}

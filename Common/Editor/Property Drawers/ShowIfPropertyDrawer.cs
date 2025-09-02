@@ -19,7 +19,14 @@ namespace Shears.Editor
             var displayAttribute = attribute as ShowIfAttribute;
 
             var parent = targetProperty.FindParentProperty();
-            var conditionProperty = parent.FindPropertyRelative(displayAttribute.ConditionName);
+
+            var conditionName = displayAttribute.ConditionName;
+            bool negate = conditionName.StartsWith("!");
+
+            if (negate)
+                conditionName = conditionName[1..];
+
+            var conditionProperty = parent.FindPropertyRelative(conditionName);
             
             if (conditionProperty == null)
                 return root;
@@ -28,12 +35,15 @@ namespace Shears.Editor
 
             void onValueChanged(SerializedProperty prop)
             {
-                if (conditionProperty.boxedValue.Equals(displayAttribute.CompareValue))
-                    root.Add(propertyField);
+                bool isEqual = conditionProperty.boxedValue.Equals(displayAttribute.CompareValue);
+
+                if (isEqual != negate)
+                    propertyField.style.display = DisplayStyle.Flex;
                 else if (root.Children().Contains(propertyField))
-                    root.Remove(propertyField);
+                    propertyField.style.display = DisplayStyle.None;
             }
 
+            root.Add(propertyField);
             root.TrackPropertyValue(conditionProperty, onValueChanged);
             onValueChanged(conditionProperty);
 

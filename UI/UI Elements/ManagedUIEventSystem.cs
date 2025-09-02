@@ -8,6 +8,8 @@ namespace Shears.UI
 {
     public class ManagedUIEventSystem : ProtectedSingleton<ManagedUIEventSystem>
     {
+        private const string DEFAULT_INPUT_MAP_PATH = "ManagedElements/Shears_DefaultEventSystemInputMap";
+
         [SerializeField] private ManagedInputMap inputMap;
         [SerializeField] private ManagedUIElement firstFocused;
 
@@ -57,6 +59,11 @@ namespace Shears.UI
         private void Update()
         {
             UpdateHoveredElement();
+        }
+
+        protected override void OnInstanceCreated()
+        {
+            inputMap = Resources.Load<ManagedInputMap>(DEFAULT_INPUT_MAP_PATH);
         }
 
         #region Element Events

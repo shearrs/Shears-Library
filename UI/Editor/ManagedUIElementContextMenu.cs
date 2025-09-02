@@ -58,7 +58,7 @@ namespace Shears.UI.Editor
         }
 
         [MenuItem("GameObject/ManagedUI/Simple Button", priority = 7)]
-        private static void CreateSimpleButton(MenuCommand command)
+        private static void CreateSimpleButton(MenuCommand _)
         {
             var button = CreateButton();
             var uiElement = button.AddComponent<ManagedUIElement>();
@@ -212,7 +212,7 @@ namespace Shears.UI.Editor
 
             var tweener = gameObject.AddComponent<ImageTweener>();
 
-            tweener.TweenData = data.Data;
+            tweener.TweenData.SetDataObject(data.Data);
             tweener.Image = data.Image;
             tweener.Type = ImageTweener.TweenType.Color;
             tweener.Color1 = color1;
@@ -259,6 +259,7 @@ namespace Shears.UI.Editor
                     return fi.GetValue(obj) as UnityEvent;
                 }
             }
+
             return null;
         }
     }

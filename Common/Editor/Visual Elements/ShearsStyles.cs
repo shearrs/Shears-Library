@@ -9,7 +9,8 @@ namespace Shears.Editor
 
         public static StyleSheet InspectorStyles => Resources.Load<StyleSheet>($"{StyleSheetPath}/Inspector");
 
-        public static string HeaderClass => "header";
-        public static string DarkContainerClass => "darkContainer";
+        public const string HeaderClass = "header";
+        public const string DarkContainerClass = "darkContainer";
+        public const string DarkFoldoutClass = "darkFoldout";
     }
 }

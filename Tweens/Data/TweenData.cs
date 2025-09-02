@@ -6,16 +6,14 @@ namespace Shears.Tweens
     [System.Serializable]
     public class TweenData : ITweenData
     {
-        [Header("Object")]
+        [Header("Tween Data Settings")]
         [SerializeField] private bool useDataObject;
         [SerializeField, ShowIf("useDataObject")] private TweenDataObject tweenDataObject;
-
-        [Header("Settings")]
-        [SerializeField] private float duration = 1.0f;
-        [SerializeField] private bool forceFinalValue = true;
-        [SerializeField] private int loops = 0;
-        [SerializeField] private LoopMode loopMode = LoopMode.None;
-        [SerializeField] private Ease easingFunction = Ease.Linear;
+        [SerializeField, ShowIf("!useDataObject")] private float duration = 1.0f;
+        [SerializeField, ShowIf("!useDataObject")] private bool forceFinalValue = true;
+        [SerializeField, ShowIf("!useDataObject")] private int loops = 0;
+        [SerializeField, ShowIf("!useDataObject")] private LoopMode loopMode = LoopMode.None;
+        [SerializeField, ShowIf("!useDataObject")] private Ease easingFunction = Ease.Linear;
 
         public TweenData()
         {
@@ -42,5 +40,11 @@ namespace Shears.Tweens
         public Ease EasingFunction => UsesDataObject() ? tweenDataObject.EasingFunction : easingFunction;
 
         private bool UsesDataObject() => useDataObject && tweenDataObject != null;
+
+        public void SetDataObject(TweenDataObject dataObject)
+        {
+            tweenDataObject = dataObject;
+            useDataObject = dataObject != null;
+        }
     }
 }
