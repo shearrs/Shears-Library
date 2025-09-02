@@ -1,3 +1,4 @@
+using Shears.Logging;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
@@ -8,6 +9,8 @@ namespace Shears.StateMachineGraphs.Editor
     [InitializeOnLoad]
     public class StateMachineGraphCompiler : IPreprocessBuildWithReport
     {
+        private const bool LOGGING_ENABLED = false;
+
         public int callbackOrder => 0;
 
         static StateMachineGraphCompiler()
@@ -17,16 +20,16 @@ namespace Shears.StateMachineGraphs.Editor
 
         public void OnPreprocessBuild(BuildReport report)
         {
-            Debug.Log("Starting StateMachineGraph compilation...");
+            Log("Starting StateMachineGraph compilation...");
             CompileAllStateMachineGraphs();
         }
 
         private static void OnPlayModeStateChanged(PlayModeStateChange stateChange)
         {
-            if (stateChange != PlayModeStateChange.ExitingEditMode) 
+            if (stateChange != PlayModeStateChange.ExitingEditMode)
                 return;
 
-            Debug.Log("Entering Play Mode: Compiling StateMachineGraphs...");
+            Log("Entering Play Mode: Compiling StateMachineGraphs...");
             CompileAllStateMachineGraphs();
         }
 
@@ -39,17 +42,33 @@ namespace Shears.StateMachineGraphs.Editor
                 var path = AssetDatabase.GUIDToAssetPath(guid);
                 var graph = AssetDatabase.LoadAssetAtPath<StateMachineGraph>(path);
 
-                Debug.Log($"Compiling StateMachineGraph at path: {path}");
+                Log($"Compiling StateMachineGraph at path: {path}");
 
                 if (graph == null)
                 {
-                    Debug.LogError($"Failed to load StateMachineGraph at path: {path}");
+                    LogError($"Failed to load StateMachineGraph at path: {path}");
                     continue;
                 }
 
                 graph.Compile();
                 EditorUtility.SetDirty(graph);
             }
+        }
+
+        private static void Log(string message)
+        {
+            if (LOGGING_ENABLED)
+#pragma warning disable CS0162 // Unreachable code detected
+                SHLogger.Log(message);
+#pragma warning restore CS0162 // Unreachable code detected
+        }
+
+        private static void LogError(string message)
+        {
+            if (LOGGING_ENABLED)
+#pragma warning disable CS0162 // Unreachable code detected
+                SHLogger.Log(message, SHLogLevels.Error);
+#pragma warning restore CS0162 // Unreachable code detected
         }
     }
 }
