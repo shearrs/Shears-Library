@@ -27,7 +27,8 @@ namespace Shears.StateMachineGraphs.Editor
         private Texture2D warningTexture;
         private VisualElement warningIcon;
 
-        private readonly StateInjectReferenceDictionary injectedReferences = new();
+        private StateInjectReferenceDictionary injectedReferences;
+        private readonly List<Type> referencesToRemove = new();
 
         public override VisualElement CreateInspectorGUI()
         {
@@ -181,9 +182,10 @@ namespace Shears.StateMachineGraphs.Editor
         private void UpdateInjectReferences(StateMachineGraph graph)
         {
             var stateNodes = graph.GetStateNodes();
-            injectedReferences.Clear();
+            injectedReferences = injectedReferencesProp.boxedValue as StateInjectReferenceDictionary;
 
-            CreateStateTypes(graph.ID, graph.ID, stateNodes);
+            ClearOldReferences(graph);
+            CreateNewReferences(graph.ID, graph.ID, stateNodes);
 
             injectedReferencesProp.boxedValue = injectedReferences;
 
@@ -191,13 +193,13 @@ namespace Shears.StateMachineGraphs.Editor
             serializedObject.Update();
         }
 
-        private void CreateStateTypes(string parentGraphID, string graphID, IReadOnlyList<IStateNodeData> stateNodes)
+        private void CreateNewReferences(string parentGraphID, string graphID, IReadOnlyList<IStateNodeData> stateNodes)
         {
             foreach (var stateNode in stateNodes)
             {
                 if (stateNode is ExternalStateMachineNodeData externalNode)
                 {
-                    CreateStateTypes(parentGraphID, externalNode.ExternalGraphData.ID, externalNode.ExternalGraphData.GetStateNodes());
+                    CreateNewReferences(parentGraphID, externalNode.ExternalGraphData.ID, externalNode.ExternalGraphData.GetStateNodes());
                     continue;
                 }
 
@@ -287,6 +289,20 @@ namespace Shears.StateMachineGraphs.Editor
             }
             else if (warningIcon.parent != null)
                 warningIcon.RemoveFromHierarchy();
+        }
+    
+        private void ClearOldReferences(StateMachineGraph parentGraph)
+        {
+            referencesToRemove.Clear();
+
+            foreach (var reference in injectedReferences.Values)
+            {
+                if (reference.TargetIDs.Count == 0 || reference.ParentGraphID != parentGraph.ID)
+                    referencesToRemove.Add(reference.FieldType);
+            }
+
+            foreach (var reference in referencesToRemove)
+                injectedReferences.Remove(reference);
         }
     }
 }

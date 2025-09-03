@@ -27,12 +27,21 @@ namespace Shears.StateMachineGraphs
 
         private void Awake()
         {
+            if (graphData == null)
+            {
+                Log("No graph data assigned to the state machine.", SHLogLevels.Warning);
+                return;
+            }
+
             CompileGraph();
             InjectStateReferences();
         }
 
         private void Start()
         {
+            if (graphData == null)
+                return;
+
             SetState(defaultState);
         }
 

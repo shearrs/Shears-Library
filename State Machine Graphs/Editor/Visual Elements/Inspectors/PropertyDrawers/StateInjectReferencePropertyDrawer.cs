@@ -24,15 +24,9 @@ namespace Shears.StateMachineGraphs.Editor
             var targetGraphData = graphSO.objectReferenceValue as StateMachineGraph;
 
             if (reference.GraphID == targetGraphData.ID)
-            {
                 graphData = targetGraphData;
-                Debug.Log("Using local graph data for: "  + reference.FieldType.Name);
-            }
             else
-            {
                 graphData = targetGraphData.GetExternalGraph(reference.GraphID);
-
-            }
 
             if (graphData == null)
             {
