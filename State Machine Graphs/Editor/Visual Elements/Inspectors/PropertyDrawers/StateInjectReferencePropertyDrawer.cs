@@ -36,7 +36,7 @@ namespace Shears.StateMachineGraphs.Editor
 
             var valueField = new ObjectField
             {
-                label = reference.FieldType.Name,
+                label = reference.FieldType.PrettyName,
                 objectType = reference.FieldType
             };
 

@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
-    public class TestInjectType : MonoBehaviour
+    public class EnemyMovement : MonoBehaviour
     {
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start()
