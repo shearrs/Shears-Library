@@ -1,5 +1,6 @@
 using Shears.Editor;
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -25,6 +26,8 @@ namespace Shears.StateMachineGraphs.Editor
 
         private Texture2D warningTexture;
         private VisualElement warningIcon;
+
+        private readonly StateInjectReferenceDictionary injectedReferences = new();
 
         public override VisualElement CreateInspectorGUI()
         {
@@ -178,12 +181,26 @@ namespace Shears.StateMachineGraphs.Editor
         private void UpdateInjectReferences(StateMachineGraph graph)
         {
             var stateNodes = graph.GetStateNodes();
-            var injectedReferences = injectedReferencesProp.boxedValue as StateInjectReferenceDictionary;
+            injectedReferences.Clear();
 
-            // we need to factor in external state nodes
-            // TODO: solve the foreseeable problem of using multiple of the same external graph and having duplicate IDs
+            CreateStateTypes(graph.ID, graph.ID, stateNodes);
+
+            injectedReferencesProp.boxedValue = injectedReferences;
+
+            serializedObject.ApplyModifiedProperties();
+            serializedObject.Update();
+        }
+
+        private void CreateStateTypes(string parentGraphID, string graphID, IReadOnlyList<IStateNodeData> stateNodes)
+        {
             foreach (var stateNode in stateNodes)
             {
+                if (stateNode is ExternalStateMachineNodeData externalNode)
+                {
+                    CreateStateTypes(parentGraphID, externalNode.ExternalGraphData.ID, externalNode.ExternalGraphData.GetStateNodes());
+                    continue;
+                }
+
                 if (stateNode.StateType == SerializableSystemType.Empty)
                     continue;
 
@@ -201,17 +218,16 @@ namespace Shears.StateMachineGraphs.Editor
                         continue;
                     }
 
-                    reference = new StateInjectReference(graph.ID, new SerializableSystemType(type));
+                    reference = new StateInjectReference(parentGraphID, new SerializableSystemType(type))
+                    {
+                        GraphID = graphID
+                    };
+
                     reference.AddTarget(stateNode.ID);
 
                     injectedReferences[type] = reference;
                 }
             }
-
-            injectedReferencesProp.boxedValue = injectedReferences;
-
-            serializedObject.ApplyModifiedProperties();
-            serializedObject.Update();
         }
     
         private void CreateInjectReferenceFields()
@@ -227,7 +243,7 @@ namespace Shears.StateMachineGraphs.Editor
                 var valueProp = entryProp.FindPropertyRelative("value");
                 var reference = valueProp.boxedValue as StateInjectReference;
 
-                if (reference.GraphID != graph.ID)
+                if (reference.ParentGraphID != graph.ID)
                     continue;
 
                 var valueField = new PropertyField(valueProp);
@@ -254,7 +270,7 @@ namespace Shears.StateMachineGraphs.Editor
                 {
                     var reference = valueProp.boxedValue as StateInjectReference;
 
-                    if (reference.GraphID != graph.ID)
+                    if (reference.ParentGraphID != graph.ID)
                         continue;
 
                     if (reference.Value == null)

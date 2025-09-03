@@ -16,7 +16,7 @@ namespace Shears.StateMachineGraphs
             if (dependency is T tDependency)
                 Inject(tDependency);
             else
-                this.Log($"Failed to inject dependency of type {dependency.GetType()} into state {GetType()}. Expected type: {typeof(T)}.", SHLogLevels.Error);
+                Log($"Failed to inject dependency of type {dependency.GetType()} into state {GetType()}. Expected type: {typeof(T)}.", SHLogLevels.Error);
         }
 
         bool IStateInjectable.CanInjectType(Type type)

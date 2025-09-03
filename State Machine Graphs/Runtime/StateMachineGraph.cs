@@ -98,13 +98,16 @@ namespace Shears.StateMachineGraphs
 
                     state.ParameterProvider = parameterProvider;
 
+                    // this mode of unique key can still lead to duplicates
+                    // we should make it include the full path of the node
                     foreach (var stateID in compileData.StateIDs)
                     {
                         var subState = compileData.StateIDs[stateID.Key];
+                        var key = $"{graphData.ID}:{stateID.Key}";
 
                         subState.ParameterProvider = parameterProvider;
 
-                        stateIDs.Add(stateID.Key, subState);
+                        stateIDs.Add(key, subState);
                         subState.ParentState ??= state;
                     }
 
@@ -325,6 +328,20 @@ namespace Shears.StateMachineGraphs
                 SetLayerDefault(nodeData);
 
             return nodeData;
+        }
+
+        public StateMachineGraph GetExternalGraph(string graphID)
+        {
+            foreach (var stateNode in GetStateNodes())
+            {
+                if (stateNode is not ExternalStateMachineNodeData externalNode)
+                    continue;
+
+                if (externalNode.ExternalGraphData != null && externalNode.ExternalGraphData.ID == graphID)
+                    return externalNode.ExternalGraphData;
+            }
+
+            return null;
         }
 
         public bool IsDefaultAvailable(ILayerElement layerNode)

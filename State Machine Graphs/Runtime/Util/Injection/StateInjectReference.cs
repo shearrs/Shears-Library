@@ -6,19 +6,22 @@ namespace Shears.StateMachineGraphs
     [System.Serializable]
     public class StateInjectReference
     {
+        [SerializeField] private string parentGraphID;
         [SerializeField] private string graphID;
         [SerializeField] private List<string> targetIDs = new();
         [SerializeField] private SerializableSystemType fieldType;
         [SerializeField] private Object value;
 
-        public string GraphID => graphID;
+        public string ParentGraphID => parentGraphID;
+        public string GraphID { get => graphID; set => graphID = value; }
         public IReadOnlyList<string> TargetIDs => targetIDs;
         public SerializableSystemType FieldType => fieldType;
         public Object Value => value;
 
-        public StateInjectReference(string graphID, SerializableSystemType fieldType)
+        public StateInjectReference(string parentGraphID, SerializableSystemType fieldType)
         {
-            this.graphID = graphID;
+            this.parentGraphID = parentGraphID;
+            graphID = parentGraphID;
             this.fieldType = fieldType;
         }
 

@@ -18,9 +18,27 @@ namespace Shears.StateMachineGraphs.Editor
             root.AddToClassList(ShearsStyles.DarkContainerClass);
 
             var reference = property.boxedValue as StateInjectReference;
-
             var graphSO = property.serializedObject.FindProperty("graphData");
-            var graphData = graphSO.objectReferenceValue as StateMachineGraph;
+
+            StateMachineGraph graphData;
+            var targetGraphData = graphSO.objectReferenceValue as StateMachineGraph;
+
+            if (reference.GraphID == targetGraphData.ID)
+            {
+                graphData = targetGraphData;
+                Debug.Log("Using local graph data for: "  + reference.FieldType.Name);
+            }
+            else
+            {
+                graphData = targetGraphData.GetExternalGraph(reference.GraphID);
+
+            }
+
+            if (graphData == null)
+            {
+                SHLogger.Log("Could not find graph with ID: " + reference.GraphID, SHLogLevels.Error);
+                return root;
+            }
 
             var valueField = new ObjectField
             {

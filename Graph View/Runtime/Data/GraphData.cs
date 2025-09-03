@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 namespace Shears.GraphViews
@@ -33,6 +34,7 @@ namespace Shears.GraphViews
         private readonly List<GraphNodeData> instanceNodes = new();
         private readonly List<GraphEdgeData> instanceEdges = new();
         private readonly Dictionary<string, GraphElementData> pasteBuffer = new();
+        private readonly StringBuilder stringBuilder = new(255);
 
         public string ID => id;
         public Vector2 Position { get => position; set => position = value; }
@@ -222,6 +224,22 @@ namespace Shears.GraphViews
             }
 
             NodeDataRemoved?.Invoke(data);
+        }
+
+        protected string GetNodePath(GraphNodeData data)
+        {
+            var currentNode = data;
+
+            stringBuilder.Clear();
+            stringBuilder.Append(data.ID);
+
+            while (currentNode.ParentID != GraphLayer.ROOT_ID && TryGetData(currentNode.ParentID, out GraphMultiNodeData parent))
+            {
+                stringBuilder.Insert(0, parent.ID + "/");
+                currentNode = parent;
+            }
+
+            return stringBuilder.ToString();
         }
 
         private IReadOnlyList<GraphEdgeData> GetNodeEdges(GraphNodeData nodeData)
