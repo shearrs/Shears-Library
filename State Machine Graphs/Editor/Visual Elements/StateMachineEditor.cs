@@ -16,9 +16,14 @@ namespace Shears.StateMachineGraphs.Editor
         private SerializedProperty stateTreeProp;
         private SerializedProperty parameterDisplayProp;
         private SerializedProperty externalParametersProp;
+        private SerializedProperty referencesExpandedProp;
+        private SerializedProperty runtimeInfoExpandedProp;
 
         private Foldout injectedEntryContainer;
         private Foldout runtimeContainer;
+
+        private Texture2D warningTexture;
+        private VisualElement warningIcon;
 
         public override VisualElement CreateInspectorGUI()
         {
@@ -28,11 +33,9 @@ namespace Shears.StateMachineGraphs.Editor
             };
 
             root.AddStyleSheet(ShearsStyles.InspectorStyles);
+            warningTexture = ShearsSymbols.WarningIcon;
 
-            injectedReferencesProp = serializedObject.FindProperty("injectedReferences");
-            stateTreeProp = serializedObject.FindProperty("stateTree");
-            parameterDisplayProp = serializedObject.FindProperty("parameterDisplay");
-            externalParametersProp = serializedObject.FindProperty("externalParameters");
+            GetProperties();
             var graphDataProp = serializedObject.FindProperty("graphData");
 
             CreateInjectionContainer();
@@ -47,15 +50,28 @@ namespace Shears.StateMachineGraphs.Editor
             return root;
         }
 
+        private void GetProperties()
+        {
+            injectedReferencesProp = serializedObject.FindProperty("injectedReferences");
+            stateTreeProp = serializedObject.FindProperty("stateTree");
+            parameterDisplayProp = serializedObject.FindProperty("parameterDisplay");
+            externalParametersProp = serializedObject.FindProperty("externalParameters");
+            referencesExpandedProp = serializedObject.FindProperty("referencesExpanded");
+            runtimeInfoExpandedProp = serializedObject.FindProperty("runtimeInfoExpanded");
+        }
+
         private void CreateInjectionContainer()
         {
             injectedEntryContainer = new Foldout()
             {
                 text = "Injected References",
                 name = "Injected Entry Container",
-                value = false
+                value = referencesExpandedProp.boolValue
             };
+
             injectedEntryContainer.AddToClassList(ShearsStyles.DarkFoldoutClass);
+
+            CreateWarningIcon();
         }
 
         private void CreateRuntimeContainer()
@@ -64,10 +80,31 @@ namespace Shears.StateMachineGraphs.Editor
             {
                 text = "Runtime Info",
                 name = "Runtime Container",
-                value = false
+                value = runtimeInfoExpandedProp.boolValue
             };
 
             runtimeContainer.AddToClassList(ShearsStyles.DarkFoldoutClass);
+            runtimeContainer.RegisterValueChangedCallback((evt) => toggle(evt.newValue));
+
+            void toggle(bool value)
+            {
+                runtimeInfoExpandedProp.boolValue = value;
+                serializedObject.ApplyModifiedPropertiesWithoutUndo();
+            }
+        }
+
+        private void CreateWarningIcon()
+        {
+            warningIcon = new Image()
+            {
+                image = warningTexture,
+                tooltip = "Some injected references are missing. Please ensure all required references are assigned."
+            };
+
+            warningIcon.style.width = 24;
+            warningIcon.style.height = 24;
+            warningIcon.style.marginLeft = 8;
+            warningIcon.style.marginRight = StyleKeyword.Auto;
         }
 
         private VisualElement CreateGraphDataField(SerializedProperty graphDataProp)
@@ -116,10 +153,21 @@ namespace Shears.StateMachineGraphs.Editor
             if (graphDataProp.objectReferenceValue == null)
             {
                 injectedEntryContainer.style.display = DisplayStyle.None;
+                injectedEntryContainer.Unbind();
                 return;
             }
             else
+            {
                 injectedEntryContainer.style.display = DisplayStyle.Flex;
+                injectedEntryContainer.TrackPropertyValue(injectedReferencesProp, (prop) => WarnIfMissingReferences());
+                injectedEntryContainer.RegisterValueChangedCallback((evt) => toggle(evt.newValue));
+
+                void toggle(bool value)
+                {
+                    referencesExpandedProp.boolValue = value;
+                    serializedObject.ApplyModifiedPropertiesWithoutUndo();
+                }
+            }
 
             var graph = graphDataProp.objectReferenceValue as StateMachineGraph;
 
@@ -177,6 +225,38 @@ namespace Shears.StateMachineGraphs.Editor
 
                 injectedEntryContainer.Add(valueField);
             }
+
+            WarnIfMissingReferences();
+        }
+    
+        private void WarnIfMissingReferences()
+        {
+            var entriesProp = injectedReferencesProp.FindPropertyRelative("entries");
+            bool hasMissingReference = false;
+
+            for (int i = 0; i < entriesProp.arraySize; i++)
+            {
+                var entryProp = entriesProp.GetArrayElementAtIndex(i);
+                var valueProp = entryProp.FindPropertyRelative("value");
+
+                if (!hasMissingReference)
+                {
+                    var reference = valueProp.boxedValue as StateInjectReference;
+
+                    if (reference.Value == null)
+                        hasMissingReference = true;
+                }
+            }
+
+            if (hasMissingReference)
+            {
+                var labelContainer = injectedEntryContainer.hierarchy[0].hierarchy[0];
+
+                labelContainer.hierarchy[1].style.flexGrow = 0;
+                labelContainer.Add(warningIcon);
+            }
+            else if (warningIcon.parent != null)
+                warningIcon.RemoveFromHierarchy();
         }
     }
 }

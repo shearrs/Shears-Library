@@ -11,8 +11,12 @@ namespace Shears.StateMachineGraphs
         [SerializeField] private StateInjectReferenceDictionary injectedReferences = new();
 
 #if UNITY_EDITOR
+#pragma warning disable 0414
+        [SerializeField] private bool runtimeInfoExpanded = false;
+        [SerializeField] private bool referencesExpanded = false;
         [SerializeReference] private List<Parameter> parameterDisplay = new();
         [SerializeField] private List<LocalParameterProvider> externalParameters = new();
+#pragma warning restore 0414
 #endif
 
         private State defaultState;
