@@ -12,6 +12,7 @@ namespace Shears.StateMachineGraphs.Editor
     {
         private VisualElement root;
 
+        private SerializedProperty graphDataProp;
         private SerializedProperty injectedReferencesProp;
         private SerializedProperty stateTreeProp;
         private SerializedProperty parameterDisplayProp;
@@ -36,12 +37,10 @@ namespace Shears.StateMachineGraphs.Editor
             warningTexture = ShearsSymbols.WarningIcon;
 
             GetProperties();
-            var graphDataProp = serializedObject.FindProperty("graphData");
 
             CreateInjectionContainer();
             CreateRuntimeContainer();
-            var graphDataField = CreateGraphDataField(graphDataProp);
-
+            var graphDataField = CreateGraphDataField();
             UpdateGraphFields(graphDataProp);
 
             root.TrackPropertyValue(graphDataProp, UpdateGraphFields);
@@ -52,6 +51,7 @@ namespace Shears.StateMachineGraphs.Editor
 
         private void GetProperties()
         {
+            graphDataProp = serializedObject.FindProperty("graphData");
             injectedReferencesProp = serializedObject.FindProperty("injectedReferences");
             stateTreeProp = serializedObject.FindProperty("stateTree");
             parameterDisplayProp = serializedObject.FindProperty("parameterDisplay");
@@ -107,7 +107,7 @@ namespace Shears.StateMachineGraphs.Editor
             warningIcon.style.marginRight = StyleKeyword.Auto;
         }
 
-        private VisualElement CreateGraphDataField(SerializedProperty graphDataProp)
+        private VisualElement CreateGraphDataField()
         {
             var graphDataField = new PropertyField(graphDataProp);
 
@@ -119,11 +119,11 @@ namespace Shears.StateMachineGraphs.Editor
 
         private void UpdateGraphFields(SerializedProperty graphDataProp)
         {
-            RefreshInjectReferences(graphDataProp);
-            UpdateRuntimeFields(graphDataProp);
+            RefreshInjectReferences();
+            UpdateRuntimeFields();
         }
 
-        private void UpdateRuntimeFields(SerializedProperty graphDataProp)
+        private void UpdateRuntimeFields()
         {
             runtimeContainer.Clear();
 
@@ -146,7 +146,7 @@ namespace Shears.StateMachineGraphs.Editor
             runtimeContainer.AddAll(stateTreeField, parameterDisplayField, externalParametersField);
         }
 
-        private void RefreshInjectReferences(SerializedProperty graphDataProp)
+        private void RefreshInjectReferences()
         {
             injectedEntryContainer.Clear();
 
@@ -180,8 +180,13 @@ namespace Shears.StateMachineGraphs.Editor
             var stateNodes = graph.GetStateNodes();
             var injectedReferences = injectedReferencesProp.boxedValue as StateInjectReferenceDictionary;
 
+            // we need to factor in external state nodes
+            // TODO: solve the foreseeable problem of using multiple of the same external graph and having duplicate IDs
             foreach (var stateNode in stateNodes)
             {
+                if (stateNode.StateType == SerializableSystemType.Empty)
+                    continue;
+
                 if (!typeof(IStateInjectable).IsAssignableFrom(stateNode.StateType))
                     continue;
 
@@ -196,7 +201,7 @@ namespace Shears.StateMachineGraphs.Editor
                         continue;
                     }
 
-                    reference = new StateInjectReference(new SerializableSystemType(type));
+                    reference = new StateInjectReference(graph.ID, new SerializableSystemType(type));
                     reference.AddTarget(stateNode.ID);
 
                     injectedReferences[type] = reference;
@@ -214,11 +219,16 @@ namespace Shears.StateMachineGraphs.Editor
             injectedEntryContainer.Clear();
 
             var entriesProp = injectedReferencesProp.FindPropertyRelative("entries");
+            var graph = graphDataProp.objectReferenceValue as StateMachineGraph;
 
             for (int i = 0; i < entriesProp.arraySize; i++)
             {
                 var entryProp = entriesProp.GetArrayElementAtIndex(i);
                 var valueProp = entryProp.FindPropertyRelative("value");
+                var reference = valueProp.boxedValue as StateInjectReference;
+
+                if (reference.GraphID != graph.ID)
+                    continue;
 
                 var valueField = new PropertyField(valueProp);
                 valueField.Bind(serializedObject);
@@ -233,6 +243,7 @@ namespace Shears.StateMachineGraphs.Editor
         {
             var entriesProp = injectedReferencesProp.FindPropertyRelative("entries");
             bool hasMissingReference = false;
+            var graph = graphDataProp.objectReferenceValue as StateMachineGraph;
 
             for (int i = 0; i < entriesProp.arraySize; i++)
             {
@@ -242,6 +253,9 @@ namespace Shears.StateMachineGraphs.Editor
                 if (!hasMissingReference)
                 {
                     var reference = valueProp.boxedValue as StateInjectReference;
+
+                    if (reference.GraphID != graph.ID)
+                        continue;
 
                     if (reference.Value == null)
                         hasMissingReference = true;

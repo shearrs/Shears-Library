@@ -11,7 +11,7 @@ namespace Shears.StateMachineGraphs
 
         public StateMachineGraph ExternalGraphData => externalGraphData;
 
-        SerializableSystemType IStateNodeData.StateType => null;
+        SerializableSystemType IStateNodeData.StateType => SerializableSystemType.Empty;
 
         public event Action SetAsLayerDefault;
         public event Action RemovedAsLayerDefault;

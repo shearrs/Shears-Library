@@ -31,7 +31,10 @@ namespace Shears
 
         private void GetSystemType()
         {
-            systemType = Type.GetType(assemblyQualifiedName);
+            if (string.IsNullOrEmpty(assemblyQualifiedName))
+                systemType = null;
+            else
+                systemType = Type.GetType(assemblyQualifiedName);
         }
 
         public SerializableSystemType(Type type)

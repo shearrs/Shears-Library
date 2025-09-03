@@ -4,18 +4,21 @@ using UnityEngine;
 namespace Shears.StateMachineGraphs
 {
     [System.Serializable]
-    public partial class StateInjectReference
+    public class StateInjectReference
     {
+        [SerializeField] private string graphID;
         [SerializeField] private List<string> targetIDs = new();
         [SerializeField] private SerializableSystemType fieldType;
         [SerializeField] private Object value;
 
+        public string GraphID => graphID;
         public IReadOnlyList<string> TargetIDs => targetIDs;
         public SerializableSystemType FieldType => fieldType;
         public Object Value => value;
 
-        public StateInjectReference(SerializableSystemType fieldType)
+        public StateInjectReference(string graphID, SerializableSystemType fieldType)
         {
+            this.graphID = graphID;
             this.fieldType = fieldType;
         }
 

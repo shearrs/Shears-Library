@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25e0943f4a5124d4596d7df9ab9d009e, type: 3}
   m_Name: Default Log Colors
   m_EditorClassIdentifier: 
-  <Log>k__BackingField: {r: 1, g: 1, b: 1, a: 1}
+  <Log>k__BackingField: {r: 0.9411765, g: 0.9411765, b: 0.9411765, a: 1}
   <Verbose>k__BackingField: {r: 0.78, g: 0.78, b: 0.78, a: 1}
-  <Warning>k__BackingField: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  <Error>k__BackingField: {r: 1, g: 0, b: 0, a: 1}
+  <Warning>k__BackingField: {r: 1, g: 0.75686276, b: 0.02745098, a: 1}
+  <Error>k__BackingField: {r: 1, g: 0.3254902, b: 0.2901961, a: 1}
   <Fatal>k__BackingField: {r: 1, g: 0, b: 0.5, a: 1}

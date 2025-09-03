@@ -9,6 +9,8 @@ namespace Shears.GraphViews
         #region Variables
         const string CLIPBOARD_KEY = "Graph View - ";
 
+        [SerializeField] private string id;
+
         [Header("Transform")]
         [SerializeField] private Vector2 position;
         [SerializeField] private Vector2 scale = Vector2.one;
@@ -32,9 +34,9 @@ namespace Shears.GraphViews
         private readonly List<GraphEdgeData> instanceEdges = new();
         private readonly Dictionary<string, GraphElementData> pasteBuffer = new();
 
+        public string ID => id;
         public Vector2 Position { get => position; set => position = value; }
         public Vector2 Scale { get => scale; set => scale = value; }
-
         public int SelectionCount => selection.Count;
         public IReadOnlyList<GraphLayer> Layers => layers;
 
@@ -139,6 +141,9 @@ namespace Shears.GraphViews
                 var root = CreateRootLayer();
                 layers.Add(root);
             }
+            
+            if (string.IsNullOrEmpty(id))
+                id = Guid.NewGuid().ToString();
         }
         #endregion
 
