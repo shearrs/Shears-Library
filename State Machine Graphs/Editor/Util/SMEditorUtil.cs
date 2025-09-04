@@ -48,6 +48,7 @@ namespace Shears.StateMachineGraphs.Editor
         #region Inspector Class Names
         public static readonly string SMGraphInspectorClassName = "graphInspector";
         public static readonly string StateNodeInspectorClassName = "stateNodeInspector";
+        public static readonly string ParameterInspectorClassName = "parameterInspector";
         public static readonly string NodeTitleInspectorClassName = "nodeTitle";
         public static readonly string StateSelectorClassName = "stateSelector";
 

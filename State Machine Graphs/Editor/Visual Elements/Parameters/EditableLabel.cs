@@ -1,4 +1,6 @@
 using System;
+using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -33,9 +35,17 @@ namespace Shears.StateMachineGraphs.Editor
             Add(label);
         }
 
+        public void BindLabel(SerializedProperty property)
+        {
+            label.Unbind();
+            label.BindProperty(property);
+        }
+
         public void BeginEditing()
         {
             Remove(label);
+
+            textField.value = label.text;
             Add(textField);
 
             textField.Focus();

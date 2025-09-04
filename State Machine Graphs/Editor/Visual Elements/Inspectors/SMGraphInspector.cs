@@ -12,6 +12,7 @@ namespace Shears.StateMachineGraphs.Editor
         private readonly StateMachineNodeInspector stateMachineNodeInspector;
         private readonly ExternalStateMachineNodeInspector externalNodeInspector;
         private readonly TransitionEdgeInspector transitionEdgeInspector;
+        private readonly ParameterInspector parameterInspector;
         private readonly VisualElement selectionDisplay;
 
         private IVisualElementScheduledItem inspectorPoll;
@@ -27,6 +28,7 @@ namespace Shears.StateMachineGraphs.Editor
             stateMachineNodeInspector = new(graphData);
             externalNodeInspector = new(graphData);
             transitionEdgeInspector = new(graphData);
+            parameterInspector = new(graphData);
             selectionDisplay = new();
 
             UpdateSelectionDisplay();
@@ -85,7 +87,10 @@ namespace Shears.StateMachineGraphs.Editor
                 selectionDisplay.Add(transitionEdgeInspector);
             }
             else if (element is ParameterData parameter)
-                testLabel.text = "Parameter: " + parameter.Name;
+            {
+                parameterInspector.SetParameter(parameter);
+                selectionDisplay.Add(parameterInspector);
+            }
             else
                 testLabel.text = "Select A Graph Element to Inspect";
 

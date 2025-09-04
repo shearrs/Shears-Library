@@ -17,7 +17,6 @@ namespace Shears.StateMachineGraphs.Editor
         private Button moveUpButton;
         private Button moveDownButton;
 
-        // needs reload callback
         public ParameterUI(ParameterData parameterData, StateMachineGraph graphData, Action reloadCallback)
         {
             this.graphData = graphData;
@@ -94,11 +93,14 @@ namespace Shears.StateMachineGraphs.Editor
 
         private void CreateTextField()
         {
+            var parameterProp = GraphViewEditorUtil.GetElementProp(graphData, parameterData.ID);
+
             editableLabel = new(parameterData.Name)
             {
                 pickingMode = PickingMode.Ignore
             };
 
+            editableLabel.BindLabel(parameterProp.FindPropertyRelative("name"));
             editableLabel.AddToClassList(SMEditorUtil.EditableLabelClassName);
             editableLabel.ValidationCallback = graphData.IsUsableParameterName;
             editableLabel.SuccessfulEditFinished += UpdateParameterName;
