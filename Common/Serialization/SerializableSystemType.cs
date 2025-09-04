@@ -29,14 +29,6 @@ namespace Shears
             }
         }
 
-        private void GetSystemType()
-        {
-            if (string.IsNullOrEmpty(assemblyQualifiedName))
-                systemType = null;
-            else
-                systemType = Type.GetType(assemblyQualifiedName);
-        }
-
         public SerializableSystemType(Type type)
         {
             systemType = type;
@@ -55,6 +47,19 @@ namespace Shears
             this.assemblyQualifiedName = assemblyQualifiedName;
             assemblyName = type.Assembly.FullName;
             prettyName = StringUtil.PascalSpace(name);
+        }
+
+        private void GetSystemType()
+        {
+            if (string.IsNullOrEmpty(assemblyQualifiedName))
+                systemType = null;
+            else
+                systemType = Type.GetType(assemblyQualifiedName);
+        }
+
+        public bool IsValid()
+        {
+            return SystemType != null;
         }
 
         #region Operators

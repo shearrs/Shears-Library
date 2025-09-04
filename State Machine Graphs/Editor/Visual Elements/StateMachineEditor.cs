@@ -28,7 +28,7 @@ namespace Shears.StateMachineGraphs.Editor
         private VisualElement warningIcon;
 
         private StateInjectReferenceDictionary injectedReferences;
-        private readonly List<Type> referencesToRemove = new();
+        private readonly List<SerializableSystemType> referencesToRemove = new();
 
         public override VisualElement CreateInspectorGUI()
         {
@@ -297,7 +297,7 @@ namespace Shears.StateMachineGraphs.Editor
 
             foreach (var reference in injectedReferences.Values)
             {
-                if (reference.TargetIDs.Count == 0 || reference.ParentGraphID != parentGraph.ID)
+                if (reference.TargetIDs.Count == 0 || reference.ParentGraphID != parentGraph.ID || !reference.FieldType.IsValid())
                     referencesToRemove.Add(reference.FieldType);
             }
 
