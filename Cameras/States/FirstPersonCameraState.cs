@@ -51,11 +51,7 @@ namespace ShearsLibrary.Cameras
             var newXRotation = currentXRotation - input.y * sensitivity;
             var newYRotation = currentYRotation + input.x * sensitivity;
 
-            Debug.Log(newXRotation);
-
             newXRotation = Mathf.Clamp(newXRotation, minXRotation, maxXRotation);
-
-            Debug.Log("post: " + newXRotation);
 
             CameraTransform.rotation = Quaternion.Euler(newXRotation, newYRotation, 0f);
         }

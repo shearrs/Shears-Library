@@ -18,16 +18,14 @@ namespace Shears.Editor
             var root = new VisualElement();
             var displayAttribute = attribute as ShowIfAttribute;
 
-            var parent = targetProperty.FindParentProperty();
-
             var conditionName = displayAttribute.ConditionName;
             bool negate = conditionName.StartsWith("!");
 
             if (negate)
                 conditionName = conditionName[1..];
 
-            var conditionProperty = parent.FindPropertyRelative(conditionName);
-            
+            var conditionProperty = GetConditionProperty(targetProperty, conditionName);
+
             if (conditionProperty == null)
                 return root;
 
@@ -48,6 +46,17 @@ namespace Shears.Editor
             onValueChanged(conditionProperty);
 
             return root;
+        }
+
+        private SerializedProperty GetConditionProperty(SerializedProperty targetProperty, string conditionName)
+        {
+            var parent = targetProperty.FindParentProperty();
+
+            if (parent != null)
+                return parent.FindPropertyRelative(conditionName);
+
+            var serializedObject = targetProperty.serializedObject;
+            return serializedObject.FindProperty(conditionName);
         }
     }
 }
