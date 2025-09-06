@@ -1,0 +1,16 @@
+{
+    "name": "ShearsLibrary.Cameras",
+    "rootNamespace": "ShearsLibrary.Cameras",
+    "references": [
+        "GUID:624a85509f829424398b0fa44ae4b076"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
