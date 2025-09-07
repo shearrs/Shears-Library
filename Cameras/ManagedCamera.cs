@@ -1,4 +1,5 @@
 using Shears.Input;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ShearsLibrary.Cameras
@@ -7,9 +8,11 @@ namespace ShearsLibrary.Cameras
     public class ManagedCamera : MonoBehaviour
     {
         [SerializeField] private ManagedInputMap inputMap;
-        [SerializeField] private CameraState[] states;
+        [SerializeField] private List<CameraState> states = new();
 
         private CameraState currentState;
+
+        public ManagedInputMap InputMap { get => inputMap; set => inputMap = value; }
 
         private void Awake()
         {
@@ -21,7 +24,7 @@ namespace ShearsLibrary.Cameras
 
             inputMap.EnableAllInputs();
 
-            if (states.Length > 0)
+            if (states.Count > 0)
                 SetState(states[0]);
         }
 
@@ -43,6 +46,16 @@ namespace ShearsLibrary.Cameras
 
             if (currentState != null)
                 currentState.Enter();
+        }
+    
+        public void AddState(CameraState state)
+        {
+            states.Add(state);
+        }
+
+        public bool HasState(CameraState state)
+        {
+            return states.Contains(state);
         }
     }
 }

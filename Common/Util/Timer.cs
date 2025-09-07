@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Shears
 {
-    [System.Serializable]
+    [Serializable]
     public class Timer
     {
         [SerializeField] private float time = 1;

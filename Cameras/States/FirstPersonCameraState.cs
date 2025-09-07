@@ -7,10 +7,10 @@ namespace ShearsLibrary.Cameras
     {
         [Header("Target Settings")]
         [SerializeField] private Transform target;
-        [SerializeField] private Vector3 offset;
+        [SerializeField] private Vector3 offset = new(0f, 1.5f, 0f);
 
         [Header("Rotation Settings")]
-        [SerializeField] private float sensitivity = 1f;
+        [SerializeField] private float sensitivity = 0.2f;
         [SerializeField] private float minXRotation = -89f;
         [SerializeField] private float maxXRotation = 89f;
 
@@ -18,6 +18,18 @@ namespace ShearsLibrary.Cameras
 
         private Vector3 TargetPosition => target.TransformPoint(offset);
 
+        public Transform Target { get => target; set => target = value; }
+        public Vector3 Offset { get => offset; set => offset = value; }
+        public float Sensitivity { get => sensitivity; set => sensitivity = value; }
+
+        private void OnValidate()
+        {
+            if (target == null)
+                return;
+
+            transform.SetPositionAndRotation(TargetPosition, target.transform.rotation);
+        }
+        
         public override void Initialize()
         {
             lookInput = InputProvider.GetInput("Look");
