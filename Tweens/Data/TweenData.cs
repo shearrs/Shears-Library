@@ -1,9 +1,10 @@
+using System;
 using UnityEngine;
 using static Shears.Tweens.EasingFunction;
 
 namespace Shears.Tweens
 {
-    [System.Serializable]
+    [Serializable]
     public class TweenData : ITweenData
     {
         [Header("Tween Data Settings")]
@@ -14,6 +15,12 @@ namespace Shears.Tweens
         [SerializeField, ShowIf("!useDataObject")] private int loops = 0;
         [SerializeField, ShowIf("!useDataObject")] private LoopMode loopMode = LoopMode.None;
         [SerializeField, ShowIf("!useDataObject")] private Ease easingFunction = Ease.Linear;
+
+        public float Duration => UsesDataObject() ? tweenDataObject.Duration : duration;
+        public bool ForceFinalValue => UsesDataObject() ? tweenDataObject.ForceFinalValue : forceFinalValue;
+        public int Loops => UsesDataObject() ? tweenDataObject.Loops : loops;
+        public LoopMode LoopMode => UsesDataObject() ? tweenDataObject.LoopMode : loopMode;
+        public Ease EasingFunction => UsesDataObject() ? tweenDataObject.EasingFunction : easingFunction;
 
         public TweenData()
         {
@@ -32,12 +39,6 @@ namespace Shears.Tweens
             this.loopMode = loopMode;
             this.easingFunction = easingFunction;
         }
-
-        public float Duration => UsesDataObject() ? tweenDataObject.Duration : duration;
-        public bool ForceFinalValue => UsesDataObject() ? tweenDataObject.ForceFinalValue : forceFinalValue;
-        public int Loops => UsesDataObject() ? tweenDataObject.Loops : loops;
-        public LoopMode LoopMode => UsesDataObject() ? tweenDataObject.LoopMode : loopMode;
-        public Ease EasingFunction => UsesDataObject() ? tweenDataObject.EasingFunction : easingFunction;
 
         private bool UsesDataObject() => useDataObject && tweenDataObject != null;
 
