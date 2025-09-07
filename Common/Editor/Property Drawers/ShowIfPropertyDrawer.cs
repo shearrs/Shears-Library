@@ -48,9 +48,32 @@ namespace Shears.Editor
             return root;
         }
 
+        public override void OnGUI(Rect position, SerializedProperty targetProperty, GUIContent label)
+        {
+            var displayAttribute = attribute as ShowIfAttribute;
+
+            var conditionName = displayAttribute.ConditionName;
+            bool negate = conditionName.StartsWith("!");
+
+            if (negate)
+                conditionName = conditionName[1..];
+
+            var conditionProperty = GetConditionProperty(targetProperty, conditionName);
+
+            if (conditionProperty == null)
+                return;
+
+            bool isEqual = conditionProperty.boxedValue.Equals(displayAttribute.CompareValue);
+
+            if (isEqual != negate)
+                EditorGUI.PropertyField(position, targetProperty, label);
+        }
+
         private SerializedProperty GetConditionProperty(SerializedProperty targetProperty, string conditionName)
         {
             var parent = targetProperty.FindParentProperty();
+
+            Debug.Log("parent: " + parent);
 
             if (parent != null)
                 return parent.FindPropertyRelative(conditionName);
