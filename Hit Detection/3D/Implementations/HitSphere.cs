@@ -33,7 +33,7 @@ namespace Shears.HitDetection
             for (int i = 0; i < hits; i++)
             {
                 Collider result = results[i];
-
+                
                 if (ignoreList.Contains(result) || finalHits.ContainsKey(result))
                     continue;
 
@@ -50,7 +50,7 @@ namespace Shears.HitDetection
                 if (hit.transform == null) hit = CastFromOrigin(center + topOrigin, closestPoint);
                 if (hit.transform == null) hit = CastFromOrigin(center - topOrigin, closestPoint);
 
-                if (hit.transform != null)
+                if (hit.transform != null && !finalHits.ContainsKey(hit.collider))
                 {
                     debugHitThisFrame = true;
                     finalHits.Add(hit.collider, hit);
