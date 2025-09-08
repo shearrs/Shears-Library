@@ -73,8 +73,6 @@ namespace Shears.Editor
         {
             var parent = targetProperty.FindParentProperty();
 
-            Debug.Log("parent: " + parent);
-
             if (parent != null)
                 return parent.FindPropertyRelative(conditionName);
 
