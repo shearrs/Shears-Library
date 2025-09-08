@@ -2,7 +2,7 @@ using Shears.Input;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ShearsLibrary.Cameras
+namespace Shears.Cameras
 {
     [RequireComponent(typeof(Camera))]
     public class ManagedCamera : MonoBehaviour

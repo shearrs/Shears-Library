@@ -1,6 +1,6 @@
 {
-    "name": "ShearsLibrary.Cameras",
-    "rootNamespace": "ShearsLibrary.Cameras",
+    "name": "Shears.Cameras",
+    "rootNamespace": "Shears.Cameras",
     "references": [
         "GUID:624a85509f829424398b0fa44ae4b076"
     ],

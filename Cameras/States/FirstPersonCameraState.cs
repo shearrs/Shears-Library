@@ -1,7 +1,7 @@
 using Shears.Input;
 using UnityEngine;
 
-namespace ShearsLibrary.Cameras
+namespace Shears.Cameras
 {
     public class FirstPersonCameraState : CameraState
     {
