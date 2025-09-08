@@ -15,16 +15,18 @@ namespace ShearsLibrary.Cameras
         [SerializeField] private float maxXRotation = 89f;
 
         private IManagedInput lookInput;
+        private Vector3 offsetModifier = Vector3.zero;
 
         private Vector3 TargetPosition => target.TransformPoint(offset);
 
         public Transform Target { get => target; set => target = value; }
         public Vector3 Offset { get => offset; set => offset = value; }
+        public Vector3 OffsetModifier { get => offsetModifier; set => offsetModifier = value; }
         public float Sensitivity { get => sensitivity; set => sensitivity = value; }
 
         private void OnValidate()
         {
-            if (target == null)
+            if (target == null || Application.isPlaying)
                 return;
 
             transform.SetPositionAndRotation(TargetPosition, target.transform.rotation);
@@ -47,7 +49,9 @@ namespace ShearsLibrary.Cameras
 
         protected override void OnUpdate()
         {
-            CameraTransform.position = TargetPosition;
+            var targetPosition = target.TransformPoint(offset + offsetModifier);
+
+            CameraTransform.position = targetPosition;
 
             UpdateRotation(lookInput.ReadValue<Vector2>());
         }
