@@ -23,14 +23,10 @@ namespace Shears.Editor.WindowTools
             root.AddStyleSheet(WindowToolsStyles.WindowToolsStyleSheet);
             root.AddToClassList(WindowToolsStyles.BuildingToolsClass);
 
-            CreateRandomScaleField();
+            root.Add(new RandomRotateField());
+            root.Add(new RandomScaleField());
 
             rootVisualElement.Add(root);
-        }
-
-        private void CreateRandomScaleField()
-        {
-            root.Add(new RandomScaleField());
         }
     }
 }

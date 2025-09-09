@@ -17,9 +17,18 @@ namespace Shears.Editor.WindowTools
             this.AddStyleSheet(ShearsStyles.InspectorStyles);
             AddToClassList(WindowToolsStyles.RandomScaleFieldClass);
 
+            style.marginTop = 2;
+
+            var titleContainer = new VisualElement();
+            titleContainer.AddToClassList(ShearsStyles.DarkContainerClass);
+            titleContainer.AddToClassList("randomScaleTitleContainer");
+
+            var title = new Label("Scale");
+
             var uniformToggle = new Toggle("Uniform");
             uniformToggle.RegisterValueChangedCallback(OnUniformScaleToggled);
-            uniformToggle.AddToClassList(ShearsStyles.DarkContainerClass);
+
+            titleContainer.AddAll(title, uniformToggle);
 
             var scaleContainer = new VisualElement();
             scaleContainer.AddToClassList(ShearsStyles.DarkContainerClass);
@@ -61,7 +70,7 @@ namespace Shears.Editor.WindowTools
 
             buttonContainer.Add(applyButton);
 
-            this.AddAll(uniformToggle, scaleContainer, buttonContainer);
+            this.AddAll(titleContainer, scaleContainer, buttonContainer);
         }
 
         private void OnUniformScaleToggled(ChangeEvent<bool> evt)

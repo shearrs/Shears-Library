@@ -15,16 +15,32 @@
 	height: 100%;
 }
 
-.randomScaleField > Toggle > Label
+.randomScaleContainer
+{
+	flex-grow: 1;
+}
+
+.randomScaleTitleContainer
+{
+	margin-left: 3px;
+	margin-right: 3px;
+	justify-content: center;
+	width: 85px;
+}
+
+.randomScaleTitleContainer > Label
+{
+	margin-top: 3px;
+	margin-bottom: 2px;
+	-unity-text-align: middle-center;
+	-unity-font-style: bold;
+}
+
+.randomScaleTitleContainer > Toggle > Label
 {
 	margin-left: 2px;
 	min-width: 0px;
 	-unity-text-align: middle-left;
-}
-
-.randomScaleContainer
-{
-	flex-grow: 1;
 }
 
 .randomScaleButtonContainer
@@ -38,6 +54,42 @@
 }
 
 .randomScaleButtonContainer > Button
+{
+	flex-grow: 1;
+}
+
+.rotationTitleContainer
+{
+	margin-left: 3px;
+	margin-right: 3px;
+	justify-content: center;
+	width: 85px;
+}
+
+.rotationTitleContainer > Label
+{
+	margin-top: 3px;
+	margin-bottom: 2px;
+	-unity-text-align: middle-center;
+	-unity-font-style: bold;
+}
+
+.rotationContainer
+{
+	flex-grow: 1;
+}
+
+.rotationButtonContainer
+{
+	flex-grow: 1;
+	min-width: 60px;
+	margin-left: 3px;
+	margin-right: 3px;
+	justify-content: center;
+	overflow: hidden;
+}
+
+.rotationButtonContainer > Button
 {
 	flex-grow: 1;
 }
