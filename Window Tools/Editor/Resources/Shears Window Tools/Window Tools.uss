@@ -1,0 +1,43 @@
+.buildingTools
+{
+	max-width: 600px;
+}
+
+.randomScaleField
+{
+	flex-direction: row;
+	max-width: 100%;
+}
+
+.randomScaleField > *
+{
+	margin-top: 1px;
+	height: 100%;
+}
+
+.randomScaleField > Toggle > Label
+{
+	margin-left: 2px;
+	min-width: 0px;
+	-unity-text-align: middle-left;
+}
+
+.randomScaleContainer
+{
+	flex-grow: 1;
+}
+
+.randomScaleButtonContainer
+{
+	flex-grow: 1;
+	min-width: 60px;
+	margin-left: 3px;
+	margin-right: 3px;
+	justify-content: center;
+	overflow: hidden;
+}
+
+.randomScaleButtonContainer > Button
+{
+	flex-grow: 1;
+}

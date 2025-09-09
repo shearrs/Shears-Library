@@ -26,5 +26,14 @@ namespace Shears
             x = self.x;
             y = self.y;
         }
+
+        public static Vector3 RandomRange(Vector3 min, Vector3 max)
+        {
+            return new(
+                Random.Range(min.x, max.x),
+                Random.Range(min.y, max.y),
+                Random.Range(min.z, max.z)
+            );
+        }
     }
 }

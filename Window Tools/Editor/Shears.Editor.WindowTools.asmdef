@@ -1,0 +1,19 @@
+{
+    "name": "Shears.Editor.WindowTools",
+    "rootNamespace": "Shears.Editor.WindowTools",
+    "references": [
+        "GUID:b28a31c08beef024d83a7aa1ec3f2f6d",
+        "GUID:b8ce35fbba9686d4a8094487b762ff16"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

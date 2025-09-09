@@ -1,4 +1,4 @@
-using Shears.Editor.UI;
+using Shears.Editor;
 using UnityEngine;
 using UnityEngine.UIElements;
 

@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Shears
 {
-    public static class GizmoExtensions
+    public static class GizmoUtil
     {
         public static void DrawWireCapsule(Vector3 position, float radius, float height)
         {

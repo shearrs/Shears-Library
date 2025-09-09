@@ -1,3 +1,4 @@
+using Shears.Editor;
 using Shears.Logging;
 using System;
 using System.Collections.Generic;

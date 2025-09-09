@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Shears
+namespace Shears.Editor
 {
     public static class EditorGUIHelper
     {

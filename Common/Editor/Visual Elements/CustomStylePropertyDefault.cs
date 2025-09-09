@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Shears.Editor.UI
+namespace Shears.Editor
 {
     public readonly struct CustomStylePropertyDefault<T>
     {
