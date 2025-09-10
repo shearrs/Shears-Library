@@ -99,6 +99,10 @@ namespace Shears.Editor.WindowTools
         {
             var selection = Selection.gameObjects;
 
+            Undo.IncrementCurrentGroup();
+            Undo.SetCurrentGroupName("Random Scale");
+            int groupID = Undo.GetCurrentGroup();
+
             foreach (var gameObject in selection)
             {
                 Vector3 scale;
@@ -111,8 +115,11 @@ namespace Shears.Editor.WindowTools
                 else
                     scale = VectorUtil.RandomRange(minVectorScaleField.value, maxVectorScaleField.value);
 
+                Undo.RecordObject(gameObject.transform, "Random Scale");
                 gameObject.transform.localScale = scale;
             }
+
+            Undo.CollapseUndoOperations(groupID);
         }
     }
 }

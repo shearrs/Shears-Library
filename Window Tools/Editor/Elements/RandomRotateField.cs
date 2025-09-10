@@ -56,11 +56,19 @@ namespace Shears.Editor.WindowTools
         {
             var selection = Selection.gameObjects;
 
+            Undo.IncrementCurrentGroup();
+            Undo.SetCurrentGroupName("Random Rotate");
+            int groupID = Undo.GetCurrentGroup();
+
             foreach (var gameObject in selection)
             {
                 Vector3 eulerRotation = VectorUtil.RandomRange(minRotationField.value, maxRotationField.value);
+
+                Undo.RecordObject(gameObject.transform, "Random Rotate");
                 gameObject.transform.localRotation = Quaternion.Euler(eulerRotation);
             }
+
+            Undo.CollapseUndoOperations(groupID);
         }
     }
 }
