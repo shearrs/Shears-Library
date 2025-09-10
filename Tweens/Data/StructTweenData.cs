@@ -7,6 +7,10 @@ namespace Shears.Tweens
     [System.Serializable]
     public struct StructTweenData : ITweenData
     {
+#if UNITY_EDITOR
+        [HideInInspector, SerializeField] private bool isExpanded;
+#endif
+
         [Header("Tween Data Settings")]
         [SerializeField] private bool usesDataObject;
         [SerializeField, ShowIf("usesDataObject")] private TweenDataObject tweenDataObject;
@@ -68,6 +72,10 @@ namespace Shears.Tweens
             events = new();
             unityEvents = new();
             totalEvents = new();
+
+#if UNITY_EDITOR
+            isExpanded = false;
+#endif
         }
 
         public StructTweenData(float duration = 1.0f, bool forceFinalValue = true, int loops = 0, LoopMode loopMode = LoopMode.None, AnimationCurve curve = null)
@@ -86,6 +94,10 @@ namespace Shears.Tweens
             events = new();
             unityEvents = new();
             totalEvents = new();
+
+#if UNITY_EDITOR
+            isExpanded = false;
+#endif
         }
 
         public void SetDataObject(TweenDataObject dataObject)

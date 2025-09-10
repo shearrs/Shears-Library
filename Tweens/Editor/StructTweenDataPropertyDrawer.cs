@@ -20,6 +20,7 @@ namespace Shears.Tweens.Editor
             var usesCurveProp = property.FindPropertyRelative("usesCurve");
             var curveProp = property.FindPropertyRelative("curve");
             var eventsProp = property.FindPropertyRelative("unityEvents");
+            var isExpandedProp = property.FindPropertyRelative("isExpanded");
 
             bool dontUseDataObject = !usesDataObjectProp.boolValue;
             bool hasNoDuration = durationProp.floatValue == 0f;
@@ -41,6 +42,8 @@ namespace Shears.Tweens.Editor
             {
                 text = property.displayName
             };
+
+            root.BindProperty(isExpandedProp);
 
             root.AddAll(
                 new PropertyField(usesDataObjectProp), new PropertyField(dataObjectProp), 
