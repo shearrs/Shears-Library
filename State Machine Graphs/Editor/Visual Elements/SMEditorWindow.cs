@@ -8,7 +8,7 @@ namespace Shears.StateMachineGraphs.Editor
     {
         private SMGraphView graph;
 
-        [MenuItem("Window/State Machine Graph")]
+        [MenuItem("Shears Library/State Machine Graph")]
         public static void Open()
         {
             var window = GetWindow<SMEditorWindow>("State Machine Graph", typeof(SceneView));
