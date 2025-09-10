@@ -1,11 +1,9 @@
 using UnityEditor;
 using UnityEngine;
-using System.Reflection;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using System.Linq;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using System;
 
 namespace Shears.Editor
@@ -16,14 +14,33 @@ namespace Shears.Editor
     [CustomPropertyDrawer(typeof(ShowIfAttribute))]
     public class ShowIfPropertyDrawer : PropertyDrawer
     {
-        private readonly Dictionary<SerializedProperty, (bool, object)> conditions = new();
+        private readonly List<Comparison> comparisons = new();
+
+        private readonly struct Comparison
+        {
+            private readonly SerializedProperty property;
+            private readonly bool negate;
+            private readonly object compareValue;
+
+            public Comparison(SerializedProperty property, bool negate, object compareValue)
+            {
+                this.property = property;
+                this.negate = negate;
+                this.compareValue = compareValue;
+            }
+
+            public bool Evaluate()
+            {
+                return property.boxedValue.Equals(compareValue) != negate;
+            }
+        }
 
         public override VisualElement CreatePropertyGUI(SerializedProperty targetProperty)
         {
             var root = new VisualElement();
             var displayAttribute = attribute as ShowIfAttribute;
 
-            conditions.Clear();
+            comparisons.Clear();
 
             foreach (var conditionName in displayAttribute.Conditions.Keys)
             {
@@ -38,7 +55,7 @@ namespace Shears.Editor
                 if (conditionProperty == null)
                     return root;
 
-                conditions[conditionProperty] = (negate, displayAttribute.Conditions[conditionName]);
+                comparisons.Add(new(conditionProperty, negate, displayAttribute.Conditions[conditionName]));
             }
 
             var propertyField = new PropertyField(targetProperty);
@@ -47,11 +64,9 @@ namespace Shears.Editor
             {
                 bool isValid = true;
 
-                foreach (var condition in conditions.Keys)
+                foreach (var comparison in comparisons)
                 {
-                    (bool negate, object compareValue) = conditions[condition];
-
-                    if (condition.boxedValue.Equals(compareValue) == negate)
+                    if (!comparison.Evaluate())
                     {
                         isValid = false;
                         break;
@@ -75,7 +90,7 @@ namespace Shears.Editor
         {
             var displayAttribute = attribute as ShowIfAttribute;
 
-            conditions.Clear();
+            comparisons.Clear();
 
             foreach (var conditionName in displayAttribute.Conditions.Keys)
             {
@@ -90,16 +105,14 @@ namespace Shears.Editor
                 if (conditionProperty == null)
                     return;
 
-                conditions[conditionProperty] = (negate, displayAttribute.Conditions[conditionName]);
+                comparisons.Add(new(conditionProperty, negate, displayAttribute.Conditions[conditionName]));
             }
 
             bool isValid = true;
 
-            foreach (var condition in conditions.Keys)
+            foreach (var comparison in comparisons)
             {
-                (bool negate, object compareValue) = conditions[condition];
-
-                if (condition.boxedValue.Equals(compareValue) == negate)
+                if (!comparison.Evaluate())
                 {
                     isValid = false;
                     break;
