@@ -1,0 +1,18 @@
+{
+    "name": "Shears.Tweens.Editor",
+    "rootNamespace": "Shears.Tweens.Editor",
+    "references": [
+        "GUID:47c78b473e92098469ae5153d34a31e6"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
