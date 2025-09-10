@@ -19,6 +19,7 @@ namespace Shears.Tweens.Editor
             var easingFunctionProp = property.FindPropertyRelative("easingFunction");
             var usesCurveProp = property.FindPropertyRelative("usesCurve");
             var curveProp = property.FindPropertyRelative("curve");
+            var eventsProp = property.FindPropertyRelative("unityEvents");
 
             bool dontUseDataObject = !usesDataObjectProp.boolValue;
             bool hasNoDuration = durationProp.floatValue == 0f;
@@ -41,15 +42,12 @@ namespace Shears.Tweens.Editor
                 text = property.displayName
             };
 
-            root.Add(new PropertyField(usesDataObjectProp));
-            root.Add(new PropertyField(dataObjectProp));
-            root.Add(new PropertyField(durationProp));
-            root.Add(new PropertyField(forceFinalValueProp));
-            root.Add(new PropertyField(loopsProp));
-            root.Add(new PropertyField(loopModeProp));
-            root.Add(new PropertyField(easingFunctionProp));
-            root.Add(new PropertyField(usesCurveProp));
-            root.Add(new PropertyField(curveProp));
+            root.AddAll(
+                new PropertyField(usesDataObjectProp), new PropertyField(dataObjectProp), 
+                new PropertyField(durationProp), new PropertyField(forceFinalValueProp), 
+                new PropertyField(loopsProp), new PropertyField(loopModeProp), 
+                new PropertyField(usesCurveProp), new PropertyField(easingFunctionProp), 
+                new PropertyField(curveProp), new PropertyField(eventsProp));
 
             return root;
         }

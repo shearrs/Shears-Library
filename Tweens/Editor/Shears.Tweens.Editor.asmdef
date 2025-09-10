@@ -2,7 +2,8 @@
     "name": "Shears.Tweens.Editor",
     "rootNamespace": "Shears.Tweens.Editor",
     "references": [
-        "GUID:47c78b473e92098469ae5153d34a31e6"
+        "GUID:47c78b473e92098469ae5153d34a31e6",
+        "GUID:b28a31c08beef024d83a7aa1ec3f2f6d"
     ],
     "includePlatforms": [
         "Editor"

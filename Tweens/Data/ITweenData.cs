@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using static Shears.Tweens.EasingFunction;
 
@@ -12,5 +13,6 @@ namespace Shears.Tweens
         public Ease EasingFunction { get; }
         public bool UsesCurve { get; }
         public AnimationCurve Curve { get; }
+        public IReadOnlyList<TweenEventBase> Events { get; }
     }
 }

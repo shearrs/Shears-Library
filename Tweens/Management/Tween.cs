@@ -17,16 +17,26 @@ namespace Shears.Tweens
     [Serializable]
     public class Tween
     {
+        [Header("Duration")]
         [ReadOnly, SerializeField] private float progress = 0;
         [ReadOnly, SerializeField] private bool forceFinalValue;
+
+        [Header("Loops")]
         [ReadOnly, SerializeField] private int loops;
         [ReadOnly, SerializeField] private LoopMode loopMode;
         [ReadOnly, SerializeField] private bool reversed;
-        [ReadOnly, SerializeField] private EasingFunction.Function easingFunction;
+
+        [Header("Easing")]
         [ReadOnly, SerializeField] private bool usesCurve;
+        [ReadOnly, SerializeField] private EasingFunction.Function easingFunction;
         [ReadOnly, SerializeField] private AnimationCurve curve;
 
+        [Header("Events")]
+        [ReadOnly, SerializeField] private List<TweenEventBase> events = new();
+
         private readonly List<Action> onCompletes = new();
+        private readonly List<TweenEventBase> activeEvents = new();
+        private readonly List<TweenEventBase> eventsToClear = new();
         private readonly List<TweenStopEvent> stopEvents = new();
         private readonly List<TweenStopEvent> disposeEvents = new();
 
@@ -116,7 +126,9 @@ namespace Shears.Tweens
                     if (forceFinalValue)
                     {
                         progress = GetEndValue();
+
                         Update?.Invoke(progress);
+                        UpdateEvents(1.0f);
                     }
 
                     if (loopMode == LoopMode.PingPong)
@@ -169,6 +181,7 @@ namespace Shears.Tweens
                 }
 
                 Update?.Invoke(t);
+                UpdateEvents(t);
 
                 progress += Time.deltaTime;
 
@@ -181,6 +194,18 @@ namespace Shears.Tweens
         public void AddOnComplete(Action onComplete) => onCompletes.Add(onComplete);
         public void RemoveOnComplete(Action onComplete) => onCompletes.Remove(onComplete);
         public void ClearOnCompletes() => onCompletes.Clear();
+
+        public void AddEvent(TweenEventBase tweenEvent) => events.Add(tweenEvent);
+        public void AddEvent(float progress, Action callback)
+        {
+            var evt = new TweenEvent(progress);
+            evt.ProgressReached += callback;
+
+            events.Add(evt);
+            activeEvents.Add(evt);
+        }
+        public void RemoveEvent(TweenEventBase tweenEvent) => events.Remove(tweenEvent);
+        public void ClearEvents() => events.Clear();
 
         public void AddStopEvent(TweenStopEvent evt) => stopEvents.Add(evt);
         public void RemoveStopEvent(TweenStopEvent evt) => stopEvents.Remove(evt);
@@ -237,8 +262,34 @@ namespace Shears.Tweens
             usesCurve = data.UsesCurve;
             curve = data.Curve;
 
+            InitializeEvents(data);
+
             if (loops > -1)
                 loops++;
+        }
+
+        private void InitializeEvents(ITweenData data)
+        {
+            events.Clear();
+            events.AddRange(data.Events);
+            activeEvents.AddRange(data.Events);
+        }
+
+        private void UpdateEvents(float t)
+        {
+            eventsToClear.Clear();
+
+            foreach (var evt in activeEvents)
+            {
+                if (evt.CanInvoke(t))
+                {
+                    evt.Invoke();
+                    eventsToClear.Add(evt);
+                }
+            }
+
+            foreach (var evt in eventsToClear)
+                activeEvents.Remove(evt);
         }
 
         #region Utility
