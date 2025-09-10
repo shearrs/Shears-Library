@@ -47,6 +47,7 @@ namespace Shears.Tweens
         internal Action<float> Update { get; set; }
         public bool IsValid => IsActive;
         public float Duration { get; private set; }
+        public float Progress => Mathf.Abs(progress / Duration);
         public bool IsPlaying { get; private set; }
         public bool Paused { get; private set; }
         public int Loops
