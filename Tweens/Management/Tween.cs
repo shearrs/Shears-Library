@@ -23,6 +23,9 @@ namespace Shears.Tweens
         [ReadOnly, SerializeField] private LoopMode loopMode;
         [ReadOnly, SerializeField] private bool reversed;
         [ReadOnly, SerializeField] private EasingFunction.Function easingFunction;
+        [ReadOnly, SerializeField] private bool usesCurve;
+        [ReadOnly, SerializeField] private AnimationCurve curve;
+
         private readonly List<Action> onCompletes = new();
         private readonly List<TweenStopEvent> stopEvents = new();
         private readonly List<TweenStopEvent> disposeEvents = new();
@@ -127,7 +130,7 @@ namespace Shears.Tweens
                     yield return null;
             }
 
-            DoOnCompletes();
+            InvokeOnCompletes();
             onCompletes.Clear();
 
             Stop();
@@ -155,10 +158,15 @@ namespace Shears.Tweens
                 else
                     t = progress / Duration;
 
-                float s = GetStartValue();
-                float e = GetEndValue();
+                if (usesCurve)
+                    t = curve.Evaluate(t);
+                else
+                {
+                    float s = GetStartValue();
+                    float e = GetEndValue();
 
-                t = easingFunction(s, e, t);
+                    t = easingFunction(s, e, t);
+                }
 
                 Update?.Invoke(t);
 
@@ -182,7 +190,7 @@ namespace Shears.Tweens
         public void RemoveDisposeEvent(TweenStopEvent evt) => disposeEvents.Remove(evt);
         public void ClearDisposeEvents() => disposeEvents.Clear();
 
-        private void DoOnCompletes()
+        private void InvokeOnCompletes()
         {
             foreach (Action action in onCompletes)
                 action?.Invoke();
@@ -226,6 +234,8 @@ namespace Shears.Tweens
             loopMode = data.LoopMode;
             reversed = false;
             easingFunction = EasingFunction.GetEasingFunction(data.EasingFunction);
+            usesCurve = data.UsesCurve;
+            curve = data.Curve;
 
             if (loops > -1)
                 loops++;

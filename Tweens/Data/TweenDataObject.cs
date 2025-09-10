@@ -15,6 +15,8 @@ namespace Shears.Tweens
         [field: SerializeField] public LoopMode LoopMode { get; private set; }
 
         [field: Header("Easing")]
-        [field: SerializeField] public Ease EasingFunction { get; private set; } = Ease.Linear;
+        [field: SerializeField] public bool UsesCurve { get; private set; } = false;
+        [field: SerializeField, ShowIf("!UsesCurve")] public Ease EasingFunction { get; private set; } = Ease.Linear;
+        [field: SerializeField, ShowIf("UsesCurve")] public AnimationCurve Curve { get; private set; }
     }
 }

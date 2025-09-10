@@ -8,19 +8,23 @@ namespace Shears.Tweens
     public class TweenData : ITweenData
     {
         [Header("Tween Data Settings")]
-        [SerializeField] private bool useDataObject;
-        [SerializeField, ShowIf("useDataObject")] private TweenDataObject tweenDataObject;
-        [SerializeField, ShowIf("!useDataObject")] private float duration = 1.0f;
-        [SerializeField, ShowIf("!useDataObject")] private bool forceFinalValue = true;
-        [SerializeField, ShowIf("!useDataObject")] private int loops = 0;
-        [SerializeField, ShowIf("!useDataObject")] private LoopMode loopMode = LoopMode.None;
-        [SerializeField, ShowIf("!useDataObject")] private Ease easingFunction = Ease.Linear;
+        [SerializeField] private bool usesDataObject;
+        [SerializeField, ShowIf("usesDataObject")] private TweenDataObject tweenDataObject;
+        [SerializeField, ShowIf("!usesDataObject")] private float duration = 1.0f;
+        [SerializeField, ShowIf("!usesDataObject")] private bool forceFinalValue = true;
+        [SerializeField, ShowIf("!usesDataObject")] private int loops = 0;
+        [SerializeField, ShowIf("!usesDataObject")] private LoopMode loopMode = LoopMode.None;
+        [SerializeField, ShowIf("!usesDataObject")] private bool usesCurve;
+        [SerializeField, ShowIf("!usesDataObject", "!usesCurve")] private Ease easingFunction = Ease.Linear;
+        [SerializeField, ShowIf("!usesDataObject", "usesCurve")] private AnimationCurve curve;
 
         public float Duration => UsesDataObject() ? tweenDataObject.Duration : duration;
         public bool ForceFinalValue => UsesDataObject() ? tweenDataObject.ForceFinalValue : forceFinalValue;
         public int Loops => UsesDataObject() ? tweenDataObject.Loops : loops;
         public LoopMode LoopMode => UsesDataObject() ? tweenDataObject.LoopMode : loopMode;
         public Ease EasingFunction => UsesDataObject() ? tweenDataObject.EasingFunction : easingFunction;
+        public bool UsesCurve => usesCurve;
+        public AnimationCurve Curve => curve;
 
         public TweenData()
         {
@@ -40,12 +44,12 @@ namespace Shears.Tweens
             this.easingFunction = easingFunction;
         }
 
-        private bool UsesDataObject() => useDataObject && tweenDataObject != null;
+        private bool UsesDataObject() => usesDataObject && tweenDataObject != null;
 
         public void SetDataObject(TweenDataObject dataObject)
         {
             tweenDataObject = dataObject;
-            useDataObject = dataObject != null;
+            usesDataObject = dataObject != null;
         }
     }
 }

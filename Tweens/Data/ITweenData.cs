@@ -10,5 +10,7 @@ namespace Shears.Tweens
         public int Loops { get; }
         public LoopMode LoopMode { get; }
         public Ease EasingFunction { get; }
+        public bool UsesCurve { get; }
+        public AnimationCurve Curve { get; }
     }
 }
