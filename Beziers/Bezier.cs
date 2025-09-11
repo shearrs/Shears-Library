@@ -37,6 +37,31 @@ namespace Shears.Beziers
             points.Add(point);
         }
 
+        public void SetPosition(int pointIndex, Vector3 position)
+        {
+            points[pointIndex].Position = position;
+        }
+
+        public void SetTangent1(int pointIndex, Vector3 position)
+        {
+            points[pointIndex].Tangent1 = position;
+        }
+
+        public void SetTangent2(int pointIndex, Vector3 position)
+        {
+            points[pointIndex].Tangent2 = position;
+        }
+
+        public void SetLocalTangent1(int pointIndex, Vector3 position)
+        {
+            points[pointIndex].LocalTangent1 = position;
+        }
+
+        public void SetLocalTangent2(int pointIndex, Vector3 position)
+        {
+            points[pointIndex].LocalTangent2 = position;
+        }
+
         public Vector3 Sample(float t)
         {
             if (points.Count < 2)
@@ -138,9 +163,10 @@ namespace Shears.Beziers
             return length;
         }
 
+#if UNITY_EDITOR
         private void OnDrawGizmos()
         {
-#if UNITY_EDITOR
+
             if (!drawGizmos || points.Count < 2)
                 return;
 
@@ -151,7 +177,7 @@ namespace Shears.Beziers
 
             if (closed)
                 Handles.DrawBezier(points[^1].Position, points[0].Position, points[^1].Tangent2, points[0].Tangent1, Color.white, Texture2D.whiteTexture, 2);
-#endif
         }
+#endif
     }
 }
