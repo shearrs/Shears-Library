@@ -34,12 +34,13 @@ namespace Shears.Tweens
         [Header("Events")]
         [ReadOnly, SerializeField] private List<TweenEventBase> events = new();
 
+        private bool isInvokingEvents = false;
+        private bool disposeAfterEvents = false;
         private readonly List<Action> onCompletes = new();
         private readonly List<TweenEventBase> activeEvents = new();
         private readonly List<TweenEventBase> eventsToClear = new();
         private readonly List<TweenStopEvent> stopEvents = new();
         private readonly List<TweenStopEvent> disposeEvents = new();
-
         private readonly List<Coroutine> coroutines = new();
 
         [field: ReadOnly, SerializeField] internal bool IsActive { get; set; }
@@ -101,6 +102,13 @@ namespace Shears.Tweens
         {
             if (!IsActive)
                 return;
+            else if (isInvokingEvents)
+            {
+                disposeAfterEvents = true;
+                return;
+            }
+
+            disposeAfterEvents = false;
 
             Stop();
             Release?.Invoke(this);
@@ -278,6 +286,7 @@ namespace Shears.Tweens
 
         private void UpdateEvents(float t)
         {
+            isInvokingEvents = true;
             eventsToClear.Clear();
 
             foreach (var evt in activeEvents)
@@ -291,6 +300,11 @@ namespace Shears.Tweens
 
             foreach (var evt in eventsToClear)
                 activeEvents.Remove(evt);
+
+            isInvokingEvents = false;
+
+            if (disposeAfterEvents)
+                Dispose();
         }
 
         #region Utility
