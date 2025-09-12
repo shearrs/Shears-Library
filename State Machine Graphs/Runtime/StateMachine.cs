@@ -1,4 +1,5 @@
 using Shears.Logging;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -22,6 +23,7 @@ namespace Shears.StateMachineGraphs
         private State defaultState;
         private readonly List<State> swapStateTree = new();
 
+        private readonly Dictionary<Type, State> stateTypes = new();
         private Dictionary<string, State> states;
         private Dictionary<string, Parameter> parameters;
 
@@ -63,7 +65,11 @@ namespace Shears.StateMachineGraphs
             states = compiledData.StateIDs;
 
             foreach (var state in states.Values)
+            {
+                stateTypes[state.GetType()] = state;
+
                 state.ParameterProvider ??= this;
+            }
 
             defaultState = compiledData.DefaultState;
             parameters = compiledData.ParameterNames;
@@ -117,7 +123,18 @@ namespace Shears.StateMachineGraphs
             }
         }
 
-        private void SetState(State newState)
+        public void SetStateOfType<T>()
+        {
+            if (!stateTypes.TryGetValue(typeof(T), out var state))
+            {
+                Log($"StateMachine on {gameObject.name} does not have state of type '{typeof(T).Name}'!", SHLogLevels.Error);
+                return;
+            }
+
+            SetState(state);
+        }
+
+        public void SetState(State newState)
         {
             swapStateTree.Clear();
             State currentState = newState;
