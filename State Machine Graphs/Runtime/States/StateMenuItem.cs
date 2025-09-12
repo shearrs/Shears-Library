@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Shears.StateMachineGraphs.Editor
+namespace Shears.StateMachineGraphs
 {
     public class StateMenuItem : Attribute
     {
