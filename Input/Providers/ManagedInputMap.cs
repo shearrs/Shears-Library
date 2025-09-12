@@ -50,6 +50,8 @@ namespace Shears.Input
                 runtimeMap.Initialize(inputActions, actionMapName);
             }
 
+            runtimeMap.EnableAllInputs();
+
             return runtimeMap;
         }
     }
