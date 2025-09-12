@@ -57,7 +57,7 @@ namespace Shears.UI.Editor
             }
         }
 
-        [MenuItem("GameObject/ManagedUI/Simple Button", priority = 7)]
+        [MenuItem("GameObject/ManagedUI/Simple Button", priority = 7, secondaryPriority = 1)]
         private static void CreateSimpleButton(MenuCommand _)
         {
             var button = CreateButton();
@@ -86,6 +86,12 @@ namespace Shears.UI.Editor
             CreateText(button.transform);
 
             Selection.SetActiveObjectWithContext(button, null);
+        }
+
+        [MenuItem("GameObject/ManagedUI/Canvas", priority = 7, secondaryPriority = 0)]
+        private static void CreateManagedCanvas(MenuCommand _)
+        {
+            CreateCanvas();
         }
 
         private static GameObject CreateButton()
