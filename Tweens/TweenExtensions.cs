@@ -131,6 +131,48 @@ namespace Shears.Tweens
         #endregion
         #endregion
 
+        #region Rigidbody Tweens
+        #region Move Tween
+        public static Tween DoMoveTween(this Rigidbody rb, Vector3 targetPos, ITweenData data = null) => Do(GetMoveTween(rb, targetPos, data));
+        public static Tween GetMoveTween(this Rigidbody rb, Vector3 targetPos, ITweenData data = null)
+        {
+            Vector3 start = rb.position;
+
+            void update(float t) => rb.position = Vector3.LerpUnclamped(start, targetPos, t);
+
+            return CreateAutoDisposeTween(rb, update, data);
+        }
+        #endregion
+
+        #region Rotate Tween
+        public static Tween DoRotateTween(this Rigidbody rb, Quaternion targetRot, bool shortestPath, ITweenData data = null) => Do(GetRotateTween(rb, targetRot, shortestPath, data));
+        public static Tween GetRotateTween(this Rigidbody rb, Quaternion targetRot, bool shortestPath, ITweenData data = null)
+        {
+            Quaternion start = rb.rotation;
+
+            Action<float> update;
+
+            if (shortestPath)
+                update = (t) => rb.rotation = Quaternion.LerpUnclamped(start, targetRot, t);
+            else
+            {
+                update = (t) =>
+                {
+                    start.ToAngleAxis(out float sourceAngle, out Vector3 sourceAxis);
+                    targetRot.ToAngleAxis(out float targetAngle, out Vector3 targetAxis);
+
+                    float angle = Mathf.LerpUnclamped(sourceAngle, targetAngle, t);
+                    Vector3 axis = Vector3.SlerpUnclamped(sourceAxis, targetAxis, t);
+
+                    rb.rotation = Quaternion.AngleAxis(angle, axis);
+                };
+            }
+
+            return CreateAutoDisposeTween(rb, update, data);
+        }
+        #endregion
+        #endregion
+
         #region RectTransform Tweens
         #region Local Move Tween
         public static Tween DoMoveLocalTween(this RectTransform transform, Vector3 targetPos, ITweenData data = null) => Do(GetMoveLocalTween(transform, targetPos, data));
