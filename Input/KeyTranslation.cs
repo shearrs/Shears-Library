@@ -74,6 +74,49 @@ namespace Shears.Input
             };
         }
     
+        public static ManagedKey GetKey(string displayName)
+        {
+            if (displayName.Length > 1)
+                displayName = $"{char.ToUpper(displayName[0])}{displayName[1..].ToLower()}";
+            else
+                displayName = displayName.ToUpper();
+
+            Debug.Log("name: " + displayName);
+
+            return displayName switch
+            {
+                "Q" => ManagedKey.Q,
+                "W" => ManagedKey.W,
+                "E" => ManagedKey.E,
+                "R" => ManagedKey.R,
+                "T" => ManagedKey.T,
+                "Y" => ManagedKey.Y,
+                "U" => ManagedKey.U,
+                "I" => ManagedKey.I,
+                "O" => ManagedKey.O,
+                "P" => ManagedKey.P,
+                "A" => ManagedKey.A,
+                "S" => ManagedKey.S,
+                "D" => ManagedKey.D,
+                "F" => ManagedKey.F,
+                "G" => ManagedKey.G,
+                "H" => ManagedKey.H,
+                "J" => ManagedKey.J,
+                "K" => ManagedKey.K,
+                "L" => ManagedKey.L,
+                "Z" => ManagedKey.Z,
+                "X" => ManagedKey.X,
+                "C" => ManagedKey.C,
+                "V" => ManagedKey.V,
+                "B" => ManagedKey.B,
+                "N" => ManagedKey.N,
+                "M" => ManagedKey.M,
+                "Backspace" => ManagedKey.Backspace,
+                "Enter" => ManagedKey.Enter,
+                _ => ManagedKey.None
+            };
+        }
+
         public static string GetDisplayName(this ManagedKey key)
         {
             return key switch

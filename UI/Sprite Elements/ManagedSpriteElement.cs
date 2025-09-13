@@ -71,7 +71,7 @@ namespace Shears.UI
 
         public Sprite Sprite { get => SpriteRenderer.sprite; set => SpriteRenderer.sprite = value; }
         public Color BaseColor { get => baseColor; set => baseColor = value; }
-        public Color CurrentColor { get => SpriteRenderer.color; set => SpriteRenderer.color = value; }
+        public Color Modulate { get => SpriteRenderer.color; set => SpriteRenderer.color = value; }
         public int SortingOrder { get => SpriteRenderer.sortingOrder; set => SpriteRenderer.sortingOrder = value; }
 
         private void Awake()

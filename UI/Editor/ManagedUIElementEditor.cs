@@ -65,18 +65,18 @@ namespace Shears.UI.Editor
 
         private Foldout CreateEvents()
         {
-            var onEnabledField = new PropertyField(serializedObject.FindProperty("onEnabled"));
-            var onDisabledField = new PropertyField(serializedObject.FindProperty("onDisabled"));
-            var onSelectBeginField = new PropertyField(serializedObject.FindProperty("onSelectBegin"));
-            var onSelectEndField = new PropertyField(serializedObject.FindProperty("onSelectEnd"));
-            var onClickBeginField = new PropertyField(serializedObject.FindProperty("onClickBegin"));
-            var onClickEndField = new PropertyField(serializedObject.FindProperty("onClickEnd"));
-            var onFocusBeginField = new PropertyField(serializedObject.FindProperty("onFocusBegin"));
-            var onFocusEndField = new PropertyField(serializedObject.FindProperty("onFocusEnd"));
-            var onHoverBeginField = new PropertyField(serializedObject.FindProperty("onHoverBegin"));
-            var onHoverEndField = new PropertyField(serializedObject.FindProperty("onHoverEnd"));
-            var onHoverBeginClickedField = new PropertyField(serializedObject.FindProperty("onHoverBeginClicked"));
-            var onHoverEndClickedField = new PropertyField(serializedObject.FindProperty("onHoverEndClicked"));
+            var onEnabledField = new PropertyField(serializedObject.FindProperty("elementEnabled"));
+            var onDisabledField = new PropertyField(serializedObject.FindProperty("elementDisabled"));
+            var onSelectBeginField = new PropertyField(serializedObject.FindProperty("selectBegan"));
+            var onSelectEndField = new PropertyField(serializedObject.FindProperty("selectEnded"));
+            var onClickBeginField = new PropertyField(serializedObject.FindProperty("clickBegan"));
+            var onClickEndField = new PropertyField(serializedObject.FindProperty("clickEnded"));
+            var onFocusBeginField = new PropertyField(serializedObject.FindProperty("focusBegan"));
+            var onFocusEndField = new PropertyField(serializedObject.FindProperty("focusEnded"));
+            var onHoverBeginField = new PropertyField(serializedObject.FindProperty("hoverBegan"));
+            var onHoverEndField = new PropertyField(serializedObject.FindProperty("hoverEnded"));
+            var onHoverBeginClickedField = new PropertyField(serializedObject.FindProperty("hoverBeganClicked"));
+            var onHoverEndClickedField = new PropertyField(serializedObject.FindProperty("hoverEndedClicked"));
 
             var activationFoldout = CreateBoundFoldout("Activation", "activationFoldout", ActivationFoldoutTooltip, onEnabledField, onDisabledField);
             var selectFoldout = CreateBoundFoldout("Select", "selectFoldout", SelectFoldoutTooltip, onSelectBeginField, onSelectEndField);

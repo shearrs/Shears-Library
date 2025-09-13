@@ -34,7 +34,7 @@ namespace Shears.Cameras
                 currentState.UpdateState();
         }
 
-        private void SetState(CameraState state)
+        public void SetState(CameraState state)
         {
             if (state == currentState)
                 return;

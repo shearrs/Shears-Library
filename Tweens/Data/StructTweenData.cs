@@ -8,7 +8,9 @@ namespace Shears.Tweens
     public struct StructTweenData : ITweenData
     {
 #if UNITY_EDITOR
+#pragma warning disable CS0414
         [HideInInspector, SerializeField] private bool isExpanded;
+#pragma warning restore CS0414
 #endif
 
         [Header("Tween Data Settings")]

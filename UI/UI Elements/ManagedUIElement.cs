@@ -19,31 +19,31 @@ namespace Shears.UI
         #endregion
 
         #region Event Variables
-        [SerializeField] private UnityEvent onEnabled;
-        [SerializeField] private UnityEvent onDisabled;
-        [SerializeField] private UnityEvent onSelectBegin;
-        [SerializeField] private UnityEvent onSelectEnd;
-        [SerializeField] private UnityEvent onClickBegin;
-        [SerializeField] private UnityEvent onClickEnd;
-        [SerializeField] private UnityEvent onFocusBegin;
-        [SerializeField] private UnityEvent onFocusEnd;
-        [SerializeField] private UnityEvent onHoverBegin;
-        [SerializeField] private UnityEvent onHoverEnd;
-        [SerializeField] private UnityEvent onHoverBeginClicked;
-        [SerializeField] private UnityEvent onHoverEndClicked;
+        [SerializeField] private UnityEvent elementEnabled;
+        [SerializeField] private UnityEvent elementDisabled;
+        [SerializeField] private UnityEvent selectBegan;
+        [SerializeField] private UnityEvent selectEnded;
+        [SerializeField] private UnityEvent clickBegan;
+        [SerializeField] private UnityEvent clickEnded;
+        [SerializeField] private UnityEvent focusBegan;
+        [SerializeField] private UnityEvent focusEnded;
+        [SerializeField] private UnityEvent hoverBegan;
+        [SerializeField] private UnityEvent hoverEnded;
+        [SerializeField] private UnityEvent hoverBeganClicked;
+        [SerializeField] private UnityEvent hoverEndedClicked;
 
-        public event Action OnEnabled;
-        public event Action OnDisabled;
-        public event Action OnSelectBegin;
-        public event Action OnSelectEnd;
-        public event Action OnClickBegin;
-        public event Action OnClickEnd;
-        public event Action OnFocusBegin;
-        public event Action OnFocusEnd;
-        public event Action OnHoverBegin;
-        public event Action OnHoverEnd;
-        public event Action OnHoverBeginClicked;
-        public event Action OnHoverEndClicked;
+        public event Action Enabled;
+        public event Action Disabled;
+        public event Action SelectBegan;
+        public event Action SelectEnded;
+        public event Action ClickBegan;
+        public event Action ClickEnded;
+        public event Action FocusBegan;
+        public event Action FocusEnded;
+        public event Action HoverBegan;
+        public event Action HoverEnded;
+        public event Action HoverBeganClicked;
+        public event Action HoverEndedClicked;
         #endregion
 
         #region Inspector Variables
@@ -105,8 +105,8 @@ namespace Shears.UI
 
             ManagedUIEventSystem.RegisterElement(this);
 
-            OnEnabled?.Invoke();
-            onEnabled.Invoke();
+            Enabled?.Invoke();
+            elementEnabled.Invoke();
         }
 
         public void SetActiveAndEnable()
@@ -124,8 +124,8 @@ namespace Shears.UI
 
             ManagedUIEventSystem.DeregisterElement(this);
 
-            OnDisabled?.Invoke();
-            onDisabled.Invoke();
+            Disabled?.Invoke();
+            elementDisabled.Invoke();
         }
 
         public void SetInactiveAndDisable()
@@ -145,14 +145,14 @@ namespace Shears.UI
             if (!Selectable)
                 return;
 
-            OnSelectBegin?.Invoke();
-            onSelectBegin.Invoke();
+            SelectBegan?.Invoke();
+            selectBegan.Invoke();
         }
 
         public void EndSelect()
         {
-            OnSelectEnd?.Invoke();
-            onSelectEnd.Invoke();
+            SelectEnded?.Invoke();
+            selectEnded.Invoke();
         }
 
         public void BeginClick()
@@ -162,8 +162,8 @@ namespace Shears.UI
 
             isClicked = true;
 
-            OnClickBegin?.Invoke();
-            onClickBegin.Invoke();
+            ClickBegan?.Invoke();
+            clickBegan.Invoke();
         }
 
         public void EndClick()
@@ -173,8 +173,8 @@ namespace Shears.UI
             if (!isHovered)
                 return;
 
-            OnClickEnd?.Invoke();
-            onClickEnd.Invoke();
+            ClickEnded?.Invoke();
+            clickEnded.Invoke();
         }
 
         public void BeginFocus()
@@ -182,14 +182,14 @@ namespace Shears.UI
             if (!Focusable)
                 return;
 
-            OnFocusBegin?.Invoke();
-            onFocusBegin.Invoke();
+            FocusBegan?.Invoke();
+            focusBegan.Invoke();
         }
 
         public void EndFocus()
         {
-            OnFocusEnd?.Invoke();
-            onFocusEnd.Invoke();
+            FocusEnded?.Invoke();
+            focusEnded.Invoke();
         }
 
         public void BeginHover()
@@ -201,13 +201,13 @@ namespace Shears.UI
 
             if (isClicked)
             {
-                OnHoverBeginClicked?.Invoke();
-                onHoverBeginClicked.Invoke();
+                HoverBeganClicked?.Invoke();
+                hoverBeganClicked.Invoke();
             }
             else
             {
-                OnHoverBegin?.Invoke();
-                onHoverBegin.Invoke();
+                HoverBegan?.Invoke();
+                hoverBegan.Invoke();
             }
         }
 
@@ -217,13 +217,13 @@ namespace Shears.UI
 
             if (isClicked)
             {
-                OnHoverEndClicked?.Invoke();
-                onHoverEndClicked.Invoke();
+                HoverEndedClicked?.Invoke();
+                hoverEndedClicked.Invoke();
             }
             else
             {
-                OnHoverEnd?.Invoke();
-                onHoverEnd.Invoke();
+                HoverEnded?.Invoke();
+                hoverEnded.Invoke();
             }
         }
         #endregion

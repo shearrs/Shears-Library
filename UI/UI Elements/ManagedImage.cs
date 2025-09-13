@@ -7,10 +7,44 @@ namespace Shears.UI
     public class ManagedImage : MonoBehaviour, IColorTweenable
     {
         [SerializeField] private Image image;
-        [SerializeField] private Color baseColor;
+        [SerializeField] private Color modulate = Color.white;
 
-        public Color BaseColor { get => baseColor; set => baseColor = value; }
-        public Color CurrentColor { get => image.color; set => image.color = value; }
+        private bool initialized = false;
+        private Color baseColor;
+
+        public Color BaseColor
+        {
+            get
+            {
+                if (!initialized)
+                    baseColor = image.color;
+
+                return baseColor;
+            }
+            set 
+            { 
+                baseColor = value;
+
+                image.color = baseColor * modulate;
+            }
+        }
+        public Color Modulate
+        {
+            get => modulate;
+            set
+            {
+                modulate = value;
+
+                image.color = baseColor * modulate;
+            }
+        }
+
+        private void Awake()
+        {
+            baseColor = image.color;
+
+            initialized = true;
+        }
 
         public void Enable()
         {

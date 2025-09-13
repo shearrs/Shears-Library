@@ -4,6 +4,7 @@ using System.Reflection;
 using TMPro;
 using UnityEditor;
 using UnityEditor.Events;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -97,9 +98,14 @@ namespace Shears.UI.Editor
         private static GameObject CreateButton()
         {
             var parent = Selection.activeGameObject;
+            var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
 
-            if (parent == null || parent.GetComponent<Canvas>() == null)
+            bool isInPrefab = prefabStage != null && prefabStage.mode == PrefabStage.Mode.InIsolation;
+
+            if (!isInPrefab && (parent == null || parent.GetComponent<Canvas>() == null))
                 parent = CreateCanvas();
+            else if (parent == null && isInPrefab)
+                parent = prefabStage.prefabContentsRoot;
 
             var button = new GameObject("Button", typeof(RectTransform));
             button.transform.SetParent(parent.transform);

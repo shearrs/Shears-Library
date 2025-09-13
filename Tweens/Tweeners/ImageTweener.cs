@@ -18,11 +18,18 @@ namespace Shears.Tweens
         [SerializeField] private Color color1 = Color.white;
         [SerializeField] private Color color2 = Color.gray;
 
+        private IColorTweenable tweenable;
+
         public TweenData TweenData { get => data; set => data = value; }
         public Image Image { get => image; set => image = value; }
         public TweenType Type { get => type; set => type = value; }
         public Color Color1 { get => color1; set => color1 = value; }
         public Color Color2 { get => color2; set => color2 = value; }
+
+        private void Awake()
+        {
+            image.TryGetComponent(out tweenable);
+        }
 
         private void OnEnable()
         {
@@ -55,13 +62,22 @@ namespace Shears.Tweens
         {
             Tween tween = null;
 
-            image.color = from;
-
-            switch(type)
+            if (tweenable != null)
             {
-                case TweenType.Color: 
-                    tween = image.GetColorTween(to, data);
-                    break;
+                tweenable.Modulate = from;
+
+                tween = tweenable.GetColorTween(to, data);
+            }
+            else
+            {
+                image.color = from;
+
+                switch (type)
+                {
+                    case TweenType.Color:
+                        tween = image.GetColorTween(to, data);
+                        break;
+                }
             }
 
             tween.AddOnComplete(ClearTween);

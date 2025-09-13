@@ -49,7 +49,7 @@ namespace Shears.Tweens
             if (type == TweenType.Multiply)
                 color = Target.BaseColor * color1;
 
-            Target.CurrentColor = color;
+            Target.Modulate = color;
         }
         public void SetColor2()
         {
@@ -58,7 +58,7 @@ namespace Shears.Tweens
             if (type == TweenType.Multiply)
                 color = Target.BaseColor * color2;
 
-            Target.CurrentColor = color;
+            Target.Modulate = color;
         }
 
         public void Play1To2()
@@ -102,7 +102,7 @@ namespace Shears.Tweens
         {
             Tween tween = null;
 
-            Target.CurrentColor = initial;
+            Target.Modulate = initial;
 
             switch (type)
             {
