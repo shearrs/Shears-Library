@@ -22,7 +22,12 @@ namespace Shears.Logging
         [HideInCallstack]
         public void Log(string message, SHLogLevels level = SHLogLevels.Log, Color color = default, Object context = null, string prefix = "", ISHLogFormatter formatter = default,
         [CallerFilePath] string callerFilePath = "", [CallerLineNumber] long callerLineNumber = 0)
-        => Log(new SHLog(message, context, prefix, level, color), formatter, callerFilePath, callerLineNumber);
+        {
+            if (context == null)
+                context = gameObject;
+
+            Log(new SHLog(message, context, prefix, level, color), formatter, callerFilePath, callerLineNumber);
+        }
 
         /// <summary>
         /// Logs a message to the current logger.

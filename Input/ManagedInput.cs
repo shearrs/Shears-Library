@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
+
+using OldKey = UnityEngine.InputSystem.Key;
 
 namespace Shears.Input
 {
@@ -131,6 +134,9 @@ namespace Shears.Input
 
         public T ReadValue<T>() where T : struct
         {
+            if (typeof(T) == typeof(KeyControl))
+                return (T)(object)KeyTranslation.TranslateKey(inputAction.ReadValue<OldKey>());
+
             return inputAction.ReadValue<T>();
         }
 
