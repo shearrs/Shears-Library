@@ -4,20 +4,32 @@ using UnityEngine.UI;
 
 namespace Shears.UI
 {
+    [RequireComponent(typeof(Image))]
     public class ManagedImage : MonoBehaviour, IColorTweenable
     {
-        [SerializeField] private Image image;
         [SerializeField] private Color modulate = Color.white;
+        private Image image;
 
         private bool initialized = false;
         private Color baseColor;
+
+        protected Image Image
+        {
+            get
+            {
+                if (image == null)
+                    image = GetComponent<Image>();
+
+                return image;
+            }
+        }
 
         public Color BaseColor
         {
             get
             {
                 if (!initialized)
-                    baseColor = image.color;
+                    baseColor = Image.color;
 
                 return baseColor;
             }
@@ -25,7 +37,7 @@ namespace Shears.UI
             { 
                 baseColor = value;
 
-                image.color = baseColor * modulate;
+                Image.color = baseColor * modulate;
             }
         }
         public Color Modulate
@@ -35,25 +47,15 @@ namespace Shears.UI
             {
                 modulate = value;
 
-                image.color = baseColor * modulate;
+                Image.color = baseColor * modulate;
             }
         }
 
         private void Awake()
         {
-            baseColor = image.color;
+            baseColor = Image.color;
 
             initialized = true;
-        }
-
-        public void Enable()
-        {
-            gameObject.SetActive(true);
-        }
-
-        public void Disable()
-        {
-            gameObject.SetActive(false);
         }
     }
 }
