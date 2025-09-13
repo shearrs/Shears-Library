@@ -31,12 +31,5 @@ namespace Shears
 
             return wait;
         }
-
-        private static IEnumerator IEDoAfter(Coroutine waitRoutine, Action doAfter)
-        {
-            yield return waitRoutine;
-
-            doAfter?.Invoke();
-        }
     }
 }
