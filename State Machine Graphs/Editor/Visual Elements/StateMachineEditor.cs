@@ -202,7 +202,7 @@ namespace Shears.StateMachineGraphs.Editor
                     CreateNewReferences(parentGraphID, externalNode.ExternalGraphData.ID, externalNode.ExternalGraphData.GetStateNodes());
                     continue;
                 }
-
+                
                 if (stateNode.StateType == SerializableSystemType.Empty)
                     continue;
 

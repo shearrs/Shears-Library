@@ -129,6 +129,31 @@ namespace Shears.Tweens
             return CreateAutoDisposeTween(transform, update, data);
         }
         #endregion
+
+        #region Shake
+        public static Tween DoShakeTween(this Transform transform, float strength, float shakeDelay = 0, ITweenData data = null) => Do(GetShakeTween(transform, strength, shakeDelay, data));
+        public static Tween GetShakeTween(this Transform transform, float strength, float shakeDelay = 0, ITweenData data = null)
+        {
+            Vector3 start = transform.localPosition;
+            float time = 0;
+
+            void update(float t)
+            {
+                time += Time.deltaTime;
+
+                if (time >= shakeDelay)
+                {
+                    transform.localPosition = start + (Vector3)(strength * UnityEngine.Random.insideUnitCircle);
+                    time = 0;
+                }    
+            }
+
+            var tween = CreateAutoDisposeTween(transform, update, data);
+            tween.AddOnComplete(() => transform.localPosition = start);
+
+            return tween;
+        }
+        #endregion
         #endregion
 
         #region Rigidbody Tweens

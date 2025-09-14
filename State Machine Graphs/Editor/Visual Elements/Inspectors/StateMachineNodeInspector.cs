@@ -28,6 +28,7 @@ namespace Shears.StateMachineGraphs.Editor
             Add(transitions);
 
             AddReferenceHints();
+            referenceHintContainer.Unbind();
             referenceHintContainer.TrackPropertyValue(stateTypeProp, (prop) => AddReferenceHints());
         }
 
