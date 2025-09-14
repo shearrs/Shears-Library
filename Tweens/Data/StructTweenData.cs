@@ -15,20 +15,20 @@ namespace Shears.Tweens
 
         [Header("Tween Data Settings")]
         [SerializeField] private bool usesDataObject;
-        [SerializeField, ShowIf("usesDataObject")] private TweenDataObject tweenDataObject;
+        [SerializeField] private TweenDataObject tweenDataObject;
 
         [Header("Duration Settings")]
-        [SerializeField, ShowIf("!usesDataObject")] private float duration;
-        [SerializeField, ShowIf("!usesDataObject")] private bool forceFinalValue;
+        [SerializeField] private float duration;
+        [SerializeField] private bool forceFinalValue;
 
         [Header("Loop Settings")]
-        [SerializeField, ShowIf("!usesDataObject")] private int loops;
-        [SerializeField, ShowIf("!usesDataObject")] private LoopMode loopMode;
+        [SerializeField] private int loops;
+        [SerializeField] private LoopMode loopMode;
 
         [Header("Ease Settings")]
-        [SerializeField, ShowIf("!usesDataObject")] private bool usesCurve;
-        [SerializeField, ShowIf("!usesDataObject", "!usesCurve")] private Ease easingFunction;
-        [SerializeField, ShowIf("!usesDataObject", "usesCurve")] private AnimationCurve curve;
+        [SerializeField] private bool usesCurve;
+        [SerializeField] private Ease easingFunction;
+        [SerializeField] private AnimationCurve curve;
 
         [Header("Events")]
         [SerializeField] private List<TweenUnityEvent> unityEvents;

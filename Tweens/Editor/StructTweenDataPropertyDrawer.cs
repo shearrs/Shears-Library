@@ -45,12 +45,52 @@ namespace Shears.Tweens.Editor
 
             root.BindProperty(isExpandedProp);
 
+            var durationField = new PropertyField(durationProp);
+            var forceFinalValueField = new PropertyField(forceFinalValueProp);
+            var loopsField = new PropertyField(loopsProp);
+            var loopModeField = new PropertyField(loopModeProp);
+            var usesCurveField = new PropertyField(usesCurveProp);
+            var easingFunctionField = new PropertyField(easingFunctionProp);
+            var curveField = new PropertyField(curveProp);
+
+            var settingsContainer = new VisualElement();
+            settingsContainer.AddAll(
+                durationField, forceFinalValueField,
+                loopsField, loopModeField
+            );
+
+            var curveContainer = new VisualElement();
+            curveContainer.AddAll(
+                usesCurveField,
+                easingFunctionField,
+                curveField
+            );
+
+            void evaluateUsesDataObject(SerializedProperty prop)
+            {
+                durationField.style.display = prop.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
+                forceFinalValueField.style.display = prop.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
+                loopsField.style.display = prop.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
+                loopModeField.style.display = prop.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
+                curveContainer.style.display = prop.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
+            }
+
+            void evaluateUsesCurve(SerializedProperty prop)
+            {
+                easingFunctionField.style.display = prop.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
+                curveField.style.display = prop.boolValue ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+
+            settingsContainer.TrackPropertyValue(usesDataObjectProp, evaluateUsesDataObject);
+            curveContainer.TrackPropertyValue(usesCurveProp, evaluateUsesCurve);
+
+            evaluateUsesCurve(usesCurveProp);
+            evaluateUsesDataObject(usesDataObjectProp);
+
             root.AddAll(
-                new PropertyField(usesDataObjectProp), new PropertyField(dataObjectProp), 
-                new PropertyField(durationProp), new PropertyField(forceFinalValueProp), 
-                new PropertyField(loopsProp), new PropertyField(loopModeProp), 
-                new PropertyField(usesCurveProp), new PropertyField(easingFunctionProp), 
-                new PropertyField(curveProp), new PropertyField(eventsProp));
+                new PropertyField(usesDataObjectProp), new PropertyField(dataObjectProp),
+                settingsContainer, curveContainer
+            );
 
             return root;
         }
