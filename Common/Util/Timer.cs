@@ -21,7 +21,7 @@ namespace Shears
         [SerializeField, ReadOnly] private bool isDone = true;
         
         private CancellationTokenSource tokenSource;
-        private readonly List<Action> onComplete = new();
+        private readonly List<Action> onCompletes = new();
 
         public float Time { get => time; set => time = value; }
         public float CurrentTime => currentTime;
@@ -87,8 +87,8 @@ namespace Shears
         /// <param name="action">The callback to add.</param>
         public void AddOnComplete(Action action)
         {
-            if (action != null && !onComplete.Contains(action))
-                onComplete.Add(action);
+            if (action != null && !onCompletes.Contains(action))
+                onCompletes.Add(action);
         }
 
         /// <summary>
@@ -98,7 +98,15 @@ namespace Shears
         public void RemoveOnComplete(Action action)
         {
             if (action != null)
-                onComplete.Remove(action);
+                onCompletes.Remove(action);
+        }
+
+        /// <summary>
+        /// Clears all callback actions from the completion list.
+        /// </summary>
+        public void ClearOnCompletes()
+        {
+            onCompletes.Clear();
         }
 
         private async void RunAsync(float time, CancellationToken token)
@@ -118,7 +126,7 @@ namespace Shears
             if (token.IsCancellationRequested)
                 return;
 
-            foreach (var action in onComplete)
+            foreach (var action in onCompletes)
                 action?.Invoke();
         }
     }
