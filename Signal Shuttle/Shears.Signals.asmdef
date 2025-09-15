@@ -1,0 +1,16 @@
+{
+    "name": "Shears.Signals",
+    "rootNamespace": "Shears.Signals",
+    "references": [
+        "GUID:f9343658ba9f34f40af4f1a7b0c76be7"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
