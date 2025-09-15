@@ -45,6 +45,7 @@ namespace Shears.Tweens.Editor
 
             root.BindProperty(isExpandedProp);
 
+            var dataObjectField = new PropertyField(dataObjectProp);
             var durationField = new PropertyField(durationProp);
             var forceFinalValueField = new PropertyField(forceFinalValueProp);
             var loopsField = new PropertyField(loopsProp);
@@ -55,7 +56,7 @@ namespace Shears.Tweens.Editor
 
             var settingsContainer = new VisualElement();
             settingsContainer.AddAll(
-                durationField, forceFinalValueField,
+                dataObjectField, durationField, forceFinalValueField,
                 loopsField, loopModeField
             );
 
@@ -66,13 +67,14 @@ namespace Shears.Tweens.Editor
                 curveField
             );
 
-            void evaluateUsesDataObject(SerializedProperty prop)
+            void evaluateUsesDataObject(SerializedProperty usesObject)
             {
-                durationField.style.display = prop.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
-                forceFinalValueField.style.display = prop.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
-                loopsField.style.display = prop.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
-                loopModeField.style.display = prop.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
-                curveContainer.style.display = prop.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
+                dataObjectField.style.display = usesObject.boolValue ? DisplayStyle.Flex : DisplayStyle.None;
+                durationField.style.display = usesObject.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
+                forceFinalValueField.style.display = usesObject.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
+                loopsField.style.display = usesObject.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
+                loopModeField.style.display = usesObject.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
+                curveContainer.style.display = usesObject.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
             }
 
             void evaluateUsesCurve(SerializedProperty prop)
@@ -88,7 +90,7 @@ namespace Shears.Tweens.Editor
             evaluateUsesDataObject(usesDataObjectProp);
 
             root.AddAll(
-                new PropertyField(usesDataObjectProp), new PropertyField(dataObjectProp),
+                new PropertyField(usesDataObjectProp),
                 settingsContainer, curveContainer
             );
 
