@@ -7,8 +7,8 @@ namespace Shears
 {
     public static class CoroutineUtil
     {
-        static readonly Dictionary<float, WaitForSeconds> waitForSeconds = new();
-        static readonly Dictionary<float, WaitForSecondsRealtime> waitForSecondsRealtime = new();
+        private static readonly Dictionary<float, WaitForSeconds> waitForSeconds = new();
+        private static readonly Dictionary<float, WaitForSecondsRealtime> waitForSecondsRealtime = new();
 
         public static WaitForSeconds WaitForSeconds(float seconds)
         {
