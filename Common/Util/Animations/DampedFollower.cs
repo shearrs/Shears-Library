@@ -25,6 +25,7 @@ namespace Shears
 
         private Quaternion rotationStart;
         private Quaternion currentRotation;
+        private float inverseRotationTime;
         private float elapsedTime = 0f;
         private bool isEnabled = true;
         private DampedFollower waitTarget;
@@ -36,6 +37,8 @@ namespace Shears
             previousPosition = transform.position;
             currentRotation = transform.rotation;
             rotationStart = transform.rotation;
+
+            inverseRotationTime = 1f / rotationTime;
         }
 
         private void Start()
@@ -99,14 +102,10 @@ namespace Shears
                 return;
             }
 
-            Debug.Log("slerp");
             elapsedTime += Time.deltaTime;
-            float t = elapsedTime / rotationTime;
+            float t = elapsedTime * inverseRotationTime;
 
             transform.rotation = Quaternion.Slerp(rotationStart, targetRotation, t);
-            currentRotation = transform.rotation;
-
-            //transform.rotation = QuaternionUtil.SmoothDamp(previousRotation, targetRotation, ref refRotVelocity, rotationSmoothTime);
         }
 
         private void OnDrawGizmosSelected()

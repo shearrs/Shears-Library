@@ -27,6 +27,11 @@ namespace Shears
             y = self.y;
         }
 
+        public static Vector3 Deg2Rad(this Vector3 self)
+        {
+            return new Vector3(Mathf.Deg2Rad * self.x, Mathf.Deg2Rad * self.y, Mathf.Deg2Rad * self.z);
+        }
+
         public static Vector3 RandomRange(Vector3 min, Vector3 max)
         {
             return new(
