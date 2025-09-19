@@ -53,6 +53,23 @@ namespace Shears.Cameras
             if (currentState != null)
                 currentState.Enter();
         }
+
+        public void SetState<T>() where T : CameraState
+        {
+            var type = typeof(T);
+
+            if (currentState != null && type == currentState.GetType())
+                return;
+
+            foreach (var state in states)
+            {
+                if (state.GetType() == type)
+                {
+                    SetState(state);
+                    break;
+                }    
+            }
+        }
     
         public void AddState(CameraState state)
         {
