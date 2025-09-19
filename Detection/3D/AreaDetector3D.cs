@@ -17,6 +17,7 @@ namespace Shears.Detection
         [field: SerializeField] public LayerMask DetectionMask { get; set; } = -1;
         [field: SerializeField] public bool DetectTriggers { get; set; } = true;
 
+        private bool isDetecting = false;
         private Color gizmoColor = Color.clear;
         private Collider[] detections;
         private int hits;
@@ -43,6 +44,8 @@ namespace Shears.Detection
             return hits > 0;
         }
 
+        public Collider GetDetection(int index) => detections[index];
+
         public IReadOnlyCollection<Collider> GetDetections()
         {
             return detections;
@@ -56,6 +59,8 @@ namespace Shears.Detection
             {
                 if (gizmoColor == Color.clear)
                     gizmoColor = defaultGizmoColor;
+                else if (!isDetecting)
+                    gizmoColor = defaultGizmoColor;
 
                 Gizmos.color = gizmoColor;
                 DrawWireGizmos();
@@ -65,11 +70,13 @@ namespace Shears.Detection
 
         private IEnumerator IEHighlightGizmos()
         {
+            isDetecting = true;
             gizmoColor = detectingGizmoColor;
 
             yield return CoroutineUtil.WaitForSeconds(0.1f);
 
             gizmoColor = defaultGizmoColor;
+            isDetecting = false;
         }
     }
 }
