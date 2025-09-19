@@ -47,7 +47,7 @@ namespace Shears.Cameras
         {
         }
 
-        protected override void OnUpdate()
+        protected override void OnLateUpdate()
         {
             var targetPosition = target.TransformPoint(offset + offsetModifier);
 

@@ -34,6 +34,12 @@ namespace Shears.Cameras
                 currentState.UpdateState();
         }
 
+        private void FixedUpdate()
+        {
+            if (currentState != null)
+                currentState.FixedUpdateState();
+        }
+
         public void SetState(CameraState state)
         {
             if (state == currentState)

@@ -21,7 +21,12 @@ namespace Shears.Cameras
 
         public void UpdateState()
         {
-            OnUpdate();
+            OnLateUpdate();
+        }
+
+        public void FixedUpdateState()
+        {
+            OnFixedUpdate();
         }
 
         public void Exit()
@@ -31,7 +36,8 @@ namespace Shears.Cameras
 
         public virtual void Initialize() { }
         protected abstract void OnEnter();
-        protected abstract void OnUpdate();
+        protected abstract void OnLateUpdate();
+        protected virtual void OnFixedUpdate() { }
         protected abstract void OnExit();
     }
 }
