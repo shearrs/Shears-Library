@@ -19,27 +19,52 @@ namespace Shears
         private void Awake()
         {
             targetTransform.TryGetComponent(out waitTarget);
+            rotation = transform.rotation;
+
+            if (waitTarget != null)
+                waitTarget.Updated += UpdateRotationQuaternion;
         }
 
-        private void Update()
+        private void LateUpdate()
         {
             if (waitTarget == null)
-                UpdateRotation();
+                UpdateRotationQuaternion();
         }
-
-        // try doing this with only one axis
-        private void UpdateRotation()
+        
+        private void UpdateRotationQuaternion()
         {
             Quaternion targetRotation = targetTransform.rotation;
-            Quaternion offset = Quaternion.Inverse(rotation) * targetRotation;
-            offset.ToAngleAxis(out float angle, out Vector3 axis);
+            Quaternion diff = GetDifference(targetRotation, rotation);
 
-            float velocity = Vector3.Dot(axis, angularVelocity);
-            float force = (angle * springStrength) - (velocity * damping);
+            diff.Normalize();
+            diff.ToAngleAxis(out float angle, out Vector3 axis);
 
-            angularVelocity += force * axis;
-            transform.eulerAngles += angularVelocity;
-            rotation = transform.rotation;
+            float force = angle * springStrength;
+
+            Vector3 movement = (force * axis) - (damping * angularVelocity);
+
+            angularVelocity += Time.deltaTime * movement;
+
+            float magnitude = angularVelocity.magnitude;
+            Quaternion velocityQuat = Quaternion.AngleAxis(magnitude, angularVelocity.normalized);
+
+            rotation = velocityQuat * rotation;
+            transform.rotation = rotation;
+
+            Updated?.Invoke();
+        }
+
+        private Quaternion GetDifference(Quaternion a, Quaternion b)
+        {
+            if (Quaternion.Dot(a, b) < 0)
+                return a * Quaternion.Inverse(Multiply(b, -1));
+            else 
+                return a * Quaternion.Inverse(b);
+        }
+
+        private Quaternion Multiply(Quaternion input, float scalar)
+        {
+            return new Quaternion(input.x * scalar, input.y * scalar, input.z * scalar, input.w * scalar);
         }
     }
 }
