@@ -40,6 +40,8 @@ namespace Shears.Cameras
 
         private Vector3 FocusPosition => target.TransformPoint(lookAtOffset);
 
+        public float Smoothing { get => smoothing; set => smoothing = value; } 
+
         private void OnValidate()
         {
             if (target == null)
