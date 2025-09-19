@@ -201,6 +201,7 @@ namespace Shears
                 return;
 
             CoroutineRunner.Stop(coroutine);
+            isRunning = false;
         }
 
         public void Clear()
