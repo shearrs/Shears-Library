@@ -40,7 +40,6 @@ namespace Shears.Cameras
 
         private Vector3 FocusPosition => target.TransformPoint(lookAtOffset);
 
-        // TODO: make this set our position
         private void OnValidate()
         {
             if (target == null)
@@ -69,7 +68,6 @@ namespace Shears.Cameras
             targetDistance = zoom;
         }
 
-        // TODO: fix
         protected override void OnEnter()
         {
             CursorManager.SetCursorLockMode(CursorLockMode.Locked);
@@ -98,7 +96,7 @@ namespace Shears.Cameras
 
         private void UpdateOcclusion()
         {
-            Vector3 direction = (targetPosition - FocusPosition).normalized;
+            Vector3 direction = (transform.position - FocusPosition).normalized;
 
             if (Physics.SphereCast(FocusPosition, occlusionRadius, direction, out var hit, zoom, occlusionLayers))
             {
