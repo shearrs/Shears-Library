@@ -239,16 +239,16 @@ namespace Shears.UI.Editor
             // I literally never use this SerializedObject, but if I don't create it, the UnityEvents will not be instantiated yet...
             SerializedObject uiElementSO = new(uiElement);
 
-            CreateEventBinding(uiElement, "onHoverBegin", tweeners.HoverTweener, play1To2);
-            CreateEventBinding(uiElement, "onHoverEnd", tweeners.HoverTweener, play2To1);
-            CreateEventBinding(uiElement, "onFocusBegin", tweeners.FocusTweener, play1To2);
-            CreateEventBinding(uiElement, "onFocusEnd", tweeners.FocusTweener, play2To1);
-            CreateEventBinding(uiElement, "onSelectBegin", tweeners.SelectTweener, play1To2);
-            CreateEventBinding(uiElement, "onSelectEnd", tweeners.SelectTweener, play2To1);
-            CreateEventBinding(uiElement, "onClickBegin", tweeners.ClickTweener, play1To2);
-            CreateEventBinding(uiElement, "onClickEnd", tweeners.ClickTweener, play2To1);
-            CreateEventBinding(uiElement, "onHoverBeginClicked", tweeners.HoverSelectTweener, play1To2);
-            CreateEventBinding(uiElement, "onHoverEndClicked", tweeners.HoverSelectTweener, play2To1);
+            CreateEventBinding(uiElement, "hoverBegan", tweeners.HoverTweener, play1To2);
+            CreateEventBinding(uiElement, "hoverEnded", tweeners.HoverTweener, play2To1);
+            CreateEventBinding(uiElement, "focusBegan", tweeners.FocusTweener, play1To2);
+            CreateEventBinding(uiElement, "focusEnded", tweeners.FocusTweener, play2To1);
+            CreateEventBinding(uiElement, "selectBegan", tweeners.SelectTweener, play1To2);
+            CreateEventBinding(uiElement, "selectEnded", tweeners.SelectTweener, play2To1);
+            CreateEventBinding(uiElement, "clickBegan", tweeners.ClickTweener, play1To2);
+            CreateEventBinding(uiElement, "clickEnded", tweeners.ClickTweener, play2To1);
+            CreateEventBinding(uiElement, "hoverBeganClicked", tweeners.HoverSelectTweener, play1To2);
+            CreateEventBinding(uiElement, "hoverEndedClicked", tweeners.HoverSelectTweener, play2To1);
         }
 
         private static void CreateEventBinding(ManagedUIElement uiElement, string unityEventName, object target, string methodName)
