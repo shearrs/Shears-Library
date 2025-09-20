@@ -57,6 +57,9 @@ namespace Shears
         public static void CreateInstanceIfNoneExists()
         {
             if (instance == null)
+                instance = FindAnyObjectByType<T>();
+
+            if (instance == null)
             {
                 instance = CreateInstance();
                 
