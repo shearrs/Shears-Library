@@ -45,7 +45,7 @@ namespace Shears
 
             angularVelocity += Time.deltaTime * movement;
 
-            float magnitude = angularVelocity.magnitude;
+            float magnitude = Time.deltaTime * angularVelocity.magnitude;
             Quaternion velocityQuat = Quaternion.AngleAxis(magnitude, angularVelocity.normalized);
 
             rotation = velocityQuat * rotation;
