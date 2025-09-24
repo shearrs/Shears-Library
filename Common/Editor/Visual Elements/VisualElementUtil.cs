@@ -1,3 +1,5 @@
+using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -37,6 +39,28 @@ namespace Shears.Editor
             element.style.paddingBottom = padding;
             element.style.paddingLeft = padding;
             element.style.paddingRight = padding;
+        }
+
+        public static VisualElement CreateDefaultFields(SerializedObject serializedObject)
+        {
+            var container = new VisualElement
+            {
+                name = "Default Fields"
+            };
+
+            var iterator = serializedObject.GetIterator();
+            iterator.Next(true);
+
+            while (iterator.NextVisible(false))
+            {
+                var prop = iterator.Copy();
+                var field = new PropertyField(prop);
+                field.Bind(prop.serializedObject);
+
+                container.Add(field);
+            }
+
+            return container;
         }
     }
 }

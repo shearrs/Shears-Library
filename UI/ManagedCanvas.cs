@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace Shears.UI
 {
     [RequireComponent(typeof(Canvas))]
-    public class ManagedCanvas : MonoBehaviour
+    public class ManagedCanvas : ManagedWrapper<Canvas>
     {
         [Header("Selection")]
         [SerializeField] private ManagedUIElement focusOnEnable;
