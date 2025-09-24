@@ -18,11 +18,11 @@ namespace Shears.Tweens
         [SerializeField] private TweenDataObject tweenDataObject;
 
         [Header("Duration Settings")]
-        [SerializeField] private float duration;
+        [SerializeField, Min(0f)] private float duration;
         [SerializeField] private bool forceFinalValue;
 
         [Header("Loop Settings")]
-        [SerializeField] private int loops;
+        [SerializeField, Min(-1)] private int loops;
         [SerializeField] private LoopMode loopMode;
 
         [Header("Ease Settings")]

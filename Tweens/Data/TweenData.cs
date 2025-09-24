@@ -13,11 +13,11 @@ namespace Shears.Tweens
         [SerializeField, ShowIf("usesDataObject")] private TweenDataObject tweenDataObject;
 
         [Header("Duration Settings")]
-        [SerializeField, ShowIf("!usesDataObject")] private float duration = 1.0f;
+        [SerializeField, ShowIf("!usesDataObject"), Min(0f)] private float duration = 1.0f;
         [SerializeField, ShowIf("!usesDataObject")] private bool forceFinalValue = true;
 
         [Header("Loop Settings")]
-        [SerializeField, ShowIf("!usesDataObject")] private int loops = 0;
+        [SerializeField, ShowIf("!usesDataObject"), Min(-1)] private int loops = 0;
         [SerializeField, ShowIf("!usesDataObject")] private LoopMode loopMode = LoopMode.None;
 
         [Header("Ease Settings")]
