@@ -3,6 +3,11 @@ using UnityEngine;
 
 namespace Shears
 {
+    /// <summary>
+    /// A serializable entry in a <see cref="SerializableDictionaryEntry{TKey, TValue}"/>.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the dictionary's keys.</typeparam>
+    /// <typeparam name="TValue">The type of the dictionary's values.</typeparam>
     [System.Serializable]
     internal struct SerializableDictionaryEntry<TKey, TValue>
     {
@@ -19,6 +24,11 @@ namespace Shears
         }
     }
 
+    /// <summary>
+    /// A serializable dictionary that can be used in the Unity Inspector.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the dictionary's keys.</typeparam>
+    /// <typeparam name="TValue">The type of the dictionary's values.</typeparam>
     public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver
     {
         [SerializeField] private List<SerializableDictionaryEntry<TKey, TValue>> entries = new();
@@ -46,6 +56,11 @@ namespace Shears
         }
     }
 
+    /// <summary>
+    /// A serializable dictionary that can be used in the Unity Inspector, with support Unity's <see cref="SerializeReference"/> attribute..
+    /// </summary>
+    /// <typeparam name="TKey">The type of the dictionary's keys.</typeparam>
+    /// <typeparam name="TValue">The type of the dictionary's values.</typeparam>
     [System.Serializable]
     public class SerializableReferenceDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver
     {

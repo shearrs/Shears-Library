@@ -2,6 +2,9 @@ using UnityEngine;
 
 namespace Shears
 {
+    /// <summary>
+    /// Forces the GameObject to always face the main camera. Has options to constrain rotations to avoid issues with Euler rotations.
+    /// </summary>
     public class LookAtCamera : MonoBehaviour
     {
         [Header("Settings")]

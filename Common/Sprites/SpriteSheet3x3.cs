@@ -2,6 +2,9 @@ using UnityEngine;
 
 namespace Shears
 {
+    /// <summary>
+    /// A composite class that stores a 3x3 grid of sprites, typically used for UI elements like buttons or panels.
+    /// </summary>
     [CreateAssetMenu(fileName = "New Sprite Sheet 3x3", menuName = "2D/Sprites/Sprite Sheet 3x3", order = 10)]
     public class SpriteSheet3x3 : ScriptableObject
     {

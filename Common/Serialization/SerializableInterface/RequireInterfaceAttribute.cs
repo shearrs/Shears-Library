@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace Shears
 {
+    /// <summary>
+    /// Attribute that enforces the implementation of a specific interface on a serialized field.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
     public class RequireInterfaceAttribute : PropertyAttribute
     {

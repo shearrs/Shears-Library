@@ -3,6 +3,10 @@ using UnityEngine.UIElements;
 
 namespace Shears.Editor
 {
+    /// <summary>
+    /// Wrapping struct to hold a CustomStyleProperty and a default value for it.
+    /// </summary>
+    /// <typeparam name="T">The type of the property.</typeparam>
     public readonly struct CustomStylePropertyDefault<T>
     {
         private readonly CustomStyleProperty<T> customStyleProperty;

@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace Shears.Editor
 {
+    /// <summary>
+    /// Helper class copied from Unity's internal code.
+    /// </summary>
     public static class EditorGUIHelper
     {
         public static float RoundToPixelGrid(float v)

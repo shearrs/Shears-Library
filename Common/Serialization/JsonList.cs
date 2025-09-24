@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace Shears
 {
+    /// <summary>
+    /// A serializable wrapper for a List that supports Unity's <see cref="JsonUtility"/> conversion operations.
+    /// </summary>
+    /// <typeparam name="T">The type of elements to store in the list.</typeparam>
     [System.Serializable]
     public class JsonList<T> : IList<T>, IReadOnlyCollection<T>, IReadOnlyList<T>
     {

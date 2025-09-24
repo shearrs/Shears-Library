@@ -3,9 +3,15 @@ using UnityEngine;
 
 namespace Shears
 {
+    /// <summary>
+    /// A serializable wrapper of <see cref="Type"/>.
+    /// </summary>
     [Serializable]
     public struct SerializableSystemType
     {
+        /// <summary>
+        /// An empty <see cref="SerializableSystemType"/> instance. Represents no type.
+        /// </summary>
         public static readonly SerializableSystemType Empty = new();
         
         [SerializeField] private string name;
@@ -57,6 +63,10 @@ namespace Shears
                 systemType = Type.GetType(assemblyQualifiedName);
         }
 
+        /// <summary>
+        /// Returns whether this <see cref="SerializableSystemType"/> is valid (i.e. wraps a non-null <see cref="Type"/>).
+        /// </summary>
+        /// <returns>Whether or not this type is valid.</returns>
         public bool IsValid()
         {
             return SystemType != null;

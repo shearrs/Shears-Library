@@ -2,6 +2,12 @@ using UnityEngine;
 
 namespace Shears
 {
+    // Originally inspired by Tarodev on YouTube: https://www.youtube.com/watch?v=tE1qH8OxO2Y
+
+    /// <summary>
+    /// A singleton that hides its instance and is used as a static class. Creates itself if none exists, and destroys itself on <see cref="Awake"/> if another instance already exists.
+    /// </summary>
+    /// <typeparam name="T">The type of class that inherits from this.</typeparam>
     [DefaultExecutionOrder(-100)]
     public abstract class ProtectedSingleton<T> : MonoBehaviour where T : MonoBehaviour
     {
@@ -73,7 +79,10 @@ namespace Shears
         }
     }
 
-    // overrides instance with new instances rather than destroying them
+    /// <summary>
+    /// A static instance which creates itself if none exists, and overrides a previous instance on <see cref="Awake"/> (without destroying the previous instance).
+    /// </summary>
+    /// <typeparam name="T">The type of class that inherits from this.</typeparam>
     [DefaultExecutionOrder(-100)]
     public abstract class StaticInstance<T> : MonoBehaviour where T : MonoBehaviour
     {
@@ -126,7 +135,10 @@ namespace Shears
         }
     }
 
-    // destroys any new versions created in favor of the initial instance
+    /// <summary>
+    /// A singleton which creates itself if none exists, and destroys itself on <see cref="Awake"/> if another instance already exists.
+    /// </summary>
+    /// <typeparam name="T">The type of class that inherits from this.</typeparam>
     [DefaultExecutionOrder(-100)]
     public abstract class Singleton<T> : StaticInstance<T> where T : MonoBehaviour
     {
@@ -142,9 +154,10 @@ namespace Shears
         }
     }
 
-    // survives through scene loads
-    // good for system classes which require persistent data
-    // good for audio sources where music plays through loading screens
+    /// <summary>
+    /// A singleton which creates itself if none exists, destroys itself on <see cref="Awake"/> if another instance already exists, and persists through scene loads.
+    /// </summary>
+    /// <typeparam name="T">The type of class that inherits from this.</typeparam>
     [DefaultExecutionOrder(-100)]
     public abstract class PersistentSingleton<T> : Singleton<T> where T : MonoBehaviour
     {
@@ -163,6 +176,10 @@ namespace Shears
         }
     }
 
+    /// <summary>
+    /// A singleton that hides its instance and is used as a static class. Creates itself if none exists, destroys itself on <see cref="Awake"/> if another instance already exists, and persists through scene loads.
+    /// </summary>
+    /// <typeparam name="T">The type of class that inherits from this.</typeparam>
     [DefaultExecutionOrder(-100)]
     public abstract class PersistentProtectedSingleton<T> : ProtectedSingleton<T> where T : MonoBehaviour
     {

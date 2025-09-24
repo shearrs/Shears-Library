@@ -5,9 +5,17 @@ using UnityEngine;
 
 namespace Shears.Editor
 {
+    /// <summary>
+    /// Extension methods for <see cref="SerializedProperty"/>."/>
+    /// </summary>
     public static partial class SerializedPropertyExtensions
     {
         // found from https://gist.github.com/monry/9de7009689cbc5050c652bcaaaa11daa
+        /// <summary>
+        /// Finds the parent property for the target <see cref="SerializedProperty"/>.
+        /// </summary>
+        /// <param name="serializedProperty">The child to find a parent for.</param>
+        /// <returns>The parent of the target <see cref="SerializedProperty"/>, or the default <see cref="SerializedProperty"/> value.</returns>
         public static SerializedProperty FindParentProperty(this SerializedProperty serializedProperty)
         {
             var propertyPaths = serializedProperty.propertyPath.Split('.');

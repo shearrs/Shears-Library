@@ -3,6 +3,9 @@ using UnityEngine.UIElements;
 
 namespace Shears.Editor
 {
+    /// <summary>
+    /// Default editor styles for Shears Library inspectors and windows.
+    /// </summary>
     public static class ShearsStyles
     {
         private const string StyleSheetPath = "Shears Library/Common Style Sheets";
