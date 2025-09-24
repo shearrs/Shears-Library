@@ -4,16 +4,19 @@ using UnityEngine;
 
 namespace Shears.Beziers
 {
+    /// <summary>
+    /// A bezier curve defined by a series of points with tangents.
+    /// </summary>
     public class Bezier : MonoBehaviour
     {
         private const float DISTANCE_STEP = 0.001f;
 
         [Header("Gizmos")]
-        [SerializeField] private bool drawGizmos = true;
+        [SerializeField, Tooltip("Whether or not to draw gizmos.")] private bool drawGizmos = true;
 
         [Header("Data")]
-        [SerializeField] private bool closed = false;
-        [SerializeField] private List<BezierPoint> points = new();
+        [SerializeField, Tooltip("Whether or not the last point should connect back to the first.")] private bool closed = false;
+        [SerializeField, Tooltip("The points that define the curve.")] private List<BezierPoint> points = new();
 
         public IReadOnlyList<BezierPoint> Points => points;
 
@@ -29,39 +32,77 @@ namespace Shears.Beziers
                 point.Parent = transform;
         }
 
+        /// <summary>
+        /// Adds a point to the end of the bezier curve at the given position with no rotation or tangents.
+        /// </summary>
+        /// <param name="position">The position to add a point at.</param>
         public void AddPoint(Vector3 position) => AddPoint(new BezierPoint(position, Quaternion.identity, Vector3.zero));
 
+        /// <summary>
+        /// Adds a defined <see cref="BezierPoint"/> to the end of the bezier curve.
+        /// </summary>
+        /// <param name="point">The point to add.</param>
         public void AddPoint(BezierPoint point)
         {
             point.Parent = transform;
             points.Add(point);
         }
 
+        /// <summary>
+        /// Sets the position of a point at the given index.
+        /// </summary>
+        /// <param name="pointIndex">The index of the point to set.</param>
+        /// <param name="position">The position to set the point to.</param>
         public void SetPosition(int pointIndex, Vector3 position)
         {
             points[pointIndex].Position = position;
         }
 
+        /// <summary>
+        /// Sets the first tangent of a point at the given index.
+        /// </summary>
+        /// <param name="pointIndex">The index of the point to set.</param>
+        /// <param name="position">The position to set the tangent to.</param>
         public void SetTangent1(int pointIndex, Vector3 position)
         {
             points[pointIndex].Tangent1 = position;
         }
 
+        /// <summary>
+        /// Sets the second tangent of a point at the given index.
+        /// </summary>
+        /// <param name="pointIndex">The index of the point to set.</param>
+        /// <param name="position">The position to set the tangent to.</param>
         public void SetTangent2(int pointIndex, Vector3 position)
         {
             points[pointIndex].Tangent2 = position;
         }
 
+        /// <summary>
+        /// Sets the local position of the first tangent of a point at the given index.
+        /// </summary>
+        /// <param name="pointIndex">The index of the point to set.</param>
+        /// <param name="position">The local position to set the tangent to.</param>
         public void SetLocalTangent1(int pointIndex, Vector3 position)
         {
             points[pointIndex].LocalTangent1 = position;
         }
 
+        /// <summary>
+        /// Sets the local position of the second tangent of a point at the given index.
+        /// </summary>
+        /// <param name="pointIndex">The index of the point to set.</param>
+        /// <param name="position">The local position to set the tangent to.</param>
         public void SetLocalTangent2(int pointIndex, Vector3 position)
         {
             points[pointIndex].LocalTangent2 = position;
         }
 
+        /// <summary>
+        /// Samples the bezier curve at a given t value (0.0-1.0).
+        /// </summary>
+        /// <param name="t">The percentage length to sample the curve at.</param>
+        /// <returns>The position of the curve at the passed sample percentage.</returns>
         public Vector3 Sample(float t)
         {
             if (points.Count < 2)
@@ -105,6 +146,11 @@ namespace Shears.Beziers
             return finalPosition;
         }
 
+        /// <summary>
+        /// Samples the bezier curve at a given distance along the curve.
+        /// </summary>
+        /// <param name="distance">The distance to sample the curve at.</param>
+        /// <returns>The position of the curve at the passed sample distance.</returns>
         public Vector3 SampleDistance(float distance)
         {
             if (points.Count < 2)
@@ -131,6 +177,12 @@ namespace Shears.Beziers
             return lastPoint;
         }
 
+        /// <summary>
+        /// Moves a reference distance along the curve at a passed speed.
+        /// </summary>
+        /// <param name="speed">The speed to progress through the curve with.</param>
+        /// <param name="currentDistance">The current reference distance.</param>
+        /// <returns>The next moved position.</returns>
         public Vector3 MoveAlong(float speed, ref float currentDistance)
         {
             currentDistance += speed * Time.deltaTime;

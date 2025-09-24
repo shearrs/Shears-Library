@@ -2,6 +2,9 @@ using UnityEngine;
 
 namespace Shears
 {
+    /// <summary>
+    /// A composite type for storing 3 boolean values.
+    /// </summary>
     [System.Serializable]
     public struct Bool3
     {

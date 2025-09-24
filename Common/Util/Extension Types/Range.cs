@@ -3,6 +3,10 @@ using UnityEngine;
 
 namespace Shears
 {
+    /// <summary>
+    /// A struct representing a range between two comparable values.
+    /// </summary>
+    /// <typeparam name="T">The comparable value type.</typeparam>
     [Serializable]
     public struct Range<T> : IComparable where T : IComparable
     {

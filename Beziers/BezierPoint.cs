@@ -2,6 +2,9 @@ using UnityEngine;
 
 namespace Shears.Beziers
 {
+    /// <summary>
+    /// A point on a <see cref="Bezier"/> curve.
+    /// </summary>
     [System.Serializable]
     public class BezierPoint
     {
