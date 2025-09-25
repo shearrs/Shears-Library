@@ -50,8 +50,12 @@ namespace Shears
             for (int i = 0; i < entryCount; i++)
             {
                 var entry = entries[i];
+                var key = entry.Key;
 
-                Add(entry.Key, entry.Value);
+                if (ContainsKey(key))
+                    key = default;
+
+                Add(key, entry.Value);
             }
         }
     }
