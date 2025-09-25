@@ -83,6 +83,15 @@ namespace Shears.Tweens
             coroutines.Add(StartCoroutine(IEPlay()));
         }
 
+        public void PlayAfter(float seconds)
+        {
+            if (IsPlaying)
+                return;
+
+            StopAllCoroutines();
+            StartCoroutine(IEPlayAfter(seconds));
+        }
+
         public void Stop()
         {
             if (!IsPlaying)
@@ -157,6 +166,14 @@ namespace Shears.Tweens
             Stop();
         }
 
+        private IEnumerator IEPlayAfter(float seconds)
+        {
+            if (seconds > 0)
+                yield return CoroutineUtil.WaitForSeconds(seconds);
+
+            Play();
+        }
+
         private IEnumerator IEUpdate()
         {
             while (progress <= Duration)
@@ -226,8 +243,15 @@ namespace Shears.Tweens
 
         private void InvokeOnCompletes()
         {
+            isInvokingEvents = true;
+
             foreach (Action action in onCompletes)
                 action?.Invoke();
+
+            isInvokingEvents = false;
+
+            if (disposeAfterEvents)
+                Dispose();
         }
 
         private bool EvaluateStopAndDisposeEvents()
