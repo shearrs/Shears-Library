@@ -65,7 +65,7 @@ namespace Shears.Editor
         /// Iterates through all visible properties of a <see cref="SerializedObject"/> and creates a <see cref="PropertyField"/> for each one.
         /// </summary>
         /// <param name="serializedObject">The <see cref="SerializedObject"/> to create fields for.</param>
-        /// <returns>A <see cref="VisualElement"/> with all default <see cref="PropertyField"/>s for the passed <see cref="SerializedObject"/></returns>
+        /// <returns>A <see cref="VisualElement"/> with all default <see cref="PropertyField"/>s for the passed <see cref="SerializedObject"/>.</returns>
         public static VisualElement CreateDefaultFields(SerializedObject serializedObject)
         {
             var container = new VisualElement
@@ -79,8 +79,14 @@ namespace Shears.Editor
             while (iterator.NextVisible(false))
             {
                 var prop = iterator.Copy();
-                var field = new PropertyField(prop);
+                var field = new PropertyField(prop)
+                {
+                    name = prop.name
+                };
                 field.Bind(prop.serializedObject);
+
+                if (prop.name == "m_Script")
+                    field.SetEnabled(false);
 
                 container.Add(field);
             }
