@@ -11,13 +11,13 @@ namespace Shears.StateMachineGraphs
 #endif
         [SerializeReference] private List<ParameterComparison> comparisons = new();
 
-        private readonly State from;
-        private readonly State to;
+        private readonly IState from;
+        private readonly IState to;
 
-        public State From => from;
-        public State To => to;
+        public IState From => from;
+        public IState To => to;
 
-        public Transition(State from, State to, List<ParameterComparison> comparisons)
+        public Transition(IState from, IState to, List<ParameterComparison> comparisons)
         {
 #if UNITY_EDITOR
             toName = to.Name;

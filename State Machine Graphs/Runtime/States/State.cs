@@ -6,28 +6,33 @@ using UnityEngine;
 namespace Shears.StateMachineGraphs
 {
     [System.Serializable]
-    public abstract class State : ISHLoggable
+    public abstract class State : IState, ISHLoggable
     {
         [SerializeField, ReadOnly] private string name;
         [SerializeField] private List<Transition> transitions = new();
 
         private IParameterProvider parameterProvider;
-        private State initialSubState;
-        private State parentState;
-        private State subState;
+        private IState initialSubState;
+        private IState parentState;
+        private IState subState;
 
         internal IParameterProvider ParameterProvider { get => parameterProvider; set => parameterProvider = value; }
         public string Name { get => name; set => name = value; }
-        public State ParentState { get => parentState; internal set => parentState = value; }
-        public State DefaultSubState { get => initialSubState; internal set => initialSubState = value; }
-        public State SubState { get => subState; internal set => subState = value; }
+        public IState ParentState { get => parentState; internal set => parentState = value; }
+        public IState DefaultSubState { get => initialSubState; internal set => initialSubState = value; }
+        public IState SubState { get => subState; internal set => subState = value; }
         public int TransitionCount => transitions.Count;
 
         public SHLogLevels LogLevels { get; set; } = SHLogLevels.Issues;
 
+        IParameterProvider IState.ParameterProvider { get => ParameterProvider; set => ParameterProvider = value; }
+        IState IState.ParentState { get => ParentState; set => ParentState = value; }
+        IState IState.DefaultSubState { get => DefaultSubState; set => DefaultSubState = value; }
+        IState IState.SubState { get => SubState; set => SubState = value; }
+
         internal void AddTransition(Transition transition) => transitions.Add(transition);
 
-        internal bool EvaluateTransitions(out State newState)
+        internal bool EvaluateTransitions(out IState newState)
         {
             foreach (var transition in transitions)
             {
@@ -42,7 +47,7 @@ namespace Shears.StateMachineGraphs
             return false;
         }
 
-        internal void SetSubState(State subState)
+        internal void SetSubState(IState subState)
         {
             this.subState = subState;
         }
@@ -84,5 +89,12 @@ namespace Shears.StateMachineGraphs
         protected void Log(string message, SHLogLevels level = SHLogLevels.Log, Color color = default, Object context = null, string prefix = "", ISHLogFormatter formatter = default,
         [CallerFilePath] string callerFilePath = "", [CallerLineNumber] long callerLineNumber = 0)
         => this.Log(new SHLog(message, context, prefix, level, color), formatter, callerFilePath, callerLineNumber);
+
+        void IState.AddTransition(Transition transition) => AddTransition(transition);
+        bool IState.EvaluateTransitions(out IState newState) => EvaluateTransitions(out newState);
+        void IState.SetSubState(IState subState) => SetSubState(subState);
+        void IState.Enter() => Enter();
+        void IState.Update() => Update();
+        void IState.Exit() => Exit();
     }
 }
