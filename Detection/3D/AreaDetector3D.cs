@@ -46,6 +46,26 @@ namespace Shears.Detection
 
         public Collider GetDetection(int index) => detections[index];
 
+        public bool TryGetDetection<T>(out T component, bool checkParents = false)
+        {
+            component = default;
+
+            for (int i = 0; i < hits; i++)
+            {
+                if (detections[i].TryGetComponent(out component))
+                    return true;
+                else if (checkParents)
+                {
+                    component = detections[i].GetComponentInParent<T>();
+
+                    if (component != null)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
         public IReadOnlyCollection<Collider> GetDetections()
         {
             return detections;
