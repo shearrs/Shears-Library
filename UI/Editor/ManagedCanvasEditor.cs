@@ -14,7 +14,8 @@ namespace Shears.UI.Editor
             var defaultFields = VisualElementUtil.CreateDefaultFields(serializedObject);
             var canvasContainer = new Foldout
             {
-                text = "Wrapped Canvas Settings"
+                text = "Wrapped Canvas Settings",
+                value = false
             };
             canvasContainer.AddStyleSheet(ShearsStyles.InspectorStyles);
             canvasContainer.AddToClassList(ShearsStyles.DarkFoldoutClass);
