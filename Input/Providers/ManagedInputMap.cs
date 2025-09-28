@@ -13,15 +13,7 @@ namespace Shears.Input
 
         private RuntimeInputMap runtimeMap;
 
-        internal string ID { get; private set; }
-        internal InputActionAsset InputActions => inputActions;
-
         public ManagedInputUser User { get => runtimeMap.User; set => runtimeMap.User = value; }
-
-        private void OnValidate()
-        {
-            ID ??= Guid.NewGuid().ToString();
-        }
 
         public override IManagedInput GetInput(string name) => GetRuntimeMap().GetInput(name);
 
