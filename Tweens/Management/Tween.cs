@@ -36,7 +36,6 @@ namespace Shears.Tweens
 
         private bool isInvokingEvents = false;
         private bool disposeAfterEvents = false;
-        private readonly List<Action> onCompletes = new();
         private readonly List<TweenEventBase> activeEvents = new();
         private readonly List<TweenEventBase> eventsToClear = new();
         private readonly List<TweenStopEvent> stopEvents = new();
@@ -61,6 +60,7 @@ namespace Shears.Tweens
                     return loops + 1;
             }
         }
+        public event Action Completed;
 
         internal Tween()
         {
@@ -161,7 +161,7 @@ namespace Shears.Tweens
             }
 
             InvokeOnCompletes();
-            onCompletes.Clear();
+            ClearOnCompletes();
 
             Stop();
         }
@@ -217,9 +217,9 @@ namespace Shears.Tweens
         #endregion
 
         #region Events
-        public void AddOnComplete(Action onComplete) => onCompletes.Add(onComplete);
-        public void RemoveOnComplete(Action onComplete) => onCompletes.Remove(onComplete);
-        public void ClearOnCompletes() => onCompletes.Clear();
+        public void AddOnComplete(Action onComplete) => Completed += onComplete;
+        public void RemoveOnComplete(Action onComplete) => Completed -= onComplete;
+        public void ClearOnCompletes() => Completed = null;
 
         public void AddEvent(TweenEventBase tweenEvent) => events.Add(tweenEvent);
         public void AddEvent(float progress, Action callback)
@@ -245,8 +245,7 @@ namespace Shears.Tweens
         {
             isInvokingEvents = true;
 
-            foreach (Action action in onCompletes)
-                action?.Invoke();
+            Completed?.Invoke();
 
             isInvokingEvents = false;
 
