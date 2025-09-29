@@ -91,7 +91,7 @@ namespace Shears
         {
             foreach (KeyValuePair<TKey, TValue> pair in this)
             {
-                if (keys.Contains(pair.Key) && values.Contains(pair.Value))
+                if (keys.Contains(pair.Key))
                     continue;
 
                 keys.Add(pair.Key);
