@@ -231,7 +231,11 @@ namespace Shears.Tweens
             activeEvents.Add(evt);
         }
         public void RemoveEvent(TweenEventBase tweenEvent) => events.Remove(tweenEvent);
-        public void ClearEvents() => events.Clear();
+        public void ClearEvents()
+        {
+            events.Clear();
+            activeEvents.Clear();
+        }
 
         public void AddStopEvent(TweenStopEvent evt) => stopEvents.Add(evt);
         public void RemoveStopEvent(TweenStopEvent evt) => stopEvents.Remove(evt);

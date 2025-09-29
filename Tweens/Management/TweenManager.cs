@@ -73,6 +73,7 @@ namespace Shears.Tweens
             tween.ClearOnCompletes();
             tween.ClearStopEvents();
             tween.ClearDisposeEvents();
+            tween.ClearEvents();
         }
         #endregion
     }
