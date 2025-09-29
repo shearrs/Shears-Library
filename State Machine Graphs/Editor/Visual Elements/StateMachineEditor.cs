@@ -13,6 +13,7 @@ namespace Shears.StateMachineGraphs.Editor
     {
         private VisualElement root;
 
+        private SerializedProperty useGraphDataProp;
         private SerializedProperty graphDataProp;
         private SerializedProperty injectedReferencesProp;
         private SerializedProperty stateTreeProp;
@@ -44,17 +45,19 @@ namespace Shears.StateMachineGraphs.Editor
 
             CreateInjectionContainer();
             CreateRuntimeContainer();
+            var useGraphDataField = new PropertyField(useGraphDataProp);
             var graphDataField = CreateGraphDataField();
             UpdateGraphFields(graphDataProp);
 
             root.TrackPropertyValue(graphDataProp, UpdateGraphFields);
-            root.AddAll(graphDataField, injectedEntryContainer, runtimeContainer);
+            root.AddAll(useGraphDataField, graphDataField, injectedEntryContainer, runtimeContainer);
 
             return root;
         }
 
         private void GetProperties()
         {
+            useGraphDataProp = serializedObject.FindProperty("useGraphData");
             graphDataProp = serializedObject.FindProperty("graphData");
             injectedReferencesProp = serializedObject.FindProperty("injectedReferences");
             stateTreeProp = serializedObject.FindProperty("stateTree");

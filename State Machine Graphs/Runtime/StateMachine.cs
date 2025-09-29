@@ -7,7 +7,8 @@ namespace Shears.StateMachineGraphs
 {
     public class StateMachine : SHMonoBehaviourLogger, IParameterProvider
     {
-        [SerializeField] private StateMachineGraph graphData;
+        [SerializeField] private bool useGraphData = true;
+        [SerializeField, ShowIf("useGraphData")] private StateMachineGraph graphData;
         [SerializeReference] private List<IState> stateTree = new();
         [SerializeField] private StateInjectReferenceDictionary injectedReferences = new();
 
@@ -29,6 +30,12 @@ namespace Shears.StateMachineGraphs
 
         private void Awake()
         {
+            if (!useGraphData)
+            {
+                states = new();
+                
+                return;
+            }
             if (graphData == null)
             {
                 Log("No graph data assigned to the state machine.", SHLogLevels.Warning);
@@ -44,7 +51,7 @@ namespace Shears.StateMachineGraphs
             if (graphData == null)
                 return;
 
-            SetState(defaultState);
+            EnterState(defaultState);
         }
 
         private void Update()
@@ -66,7 +73,10 @@ namespace Shears.StateMachineGraphs
 
             foreach (var state in states.Values)
             {
-                stateTypes[state.GetType()] = state;
+                var type = state.GetType();
+
+                if (!stateTypes.ContainsKey(type))
+                    stateTypes[type] = state;
 
                 state.ParameterProvider ??= this;
             }
@@ -106,7 +116,7 @@ namespace Shears.StateMachineGraphs
             {
                 if (state.EvaluateTransitions(out var newState))
                 {
-                    SetState(newState);
+                    EnterState(newState);
                     return;
                 }
             }
@@ -123,18 +133,38 @@ namespace Shears.StateMachineGraphs
             }
         }
 
-        public void SetStateOfType<T>()
+        public IState EnterStateOfType<T>()
         {
             if (!stateTypes.TryGetValue(typeof(T), out var state))
             {
                 Log($"StateMachine on {gameObject.name} does not have state of type '{typeof(T).Name}'!", SHLogLevels.Error);
-                return;
+                return null;
             }
 
-            SetState(state);
+            EnterState(state);
+
+            return state;
         }
 
-        public void SetState(IState newState)
+        public void AddState(IState state)
+        {
+            states.Add(Guid.NewGuid().ToString(), state);
+
+            var type = state.GetType();
+
+            if (!stateTypes.ContainsKey(type))
+                stateTypes[type] = state;
+
+            state.ParameterProvider ??= this;
+        }
+
+        public void AddStates(params IState[] states)
+        {
+            foreach (var state in states)
+                AddState(state);
+        }
+
+        public void EnterState(IState newState)
         {
             swapStateTree.Clear();
             IState currentState = newState;
@@ -147,11 +177,11 @@ namespace Shears.StateMachineGraphs
 
             swapStateTree.Reverse();
 
-            ExitState(swapStateTree);
-            EnterState(swapStateTree);
+            ExitStateTree(swapStateTree);
+            EnterStateTree(swapStateTree);
         }
 
-        private void ExitState(List<IState> newStateTree)
+        private void ExitStateTree(List<IState> newStateTree)
         {
             if (stateTree.Count == 0)
                 return;
@@ -167,7 +197,7 @@ namespace Shears.StateMachineGraphs
             }
         }
 
-        private void EnterState(List<IState> newStateTree)
+        private void EnterStateTree(List<IState> newStateTree)
         {
             if (newStateTree.Count == 0)
                 return;
