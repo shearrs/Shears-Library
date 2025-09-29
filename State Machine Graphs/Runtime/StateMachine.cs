@@ -46,6 +46,11 @@ namespace Shears.StateMachineGraphs
             InjectStateReferences();
         }
 
+        private void OnDisable()
+        {
+            EnterState(null);
+        }
+
         private void Start()
         {
             if (graphData == null)
