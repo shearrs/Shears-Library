@@ -70,16 +70,46 @@ namespace Shears
     {
         [SerializeField] private List<TKey> keys = new();
         [SerializeReference] private List<TValue> values = new();
+        private readonly List<KeyToRemove> keysToRemove = new();
+
+        private readonly struct KeyToRemove
+        {
+            private readonly TKey key;
+            private readonly int index;
+
+            public readonly TKey Key => key;
+            public readonly int Index => index;
+
+            public KeyToRemove(TKey key, int index)
+            {
+                this.key = key;
+                this.index = index;
+            }
+        }
 
         void ISerializationCallbackReceiver.OnBeforeSerialize()
         {
-            keys.Clear();
-            values.Clear();
-
             foreach (KeyValuePair<TKey, TValue> pair in this)
             {
+                if (keys.Contains(pair.Key) && values.Contains(pair.Value))
+                    continue;
+
                 keys.Add(pair.Key);
                 values.Add(pair.Value);
+            }
+
+            keysToRemove.Clear();
+
+            for (int i = 0; i < keys.Count; i++)
+            {
+                if (!ContainsKey(keys[i]))
+                    keysToRemove.Add(new(keys[i], i));
+            }
+
+            foreach (var key in keysToRemove)
+            {
+                keys.Remove(key.Key);
+                values.RemoveAt(key.Index);
             }
         }
 
