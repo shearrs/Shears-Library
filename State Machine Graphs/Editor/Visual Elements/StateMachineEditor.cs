@@ -134,7 +134,7 @@ namespace Shears.StateMachineGraphs.Editor
         {
             runtimeContainer.Clear();
 
-            if (graphDataProp.objectReferenceValue == null)
+            if (graphDataProp.objectReferenceValue == null && useGraphDataProp.boolValue)
             {
                 runtimeContainer.style.display = DisplayStyle.None;
                 return;
