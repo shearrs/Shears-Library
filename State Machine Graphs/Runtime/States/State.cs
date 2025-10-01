@@ -15,8 +15,10 @@ namespace Shears.StateMachineGraphs
         private State initialSubState;
         private State parentState;
         private State subState;
+        private bool isActive;
 
         internal IParameterProvider ParameterProvider { get => parameterProvider; set => parameterProvider = value; }
+        public bool IsActive { get => isActive; internal set => isActive = value; }
         public string Name { get => name; set => name = value; }
         public State ParentState { get => parentState; internal set => parentState = value; }
         public State DefaultSubState { get => initialSubState; internal set => initialSubState = value; }
@@ -49,6 +51,8 @@ namespace Shears.StateMachineGraphs
 
         internal void Enter()
         {
+            isActive = true;
+
             OnEnter();
         }
 
@@ -59,6 +63,8 @@ namespace Shears.StateMachineGraphs
 
         internal void Exit()
         {
+            isActive = false;
+
             OnExit();
         }
 
