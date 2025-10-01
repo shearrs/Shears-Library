@@ -6,10 +6,10 @@ using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
-    [CreateAssetMenu(fileName = "New IState Machine Graph", menuName = "Shears Library/IState Machine Graph")]
+    [CreateAssetMenu(fileName = "New State Machine Graph", menuName = "Shears Library/State Machine Graph")]
     public class StateMachineGraph : GraphData
     {
-        [Header("IState Machine Elements")]
+        [Header("State Machine Elements")]
         [SerializeField] private string rootDefaultStateID;
         [SerializeField] private List<string> parameters = new();
         [SerializeField] private GraphCompilationData compilationData;
@@ -66,7 +66,7 @@ namespace Shears.StateMachineGraphs
             var parameterIDs = new ParameterDictionary();
             var stateIDs = new StateDictionary();
             var parameterProviders = new List<LocalParameterProvider>();
-            IState defaultState;
+            State defaultState;
 
             foreach (var parameterData in GetParameters())
             {
@@ -80,9 +80,9 @@ namespace Shears.StateMachineGraphs
 
             foreach (var stateNode in stateNodes)
             {
-                var IState = CreateState(stateNode);
+                var State = CreateState(stateNode);
 
-                stateIDs.Add(stateNode.ID, IState);
+                stateIDs.Add(stateNode.ID, State);
 
                 // TODO: prevent cyclic dependencies
                 if (stateNode is ExternalStateMachineNodeData externalNode)
@@ -93,10 +93,10 @@ namespace Shears.StateMachineGraphs
                         continue;
 
                     var compileData = graphData.CompilationData;
-                    var parameterProvider = new LocalParameterProvider(IState.Name, compileData.ParameterNames);
+                    var parameterProvider = new LocalParameterProvider(State.Name, compileData.ParameterNames);
                     parameterProviders.Add(parameterProvider);
 
-                    IState.ParameterProvider = parameterProvider;
+                    State.ParameterProvider = parameterProvider;
 
                     // this mode of unique key can still lead to duplicates
                     // we should make it include the full path of the node
@@ -108,10 +108,10 @@ namespace Shears.StateMachineGraphs
                         subState.ParameterProvider = parameterProvider;
 
                         stateIDs.Add(key, subState);
-                        subState.ParentState ??= IState;
+                        subState.ParentState ??= State;
                     }
 
-                    IState.DefaultSubState = compileData.DefaultState;
+                    State.DefaultSubState = compileData.DefaultState;
                 }
             }
 
@@ -120,13 +120,13 @@ namespace Shears.StateMachineGraphs
                 if (GraphLayer.IsRootID(stateNode.ParentID))
                     continue;
 
-                var IState = stateIDs[stateNode.ID];
+                var State = stateIDs[stateNode.ID];
                 var parent = stateIDs[stateNode.ParentID];
 
-                IState.ParentState = parent;
+                State.ParentState = parent;
 
                 if (IsLayerDefault(stateNode))
-                    parent.DefaultSubState = IState;
+                    parent.DefaultSubState = State;
             }
 
             foreach (var stateNode in stateNodes)
@@ -139,17 +139,17 @@ namespace Shears.StateMachineGraphs
 
         private Parameter CreateParameter(ParameterData data) => data.CreateParameter();
 
-        private IState CreateState(IStateNodeData data)
+        private State CreateState(IStateNodeData data)
         {
-            var IState = data.CreateStateInstance();
-            IState.Name = data.Name;
+            var State = data.CreateStateInstance();
+            State.Name = data.Name;
 
-            return IState;
+            return State;
         }
 
-        private void CreateTransitions(IStateNodeData data, IState IState, Dictionary<string, IState> states, Dictionary<string, Parameter> parameterIDs)
+        private void CreateTransitions(IStateNodeData data, State state, Dictionary<string, State> states, Dictionary<string, Parameter> parameterIDs)
         {
-            if (IState.TransitionCount > 0) // already initialized
+            if (state.TransitionCount > 0) // already initialized
                 return;
 
             var transitionIDs = data.GetTransitionIDs();
@@ -167,7 +167,7 @@ namespace Shears.StateMachineGraphs
 
                 if (!states.TryGetValue(transitionData.ToID, out var toState))
                 {
-                    SHLogger.Log("Could not find target IState with id: " + transitionData.ToID, SHLogLevels.Error);
+                    SHLogger.Log("Could not find target State with id: " + transitionData.ToID, SHLogLevels.Error);
                     continue;
                 }
 
@@ -179,8 +179,8 @@ namespace Shears.StateMachineGraphs
                     comparisons.Add(comparison);
                 }
 
-                var transition = new Transition(IState, toState, comparisons);
-                IState.AddTransition(transition);
+                var transition = new Transition(state, toState, comparisons);
+                state.AddTransition(transition);
             }
         }
         #endregion
@@ -284,7 +284,7 @@ namespace Shears.StateMachineGraphs
             var nodeData = new StateNodeData(typeof(EmptyState))
             {
                 Position = position,
-                Name = "New IState"
+                Name = "New State"
             };
 
             AddNodeData(nodeData);
@@ -301,7 +301,7 @@ namespace Shears.StateMachineGraphs
             var nodeData = new StateMachineNodeData
             {
                 Position = position,
-                Name = "New IState Machine"
+                Name = "New State Machine"
             };
 
             AddNodeData(nodeData);
@@ -318,7 +318,7 @@ namespace Shears.StateMachineGraphs
             var nodeData = new ExternalStateMachineNodeData
             {
                 Position = position,
-                Name = "New External IState Machine"
+                Name = "New External State Machine"
             };
 
             AddNodeData(nodeData);
@@ -346,7 +346,7 @@ namespace Shears.StateMachineGraphs
 
         public bool IsDefaultAvailable(ILayerElement layerNode)
         {
-            // if IState has a parent...
+            // if State has a parent...
             if (!GraphLayer.IsRootID(layerNode.ParentID))
             {
                 if (!TryGetData(layerNode.ParentID, out StateMachineNodeData stateMachine))

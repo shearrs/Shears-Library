@@ -10,7 +10,7 @@ namespace Shears.StateMachineGraphs
     }
 
     [Serializable]
-    public class StateDictionary : SerializableReferenceDictionary<string, IState>
+    public class StateDictionary : SerializableReferenceDictionary<string, State>
     {
     }
 
@@ -21,15 +21,15 @@ namespace Shears.StateMachineGraphs
         [SerializeField] private ParameterDictionary parameterIDs;
         [SerializeField] private StateDictionary stateIDs;
         [SerializeField] private List<LocalParameterProvider> parameterProviders;
-        [SerializeReference] private IState defaultState;
+        [SerializeReference] private State defaultState;
 
         public readonly Dictionary<string, Parameter> ParameterNames => parameterNames;
         public readonly Dictionary<string, Parameter> ParameterIDs => parameterIDs;
-        public readonly Dictionary<string, IState> StateIDs => stateIDs;
+        public readonly Dictionary<string, State> StateIDs => stateIDs;
         public readonly List<LocalParameterProvider> ParameterProviders => parameterProviders;
-        public readonly IState DefaultState => defaultState;
+        public readonly State DefaultState => defaultState;
 
-        public GraphCompilationData(ParameterDictionary parameterNames, ParameterDictionary parameterIDs, StateDictionary stateIDs, List<LocalParameterProvider> parameterProviders, IState defaultState)
+        public GraphCompilationData(ParameterDictionary parameterNames, ParameterDictionary parameterIDs, StateDictionary stateIDs, List<LocalParameterProvider> parameterProviders, State defaultState)
         {
             this.parameterNames = parameterNames;
             this.parameterIDs = parameterIDs;

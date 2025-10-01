@@ -9,7 +9,7 @@ namespace Shears.StateMachineGraphs
     {
         [SerializeField] private bool useGraphData = true;
         [SerializeField, ShowIf("useGraphData")] private StateMachineGraph graphData;
-        [SerializeReference] private List<IState> stateTree = new();
+        [SerializeReference] private List<State> stateTree = new();
         [SerializeField] private StateInjectReferenceDictionary injectedReferences = new();
 
 #if UNITY_EDITOR
@@ -21,10 +21,10 @@ namespace Shears.StateMachineGraphs
 #pragma warning restore 0414
 #endif
 
-        private IState defaultState;
-        private readonly List<IState> swapStateTree = new();
-        private readonly Dictionary<Type, IState> stateTypes = new();
-        private Dictionary<string, IState> states;
+        private State defaultState;
+        private readonly List<State> swapStateTree = new();
+        private readonly Dictionary<Type, State> stateTypes = new();
+        private Dictionary<string, State> states;
         private Dictionary<string, Parameter> parameters;
         private int stateSwapID = 0;
 
@@ -138,7 +138,7 @@ namespace Shears.StateMachineGraphs
             }
         }
 
-        public IState EnterStateOfType<T>()
+        public State EnterStateOfType<T>()
         {
             if (!stateTypes.TryGetValue(typeof(T), out var state))
             {
@@ -151,7 +151,7 @@ namespace Shears.StateMachineGraphs
             return state;
         }
 
-        public void AddState(IState state)
+        public void AddState(State state)
         {
             states.Add(Guid.NewGuid().ToString(), state);
 
@@ -163,16 +163,16 @@ namespace Shears.StateMachineGraphs
             state.ParameterProvider ??= this;
         }
 
-        public void AddStates(params IState[] states)
+        public void AddStates(params State[] states)
         {
             foreach (var state in states)
                 AddState(state);
         }
 
-        public void EnterState(IState newState)
+        public void EnterState(State newState)
         {
             swapStateTree.Clear();
-            IState currentState = newState;
+            State currentState = newState;
 
             while (currentState != null)
             {
@@ -190,12 +190,12 @@ namespace Shears.StateMachineGraphs
             EnterStateTree(swapStateTree);
         }
 
-        private void ExitStateTree(List<IState> newStateTree)
+        private void ExitStateTree(List<State> newStateTree)
         {
             if (stateTree.Count == 0)
                 return;
 
-            IState currentState = stateTree[^1];
+            State currentState = stateTree[^1];
 
             while (currentState != null && !newStateTree.Contains(currentState))
             {
@@ -206,7 +206,7 @@ namespace Shears.StateMachineGraphs
             }
         }
 
-        private void EnterStateTree(List<IState> newStateTree)
+        private void EnterStateTree(List<State> newStateTree)
         {
             if (newStateTree.Count == 0)
                 return;
@@ -215,7 +215,7 @@ namespace Shears.StateMachineGraphs
 
             for (int i = 0; i < newStateTree.Count; i++)
             {
-                IState currentState = newStateTree[i];
+                State currentState = newStateTree[i];
 
                 if (!stateTree.Contains(currentState))
                 {
@@ -230,7 +230,7 @@ namespace Shears.StateMachineGraphs
                 }
             }
 
-            IState currentSubState = newStateTree[^1].DefaultSubState;
+            State currentSubState = newStateTree[^1].DefaultSubState;
 
             while (currentSubState != null && !stateTree.Contains(currentSubState))
             {
