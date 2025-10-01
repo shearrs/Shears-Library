@@ -163,7 +163,7 @@ namespace Shears.Tweens
             InvokeOnCompletes();
             ClearOnCompletes();
 
-            Stop();
+            Dispose();
         }
 
         private IEnumerator IEPlayAfter(float seconds)

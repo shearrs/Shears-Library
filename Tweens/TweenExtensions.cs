@@ -19,12 +19,12 @@ namespace Shears.Tweens
         {
             var tween = CreateTween(update, data);
 
-            tween.AddDisposeEvent(GetAutoDisposeEvent(obj));
+            tween.AddDisposeEvent(GetApplicationDisposeEvent(obj));
 
             return tween;
         }
 
-        public static TweenStopEvent GetAutoDisposeEvent(UnityEngine.Object obj)
+        private static TweenStopEvent GetApplicationDisposeEvent(UnityEngine.Object obj)
         {
             bool disposeEvent()
             {
