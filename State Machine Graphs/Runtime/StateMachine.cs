@@ -23,10 +23,10 @@ namespace Shears.StateMachineGraphs
 
         private IState defaultState;
         private readonly List<IState> swapStateTree = new();
-
         private readonly Dictionary<Type, IState> stateTypes = new();
         private Dictionary<string, IState> states;
         private Dictionary<string, Parameter> parameters;
+        private int stateSwapID = 0;
 
         private void Awake()
         {
@@ -181,6 +181,10 @@ namespace Shears.StateMachineGraphs
             }
 
             swapStateTree.Reverse();
+            stateSwapID++;
+
+            if (stateSwapID > 255)
+                stateSwapID = 0;
 
             ExitStateTree(swapStateTree);
             EnterStateTree(swapStateTree);
@@ -207,6 +211,8 @@ namespace Shears.StateMachineGraphs
             if (newStateTree.Count == 0)
                 return;
 
+            int currentID = stateSwapID;
+
             for (int i = 0; i < newStateTree.Count; i++)
             {
                 IState currentState = newStateTree[i];
@@ -218,6 +224,9 @@ namespace Shears.StateMachineGraphs
 
                     if (i > 0)
                         newStateTree[i - 1].SetSubState(currentState);
+
+                    if (stateSwapID != currentID)
+                        return;
                 }
             }
 
