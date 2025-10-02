@@ -7,8 +7,8 @@ namespace Shears.Tweens
 {
     public class TweenManager : PersistentProtectedSingleton<TweenManager>
     {
-        [SerializeField] private List<Tween> tweens = new();
-        private ObjectPool<Tween> tweenPool;
+        [SerializeField] private List<TweenInstance> tweens = new();
+        private ObjectPool<TweenInstance> tweenPool;
         private ITweenData defaultTweenData;
 
         protected override void Awake()
@@ -25,7 +25,7 @@ namespace Shears.Tweens
         public static Tween CreateTween(Action<float> update, ITweenData data = null) => Instance.InstCreateTween(update, data);
         private Tween InstCreateTween(Action<float> update, ITweenData data)
         {
-            Tween tween = tweenPool.Get();
+            TweenInstance tween = tweenPool.Get();
 
             tween.Update = update;
             tween.Release = Release;
@@ -35,7 +35,7 @@ namespace Shears.Tweens
 
             tween.SetData(data);
 
-            return tween;
+            return new(tween);
         }
         #endregion
 
@@ -46,7 +46,7 @@ namespace Shears.Tweens
             return tween;
         }
 
-        private void Release(Tween tween)
+        private void Release(TweenInstance tween)
         {
             tween.IsActive = false;
 
@@ -54,21 +54,21 @@ namespace Shears.Tweens
         }
 
         #region Pool
-        private Tween PoolCreate()
+        private TweenInstance PoolCreate()
         {
-            Tween tween = new();
+            TweenInstance tween = new();
 
             tweens.Add(tween);
 
             return tween;
         }
 
-        private void PoolGet(Tween tween)
+        private void PoolGet(TweenInstance tween)
         {
             ResetTween(tween);
         }
 
-        private void ResetTween(Tween tween)
+        private void ResetTween(TweenInstance tween)
         {
             tween.ClearOnCompletes();
             tween.ClearStopEvents();

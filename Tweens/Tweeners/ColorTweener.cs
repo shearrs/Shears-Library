@@ -92,27 +92,19 @@ namespace Shears.Tweens
 
         private void ClearTween()
         {
-            tween?.Stop();
-            tween?.Dispose();
-
-            tween = null;
+            tween.Dispose();
         }
 
         private Tween GetTween(Color initial, Color from, Color to)
         {
-            Tween tween = null;
-
             Target.Modulate = initial;
 
-            switch (type)
+            var tween = type switch
             {
-                case TweenType.Override:
-                    tween = Target.GetColorTween(to, data);
-                    break;
-                case TweenType.Multiply:
-                    tween = Target.GetColorMultTween(Target.BaseColor, from, to, data);
-                    break;
-            }
+                TweenType.Override => Target.GetColorTween(to, data),
+                TweenType.Multiply => Target.GetColorMultTween(Target.BaseColor, from, to, data),
+                _ => Target.GetColorTween(to, data),
+            };
 
             tween.AddOnComplete(ClearTween);
 

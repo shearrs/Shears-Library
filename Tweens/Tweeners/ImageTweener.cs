@@ -52,15 +52,12 @@ namespace Shears.Tweens
 
         private void ClearTween()
         {
-            tween?.Stop();
-            tween?.Dispose();
-
-            tween = null;
+            tween.Dispose();
         }
 
         private Tween GetTween(Color from, Color to)
         {
-            Tween tween = null;
+            Tween tween;
 
             if (tweenable != null)
             {
@@ -75,6 +72,9 @@ namespace Shears.Tweens
                 switch (type)
                 {
                     case TweenType.Color:
+                        tween = image.GetColorTween(to, data);
+                        break;
+                    default:
                         tween = image.GetColorTween(to, data);
                         break;
                 }

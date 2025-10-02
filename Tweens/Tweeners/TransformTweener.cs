@@ -92,15 +92,12 @@ namespace Shears.Tweens
 
         private void ClearTween()
         {
-            tween?.Stop();
-            tween?.Dispose();
-
-            tween = null;
+            tween.Dispose();
         }
 
         private Tween GetTween(TransformTweenData fromData, TransformTweenData toData)
         {
-            Tween tween = null;
+            Tween tween;
 
             switch (type)
             {
@@ -123,6 +120,10 @@ namespace Shears.Tweens
                 case TweenType.LocalScale:
                     target.localScale = fromData.Scale;
                     tween = target.GetScaleLocalTween(toData.Scale, data);
+                    break;
+                default:
+                    target.position = fromData.Position;
+                    tween = target.GetMoveTween(toData.Position, data);
                     break;
             }
 

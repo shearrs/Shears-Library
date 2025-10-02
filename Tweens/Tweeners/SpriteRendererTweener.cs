@@ -44,21 +44,21 @@ namespace Shears.Tweens
 
         private void ClearTween()
         {
-            tween?.Stop();
-            tween?.Dispose();
-
-            tween = null;
+            tween.Dispose();
         }
 
         private Tween GetTween(Color from, Color to)
         {
-            Tween tween = null;
+            Tween tween;
 
             spriteRenderer.color = from;
 
             switch (type)
             {
                 case TweenType.Color:
+                    tween = spriteRenderer.GetColorTween(to, data);
+                    break;
+                default:
                     tween = spriteRenderer.GetColorTween(to, data);
                     break;
             }

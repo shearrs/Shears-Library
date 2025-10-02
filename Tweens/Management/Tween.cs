@@ -1,355 +1,159 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Shears.Tweens
 {
-    public enum LoopMode
+    public readonly struct Tween
     {
-        None,
-        Repeat,
-        PingPong
-    }
+        private readonly TweenInstance tween;
+        private readonly string id;
 
-    public delegate bool TweenStopEvent();
-
-    [Serializable]
-    public class Tween
-    {
-        [Header("Duration")]
-        [ReadOnly, SerializeField] private float progress = 0;
-        [ReadOnly, SerializeField] private bool forceFinalValue;
-
-        [Header("Loops")]
-        [ReadOnly, SerializeField] private int loops;
-        [ReadOnly, SerializeField] private LoopMode loopMode;
-        [ReadOnly, SerializeField] private bool reversed;
-
-        [Header("Easing")]
-        [ReadOnly, SerializeField] private bool usesCurve;
-        [ReadOnly, SerializeField] private EasingFunction.Function easingFunction;
-        [ReadOnly, SerializeField] private AnimationCurve curve;
-
-        [Header("Events")]
-        [ReadOnly, SerializeField] private List<TweenEventBase> events = new();
-
-        private bool isInvokingEvents = false;
-        private bool disposeAfterEvents = false;
-        private readonly List<TweenEventBase> activeEvents = new();
-        private readonly List<TweenEventBase> eventsToClear = new();
-        private readonly List<TweenStopEvent> stopEvents = new();
-        private readonly List<TweenStopEvent> disposeEvents = new();
-        private readonly List<Coroutine> coroutines = new();
-
-        [field: ReadOnly, SerializeField] internal bool IsActive { get; set; }
-        internal Action<Tween> Release { get; set; }
-        internal Action<float> Update { get; set; }
-        public bool IsValid => IsActive;
-        public float Duration { get; private set; }
-        public float Progress => Mathf.Abs(progress / Duration);
-        public bool IsPlaying { get; private set; }
-        public bool Paused { get; private set; }
-        public int Loops
-        {
-            get
-            {
-                if (loops == -1)
-                    return -1;
-                else
-                    return loops + 1;
-            }
-        }
-        public event Action Completed;
-
-        internal Tween()
-        {
-            Application.quitting += Dispose;
-        }
-
-        ~Tween()
-        {
-            Application.quitting -= Dispose;
-        }
-
-        public void Play()
-        {
-            if (IsPlaying)
-                return;
-
-            StopAllCoroutines();
-
-            progress = 0;
-            coroutines.Add(StartCoroutine(IEPlay()));
-        }
-
-        public void PlayAfter(float seconds)
-        {
-            if (IsPlaying)
-                return;
-
-            StopAllCoroutines();
-            StartCoroutine(IEPlayAfter(seconds));
-        }
-
-        public void Stop()
-        {
-            if (!IsPlaying)
-                return;
-
-            IsPlaying = false;
-            StopAllCoroutines();
-        }
-
-        public void Pause()
-        {
-            IsPlaying = false;
-            Paused = true;
-        }
-
-        public void Dispose()
-        {
-            if (!IsActive)
-                return;
-            else if (isInvokingEvents)
-            {
-                disposeAfterEvents = true;
-                return;
-            }
-
-            disposeAfterEvents = false;
-
-            Stop();
-            Release?.Invoke(this);
-        }
-
-        #region Playing Enumerators
-        private IEnumerator IEPlay()
-        {
-            IsPlaying = true;
-
-            while (loops > 0 || loops == -1)
-            {
-                progress = 0;
-
-                Coroutine updateCoroutine = StartCoroutine(IEUpdate());
-                coroutines.Add(updateCoroutine);
-
-                yield return updateCoroutine;
-
-                coroutines.Remove(updateCoroutine);
-
-                if (IsPlaying && !EvaluateStopAndDisposeEvents())
-                {
-                    if (forceFinalValue)
-                    {
-                        progress = GetEndValue();
-
-                        Update?.Invoke(progress);
-                        UpdateEvents(1.0f);
-                    }
-
-                    if (loopMode == LoopMode.PingPong)
-                        reversed = !reversed;
-
-                    if (loops > -1)
-                        loops--;
-                }
-
-                if (loops > 1 || loops == -1)
-                    yield return null;
-            }
-
-            InvokeOnCompletes();
-            ClearOnCompletes();
-
-            Dispose();
-        }
-
-        private IEnumerator IEPlayAfter(float seconds)
-        {
-            if (seconds > 0)
-                yield return CoroutineUtil.WaitForSeconds(seconds);
-
-            Play();
-        }
-
-        private IEnumerator IEUpdate()
-        {
-            while (progress <= Duration)
-            {
-                while (Paused)
-                {
-                    if (EvaluateStopAndDisposeEvents())
-                        yield break;
-
-                    yield return null;
-                }
-
-                if (EvaluateStopAndDisposeEvents())
-                    yield break;
-
-                float t;
-
-                if (Duration == 0)
-                    t = 1;
-                else
-                    t = progress / Duration;
-
-                if (usesCurve)
-                    t = curve.Evaluate(t);
-                else
-                {
-                    float s = GetStartValue();
-                    float e = GetEndValue();
-
-                    t = easingFunction(s, e, t);
-                }
-
-                Update?.Invoke(t);
-                UpdateEvents(t);
-
-                progress += Time.deltaTime;
-
-                yield return null;
-            }
-        }
+        #region Wrapped Tween Properties
+        public readonly bool IsValid => IsTweenValid();
+        public readonly float Duration => IsTweenValid() ? tween.Duration : -1;
+        public readonly float Progress => IsTweenValid() ? tween.Progress : 0;
+        public readonly bool IsPlaying => IsTweenValid() && tween.IsPlaying;
+        public readonly bool Paused => IsTweenValid() && tween.Paused;
+        public readonly int Loops => IsTweenValid() ? tween.Loops : 0;
+        public readonly event Action Completed { add => tween.Completed += value; remove => tween.Completed -= value; }
         #endregion
 
-        #region Events
-        public void AddOnComplete(Action onComplete) => Completed += onComplete;
-        public void RemoveOnComplete(Action onComplete) => Completed -= onComplete;
-        public void ClearOnCompletes() => Completed = null;
+        public Tween(TweenInstance tween)
+        {
+            this.tween = tween;
+            id = tween.ID;
+        }
 
-        public void AddEvent(TweenEventBase tweenEvent) => events.Add(tweenEvent);
+        #region Wrapped Tween Functions
+        public readonly void Play() => DoIfValid(tween != null ? tween.Play : null);
+        public readonly void Stop() => DoIfValid(tween != null ? tween.Stop : null);
+        public readonly void Pause() => DoIfValid(tween != null ? tween.Pause : null);
+        public readonly void Dispose() => DoIfValid(tween != null ? tween.Dispose : null, false);
+
+        public void AddOnComplete(Action onComplete)
+        {
+            if (IsTweenValid())
+                tween.AddOnComplete(onComplete);
+            else
+                ErrorMessage();
+        }
+
+        public void RemoveOnComplete(Action onComplete)
+        {
+            if (IsTweenValid())
+                tween.RemoveOnComplete(onComplete);
+            else
+                ErrorMessage();
+        }
+
+        public void ClearOnCompletes() => DoIfValid(tween != null ? tween.ClearOnCompletes : null);
+
+        public void AddEvent(TweenEventBase tweenEvent)
+        {
+            if (IsTweenValid())
+                tween.AddEvent(tweenEvent);
+            else
+                ErrorMessage();
+        }
+
         public void AddEvent(float progress, Action callback)
         {
-            var evt = new TweenEvent(progress);
-            evt.ProgressReached += callback;
-
-            events.Add(evt);
-            activeEvents.Add(evt);
-        }
-        public void RemoveEvent(TweenEventBase tweenEvent) => events.Remove(tweenEvent);
-        public void ClearEvents()
-        {
-            events.Clear();
-            activeEvents.Clear();
+            if (IsTweenValid())
+                tween.AddEvent(progress, callback);
+            else
+                ErrorMessage();
         }
 
-        public void AddStopEvent(TweenStopEvent evt) => stopEvents.Add(evt);
-        public void RemoveStopEvent(TweenStopEvent evt) => stopEvents.Remove(evt);
-        public void ClearStopEvents() => stopEvents.Clear();
-
-        public void AddDisposeEvent(TweenStopEvent evt) => disposeEvents.Add(evt);
-        public void RemoveDisposeEvent(TweenStopEvent evt) => disposeEvents.Remove(evt);
-        public void ClearDisposeEvents() => disposeEvents.Clear();
-
-        private void InvokeOnCompletes()
+        public void RemoveEvent(TweenEventBase tweenEvent)
         {
-            isInvokingEvents = true;
-
-            Completed?.Invoke();
-
-            isInvokingEvents = false;
-
-            if (disposeAfterEvents)
-                Dispose();
+            if (IsTweenValid())
+                tween.RemoveEvent(tweenEvent);
+            else
+                ErrorMessage();
         }
 
-        private bool EvaluateStopAndDisposeEvents()
+        public void ClearEvents() => DoIfValid(tween != null ? tween.ClearEvents : null);
+
+        public void AddStopEvent(TweenStopEvent evt)
         {
-            bool stop = false;
+            if (IsTweenValid())
+                tween.AddStopEvent(evt);
+            else
+                ErrorMessage();
+        }
 
-            foreach (var evt in stopEvents)
-            {
-                if (evt())
-                {
-                    Stop();
-                    stop = true;
+        public void RemoveStopEvent(TweenStopEvent evt)
+        {
+            if (IsTweenValid())
+                tween.RemoveStopEvent(evt);
+            else
+                ErrorMessage();
+        }
 
-                    break;
-                }
-            }
+        public void ClearStopEvents() => DoIfValid(tween != null ? tween.ClearStopEvents : null);
 
-            foreach (var evt in disposeEvents)
-            {
-                if (evt())
-                {
-                    Dispose();
-                    stop = true;
+        public void AddDisposeEvent(TweenStopEvent evt)
+        {
+            if (IsTweenValid())
+                tween.AddDisposeEvent(evt);
+            else
+                ErrorMessage();
+        }
 
-                    break;
-                }
-            }
+        public void RemoveDisposeEvent(TweenStopEvent evt)
+        {
+            if (IsTweenValid())
+                tween.RemoveDisposeEvent(evt);
+            else
+                ErrorMessage();
+        }
 
-            return stop;
+        public void ClearDisposeEvents() => DoIfValid(tween != null ? tween.ClearDisposeEvents : null);
+        #endregion
+
+        #region Utility Functions
+        private readonly void DoIfValid(Action action, bool errorMessage = true)
+        {
+            if (IsTweenValid())
+                action();
+            else if (errorMessage)
+                ErrorMessage();
+        }
+
+        private readonly bool IsTweenValid()
+        {
+            return tween != null && tween.ID == id && tween.IsValid;
+        }
+
+        private readonly void ErrorMessage()
+        {
+            Debug.LogError($"Invalid tween handle: {id}");
         }
         #endregion
 
-        internal void SetData(ITweenData data)
+        #region Operator Overloads
+        public static bool operator==(Tween a, Tween b)
         {
-            Duration = data.Duration;
-            forceFinalValue = data.ForceFinalValue;
-            loops = data.Loops;
-            loopMode = data.LoopMode;
-            reversed = false;
-            easingFunction = EasingFunction.GetEasingFunction(data.EasingFunction);
-            usesCurve = data.UsesCurve;
-            curve = data.Curve;
-
-            InitializeEvents(data);
-
-            if (loops > -1)
-                loops++;
+            return a.tween == b.tween && a.id == b.id;
         }
 
-        private void InitializeEvents(ITweenData data)
+        public static bool operator!=(Tween a, Tween b)
         {
-            events.Clear();
-            events.AddRange(data.Events);
-            activeEvents.AddRange(data.Events);
+            return !(a == b);
         }
 
-        private void UpdateEvents(float t)
+        public override bool Equals(object obj)
         {
-            isInvokingEvents = true;
-            eventsToClear.Clear();
-
-            foreach (var evt in activeEvents)
-            {
-                if (evt.CanInvoke(t))
-                {
-                    evt.Invoke();
-                    eventsToClear.Add(evt);
-                }
-            }
-
-            foreach (var evt in eventsToClear)
-                activeEvents.Remove(evt);
-
-            isInvokingEvents = false;
-
-            if (disposeAfterEvents)
-                Dispose();
+            return obj is Tween tween &&
+                   EqualityComparer<TweenInstance>.Default.Equals(this.tween, tween.tween) &&
+                   id == tween.id;
         }
 
-        #region Utility
-        private void StopAllCoroutines()
+        public override int GetHashCode()
         {
-            int count = coroutines.Count;
-
-            for (int i = 0; i < count; i++)
-            {
-                if (coroutines[0] != null)
-                    CoroutineRunner.Stop(coroutines[0]);
-
-                coroutines.RemoveAt(0);
-            }
+            return HashCode.Combine(tween, id);
         }
-        private Coroutine StartCoroutine(IEnumerator routine) => CoroutineRunner.Start(routine);
-        private float GetStartValue() => reversed ? 1 : 0;
-        private float GetEndValue() => reversed ? 0 : 1;
         #endregion
     }
 }
