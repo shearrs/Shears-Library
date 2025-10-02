@@ -40,30 +40,42 @@ namespace Shears
 
             return comparison;
         }
+    }
+
+    public static class RangeUtil
+    {
+        /// <summary>
+        /// Returns a random value within the range.
+        /// </summary>
+        /// <returns>A random int value.</returns>
+        /// <exception cref="NotSupportedException"></exception>
+        public static int Random(this Range<int> range)
+        {
+            return UnityEngine.Random.Range(range.Min, range.Max + 1);
+        }
 
         /// <summary>
-        /// Returns a random value within the range. Only supported for int and float types.
+        /// Returns a random value within the range.
         /// </summary>
-        /// <returns>A random int or float value</returns>
+        /// <returns>A random float value.</returns>
         /// <exception cref="NotSupportedException"></exception>
-        public readonly T Random()
+        public static float Random(this Range<float> range)
         {
-            if (typeof(T) == typeof(int))
-            {
-                int minValue = Convert.ToInt32(min);
-                int maxValue = Convert.ToInt32(max);
+            return UnityEngine.Random.Range(range.Min, range.Max);
+        }
 
-                return (T)(object)UnityEngine.Random.Range(minValue, maxValue + 1);
-            }
-            else if (typeof(T) == typeof(float))
-            {
-                float minValue = Convert.ToSingle(min);
-                float maxValue = Convert.ToSingle(max);
+        /// <summary>
+        /// Interpolates between the minimum and maximum range values by t.
+        /// </summary>
+        /// <param name="range">The range to interpolate between.</param>
+        /// <param name="t">The interpolation parameter.</param>
+        /// <returns>The interpolated value between the minimum and maximum range values.</returns>
+        public static float Lerp(this Range<float> range, float t, bool invertMinMax = false)
+        {
+            float min = invertMinMax ? range.Max : range.Min;
+            float max = invertMinMax ? range.Min : range.Max;
 
-                return (T)(object)UnityEngine.Random.Range(minValue, maxValue);
-            }
-            else
-                throw new NotSupportedException("Random method is only supported for int and float types.");
+            return Mathf.Lerp(min, max, t);
         }
     }
 }
