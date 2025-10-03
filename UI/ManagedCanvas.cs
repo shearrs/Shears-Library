@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -30,6 +31,14 @@ namespace Shears.UI
                 Enable();
         }
 
+        private void OnValidate()
+        {
+            var canvas = GetComponent<Canvas>();
+
+            if (canvas.enabled != enabled)
+                StartCoroutine(IEToggleCanvas(canvas));
+        }
+
         public void Enable()
         {
             canvas.enabled = true;
@@ -52,6 +61,16 @@ namespace Shears.UI
 
             OnDisable?.Invoke();
             onDisable.Invoke();
+        }
+
+        private IEnumerator IEToggleCanvas(Canvas canvas)
+        {
+            yield return new WaitForEndOfFrame();
+            canvas.enabled = enabled;
+
+#if UNITY_EDITOR
+            UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+#endif
         }
     }
 }
