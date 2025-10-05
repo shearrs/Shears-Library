@@ -42,13 +42,16 @@ namespace Shears.StateMachineGraphs.Editor
                 var path = AssetDatabase.GUIDToAssetPath(guid);
                 var graph = AssetDatabase.LoadAssetAtPath<StateMachineGraph>(path);
 
-                Log($"Compiling StateMachineGraph at path: {path}");
-
                 if (graph == null)
                 {
                     LogError($"Failed to load StateMachineGraph at path: {path}");
                     continue;
                 }
+
+                if (!graph.NeedsCompilation)
+                    continue;
+
+                Log($"Compiling StateMachineGraph at path: {path}");
 
                 graph.Compile();
                 EditorUtility.SetDirty(graph);
@@ -57,16 +60,16 @@ namespace Shears.StateMachineGraphs.Editor
 
         private static void Log(string message)
         {
-            if (LOGGING_ENABLED)
 #pragma warning disable CS0162 // Unreachable code detected
+            if (LOGGING_ENABLED)
                 SHLogger.Log(message);
 #pragma warning restore CS0162 // Unreachable code detected
         }
 
         private static void LogError(string message)
         {
-            if (LOGGING_ENABLED)
 #pragma warning disable CS0162 // Unreachable code detected
+            if (LOGGING_ENABLED)
                 SHLogger.Log(message, SHLogLevels.Error);
 #pragma warning restore CS0162 // Unreachable code detected
         }

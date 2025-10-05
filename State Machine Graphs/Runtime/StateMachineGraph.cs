@@ -12,12 +12,14 @@ namespace Shears.StateMachineGraphs
         [Header("State Machine Elements")]
         [SerializeField] private string rootDefaultStateID;
         [SerializeField] private List<string> parameters = new();
+        [SerializeField] private bool needsCompilation = false;
         [SerializeField] private GraphCompilationData compilationData;
         private readonly List<IStateNodeData> instanceStateNodes = new();
         private readonly List<ParameterData> instanceParameters = new();
 
         public string RootDefaultStateID => rootDefaultStateID;
         public GraphCompilationData CompilationData => compilationData;
+        public bool NeedsCompilation => needsCompilation;
 
         public event Action<ParameterData> ParameterDataAdded;
         public event Action<ParameterData> ParameterDataRemoved;
@@ -57,6 +59,8 @@ namespace Shears.StateMachineGraphs
 
             if (string.IsNullOrEmpty(rootDefaultStateID) && rootNodes.Count > 0)
                 rootDefaultStateID = rootNodes[0];
+
+            needsCompilation = true;
         }
 
         #region Compilation
@@ -135,6 +139,7 @@ namespace Shears.StateMachineGraphs
             defaultState = stateIDs[RootDefaultStateID];
 
             compilationData = new GraphCompilationData(parameterNames, parameterIDs, stateIDs, parameterProviders, defaultState);
+            needsCompilation = false;
         }
 
         private Parameter CreateParameter(ParameterData data) => data.CreateParameter();
