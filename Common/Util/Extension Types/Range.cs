@@ -48,7 +48,6 @@ namespace Shears
         /// Returns a random value within the range.
         /// </summary>
         /// <returns>A random int value.</returns>
-        /// <exception cref="NotSupportedException"></exception>
         public static int Random(this Range<int> range)
         {
             return UnityEngine.Random.Range(range.Min, range.Max + 1);
@@ -58,7 +57,6 @@ namespace Shears
         /// Returns a random value within the range.
         /// </summary>
         /// <returns>A random float value.</returns>
-        /// <exception cref="NotSupportedException"></exception>
         public static float Random(this Range<float> range)
         {
             return UnityEngine.Random.Range(range.Min, range.Max);
