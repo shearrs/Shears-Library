@@ -24,7 +24,12 @@ namespace Shears.Logging
         [CallerFilePath] string callerFilePath = "", [CallerLineNumber] long callerLineNumber = 0)
         {
             if (context == null)
+            {
+                if (gameObject == null)
+                    return;
+
                 context = gameObject;
+            }
 
             Log(new SHLog(message, context, prefix, level, color), formatter, callerFilePath, callerLineNumber);
         }
