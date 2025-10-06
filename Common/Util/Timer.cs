@@ -56,6 +56,7 @@ namespace Shears
             var appToken = Application.exitCancellationToken;
             tokenSource = CancellationTokenSource.CreateLinkedTokenSource(appToken);
 
+            Time = time;
             RunAsync(time, tokenSource.Token);
         }
 
