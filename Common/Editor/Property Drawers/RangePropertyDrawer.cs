@@ -1,6 +1,7 @@
 using System;
 using UnityEditor;
 using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Shears.Editor
@@ -36,7 +37,7 @@ namespace Shears.Editor
                 {
                     if (minValue.CompareTo(maxValue) > 0)
                     {
-                        if (evt.changedProperty == minProp)
+                        if (SerializedProperty.EqualContents(evt.changedProperty, minProp))
                             maxProp.boxedValue = minValue;
                         else
                             minProp.boxedValue = maxValue;
