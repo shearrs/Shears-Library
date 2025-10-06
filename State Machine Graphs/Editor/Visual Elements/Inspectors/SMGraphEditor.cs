@@ -1,5 +1,3 @@
-using Shears.GraphViews;
-using Shears.GraphViews.Editor;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
