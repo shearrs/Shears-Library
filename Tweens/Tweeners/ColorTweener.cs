@@ -13,14 +13,14 @@ namespace Shears.Tweens
 
         [Header("References")]
         [SerializeField] private InterfaceReference<IColorTweenable> target;
-        [SerializeField] private TweenDataObject data;
+        [SerializeField] private TweenData tweenData;
         private Tween tween;
 
         [Header("Colors")]
         [SerializeField] private Color color1 = Color.white;
         [SerializeField] private Color color2 = Color.gray;
 
-        public TweenDataObject TweenData { get => data; set => data = value; }
+        public TweenData TweenData { get => tweenData; set => tweenData = value; }
         public IColorTweenable Target { get => target.Value; set => target.Value = value; }
         public Color Color1 { get => color1; set => color1 = value; }
         public Color Color2 { get => color2; set => color2 = value; }
@@ -101,9 +101,9 @@ namespace Shears.Tweens
 
             var tween = type switch
             {
-                TweenType.Override => Target.GetColorTween(to, data),
-                TweenType.Multiply => Target.GetColorMultTween(Target.BaseColor, from, to, data),
-                _ => Target.GetColorTween(to, data),
+                TweenType.Override => Target.GetColorTween(to, tweenData),
+                TweenType.Multiply => Target.GetColorMultTween(Target.BaseColor, from, to, tweenData),
+                _ => Target.GetColorTween(to, tweenData),
             };
 
             tween.AddOnComplete(ClearTween);
