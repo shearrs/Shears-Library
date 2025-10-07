@@ -1,4 +1,5 @@
 using Shears.Input;
+using System;
 using UnityEngine;
 
 namespace Shears.Detection
@@ -57,11 +58,33 @@ namespace Shears.Detection
 
             int hits = Physics.RaycastNonAlloc(origin, dir, raycastHits, distance, DetectionMask, TriggerInteraction);
 
+            Array.Sort(raycastHits, (h1, h2) =>
+            {
+                if (h1.collider == null)
+                {
+                    if (h2.collider == null)
+                        return 0;
+                    else
+                        return 1;
+                }
+                else if (h2.collider == null)
+                {
+                    if (h1.collider == null)
+                        return 0;
+                    else
+                        return -1;
+                }
+                else
+                    return h1.distance.CompareTo(h2.distance);
+            });
+
             if (hits > MaxDetections)
                 hits = MaxDetections;
 
             for (int i = 0; i < hits; i++)
+            {
                 detections[i] = raycastHits[i].collider;
+            }
 
             return hits;
         }
@@ -87,11 +110,10 @@ namespace Shears.Detection
                 dir = transform.TransformDirection(direction);
             }
 
+            Gizmos.DrawRay(transform.position, dir * distance);
+
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireSphere(origin, 0.15f);
-
-            Gizmos.color = Color.red;
-            Gizmos.DrawRay(transform.position, dir * distance);
         }
     }
 }
