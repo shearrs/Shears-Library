@@ -2,7 +2,8 @@
     "name": "Shears.Detection",
     "rootNamespace": "Shears.Detection",
     "references": [
-        "GUID:b28a31c08beef024d83a7aa1ec3f2f6d"
+        "GUID:b28a31c08beef024d83a7aa1ec3f2f6d",
+        "GUID:624a85509f829424398b0fa44ae4b076"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

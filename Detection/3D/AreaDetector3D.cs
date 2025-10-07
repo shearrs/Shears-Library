@@ -7,26 +7,40 @@ namespace Shears.Detection
     public abstract class AreaDetector3D : MonoBehaviour
     {
         [Header("Gizmos")]
-        [SerializeField] private bool drawGizmos = true;
-        [SerializeField] private bool highlightOnDetect = false;
-        [SerializeField] private Color defaultGizmoColor = Color.red;
-        [SerializeField, ShowIf("highlightOnDetect")] private Color detectingGizmoColor = Color.yellow;
+        [SerializeField, Tooltip("Whether or not to draw gizmos.")] 
+        private bool drawGizmos = true;
+
+        [SerializeField, ShowIf("drawGizmos"), Tooltip("Whether or not to highlight gizmos when actively detecting.")] 
+        private bool highlightOnDetect = false;
+
+        [SerializeField, ShowIf("drawGizmos"), Tooltip("The default gizmo color.")] 
+        private Color defaultGizmoColor = Color.red;
+
+        [SerializeField, ShowIf("drawGizmos", "highlightOnDetect"), Tooltip("The gizmo color when actively detecting.")] 
+        private Color detectingGizmoColor = Color.yellow;
 
         [Header("Detection Settings")]
-        [SerializeField] protected int maxDetections = 10;
-        [field: SerializeField] public LayerMask DetectionMask { get; set; } = -1;
-        [field: SerializeField] public bool DetectTriggers { get; set; } = true;
+        [SerializeField, Tooltip("The maximum number of detections for one detection. Does not update at runtime.")]
+        protected int maxDetections = 10;
+
+        [SerializeField, Tooltip("The layermask to detect colliders on.")] 
+        private LayerMask detectionMask = -1;
+
+        [SerializeField, Tooltip("Whether or not trigger colliders can be detected.")] 
+        private bool detectTriggers = true;
 
         private bool isDetecting = false;
         private Color gizmoColor = Color.clear;
         private Collider[] detections;
         private int hits;
 
+        protected int MaxDetections => maxDetections;
         protected QueryTriggerInteraction TriggerInteraction => (DetectTriggers)? QueryTriggerInteraction.Collide : QueryTriggerInteraction.Ignore;
-
+        public LayerMask DetectionMask { get => detectionMask; set => detectionMask = value; }
+        public bool DetectTriggers { get => detectTriggers; set => detectTriggers = value; }
         public int Hits => hits;
 
-        private void Awake()
+        protected virtual void Awake()
         {
             detections = new Collider[maxDetections];
         }

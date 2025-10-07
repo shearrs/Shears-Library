@@ -10,6 +10,9 @@ namespace Shears.Input
         /// </summary>
         public Vector2 Position { get; private set; }
 
+        /// <summary>
+        /// The current <see cref="ManagedPointer"/>.
+        /// </summary>
         public static ManagedPointer Current => new(Pointer.current);
 
         private ManagedPointer(Pointer pointer)
