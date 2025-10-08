@@ -18,6 +18,7 @@ namespace Shears.UI
         private ManagedUIElement focusedElement;
         private ManagedUIElement hoveredElement;
         private ManagedUIElement clickedElement;
+        private ManagedUIElement altClickedElement;
         private ManagedUIElement selectedElement;
         private readonly Dictionary<string, ManagedUIElement> elements = new();
 
@@ -44,7 +45,9 @@ namespace Shears.UI
                                               ("Select",        ManagedInputPhase.Started,      BeginSelect),
                                               ("Select",        ManagedInputPhase.Canceled,     EndSelect),
                                               ("Click",         ManagedInputPhase.Started,      BeginClick),
-                                              ("Click",         ManagedInputPhase.Canceled,     EndClick));
+                                              ("Click",         ManagedInputPhase.Canceled,     EndClick),
+                                              ("Alt Click",     ManagedInputPhase.Started,      BeginAltClick),
+                                              ("Alt Click",     ManagedInputPhase.Canceled,     EndAltClick));
 
             inputMap.EnableAllInputs();
             inputs.Bind();
@@ -268,6 +271,25 @@ namespace Shears.UI
 
             clickedElement = null;
             selectedElement = null;
+        }
+        
+        private void BeginAltClick(ManagedInputInfo info)
+        {
+            if (hoveredElement == null)
+                return;
+
+            altClickedElement = hoveredElement;
+            altClickedElement.BeginAltClick();
+
+            Focus(altClickedElement);
+        }
+
+        private void EndAltClick(ManagedInputInfo info)
+        {
+            if (altClickedElement != null)
+                altClickedElement.EndAltClick();
+
+            altClickedElement = null;
         }
         #endregion
     }

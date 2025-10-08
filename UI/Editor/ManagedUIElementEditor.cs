@@ -14,6 +14,7 @@ namespace Shears.UI.Editor
         private static readonly string ActivationFoldoutTooltip = "Events for activation.\nOnEnabled - When 'Enable()' is called on this UIElement.\nOnDisabled - When 'Disable()' is called on this UIElement.";
         private static readonly string SelectFoldoutTooltip = "Events for selection.\nOnSelectBegin - When user select input goes down while this UIElement is focused.\nOnSelectEnd - When user select input goes up while this UIElement is focused.";
         private static readonly string ClickFoldoutTooltip = "Events for clicks.\nOnClickBegin - When user's pointer goes down on this UIElement.\nOnClickEnd - When user's pointer goes up after a registered click down.";
+        private static readonly string AltClickFoldoutTooltip = "Events for alternative clicks. \nOnAltClickBegin - When user's alt pointer goes down on this UIElement.\nOnAltClickEnd - When user's alt pointer goes up after a registered click down.";
         private static readonly string FocusFoldoutTooltip = "Events for focus.\nOnFocusBegin - When this UIElement becomes focused by the ManagedEventSystem.\nOnFocusEnd - When this UIElement goes out of focus by the ManagedEventSystem.";
         private static readonly string HoverFoldoutTooltip = "Events for hovers.\nOnHoverBegin - When user's pointer begins hovering this UIElement.\nOnHoverEnd - When user's pointer ends hovering this UIElement.";
         private static readonly string HoverClickedFoldoutTooltip = "Events for hovering during a registered click.\nOnHoverBeginClicked - When user's pointer begins hovering this UIElement while an ongoing click is occurring.\nOnHoverEndClicked - When user's pointer ends hovering this UIElement while an ongoing click is occuring.";
@@ -65,29 +66,34 @@ namespace Shears.UI.Editor
 
         private Foldout CreateEvents()
         {
-            var onEnabledField = new PropertyField(serializedObject.FindProperty("elementEnabled"));
-            var onDisabledField = new PropertyField(serializedObject.FindProperty("elementDisabled"));
-            var onSelectBeginField = new PropertyField(serializedObject.FindProperty("selectBegan"));
-            var onSelectEndField = new PropertyField(serializedObject.FindProperty("selectEnded"));
-            var onClickBeginField = new PropertyField(serializedObject.FindProperty("clickBegan"));
-            var onClickEndField = new PropertyField(serializedObject.FindProperty("clickEnded"));
-            var onFocusBeginField = new PropertyField(serializedObject.FindProperty("focusBegan"));
-            var onFocusEndField = new PropertyField(serializedObject.FindProperty("focusEnded"));
-            var onHoverBeginField = new PropertyField(serializedObject.FindProperty("hoverBegan"));
-            var onHoverEndField = new PropertyField(serializedObject.FindProperty("hoverEnded"));
-            var onHoverBeginClickedField = new PropertyField(serializedObject.FindProperty("hoverBeganClicked"));
-            var onHoverEndClickedField = new PropertyField(serializedObject.FindProperty("hoverEndedClicked"));
+            var onEnabledField = CreatePropertyField("elementEnabled");
+            var onDisabledField = CreatePropertyField("elementDisabled");
+            var onSelectBeginField = CreatePropertyField("selectBegan");
+            var onSelectEndField = CreatePropertyField("selectEnded");
+            var onClickBeginField = CreatePropertyField("clickBegan");
+            var onClickEndField = CreatePropertyField("clickEnded");
+            var onAltClickBeginField = CreatePropertyField("altClickBegan");
+            var onAltClickEndField = CreatePropertyField("altClickEnded");
+            var onFocusBeginField = CreatePropertyField("focusBegan");
+            var onFocusEndField = CreatePropertyField("focusEnded");
+            var onHoverBeginField = CreatePropertyField("hoverBegan");
+            var onHoverEndField = CreatePropertyField("hoverEnded");
+            var onHoverBeginClickedField = CreatePropertyField("hoverBeganClicked");
+            var onHoverEndClickedField = CreatePropertyField("hoverEndedClicked");
 
             var activationFoldout = CreateBoundFoldout("Activation", "activationFoldout", ActivationFoldoutTooltip, onEnabledField, onDisabledField);
             var selectFoldout = CreateBoundFoldout("Select", "selectFoldout", SelectFoldoutTooltip, onSelectBeginField, onSelectEndField);
             var clickFoldout = CreateBoundFoldout("Click", "clickFoldout", ClickFoldoutTooltip, onClickBeginField, onClickEndField);
+            var altClickFoldout = CreateBoundFoldout("Alt Click", "altClickFoldout", AltClickFoldoutTooltip, onAltClickBeginField, onAltClickEndField);
             var focusFoldout = CreateBoundFoldout("Focus", "focusFoldout", FocusFoldoutTooltip, onFocusBeginField, onFocusEndField);
             var hoverFoldout = CreateBoundFoldout("Hover", "hoverFoldout", HoverFoldoutTooltip, onHoverBeginField, onHoverEndField);
             var hoverClickedFoldout = CreateBoundFoldout("Hover Clicked", "hoverClickedFoldout", HoverClickedFoldoutTooltip, onHoverBeginClickedField, onHoverEndClickedField);
-            var eventsFoldout = CreateBoundFoldout("Events", "eventsFoldout", EventsFoldoutTooltip, activationFoldout, selectFoldout, clickFoldout, focusFoldout, hoverFoldout, hoverClickedFoldout);
+            var eventsFoldout = CreateBoundFoldout("Events", "eventsFoldout", EventsFoldoutTooltip, activationFoldout, selectFoldout, clickFoldout, altClickFoldout, focusFoldout, hoverFoldout, hoverClickedFoldout);
 
             return eventsFoldout;
         }
+
+        private PropertyField CreatePropertyField(string name) => new PropertyField(serializedObject.FindProperty(name));
 
         private Foldout CreateNavigation()
         {

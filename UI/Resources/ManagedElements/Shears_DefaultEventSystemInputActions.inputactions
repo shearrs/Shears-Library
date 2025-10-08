@@ -1,4 +1,5 @@
 {
+    "version": 1,
     "name": "Shears_DefaultEventSystemInputActions",
     "maps": [
         {
@@ -36,6 +37,15 @@
                     "name": "Click",
                     "type": "Button",
                     "id": "debfd1b4-77ae-4c99-8f89-c331eab1bda8",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Alt Click",
+                    "type": "Button",
+                    "id": "90ed27f9-07c2-4341-bb2c-0000318b8c9d",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -128,6 +138,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Click",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a664c984-493c-456a-91c2-99e3cf72b58e",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Alt Click",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

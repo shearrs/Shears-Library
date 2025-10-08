@@ -25,6 +25,8 @@ namespace Shears.UI
         [SerializeField] private UnityEvent selectEnded;
         [SerializeField] private UnityEvent clickBegan;
         [SerializeField] private UnityEvent clickEnded;
+        [SerializeField] private UnityEvent altClickBegan;
+        [SerializeField] private UnityEvent altClickEnded;
         [SerializeField] private UnityEvent focusBegan;
         [SerializeField] private UnityEvent focusEnded;
         [SerializeField] private UnityEvent hoverBegan;
@@ -38,6 +40,8 @@ namespace Shears.UI
         public event Action SelectEnded;
         public event Action ClickBegan;
         public event Action ClickEnded;
+        public event Action AltClickBegan;
+        public event Action AltClickEnded;
         public event Action FocusBegan;
         public event Action FocusEnded;
         public event Action HoverBegan;
@@ -54,6 +58,7 @@ namespace Shears.UI
         [SerializeField] private bool activationFoldout = false;
         [SerializeField] private bool selectFoldout = false;
         [SerializeField] private bool clickFoldout = false;
+        [SerializeField] private bool altClickFoldout = false;
         [SerializeField] private bool focusFoldout = false;
         [SerializeField] private bool hoverFoldout = false;
         [SerializeField] private bool hoverClickedFoldout = false;
@@ -175,6 +180,24 @@ namespace Shears.UI
 
             ClickEnded?.Invoke();
             clickEnded.Invoke();
+        }
+
+        public void BeginAltClick()
+        {
+            if (!Selectable)
+                return;
+
+            AltClickBegan?.Invoke();
+            altClickBegan.Invoke();
+        }
+
+        public void EndAltClick()
+        {
+            if (!isHovered)
+                return;
+
+            AltClickEnded?.Invoke();
+            altClickEnded.Invoke();
         }
 
         public void BeginFocus()
