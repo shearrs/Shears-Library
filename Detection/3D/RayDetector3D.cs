@@ -89,6 +89,18 @@ namespace Shears.Detection
             return hits;
         }
 
+        public RaycastHit GetHit(int index) => raycastHits[index];
+        public RaycastHit GetHit(Collider collider)
+        {
+            foreach (var hit in raycastHits)
+            {
+                if (hit.collider == collider)
+                    return hit;
+            }
+
+            return default;
+        }
+
         protected override void DrawWireGizmos()
         {
             Vector3 origin;
