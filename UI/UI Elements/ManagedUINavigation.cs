@@ -88,18 +88,18 @@ namespace Shears.UI
             SetElement(Direction.Down, null);
             SetElement(Direction.Left, null);
 
-            foreach (var element in elements)
+            foreach (var otherElement in elements)
             {
-                if (element == this.element)
+                if (otherElement == element || !otherElement.IsNavigable())
                     continue;
 
-                var direction = GetDirectionToElement(element);
+                var direction = GetDirectionToElement(otherElement);
                 var currentElement = GetElement(direction);
 
                 if (currentElement == null) // if we don't already have an element in this direction
-                    SetElement(direction, element);
-                else if (Vector2.SqrMagnitude(position - element.transform.position) < Vector2.SqrMagnitude(position - currentElement.transform.position)) // if this element is closer
-                    SetElement(direction, element);
+                    SetElement(direction, otherElement);
+                else if (Vector2.SqrMagnitude(position - otherElement.transform.position) < Vector2.SqrMagnitude(position - currentElement.transform.position)) // if this element is closer
+                    SetElement(direction, otherElement);
             }
         }
 

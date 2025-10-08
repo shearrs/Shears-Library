@@ -68,7 +68,8 @@ namespace Shears.UI
         #endregion
 
         [SerializeField] private ManagedUINavigation navigation;
-        
+
+        private Canvas canvas;
         private bool isEnabled;
         private bool isHovered;
         private bool isClicked;
@@ -76,13 +77,22 @@ namespace Shears.UI
         public string ID { get; private set; }
         public RectTransform RectTransform { get; private set; }
 
+        private void OnValidate()
+        {
+            canvas = GetComponentInParent<Canvas>();
+        }
+
         private void Awake()
         {
             ID = Guid.NewGuid().ToString();
+
+            if (canvas == null)
+                canvas = GetComponentInParent<Canvas>();
+            
             RectTransform = GetComponent<RectTransform>();
 
             navigation.Initialize(this);
-
+            
             if (enableOnAwake)
                 Enable();
         }
@@ -137,6 +147,11 @@ namespace Shears.UI
         {
             Disable();
             gameObject.SetActive(false);
+        }
+
+        public bool IsNavigable()
+        {
+            return isActiveAndEnabled && canvas != null && canvas.isActiveAndEnabled;
         }
 
         public ManagedUIElement Navigate(ManagedUINavigation.Direction direction)
