@@ -61,7 +61,7 @@ namespace Shears.UI.Editor
 
             var imageContainer = new Foldout
             {
-                text = "Wrapped Canvas Settings",
+                text = "Wrapped Image Settings",
                 value = false
             };
             imageContainer.AddStyleSheet(ShearsStyles.InspectorStyles);
