@@ -7,11 +7,10 @@ namespace Shears.UI
     [RequireComponent(typeof(Image))]
     public class ManagedImage : MonoBehaviour, IColorTweenable
     {
+        [SerializeField] private Color baseColor = Color.white;
         [SerializeField] private Color modulate = Color.white;
-        private Image image;
 
-        private bool initialized = false;
-        private Color baseColor;
+        private Image image;
 
         protected Image Image
         {
@@ -26,13 +25,7 @@ namespace Shears.UI
 
         public Color BaseColor
         {
-            get
-            {
-                if (!initialized)
-                    baseColor = Image.color;
-
-                return baseColor;
-            }
+            get => baseColor;
             set 
             { 
                 baseColor = value;
@@ -40,6 +33,7 @@ namespace Shears.UI
                 Image.color = baseColor * modulate;
             }
         }
+
         public Color Modulate
         {
             get => modulate;
@@ -47,15 +41,10 @@ namespace Shears.UI
             {
                 modulate = value;
 
-                Image.color = baseColor * modulate;
+                var color = baseColor * modulate;
+                color.a = baseColor.a * modulate.a;
+                Image.color = color;
             }
-        }
-
-        private void Awake()
-        {
-            baseColor = Image.color;
-
-            initialized = true;
         }
     }
 }

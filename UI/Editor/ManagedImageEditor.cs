@@ -1,3 +1,4 @@
+using Shears.Editor;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -28,7 +29,6 @@ namespace Shears.UI.Editor
             DestroyImmediate(image);
         }
 
-        // wrap image fields
         public override VisualElement CreateInspectorGUI()
         {
             var root = new VisualElement();
@@ -37,6 +37,7 @@ namespace Shears.UI.Editor
 
             var spriteProp = imageSO.FindProperty("m_Sprite");
             var colorProp = imageSO.FindProperty("m_Color");
+            var baseColorProp = serializedObject.FindProperty("baseColor");
             var modulateProp = serializedObject.FindProperty("modulate");
 
             var spriteField = new ObjectField("Sprite")
@@ -45,15 +46,30 @@ namespace Shears.UI.Editor
             };
             spriteField.BindProperty(spriteProp);
 
-            var colorField = new ColorField("Color")
+            void updateColor(SerializedPropertyChangeEvent evt)
             {
-                value = colorProp.colorValue
-            };
-            colorField.BindProperty(colorProp);
+                colorProp.colorValue = baseColorProp.colorValue * modulateProp.colorValue;
+
+                imageSO.ApplyModifiedProperties();
+            }
+
+            var colorField = new PropertyField(baseColorProp);
+            colorField.RegisterValueChangeCallback(updateColor);
 
             var modulateField = new PropertyField(modulateProp);
+            modulateField.RegisterValueChangeCallback(updateColor);
 
-            root.AddAll(spriteField, colorField, modulateField);
+            var imageContainer = new Foldout
+            {
+                text = "Wrapped Canvas Settings",
+                value = false
+            };
+            imageContainer.AddStyleSheet(ShearsStyles.InspectorStyles);
+            imageContainer.AddToClassList(ShearsStyles.DarkFoldoutClass);
+
+            imageContainer.Add(VisualElementUtil.CreateDefaultFields(imageSO));
+
+            root.AddAll(spriteField, colorField, modulateField, imageContainer);
 
             return root;
         }
