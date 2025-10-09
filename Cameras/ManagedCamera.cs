@@ -26,6 +26,12 @@ namespace Shears.Cameras
                 SetState(states[0]);
         }
 
+        private void OnDisable()
+        {
+            if (currentState != null)
+                currentState.Exit();
+        }
+
         private void LateUpdate()
         {
             if (currentState != null)
