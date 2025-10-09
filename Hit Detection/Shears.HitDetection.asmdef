@@ -2,6 +2,7 @@
     "name": "Shears.HitDetection",
     "rootNamespace": "Shears.HitDetection",
     "references": [
+        "GUID:b28a31c08beef024d83a7aa1ec3f2f6d",
         "GUID:f9343658ba9f34f40af4f1a7b0c76be7"
     ],
     "includePlatforms": [],
