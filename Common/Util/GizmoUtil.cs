@@ -38,5 +38,26 @@ namespace Shears
             Gizmos.DrawLine(p1 + forwardOffset, p2 + forwardOffset);
             Gizmos.DrawLine(p1 - forwardOffset, p2 - forwardOffset);
         }
+
+        public static void DrawArrow(Vector3 from, Vector3 direction, Vector3 headAxis, float headOffset = 0.1f, float headLength = 0.1f, Color headColor = default)
+        {
+            float magnitude = direction.magnitude;
+
+            Gizmos.DrawRay(from, direction);
+
+            Vector3 headMiddle = from + ((magnitude - headLength) * direction);
+            Vector3 head1End = headMiddle + (headOffset * headAxis);
+            Vector3 head2End = headMiddle - (headOffset * headAxis);
+
+            Color currentColor = Gizmos.color;
+
+            if (headColor != default)
+                Gizmos.color = headColor;
+
+            Gizmos.DrawLine(from + direction, head1End);
+            Gizmos.DrawLine(from + direction, head2End);
+
+            Gizmos.color = currentColor;
+        }
     }
 }
