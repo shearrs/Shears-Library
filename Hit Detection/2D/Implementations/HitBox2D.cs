@@ -7,7 +7,7 @@ namespace Shears.HitDetection
 {
     public class HitBox2D : HitBody2D
     {
-        #region Internal Types
+        #region Nested Types
         [Flags]
         private enum GizmoModes
         {
@@ -289,37 +289,41 @@ namespace Shears.HitDetection
         #region Gizmos
         private void OnDrawGizmos()
         {
+            var originalMatrix = Gizmos.matrix;
+            var newMatrix = Matrix4x4.TRS(transform.position, transform.rotation, transform.lossyScale);
+            newMatrix *= Matrix4x4.TRS(offset, Quaternion.Euler(0, 0, angle), Vector3.one);
+
+            Gizmos.matrix = newMatrix;
+
             if ((gizmoSettings.Modes & GizmoModes.Hitbox) != 0)
             {
-                var originalMatrix = Gizmos.matrix;
-                var newMatrix = Matrix4x4.TRS(transform.position, transform.rotation, transform.lossyScale);
-                newMatrix *= Matrix4x4.TRS(offset, Quaternion.Euler(0, 0, angle), Vector3.one);
-
-                Gizmos.matrix = newMatrix;
                 Gizmos.color = gizmoSettings.HitboxColor;
                 Gizmos.DrawWireCube(Vector3.zero, size);
-                Gizmos.matrix = originalMatrix;
             }
+
+            Vector3 Center = offset;
+            Vector2 Size = size;
+            Quaternion Orientation = Quaternion.Euler(new(0, 0, angle));
 
             if ((gizmoSettings.Modes & GizmoModes.Rays) != 0)
             {
-                Vector2 halfSize = Size * 0.5f;
-                Vector2 left = Orientation * Vector2.left;
-                Vector2 right = Orientation * Vector2.right;
-                Vector2 up = Orientation * Vector2.up;
-                Vector2 down = Orientation * Vector2.down;
+                Vector3 halfSize = Size * 0.5f;
+                Vector3 left = Orientation * Vector3.left;
+                Vector3 right = Orientation * Vector3.right;
+                Vector3 up = Orientation * Vector3.up;
+                Vector3 down = Orientation * Vector3.down;
 
-                Vector2 leftStart = Center + (left * halfSize.x) + (up * halfSize.y);
-                Vector2 leftEnd = leftStart + (down * Size.y);
+                Vector3 leftStart = Center + (left * halfSize.x) + (up * halfSize.y);
+                Vector3 leftEnd = leftStart + (down * Size.y);
 
-                Vector2 rightStart = Center + (right * halfSize.x) + (up * halfSize.y);
-                Vector2 rightEnd = rightStart + (down * Size.y);
+                Vector3 rightStart = Center + (right * halfSize.x) + (up * halfSize.y);
+                Vector3 rightEnd = rightStart + (down * Size.y);
 
-                Vector2 bottomStart = Center + (left * halfSize.x) + (down * halfSize.y);
-                Vector2 bottomEnd = bottomStart + (right * Size.x);
+                Vector3 bottomStart = Center + (left * halfSize.x) + (down * halfSize.y);
+                Vector3 bottomEnd = bottomStart + (right * Size.x);
 
-                Vector2 topStart = Center + (left * halfSize.x) + (up * halfSize.y);
-                Vector2 topEnd = topStart + (right * Size.x);
+                Vector3 topStart = Center + (left * halfSize.x) + (up * halfSize.y);
+                Vector3 topEnd = topStart + (right * Size.x);
 
                 if ((sourceDirections & SourceDirections.Left) != 0)
                     DrawArrayCast(leftStart, leftEnd, right, Size.x);
@@ -363,6 +367,8 @@ namespace Shears.HitDetection
                     Gizmos.DrawRay(normalOrigin, 2f * radius * averageNormal);
                 }
             }
+
+            Gizmos.matrix = originalMatrix;
         }
 
         private void DrawArrayCast(Vector2 start, Vector2 end, Vector2 direction, float distance)
@@ -374,7 +380,8 @@ namespace Shears.HitDetection
                 float t = (float)i / (raysPerSide - 1);
                 Vector2 origin = Vector2.Lerp(start, end, t);
 
-                Gizmos.DrawRay(origin, direction * distance);
+                GizmoUtil.DrawArrow(origin, direction * distance, Vector2.Perpendicular(direction), 0.075f, 0.075f, Color.magenta);
+                //Gizmos.DrawRay(origin, direction * distance);
             }
         }
 
