@@ -1,6 +1,7 @@
 using Shears.Tweens;
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Shears.UI
 {
@@ -11,11 +12,16 @@ namespace Shears.UI
         [SerializeField] private Color hoverColor = new(0.85f, 0.85f, 0.85f);
         [SerializeField] private Color pressedColor = new(0.5f, 0.5f, 0.5f);
 
+        [Header("Events")]
+        [SerializeField] private UnityEvent clicked;
+
         private readonly StructTweenData hoverTweenData = new(0.1f, easingFunction: EasingFunction.Ease.EaseInOutQuad);
         private Material material;
         private Color originalColor;
         private Tween tween;
         private bool isHovered = false;
+
+        public event Action Clicked;
 
         protected override void Awake()
         {
@@ -31,6 +37,7 @@ namespace Shears.UI
             RegisterEvent<HoverExitEvent>(OnHoverExit);
             RegisterEvent<PointerDownEvent>(OnPointerDown);
             RegisterEvent<PointerUpEvent>(OnPointerUp);
+            RegisterEvent<ClickEvent>(OnClicked);
         }
 
         private void OnHoverEnter(HoverEnterEvent evt)
@@ -70,6 +77,12 @@ namespace Shears.UI
             tween = TweenManager
                 .DoTween((t) => UpdateColor(material.color, targetColor, t), hoverTweenData)
                 .WithLifetime(this);
+        }
+
+        private void OnClicked(ClickEvent evt)
+        {
+            Clicked?.Invoke();
+            clicked.Invoke();
         }
 
         private void UpdateColor(Color start, Color end, float t)
