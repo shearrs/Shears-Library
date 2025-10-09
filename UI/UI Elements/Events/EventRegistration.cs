@@ -5,9 +5,7 @@ namespace Shears.UI
 {
     public interface IEventRegistration
     {
-        public void Register();
-
-        public void Deregister();
+        public void TryInvoke(IUIEvent evt);
     }
 
     public readonly struct EventRegistration<E> : IEventRegistration where E : IUIEvent
@@ -21,14 +19,10 @@ namespace Shears.UI
             this.callback = callback;
         }
 
-        public void Register()
+        void IEventRegistration.TryInvoke(IUIEvent evt)
         {
-            UIElementEventSystem.RegisterEvent(this);
-        }
-
-        public void Deregister()
-        {
-            UIElementEventSystem.DeregisterEvent(this);
+            if (evt is E typedEvent)
+                Invoke(typedEvent);
         }
 
         public void Invoke(E evt) => callback(evt);

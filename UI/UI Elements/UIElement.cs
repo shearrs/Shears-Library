@@ -1,49 +1,40 @@
+using Shears.Logging;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Shears.UI
 {
-    public class UIElement : MonoBehaviour
+    public class UIElement : SHMonoBehaviourLogger
     {
         private readonly List<IEventRegistration> registrations = new();
 
         private void Awake()
         {
-            AddEvents();
-        }
-
-        private void OnEnable()
-        {
             RegisterEvents();
         }
 
-        private void OnDisable()
+        private void OnValidate()
         {
-            DeregisterEvents();
+            gameObject.layer = LayerMask.NameToLayer("UI");
         }
 
-        public void AddEvent<EventType>(Action<EventType> callback) where EventType : IUIEvent
+        public void RegisterEvent<EventType>(Action<EventType> callback) where EventType : IUIEvent
         {
-            var registration = new EventRegistration<EventType>(callback);
-            registrations.Add(registration);
-
-            if (enabled)
-                registration.Register();
+            registrations.Add(new EventRegistration<EventType>(callback));
         }
 
-        protected virtual void AddEvents() { }
-    
-        private void RegisterEvents()
+        public void DeregisterEvent<EventType>(Action<EventType> callback) where EventType: IUIEvent
         {
-            foreach (var registration in registrations)
-                registration.Register();
+            registrations.Remove(new EventRegistration<EventType>(callback));
         }
 
-        private void DeregisterEvents()
+        internal void InvokeEvent<EventType>(EventType evt) where EventType : IUIEvent
         {
             foreach (var registration in registrations)
-                registration.Deregister();
+                registration.TryInvoke(evt);
         }
+
+        protected virtual void RegisterEvents() { }
     }
 }
