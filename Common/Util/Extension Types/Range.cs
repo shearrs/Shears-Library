@@ -75,5 +75,16 @@ namespace Shears
 
             return Mathf.Lerp(min, max, t);
         }
+
+        /// <summary>
+        /// Clamps the passed value between the range's minimum and maximum values.
+        /// </summary>
+        /// <param name="range">The range to clamp between.</param>
+        /// <param name="value">The value to clamp.</param>
+        /// <returns>The clamped value.</returns>
+        public static float Clamp(this Range<float> range, float value)
+        {
+            return Mathf.Clamp(value, range.Min, range.Max);
+        }
     }
 }
