@@ -113,6 +113,26 @@ namespace Shears.Tweens
         #endregion
 
         #region Utility Functions
+        public Tween WithLifetime(UnityEngine.Object obj)
+        {
+            AddDisposeEvent(GetLifetimeDisposeEvent(obj));
+
+            return this;
+        }
+
+        private TweenStopEvent GetLifetimeDisposeEvent(UnityEngine.Object obj)
+        {
+            bool disposeEvent()
+            {
+                if (Application.isPlaying)
+                    return obj == null;
+                else
+                    return false;
+            }
+
+            return disposeEvent;
+        }
+
         private readonly void DoIfValid(Action action, bool errorMessage = true)
         {
             if (IsTweenValid())

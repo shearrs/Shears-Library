@@ -26,7 +26,7 @@ namespace Shears.Tweens
         private Tween InstCreateTween(Action<float> update, ITweenData data)
         {
             TweenInstance tween = tweenPool.Get();
-
+            
             tween.Update = update;
             tween.Release = Release;
             tween.IsActive = true;
@@ -34,8 +34,16 @@ namespace Shears.Tweens
             data ??= defaultTweenData;
 
             tween.SetData(data);
+            tween.AddDisposeEvent(GetApplicationDisposeEvent());
 
             return new(tween);
+        }
+
+        private TweenStopEvent GetApplicationDisposeEvent()
+        {
+            static bool disposeEvent() => !Application.isPlaying;
+
+            return disposeEvent;
         }
         #endregion
 

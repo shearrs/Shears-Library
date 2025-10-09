@@ -17,24 +17,9 @@ namespace Shears.Tweens
 
         private static Tween CreateAutoDisposeTween(UnityEngine.Object obj, Action<float> update, ITweenData data)
         {
-            var tween = CreateTween(update, data);
-
-            tween.AddDisposeEvent(GetApplicationDisposeEvent(obj));
+            var tween = CreateTween(update, data).WithLifetime(obj);
 
             return tween;
-        }
-
-        private static TweenStopEvent GetApplicationDisposeEvent(UnityEngine.Object obj)
-        {
-            bool disposeEvent()
-            {
-                if (Application.isPlaying)
-                    return obj == null;
-                else
-                    return false;
-            }
-
-            return disposeEvent;
         }
 
         #region Transform Tweens

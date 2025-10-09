@@ -9,7 +9,7 @@ namespace Shears.UI
     {
         private readonly List<IEventRegistration> registrations = new();
 
-        private void Awake()
+        protected virtual void Awake()
         {
             RegisterEvents();
         }
