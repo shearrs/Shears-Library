@@ -22,8 +22,6 @@ namespace Shears.Cameras
                 state.Initialize();
             }
 
-            inputMap.EnableAllInputs();
-
             if (states.Count > 0)
                 SetState(states[0]);
         }
@@ -73,6 +71,8 @@ namespace Shears.Cameras
     
         public void AddState(CameraState state)
         {
+            state.SetGlobalValues(transform, inputMap);
+            state.Initialize();
             states.Add(state);
         }
 
