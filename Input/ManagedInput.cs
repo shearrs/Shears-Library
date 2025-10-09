@@ -71,6 +71,25 @@ namespace Shears.Input
             Name = action.name;
         }
 
+        ~ManagedInput()
+        {
+            foreach (var binding in bindings.Keys)
+            {
+                switch (binding.Phase)
+                {
+                    case ManagedInputPhase.Started:
+                        inputAction.started -= bindings[binding];
+                        break;
+                    case ManagedInputPhase.Performed:
+                        inputAction.performed -= bindings[binding];
+                        break;
+                    case ManagedInputPhase.Canceled:
+                        inputAction.canceled -= bindings[binding];
+                        break;
+                }
+            }
+        }
+
         public void Enable()
         {
             inputAction.Enable();
