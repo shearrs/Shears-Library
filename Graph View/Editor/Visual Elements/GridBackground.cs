@@ -47,23 +47,24 @@ namespace Shears.GraphViews.Editor
 
         private bool HasViewportChanged()
         {
-            ITransform transform = graphView.ViewTransform;
+            var transform = graphView.ViewTransform;
 
-            return viewPos != transform.position || viewRot != transform.rotation || viewScale != transform.scale;
+            return viewPos != transform.Position || viewRot != transform.Rotation || viewScale != transform.Scale;
         }
 
         private void UpdateGrid()
         {
             var transform = graphView.ViewTransform;
 
-            viewPos = transform.position;
-            viewRot = transform.rotation;
-            viewScale = transform.scale;
+            viewPos = transform.Position;
+            viewRot = transform.Rotation;
+            viewScale = transform.Scale;
         }
 
         private void GenerateVisualContent(MeshGenerationContext context)
         {
             VisualElement viewContainer = graphView.ContentViewContainer;
+            var viewContainerTransform = graphView.ViewTransform;
 
             float spacing = Mathf.Max(1, this.spacing);
             float thickSpacing = spacing * thickLineInterval;
@@ -77,7 +78,7 @@ namespace Shears.GraphViews.Editor
             topLeft = viewContainer.ChangeCoordinatesTo(this, topLeft);
             topLeftThick = viewContainer.ChangeCoordinatesTo(this, topLeftThick);
 
-            Vector2 scaledSpacing = spacing * new Vector2(viewContainer.transform.scale.x, viewContainer.transform.scale.y);
+            Vector2 scaledSpacing = spacing * new Vector2(viewContainerTransform.Scale.x, viewContainerTransform.Scale.y);
             float maxWidth = resolvedStyle.width;
             float maxHeight = resolvedStyle.height;
 
@@ -129,7 +130,7 @@ namespace Shears.GraphViews.Editor
 
         private void DrawLines(Painter2D painter, int lineWidth, Color color)
         {
-            painter.lineWidth = lineWidth * graphView.ViewTransform.scale.x;
+            painter.lineWidth = lineWidth * graphView.ViewTransform.Scale.x;
             painter.strokeColor = color;
             painter.Stroke();
         }

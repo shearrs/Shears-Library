@@ -57,8 +57,8 @@ namespace Shears.GraphViews.Editor
             if (!isDragging)
                 return;
 
-            Vector3 newPosition = graphView.ViewTransform.position + new Vector3(evt.mouseDelta.x, evt.mouseDelta.y, 0);
-            graphView.UpdateViewTransform(newPosition, graphView.ViewTransform.scale);
+            Vector3 newPosition = graphView.ViewTransform.Position + new Vector3(evt.mouseDelta.x, evt.mouseDelta.y, 0);
+            graphView.UpdateViewTransform(newPosition, graphView.ViewTransform.Scale);
         }
 
         private void OnMouseUp(MouseUpEvent evt)

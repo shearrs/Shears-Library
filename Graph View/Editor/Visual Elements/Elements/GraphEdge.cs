@@ -58,8 +58,8 @@ namespace Shears.GraphViews.Editor
 
         private void DrawLine()
         {
-            Vector2 anchor1Pos = (Vector2)anchor1.Element.transform.position + anchor1.Element.layout.center;
-            Vector2 anchor2Pos = (Vector2)anchor2.Element.transform.position + anchor2.Element.layout.center;
+            Vector2 anchor1Pos = (Vector2)anchor1.Element.resolvedStyle.translate + anchor1.Element.layout.center;
+            Vector2 anchor2Pos = (Vector2)anchor2.Element.resolvedStyle.translate + anchor2.Element.layout.center;
             Vector2 center = 0.5f * (anchor1Pos + anchor2Pos);
 
             Vector2 heading = anchor2Pos - anchor1Pos;
@@ -88,8 +88,8 @@ namespace Shears.GraphViews.Editor
             }
 
             style.width = distance;
-            transform.position = center;
-            transform.rotation = rotation;
+            style.translate = center;
+            style.rotate = rotation;
         }
 
         protected void SetAnchor1(IEdgeAnchorable anchor)

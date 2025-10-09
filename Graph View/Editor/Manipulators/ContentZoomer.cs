@@ -40,8 +40,8 @@ namespace Shears.GraphViews.Editor
 
         private void UpdateZoom(Vector2 localMousePos, float wheelDelta)
         {
-            Vector3 position = graphView.ViewTransform.position;
-            Vector3 scale = graphView.ViewTransform.scale;
+            Vector3 position = graphView.ViewTransform.Position;
+            Vector3 scale = graphView.ViewTransform.Scale;
 
             float currentZoom = scale.y;
             float newZoom = CalculateNewZoom(currentZoom, wheelDelta);

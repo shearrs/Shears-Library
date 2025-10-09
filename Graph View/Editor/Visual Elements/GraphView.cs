@@ -30,12 +30,13 @@ namespace Shears.GraphViews.Editor
         private VisualElement graphViewContainer; // holds background and content
         private VisualElement contentViewContainer; // holds things in the graph
         private GridBackground gridBackground;
+        private ElementTransform viewTransform;
         
         protected VisualElement RootContainer => rootContainer;
         protected VisualElement BodyContainer => bodyContainer;
         protected VisualElement GraphViewContainer => graphViewContainer;
         public VisualElement ContentViewContainer => contentViewContainer;
-        public ITransform ViewTransform => contentViewContainer.transform;
+        public ElementTransform ViewTransform => viewTransform;
         public int SelectionCount => graphData.SelectionCount;
 
         public event Action NodesCleared;
@@ -43,6 +44,17 @@ namespace Shears.GraphViews.Editor
         public event Action<GraphData> GraphDataSet;
         public event Action GraphDataCleared;
         #endregion
+
+        public class ElementTransform
+        {
+            private readonly VisualElement element;
+
+            public Vector3 Position { get => element.resolvedStyle.translate; set => element.style.translate = value; }
+            public Vector3 Scale { get => element.resolvedStyle.scale.value; set => element.style.scale = value; }
+            public Quaternion Rotation { get => Quaternion.Euler(0, 0, element.resolvedStyle.rotate.angle.value); set => element.style.rotate = value; }
+
+            public ElementTransform(VisualElement element) => this.element = element;
+        }
 
         protected GraphView()
         {
@@ -201,6 +213,7 @@ namespace Shears.GraphViews.Editor
             contentViewContainer.AddToClassList(GraphViewEditorUtil.ContentViewContainerClassName);
             contentViewContainer.style.top = 0;
             contentViewContainer.style.left = 0;
+            viewTransform = new(contentViewContainer);
 
             graphViewContainer.Add(contentViewContainer);
         }
@@ -303,7 +316,7 @@ namespace Shears.GraphViews.Editor
             {
                 if (selectable is GraphNode node)
                 {
-                    Vector2 center = node.transform.position;
+                    Vector2 center = node.resolvedStyle.translate;
                     center.x += node.layout.width / 2;
                     center.y += node.layout.height / 2;
 
@@ -316,11 +329,11 @@ namespace Shears.GraphViews.Editor
                 return;
 
             averagePosition /= nodes;
-            averagePosition *= ViewTransform.scale;
+            averagePosition *= ViewTransform.Scale;
             averagePosition.x += graphViewContainer.layout.width * 0.5f;
             averagePosition.y += graphViewContainer.layout.height * 0.5f;
 
-            UpdateViewTransform(averagePosition, ViewTransform.scale);
+            UpdateViewTransform(averagePosition, ViewTransform.Scale);
             SaveViewTransform();
         }
         
@@ -392,21 +405,21 @@ namespace Shears.GraphViews.Editor
         public void UpdateViewTransform(Vector2 newPosition, Vector2 newScale)
         {
             const float MAX_DISTANCE = 5000.0f;
-            float maxDistance = MAX_DISTANCE * ViewTransform.scale.x;
+            float maxDistance = MAX_DISTANCE * ViewTransform.Scale.x;
 
             newPosition = newPosition.ClampComponents(-maxDistance, maxDistance);
 
             newPosition.x = EditorGUIHelper.RoundToPixelGrid(newPosition.x);
             newPosition.y = EditorGUIHelper.RoundToPixelGrid(newPosition.y);
 
-            ViewTransform.position = newPosition;
-            ViewTransform.scale = new Vector3(newScale.x, newScale.y, 1);
+            ViewTransform.Position = newPosition;
+            ViewTransform.Scale = new Vector3(newScale.x, newScale.y, 1);
         }
 
         public void SaveViewTransform()
         {
-            graphData.Position = ViewTransform.position;
-            graphData.Scale = ViewTransform.scale;
+            graphData.Position = ViewTransform.Position;
+            graphData.Scale = ViewTransform.Scale;
         }
         #endregion
 

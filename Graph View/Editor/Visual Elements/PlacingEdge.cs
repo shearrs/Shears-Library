@@ -43,7 +43,7 @@ namespace Shears.GraphViews.Editor
 
         private void DrawLine()
         {
-            Vector2 anchor1Pos = (Vector2)anchor1.Element.transform.position + anchor1.Element.layout.center;
+            Vector2 anchor1Pos = (Vector2)anchor1.Element.resolvedStyle.translate + anchor1.Element.layout.center;
             Vector2 anchor2Pos = anchor2;
             Vector2 center = 0.5f * (anchor1Pos + anchor2Pos);
 
@@ -70,8 +70,8 @@ namespace Shears.GraphViews.Editor
             }
 
             style.width = distance;
-            transform.position = center;
-            transform.rotation = rotation;
+            style.translate = center;
+            style.rotate = rotation;
         }
 
         public void SetAnchor2(Vector2 anchor)

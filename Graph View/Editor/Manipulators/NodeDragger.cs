@@ -98,7 +98,7 @@ namespace Shears.GraphViews.Editor
                 Vector2 pos = start + delta;
                 pos = RoundToPixelGrid(pos);
 
-                node.transform.position = pos;
+                node.style.translate = pos;
             }
 
             evt.StopPropagation();
@@ -145,7 +145,7 @@ namespace Shears.GraphViews.Editor
                     continue;
                 
                 var node = graphView.GetNode(nodeData);
-                graphData.SetNodePosition(nodeData, node.transform.position);
+                graphData.SetNodePosition(nodeData, node.resolvedStyle.translate);
             }
 
             graphView.Save();
