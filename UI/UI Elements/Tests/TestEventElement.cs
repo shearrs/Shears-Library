@@ -10,6 +10,7 @@ namespace Shears.UI
             RegisterEvent<HoverExitEvent>(OnHoverExit);
             RegisterEvent<PointerDownEvent>(OnPointerDown);
             RegisterEvent<PointerUpEvent>(OnPointerUp);
+            RegisterEvent<ClickEvent>(OnClicked);
         }
 
         private void OnHoverEnter(HoverEnterEvent evt)
@@ -30,6 +31,11 @@ namespace Shears.UI
         private void OnPointerUp(PointerUpEvent evt)
         {
             Log("Pointer up");
+        }
+
+        private void OnClicked(ClickEvent evt)
+        {
+            Log("Clicked");
         }
     }
 }

@@ -91,10 +91,13 @@ namespace Shears.UI
 
         private void OnPointerUp(ManagedInputInfo info)
         {
-            if (pointerDownElement == null)
-                return;
-            else if (hoveredElement == pointerDownElement)
-                pointerDownElement.InvokeEvent(new PointerUpEvent());
+            if (hoveredElement != null)
+            {
+                hoveredElement.InvokeEvent(new PointerUpEvent());
+
+                if (hoveredElement == pointerDownElement)
+                    hoveredElement.InvokeEvent(new ClickEvent());
+            }
 
             pointerDownElement = null;
         }
