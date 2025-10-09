@@ -2,13 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
-using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Shears.Editor
 {
-    [CustomEditor(typeof(UnityEngine.Object), true)]
+    [CustomEditor(typeof(UnityEngine.Object), true), CanEditMultipleObjects]
     public class ObjectEditor : UnityEditor.Editor
     {
         private const BindingFlags FLAGS = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
