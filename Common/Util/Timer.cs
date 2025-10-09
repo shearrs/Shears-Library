@@ -21,12 +21,13 @@ namespace Shears
         [SerializeField, ReadOnly] private bool isDone = true;
         
         private CancellationTokenSource tokenSource;
-        private readonly List<Action> onCompletes = new();
 
         public float Time { get => time; set => time = value; }
         public float CurrentTime => currentTime;
         public float Percentage => CurrentTime / Time;
         public bool IsDone => isDone;
+
+        public event Action Completed;
 
         public Timer() { }
 
@@ -82,14 +83,23 @@ namespace Shears
         }
 
         /// <summary>
+        /// Stops and starts the timer with a passed time.
+        /// </summary>
+        /// <param name="time">The time in seconds for the timer.</param>
+        public void Restart(float time)
+        {
+            Stop();
+            Start(time);
+        }
+
+        /// <summary>
         /// Adds a callback action for when the timer completes.<br/>
         /// These actions are not cleared and will be called every time the timer completes.
         /// </summary>
         /// <param name="action">The callback to add.</param>
         public void AddOnComplete(Action action)
         {
-            if (action != null && !onCompletes.Contains(action))
-                onCompletes.Add(action);
+            Completed += action;
         }
 
         /// <summary>
@@ -98,8 +108,7 @@ namespace Shears
         /// <param name="action">The callback to remove.</param>
         public void RemoveOnComplete(Action action)
         {
-            if (action != null)
-                onCompletes.Remove(action);
+            Completed -= action;
         }
 
         /// <summary>
@@ -107,7 +116,7 @@ namespace Shears
         /// </summary>
         public void ClearOnCompletes()
         {
-            onCompletes.Clear();
+            Completed = null;
         }
 
         private async void RunAsync(float time, CancellationToken token)
@@ -127,8 +136,7 @@ namespace Shears
             if (token.IsCancellationRequested)
                 return;
 
-            foreach (var action in onCompletes)
-                action?.Invoke();
+            Completed?.Invoke();
         }
     }
 }
