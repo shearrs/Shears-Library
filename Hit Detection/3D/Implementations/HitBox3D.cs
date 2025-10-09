@@ -6,11 +6,10 @@ namespace Shears.HitDetection
 {
     public class HitBox3D : HitBody3D
     {
+        #region Nested Types
         [Flags]
-        private enum GizmoMode
+        private enum GizmoModes
         {
-            Everything = -1,
-            None = 0,
             Hitbox = 1 << 0,
             Rays = 1 << 1,
             Hits = 1 << 2,
@@ -18,12 +17,48 @@ namespace Shears.HitDetection
             Activity = 1 << 4
         }
 
+        [Flags]
+        private enum SourceDirections
+        {
+            Top = 1 << 0,
+            Bottom = 1 << 1,
+            Left = 1 << 2,
+            Right = 1 << 3
+        }
+
+        [Serializable]
+        private struct GizmoSettings
+        {
+            [Header("Modes")]
+            [SerializeField] private GizmoModes gizmoModes;
+
+            [Header("Colors")]
+            [SerializeField] private Color hitboxColor;
+            [SerializeField] private Color rayColor;
+            [SerializeField] private Color activityColor;
+            [SerializeField] private Color averageHitColor;
+            [SerializeField] private Color averageSurfaceColor;
+            [SerializeField] private Color averageNormalColor;
+
+            public GizmoModes Modes { readonly get => gizmoModes; set => gizmoModes = value; }
+            public Color HitboxColor { readonly get => hitboxColor; set => hitboxColor = value; }
+            public Color RayColor { readonly get => rayColor; set => rayColor = value; }
+            public Color ActivityColor { readonly get => activityColor; set => activityColor = value; }
+            public Color AverageHitColor { readonly get => averageHitColor; set => averageHitColor = value; }
+            public Color AverageSurfaceColor { readonly get => averageSurfaceColor; set => averageSurfaceColor = value; }
+            public Color AverageNormalColor { readonly get => averageNormalColor; set => averageNormalColor = value; }
+        }
+        #endregion
+
         [Header("Gizmos")]
-        [SerializeField] private GizmoMode gizmoMode = GizmoMode.Everything & ~GizmoMode.Activity;
+        [SerializeField] private GizmoSettings gizmoSettings;
         private bool activityDrawTick = false;
 
         [Header("Collision Settings")]
-        [SerializeField, Range(2, 32)] private int raysPerFace = 8;
+        [SerializeField, Range(2, 32)] private int raysPerFace = 3;
+        [SerializeField] private SourceDirections sourceDirections = (SourceDirections)(-1);
+
+        [Header("Transform Settings")]
         [SerializeField] private Vector3 center;
         [SerializeField] private Vector3 orientation = Vector3.zero;
         [SerializeField] private Vector3 size = Vector3.one;
@@ -31,9 +66,18 @@ namespace Shears.HitDetection
         private readonly Dictionary<Collider, List<RaycastHit>> recentHits = new();
         private readonly RaycastHit[] results = new RaycastHit[100];
 
-        private Vector3 Center => transform.position + center;
-        private Quaternion Orientation => transform.rotation * Quaternion.Euler(orientation);
-        private Vector3 Size => Vector3.Scale(size, transform.lossyScale);
+        private Vector3 TCenter => transform.position + center;
+        private Quaternion TOrientation => transform.rotation * Quaternion.Euler(orientation);
+        private Vector3 TSize => Vector3.Scale(size, transform.lossyScale);
+
+        public Vector3 Center { get => center; set => center = value; }
+        public Quaternion Orientation { get => Quaternion.Euler(orientation); set => orientation = value.eulerAngles; }
+        public Vector3 Size { get => size; set => size = value; }
+
+        private void Reset()
+        {
+            ResetGizmoSettings();
+        }
 
         public Vector3 GetAverageHitPosition(Collider collider)
         {
@@ -55,8 +99,8 @@ namespace Shears.HitDetection
             if (!recentHits.ContainsKey(collider) || recentHits[collider].Count == 0)
                 return Vector3.zero;
 
-            var noScaleMatrix = Matrix4x4.TRS(Center, Orientation, Vector3.one).inverse;
-            var fullMatrix = Matrix4x4.TRS(Center, Orientation, Size).inverse;
+            var noScaleMatrix = Matrix4x4.TRS(TCenter, TOrientation, Vector3.one).inverse;
+            var fullMatrix = Matrix4x4.TRS(TCenter, TOrientation, TSize).inverse;
 
             Vector3 averagePosition = GetAverageHitPosition(collider);
 
@@ -85,7 +129,7 @@ namespace Shears.HitDetection
             if (!recentHits.ContainsKey(collider) || recentHits[collider].Count == 0)
                 return Vector3.zero;
 
-            var matrix = Matrix4x4.TRS(Center, Orientation, Size).inverse;
+            var matrix = Matrix4x4.TRS(TCenter, TOrientation, TSize).inverse;
             var surfacePosition = matrix.MultiplyPoint3x4(GetAverageSurfacePosition(collider));
             var absSurfacePosition = new Vector3(Mathf.Abs(surfacePosition.x), Mathf.Abs(surfacePosition.y), Mathf.Abs(surfacePosition.z));
             float max = Mathf.Max(absSurfacePosition.x, absSurfacePosition.y, absSurfacePosition.z);
@@ -103,43 +147,43 @@ namespace Shears.HitDetection
 
         protected override void Sweep()
         {
-            if ((gizmoMode & GizmoMode.Activity) != 0)
+            if ((gizmoSettings.Modes & GizmoModes.Activity) != 0)
                 activityDrawTick = true;
 
             recentHits.Clear();
 
-            Vector3 halfSize = Size * 0.5f;
-            Vector3 forward = Orientation * Vector3.forward;
-            Vector3 back = Orientation * Vector3.back;
-            Vector3 left = Orientation * Vector3.left;
-            Vector3 right = Orientation * Vector3.right;
-            Vector3 up = Orientation * Vector3.up;
-            Vector3 down = Orientation * Vector3.down;
+            Vector3 halfSize = TSize * 0.5f;
+            Vector3 forward = TOrientation * Vector3.forward;
+            Vector3 back = TOrientation * Vector3.back;
+            Vector3 left = TOrientation * Vector3.left;
+            Vector3 right = TOrientation * Vector3.right;
+            Vector3 up = TOrientation * Vector3.up;
+            Vector3 down = TOrientation * Vector3.down;
 
-            Vector3 backStart = Center + (back * halfSize.z) + (up * halfSize.y) + (left * halfSize.x);
-            Vector3 backEnd = backStart + (down * Size.y);
+            Vector3 backStart = TCenter + (back * halfSize.z) + (up * halfSize.y) + (left * halfSize.x);
+            Vector3 backEnd = backStart + (down * TSize.y);
 
-            Vector3 frontStart = Center + (forward * halfSize.z) + (up * halfSize.y) + (left * halfSize.x);
-            Vector3 frontEnd = frontStart + (down * Size.y);
+            Vector3 frontStart = TCenter + (forward * halfSize.z) + (up * halfSize.y) + (left * halfSize.x);
+            Vector3 frontEnd = frontStart + (down * TSize.y);
 
-            Vector3 leftStart = Center + (left * halfSize.x) + (up * halfSize.y) + (forward * halfSize.z);
-            Vector3 leftEnd = leftStart + (down * Size.y);
+            Vector3 leftStart = TCenter + (left * halfSize.x) + (up * halfSize.y) + (forward * halfSize.z);
+            Vector3 leftEnd = leftStart + (down * TSize.y);
 
-            Vector3 rightStart = Center + (right * halfSize.x) + (up * halfSize.y) + (forward * halfSize.z);
-            Vector3 rightEnd = rightStart + (down * Size.y);
+            Vector3 rightStart = TCenter + (right * halfSize.x) + (up * halfSize.y) + (forward * halfSize.z);
+            Vector3 rightEnd = rightStart + (down * TSize.y);
 
-            Vector3 topStart = Center + (up * halfSize.y) + (left * halfSize.x) + (forward * halfSize.z);
-            Vector3 topEnd = topStart + (back * Size.z);
+            Vector3 topStart = TCenter + (up * halfSize.y) + (left * halfSize.x) + (forward * halfSize.z);
+            Vector3 topEnd = topStart + (back * TSize.z);
 
-            Vector3 bottomStart = Center + (down * halfSize.y) + (left * halfSize.x) + (forward * halfSize.z);
-            Vector3 bottomEnd = bottomStart + (back * Size.z);
+            Vector3 bottomStart = TCenter + (down * halfSize.y) + (left * halfSize.x) + (forward * halfSize.z);
+            Vector3 bottomEnd = bottomStart + (back * TSize.z);
 
-            ArrayCast(backStart, backEnd, right, Size.x, forward, Size.z);
-            ArrayCast(frontStart, frontEnd, right, Size.x, back, Size.z);
-            ArrayCast(leftStart, leftEnd, back, Size.z, right, Size.x);
-            ArrayCast(rightStart, rightEnd, back, Size.z, left, Size.x);
-            ArrayCast(topStart, topEnd, right, Size.x, down, Size.y);
-            ArrayCast(bottomStart, bottomEnd, right, Size.x, up, Size.y);
+            ArrayCast(backStart, backEnd, right, TSize.x, forward, TSize.z);
+            ArrayCast(frontStart, frontEnd, right, TSize.x, back, TSize.z);
+            ArrayCast(leftStart, leftEnd, back, TSize.z, right, TSize.x);
+            ArrayCast(rightStart, rightEnd, back, TSize.z, left, TSize.x);
+            ArrayCast(topStart, topEnd, right, TSize.x, down, TSize.y);
+            ArrayCast(bottomStart, bottomEnd, right, TSize.x, up, TSize.y);
         }
 
         private void ArrayCast(Vector3 start, Vector3 end, Vector3 columnOffsetDirection, float columnOffsetDistance, Vector3 direction, float distance)
@@ -183,14 +227,15 @@ namespace Shears.HitDetection
                 else
                     finalHits.Add(result.collider, result);
 
-                if ((gizmoMode & GizmoMode.Hits) != 0)
-                    Debug.DrawLine(Center, result.point, Color.red);
+                if ((gizmoSettings.Modes & GizmoModes.Hits) != 0)
+                    Debug.DrawLine(TCenter, result.point, Color.red);
             }
         }
 
+        #region Gizmos
         private void OnDrawGizmos()
         {
-            if ((gizmoMode & GizmoMode.Hitbox) != 0)
+            if ((gizmoSettings.Modes & GizmoModes.Hitbox) != 0)
             {
                 var originalMatrix = Gizmos.matrix;
                 var newMatrix = Matrix4x4.TRS(transform.position, transform.rotation, transform.lossyScale);
@@ -202,51 +247,51 @@ namespace Shears.HitDetection
                 Gizmos.matrix = originalMatrix;
             }
 
-            if ((gizmoMode & GizmoMode.Rays) != 0)
+            if ((gizmoSettings.Modes & GizmoModes.Rays) != 0)
             {
-                Vector3 halfSize = Size * 0.5f;
-                Vector3 forward = Orientation * Vector3.forward;
-                Vector3 back = Orientation * Vector3.back;
-                Vector3 left = Orientation * Vector3.left;
-                Vector3 right = Orientation * Vector3.right;
-                Vector3 up = Orientation * Vector3.up;
-                Vector3 down = Orientation * Vector3.down;
+                Vector3 halfSize = TSize * 0.5f;
+                Vector3 forward = TOrientation * Vector3.forward;
+                Vector3 back = TOrientation * Vector3.back;
+                Vector3 left = TOrientation * Vector3.left;
+                Vector3 right = TOrientation * Vector3.right;
+                Vector3 up = TOrientation * Vector3.up;
+                Vector3 down = TOrientation * Vector3.down;
 
-                Vector3 backStart = Center + (back * halfSize.z) + (up * halfSize.y) + (left * halfSize.x);
-                Vector3 backEnd = backStart + (down * Size.y);
+                Vector3 backStart = TCenter + (back * halfSize.z) + (up * halfSize.y) + (left * halfSize.x);
+                Vector3 backEnd = backStart + (down * TSize.y);
 
-                Vector3 frontStart = Center + (forward * halfSize.z) + (up * halfSize.y) + (left * halfSize.x);
-                Vector3 frontEnd = frontStart + (down * Size.y);
+                Vector3 frontStart = TCenter + (forward * halfSize.z) + (up * halfSize.y) + (left * halfSize.x);
+                Vector3 frontEnd = frontStart + (down * TSize.y);
 
-                Vector3 leftStart = Center + (left * halfSize.x) + (up * halfSize.y) + (forward * halfSize.z);
-                Vector3 leftEnd = leftStart + (down * Size.y);
+                Vector3 leftStart = TCenter + (left * halfSize.x) + (up * halfSize.y) + (forward * halfSize.z);
+                Vector3 leftEnd = leftStart + (down * TSize.y);
 
-                Vector3 rightStart = Center + (right * halfSize.x) + (up * halfSize.y) + (forward * halfSize.z);
-                Vector3 rightEnd = rightStart + (down * Size.y);
+                Vector3 rightStart = TCenter + (right * halfSize.x) + (up * halfSize.y) + (forward * halfSize.z);
+                Vector3 rightEnd = rightStart + (down * TSize.y);
 
-                Vector3 topStart = Center + (up * halfSize.y) + (left * halfSize.x) + (forward * halfSize.z);
-                Vector3 topEnd = topStart + (back * Size.z);
+                Vector3 topStart = TCenter + (up * halfSize.y) + (left * halfSize.x) + (forward * halfSize.z);
+                Vector3 topEnd = topStart + (back * TSize.z);
 
-                Vector3 bottomStart = Center + (down * halfSize.y) + (left * halfSize.x) + (forward * halfSize.z);
-                Vector3 bottomEnd = bottomStart + (back * Size.z);
+                Vector3 bottomStart = TCenter + (down * halfSize.y) + (left * halfSize.x) + (forward * halfSize.z);
+                Vector3 bottomEnd = bottomStart + (back * TSize.z);
 
-                DrawArrayCast(backStart, backEnd, right, Size.x, forward, Size.z);
-                DrawArrayCast(frontStart, frontEnd, right, Size.x, back, Size.z);
-                DrawArrayCast(leftStart, leftEnd, back, Size.z, right, Size.x);
-                DrawArrayCast(rightStart, rightEnd, back, Size.z, left, Size.x);
-                DrawArrayCast(topStart, topEnd, right, Size.x, down, Size.y);
-                DrawArrayCast(bottomStart, bottomEnd, right, Size.x, up, Size.y);
+                DrawArrayCast(backStart, backEnd, right, TSize.x, forward, TSize.z);
+                DrawArrayCast(frontStart, frontEnd, right, TSize.x, back, TSize.z);
+                DrawArrayCast(leftStart, leftEnd, back, TSize.z, right, TSize.x);
+                DrawArrayCast(rightStart, rightEnd, back, TSize.z, left, TSize.x);
+                DrawArrayCast(topStart, topEnd, right, TSize.x, down, TSize.y);
+                DrawArrayCast(bottomStart, bottomEnd, right, TSize.x, up, TSize.y);
             }
 
-            if ((gizmoMode & GizmoMode.Activity) != 0 && activityDrawTick)
+            if ((gizmoSettings.Modes & GizmoModes.Activity) != 0 && activityDrawTick)
             {
                 Gizmos.color = Color.red;
-                Gizmos.DrawCube(Center, Size);
+                Gizmos.DrawCube(TCenter, TSize);
 
                 activityDrawTick = false;
             }
 
-            if ((gizmoMode & GizmoMode.HitAverages) != 0)
+            if ((gizmoSettings.Modes & GizmoModes.HitAverages) != 0)
             {
                 const float radius = 0.05f;
 
@@ -285,5 +330,18 @@ namespace Shears.HitDetection
                 }
             }
         }
+
+        public void ResetGizmoSettings()
+        {
+            gizmoSettings.Modes = GizmoModes.Hitbox | GizmoModes.Rays | GizmoModes.Hits;
+
+            gizmoSettings.HitboxColor = Color.red;
+            gizmoSettings.RayColor = Color.yellow;
+            gizmoSettings.ActivityColor = Color.red;
+            gizmoSettings.AverageHitColor = Color.magenta;
+            gizmoSettings.AverageSurfaceColor = Color.green;
+            gizmoSettings.AverageNormalColor = Color.cyan;
+        }
+        #endregion
     }
 }
