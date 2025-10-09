@@ -2,17 +2,21 @@ using UnityEngine;
 
 namespace Shears.Input
 {
-    public struct ManagedInputInfo
+    public readonly struct ManagedInputInfo
     {
-        public IManagedInput Input { get; private set; }
-        public ManagedInputDevice Device { get; private set; }
-        public ManagedInputPhase Phase { get; private set; }
+        private readonly IManagedInput input;
+        private readonly ManagedInputDevice device;
+        private readonly ManagedInputPhase phase;
+
+        public readonly IManagedInput Input => input;
+        public readonly ManagedInputDevice Device => device;
+        public readonly ManagedInputPhase Phase => phase;
 
         public ManagedInputInfo(IManagedInput input, ManagedInputPhase phase, ManagedInputDevice device)
         {
-            Input = input;
-            Phase = phase;
-            Device = device;
+            this.input = input;
+            this.device = device;
+            this.phase = phase;
         }
     }
 }
