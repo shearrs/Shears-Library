@@ -42,5 +42,29 @@ namespace Shears.Editor
                     DestroyImmediate(wrappedValue);
             }
         }
+
+        public override VisualElement CreateInspectorGUI()
+        {
+            var root = new VisualElement();
+
+            var defaultFields = VisualElementUtil.CreateDefaultFields(serializedObject);
+            
+            var wrappedValueSO = new SerializedObject(wrappedValue);
+
+            var wrappedFoldout = new Foldout
+            {
+                text = $"Wrapped {wrappedValue.GetType().Name} Settings",
+                value = false
+            };
+            wrappedFoldout.AddStyleSheet(ShearsStyles.InspectorStyles);
+            wrappedFoldout.AddToClassList(ShearsStyles.DarkFoldoutClass);
+
+            var wrappedFields = VisualElementUtil.CreateDefaultFields(wrappedValueSO);
+            wrappedFoldout.Add(wrappedFields);
+
+            root.AddAll(defaultFields, wrappedFoldout);
+
+            return root;
+        }
     }
 }
