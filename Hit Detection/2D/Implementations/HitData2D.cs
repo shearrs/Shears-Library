@@ -13,11 +13,11 @@ namespace Shears.HitDetection
         private readonly HitResult2D result;
         private readonly Dictionary<Type, object> data;
 
-        public IHitDeliverer2D Deliverer => deliverer;
-        public IHitReceiver2D Receiver => receiver;
-        public IHitBody2D HitBody => hitBody;
-        public IHurtBody2D HurtBody => hurtBody;
-        public HitResult2D Result => result;
+        public readonly IHitDeliverer2D Deliverer => deliverer;
+        public readonly IHitReceiver2D Receiver => receiver;
+        public readonly IHitBody2D HitBody => hitBody;
+        public readonly IHurtBody2D HurtBody => hurtBody;
+        public readonly HitResult2D Result => result;
 
         #region Interface Variables
         IHitDeliverer<HitData2D> IHitData<HitData2D, HitResult2D>.Deliverer => deliverer;
@@ -58,7 +58,7 @@ namespace Shears.HitDetection
             }
         }
 
-        public bool TryGetData<T>(out T data)
+        public readonly bool TryGetData<T>(out T data)
         {
             if (this.data.TryGetValue(typeof(T), out object value) && value is T typedValue)
             {

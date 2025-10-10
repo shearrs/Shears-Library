@@ -1,7 +1,6 @@
 using Shears.Logging;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Shears.HitDetection
 {
@@ -14,11 +13,11 @@ namespace Shears.HitDetection
         private readonly HitResult3D result;
         private readonly Dictionary<Type, object> data;
 
-        public IHitDeliverer3D Deliverer => deliverer;
-        public IHitReceiver3D Receiver => receiver;
-        public IHitBody3D HitBody => hitBody;
-        public IHurtBody3D HurtBody => hurtBody;
-        public HitResult3D Result => result;
+        public readonly IHitDeliverer3D Deliverer => deliverer;
+        public readonly IHitReceiver3D Receiver => receiver;
+        public readonly IHitBody3D HitBody => hitBody;
+        public readonly IHurtBody3D HurtBody => hurtBody;
+        public readonly HitResult3D Result => result;
 
         #region Interface Variables
         IHitDeliverer<HitData3D> IHitData<HitData3D, HitResult3D>.Deliverer => deliverer;
@@ -35,8 +34,8 @@ namespace Shears.HitDetection
         #endregion
 
         public HitData3D(IHitDeliverer3D deliverer, IHitReceiver3D receiver,
-    IHitBody3D hitBody, IHurtBody3D hurtBody,
-    HitResult3D result, params object[] data)
+            IHitBody3D hitBody, IHurtBody3D hurtBody,
+            HitResult3D result, params object[] data)
         {
             this.deliverer = deliverer;
             this.receiver = receiver;
@@ -59,7 +58,7 @@ namespace Shears.HitDetection
             }
         }
 
-        public bool TryGetData<T>(out T data)
+        public readonly bool TryGetData<T>(out T data)
         {
             if (this.data.TryGetValue(typeof(T), out object value) && value is T typedValue)
             {
