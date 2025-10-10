@@ -42,10 +42,11 @@ namespace Shears
         public static void DrawArrow(Vector3 from, Vector3 direction, Vector3 headAxis, float headOffset = 0.1f, float headLength = 0.1f, Color headColor = default)
         {
             float magnitude = direction.magnitude;
+            Vector3 normalizedDirection = direction / magnitude;
 
             Gizmos.DrawRay(from, direction);
 
-            Vector3 headMiddle = from + ((magnitude - headLength) * direction);
+            Vector3 headMiddle = from + ((magnitude - headLength) * normalizedDirection);
             Vector3 head1End = headMiddle + (headOffset * headAxis);
             Vector3 head2End = headMiddle - (headOffset * headAxis);
 
