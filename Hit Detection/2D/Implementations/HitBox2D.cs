@@ -136,6 +136,21 @@ namespace Shears.HitDetection
             return averageHitPosition;
         }
 
+        public Vector3 GetAverageHitNormal(Collider2D collider)
+        {
+            if (!recentHits.ContainsKey(collider) || recentHits[collider].Count == 0)
+                return Vector3.zero;
+
+            Vector2 averageHitNormal = Vector2.zero;
+
+            foreach (var hit in recentHits[collider])
+                averageHitNormal += hit.normal;
+
+            averageHitNormal /= recentHits[collider].Count;
+
+            return averageHitNormal;
+        }
+
         public Vector2 GetAverageSurfacePosition(Collider2D collider)
         {
             if (!recentHits.ContainsKey(collider) || recentHits[collider].Count == 0)
@@ -180,7 +195,7 @@ namespace Shears.HitDetection
             else
                 normal = new Vector2(0, Mathf.Sign(surfacePosition.y));
 
-            return matrix.inverse.MultiplyPoint3x4(normal).normalized;
+            return normal.normalized;
         }
         #endregion
 
@@ -281,8 +296,10 @@ namespace Shears.HitDetection
                 else
                     ray.AddValidHit(result);
 
+#if UNITY_EDITOR
                 if ((gizmoSettings.Modes & GizmoModes.Hits) != 0)
-                    Debug.DrawLine(Center, result.point, Color.red);
+                    Debug.DrawLine(transform.TransformPoint(offset), new Vector3(result.point.x, result.point.y, transform.position.z), Color.red);
+#endif
             }
         }
 
@@ -303,15 +320,14 @@ namespace Shears.HitDetection
 
             Vector3 Center = offset;
             Vector2 Size = size;
-            Quaternion Orientation = Quaternion.Euler(new(0, 0, angle));
 
             if ((gizmoSettings.Modes & GizmoModes.Rays) != 0)
             {
                 Vector3 halfSize = Size * 0.5f;
-                Vector3 left = Orientation * Vector3.left;
-                Vector3 right = Orientation * Vector3.right;
-                Vector3 up = Orientation * Vector3.up;
-                Vector3 down = Orientation * Vector3.down;
+                Vector3 left = Vector3.left;
+                Vector3 right = Vector3.right;
+                Vector3 up = Vector3.up;
+                Vector3 down = Vector3.down;
 
                 Vector3 leftStart = Center + (left * halfSize.x) + (up * halfSize.y);
                 Vector3 leftEnd = leftStart + (down * Size.y);
@@ -346,16 +362,22 @@ namespace Shears.HitDetection
                 activityDrawTick = false;
             }
 
+            Gizmos.matrix = originalMatrix;
+
             if ((gizmoSettings.Modes & GizmoModes.HitAverages) != 0)
             {
                 const float radius = 0.05f;
 
                 foreach (var collider in recentHits.Keys)
                 {
-                    var averagePosition = GetAverageHitPosition(collider);
-                    var averageSurfacePosition = GetAverageSurfacePosition(collider);
-                    var averageNormal = GetAverageSurfaceNormal(collider);
-                    var normalOrigin = averageSurfacePosition + (radius * averageNormal);
+                    Vector3 averagePosition = GetAverageHitPosition(collider);
+                    Vector3 averageSurfacePosition = GetAverageSurfacePosition(collider);
+                    Vector3 averageNormal = GetAverageHitNormal(collider);
+                    Vector3 averageSurfaceNormal = GetAverageSurfaceNormal(collider);
+                    Vector3 normalOrigin = averagePosition + (radius * averageNormal);
+                    Vector3 surfaceNormalOrigin = averageSurfacePosition + (radius * averageSurfaceNormal);
+
+                    averagePosition.z = averageSurfacePosition.z = surfaceNormalOrigin.z = transform.position.z;
 
                     Gizmos.color = gizmoSettings.AverageHitColor;
                     Gizmos.DrawWireSphere(averagePosition, radius);
@@ -365,10 +387,9 @@ namespace Shears.HitDetection
 
                     Gizmos.color = gizmoSettings.AverageNormalColor;
                     Gizmos.DrawRay(normalOrigin, 2f * radius * averageNormal);
+                    Gizmos.DrawRay(surfaceNormalOrigin, 2f * radius * averageSurfaceNormal);
                 }
             }
-
-            Gizmos.matrix = originalMatrix;
         }
 
         private void DrawArrayCast(Vector2 start, Vector2 end, Vector2 direction, float distance)
@@ -381,7 +402,6 @@ namespace Shears.HitDetection
                 Vector2 origin = Vector2.Lerp(start, end, t);
 
                 GizmoUtil.DrawArrow(origin, direction * distance, Vector2.Perpendicular(direction), 0.075f, 0.075f, Color.magenta);
-                //Gizmos.DrawRay(origin, direction * distance);
             }
         }
 
