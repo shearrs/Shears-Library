@@ -23,7 +23,9 @@ namespace Shears.HitDetection
             Top = 1 << 0,
             Bottom = 1 << 1,
             Left = 1 << 2,
-            Right = 1 << 3
+            Right = 1 << 3,
+            Front = 1 << 4,
+            Back = 1 << 5
         }
 
         [Serializable]
@@ -35,7 +37,6 @@ namespace Shears.HitDetection
             [Header("Colors")]
             [SerializeField] private Color hitboxColor;
             [SerializeField] private Color rayColor;
-            [SerializeField] private Color activityColor;
             [SerializeField] private Color averageHitColor;
             [SerializeField] private Color averageSurfaceColor;
             [SerializeField] private Color averageNormalColor;
@@ -43,7 +44,6 @@ namespace Shears.HitDetection
             public GizmoModes Modes { readonly get => gizmoModes; set => gizmoModes = value; }
             public Color HitboxColor { readonly get => hitboxColor; set => hitboxColor = value; }
             public Color RayColor { readonly get => rayColor; set => rayColor = value; }
-            public Color ActivityColor { readonly get => activityColor; set => activityColor = value; }
             public Color AverageHitColor { readonly get => averageHitColor; set => averageHitColor = value; }
             public Color AverageSurfaceColor { readonly get => averageSurfaceColor; set => averageSurfaceColor = value; }
             public Color AverageNormalColor { readonly get => averageNormalColor; set => averageNormalColor = value; }
@@ -52,7 +52,6 @@ namespace Shears.HitDetection
 
         [Header("Gizmos")]
         [SerializeField] private GizmoSettings gizmoSettings;
-        private bool activityDrawTick = false;
 
         [Header("Collision Settings")]
         [SerializeField, Range(2, 32)] private int raysPerFace = 3;
@@ -92,6 +91,21 @@ namespace Shears.HitDetection
             averageHitPosition /= recentHits[collider].Count;
 
             return averageHitPosition;
+        }
+
+        public Vector3 GetAverageHitNormal(Collider collider)
+        {
+            if (!recentHits.ContainsKey(collider) || recentHits[collider].Count == 0)
+                return Vector3.zero;
+
+            Vector3 averageHitNormal = Vector3.zero;
+
+            foreach (var hit in recentHits[collider])
+                averageHitNormal += hit.normal;
+
+            averageHitNormal /= recentHits[collider].Count;
+
+            return averageHitNormal;
         }
 
         public Vector3 GetAverageSurfacePosition(Collider collider)
@@ -142,14 +156,11 @@ namespace Shears.HitDetection
             else
                 normal = new Vector3(0, 0, Mathf.Sign(surfacePosition.z));
 
-            return matrix.inverse.MultiplyPoint3x4(normal).normalized;
+            return normal.normalized;
         }
 
         protected override void Sweep()
         {
-            if ((gizmoSettings.Modes & GizmoModes.Activity) != 0)
-                activityDrawTick = true;
-
             recentHits.Clear();
 
             Vector3 halfSize = TSize * 0.5f;
@@ -178,12 +189,23 @@ namespace Shears.HitDetection
             Vector3 bottomStart = TCenter + (down * halfSize.y) + (left * halfSize.x) + (forward * halfSize.z);
             Vector3 bottomEnd = bottomStart + (back * TSize.z);
 
-            ArrayCast(backStart, backEnd, right, TSize.x, forward, TSize.z);
-            ArrayCast(frontStart, frontEnd, right, TSize.x, back, TSize.z);
-            ArrayCast(leftStart, leftEnd, back, TSize.z, right, TSize.x);
-            ArrayCast(rightStart, rightEnd, back, TSize.z, left, TSize.x);
-            ArrayCast(topStart, topEnd, right, TSize.x, down, TSize.y);
-            ArrayCast(bottomStart, bottomEnd, right, TSize.x, up, TSize.y);
+            if ((sourceDirections & SourceDirections.Back) != 0)
+                ArrayCast(backStart, backEnd, right, TSize.x, forward, TSize.z);
+
+            if ((sourceDirections & SourceDirections.Front) != 0)
+                ArrayCast(frontStart, frontEnd, right, TSize.x, back, TSize.z);
+
+            if ((sourceDirections & SourceDirections.Left) != 0)
+                ArrayCast(leftStart, leftEnd, back, TSize.z, right, TSize.x);
+
+            if ((sourceDirections & SourceDirections.Right) != 0)
+                ArrayCast(rightStart, rightEnd, back, TSize.z, left, TSize.x);
+
+            if ((sourceDirections & SourceDirections.Top) != 0)
+                ArrayCast(topStart, topEnd, right, TSize.x, down, TSize.y);
+
+            if ((sourceDirections & SourceDirections.Bottom) != 0)
+                ArrayCast(bottomStart, bottomEnd, right, TSize.x, up, TSize.y);
         }
 
         private void ArrayCast(Vector3 start, Vector3 end, Vector3 columnOffsetDirection, float columnOffsetDistance, Vector3 direction, float distance)
@@ -235,6 +257,8 @@ namespace Shears.HitDetection
         #region Gizmos
         private void OnDrawGizmos()
         {
+            Color opacity = isActiveAndEnabled ? Color.white : new(1, 1, 1, 0.15f);
+
             if ((gizmoSettings.Modes & GizmoModes.Hitbox) != 0)
             {
                 var originalMatrix = Gizmos.matrix;
@@ -242,7 +266,7 @@ namespace Shears.HitDetection
                 newMatrix *= Matrix4x4.TRS(center, Quaternion.Euler(orientation), Vector3.one);
 
                 Gizmos.matrix = newMatrix;
-                Gizmos.color = Color.red;
+                Gizmos.color = Color.red * opacity;
                 Gizmos.DrawWireCube(Vector3.zero, size);
                 Gizmos.matrix = originalMatrix;
             }
@@ -275,20 +299,23 @@ namespace Shears.HitDetection
                 Vector3 bottomStart = TCenter + (down * halfSize.y) + (left * halfSize.x) + (forward * halfSize.z);
                 Vector3 bottomEnd = bottomStart + (back * TSize.z);
 
-                DrawArrayCast(backStart, backEnd, right, TSize.x, forward, TSize.z);
-                DrawArrayCast(frontStart, frontEnd, right, TSize.x, back, TSize.z);
-                DrawArrayCast(leftStart, leftEnd, back, TSize.z, right, TSize.x);
-                DrawArrayCast(rightStart, rightEnd, back, TSize.z, left, TSize.x);
-                DrawArrayCast(topStart, topEnd, right, TSize.x, down, TSize.y);
-                DrawArrayCast(bottomStart, bottomEnd, right, TSize.x, up, TSize.y);
-            }
+                if ((sourceDirections & SourceDirections.Back) != 0)
+                    DrawArrayCast(backStart, backEnd, right, TSize.x, forward, TSize.z);
 
-            if ((gizmoSettings.Modes & GizmoModes.Activity) != 0 && activityDrawTick)
-            {
-                Gizmos.color = Color.red;
-                Gizmos.DrawCube(TCenter, TSize);
+                if ((sourceDirections & SourceDirections.Front) != 0)
+                    DrawArrayCast(frontStart, frontEnd, right, TSize.x, back, TSize.z);
 
-                activityDrawTick = false;
+                if ((sourceDirections & SourceDirections.Left) != 0)
+                    DrawArrayCast(leftStart, leftEnd, back, TSize.z, right, TSize.x);
+
+                if ((sourceDirections & SourceDirections.Right) != 0)
+                    DrawArrayCast(rightStart, rightEnd, back, TSize.z, left, TSize.x);
+
+                if ((sourceDirections & SourceDirections.Top) != 0)
+                    DrawArrayCast(topStart, topEnd, right, TSize.x, down, TSize.y);
+
+                if ((sourceDirections & SourceDirections.Bottom) != 0)
+                    DrawArrayCast(bottomStart, bottomEnd, right, TSize.x, up, TSize.y);
             }
 
             if ((gizmoSettings.Modes & GizmoModes.HitAverages) != 0)
@@ -302,13 +329,13 @@ namespace Shears.HitDetection
                     var averageNormal = GetAverageSurfaceNormal(collider);
                     var normalOrigin = averageSurfacePosition + (radius * averageNormal);
 
-                    Gizmos.color = Color.magenta;
+                    Gizmos.color = gizmoSettings.AverageHitColor * opacity;
                     Gizmos.DrawWireSphere(averagePosition, radius);
 
-                    Gizmos.color = Color.cyan;
+                    Gizmos.color = gizmoSettings.AverageSurfaceColor * opacity;
                     Gizmos.DrawWireSphere(averageSurfacePosition, radius);
 
-                    Gizmos.color = Color.green;
+                    Gizmos.color = gizmoSettings.AverageNormalColor * opacity;
                     Gizmos.DrawRay(normalOrigin, 2f * radius * averageNormal);
                 }
             }
@@ -316,7 +343,8 @@ namespace Shears.HitDetection
 
         private void DrawArrayCast(Vector3 start, Vector3 end, Vector3 columnOffsetDirection, float columnOffsetDistance, Vector3 direction, float distance)
         {
-            Gizmos.color = Color.yellow;
+            Color opacity = isActiveAndEnabled ? Color.white : new(1, 1, 1, 0.15f);
+            Gizmos.color = Color.yellow * opacity;
 
             for (int column = 0; column < raysPerFace; column++)
             {
@@ -326,7 +354,9 @@ namespace Shears.HitDetection
                     float tX = (float)column / (raysPerFace - 1);
 
                     Vector3 origin = Vector3.Lerp(start, end, tY) + (columnOffsetDistance * tX * columnOffsetDirection);
-                    Gizmos.DrawRay(origin, direction * distance);
+                    Vector3 crossAgainst = (direction == Vector3.up) ? Vector3.forward : Vector3.up;
+
+                    GizmoUtil.DrawArrow(origin, direction * distance, Vector3.Cross(direction, crossAgainst), 0.075f, 0.075f, Color.magenta * opacity);
                 }
             }
         }
@@ -337,7 +367,6 @@ namespace Shears.HitDetection
 
             gizmoSettings.HitboxColor = Color.red;
             gizmoSettings.RayColor = Color.yellow;
-            gizmoSettings.ActivityColor = Color.red;
             gizmoSettings.AverageHitColor = Color.magenta;
             gizmoSettings.AverageSurfaceColor = Color.green;
             gizmoSettings.AverageNormalColor = Color.cyan;
