@@ -9,14 +9,38 @@ namespace Shears.UI
     {
         private readonly List<IEventRegistration> registrations = new();
 
+        private bool isEnabled = false;
+
         protected virtual void Awake()
         {
+            Enable();
+
             RegisterEvents();
+        }
+
+        public void Enable()
+        {
+            if (isEnabled)
+                return;
+
+            gameObject.SetActive(true);
+
+            isEnabled = true;
+        }
+
+        public void Disable()
+        {
+            if (!isEnabled)
+                return;
+
+            gameObject.SetActive(true);
+
+            isEnabled = false;
         }
 
         private void OnValidate()
         {
-            gameObject.layer = LayerMask.NameToLayer("UI");
+            Invoke(nameof(SetLayer), 0f);
         }
 
         public void RegisterEvent<EventType>(Action<EventType> callback) where EventType : IUIEvent
@@ -36,5 +60,10 @@ namespace Shears.UI
         }
 
         protected virtual void RegisterEvents() { }
+    
+        private void SetLayer()
+        {
+            gameObject.layer = LayerMask.NameToLayer("UI");
+        }
     }
 }
