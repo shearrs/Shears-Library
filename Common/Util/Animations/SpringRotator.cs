@@ -7,8 +7,8 @@ namespace Shears
     public class SpringRotator : MonoBehaviour
     {
         [SerializeField] private Transform targetTransform;
-        [SerializeField] private float springStrength = 1.0f;
-        [SerializeField] private float damping = 0.5f;
+        [SerializeField] private float springStrength = 100.0f;
+        [SerializeField] private float damping = 10.0f;
 
         private SpringRotator waitTarget;
         private Quaternion rotation;
@@ -39,11 +39,11 @@ namespace Shears
             diff.Normalize();
             diff.ToAngleAxis(out float angle, out Vector3 axis);
 
-            float force = angle * springStrength;
+            float strength = angle * springStrength;
 
-            Vector3 movement = (force * axis) - (damping * angularVelocity);
+            Vector3 force = (strength * axis) - (damping * angularVelocity);
 
-            angularVelocity += Time.deltaTime * movement;
+            angularVelocity += Time.deltaTime * force;
 
             float magnitude = Time.deltaTime * angularVelocity.magnitude;
             Quaternion velocityQuat = Quaternion.AngleAxis(magnitude, angularVelocity.normalized);
