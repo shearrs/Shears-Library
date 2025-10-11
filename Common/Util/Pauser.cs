@@ -27,5 +27,13 @@ namespace Shears
 
             OnUnpause?.Invoke();
         }
+
+        public void TogglePause()
+        {
+            if (IsPaused)
+                Unpause();
+            else
+                Pause();
+        }
     }
 }
