@@ -134,17 +134,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4946057753525596946, guid: b55cd5885855aae44b471f9f20398613, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 8244144574549414194, guid: b55cd5885855aae44b471f9f20398613, type: 3}
       propertyPath: m_Name
       value: Loading Canvas
-      objectReference: {fileID: 0}
-    - target: {fileID: 8583604121710213992, guid: b55cd5885855aae44b471f9f20398613, type: 3}
-      propertyPath: m_SortingOrder
-      value: 100
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
