@@ -12,23 +12,16 @@ namespace Shears.StateMachineGraphs.Editor
         private const bool LOGGING_ENABLED = false;
 
         public int callbackOrder => 0;
-
-        static StateMachineGraphCompiler()
-        {
-            EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
-        }
-
+        
         public void OnPreprocessBuild(BuildReport report)
         {
             Log("Starting StateMachineGraph compilation...");
             CompileAllStateMachineGraphs();
         }
 
-        private static void OnPlayModeStateChanged(PlayModeStateChange stateChange)
+        [InitializeOnEnterPlayMode]
+        public static void OnEnterPlayMode(EnterPlayModeOptions options)
         {
-            if (stateChange != PlayModeStateChange.ExitingEditMode)
-                return;
-
             Log("Entering Play Mode: Compiling StateMachineGraphs...");
             CompileAllStateMachineGraphs();
         }
