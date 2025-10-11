@@ -41,9 +41,9 @@ namespace Shears
 
             float strength = angle * springStrength;
 
-            Vector3 force = (strength * axis) - (damping * angularVelocity);
+            Vector3 force = Time.deltaTime * (strength * axis) - Time.deltaTime * (damping * angularVelocity);
 
-            angularVelocity += Time.deltaTime * force;
+            angularVelocity += force;
 
             float magnitude = Time.deltaTime * angularVelocity.magnitude;
             Quaternion velocityQuat = Quaternion.AngleAxis(magnitude, angularVelocity.normalized);
