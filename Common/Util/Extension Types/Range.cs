@@ -10,8 +10,8 @@ namespace Shears
     [Serializable]
     public struct Range<T> : IComparable where T : IComparable
     {
-        [SerializeField] private T min;
-        [SerializeField] private T max;
+        [SerializeField, Delayed] private T min;
+        [SerializeField, Delayed] private T max;
 
         public readonly T Min => min;
         public readonly T Max => max;

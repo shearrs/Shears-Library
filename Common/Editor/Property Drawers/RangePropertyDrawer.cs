@@ -1,7 +1,6 @@
 using System;
 using UnityEditor;
 using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Shears.Editor
@@ -24,6 +23,7 @@ namespace Shears.Editor
             string title = property.displayName;
 
             var header = VisualElementUtil.CreateHeader(title);
+
             var minField = new PropertyField(minProp);
             var maxField = new PropertyField(maxProp);
 
