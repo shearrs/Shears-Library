@@ -10,7 +10,7 @@ namespace Shears.Tweens
         public bool ForceFinalValue { get; }
         public int Loops { get; }
         public LoopMode LoopMode { get; }
-        public Ease EasingFunction { get; }
+        public TweenEase EasingFunction { get; }
         public bool UsesCurve { get; }
         public AnimationCurve Curve { get; }
         public IReadOnlyList<TweenEventBase> Events { get; }

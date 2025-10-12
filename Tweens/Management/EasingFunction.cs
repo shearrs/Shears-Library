@@ -39,21 +39,6 @@
  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *
- * ============= Description =============
- *
- * Below is an example of how to use the easing functions in the file. There is a getting function that will return the function
- * from an enum. This is useful since the enum can be exposed in the editor and then the function queried during Start().
- * 
- * EasingFunction.Ease ease = EasingFunction.Ease.EaseInOutQuad;
- * EasingFunction.EasingFunc func = GetEasingFunction(ease;
- * 
- * float value = func(0, 10, 0.67f);
- * 
- * EasingFunction.EasingFunc derivativeFunc = GetEasingFunctionDerivative(ease);
- * 
- * float derivativeValue = derivativeFunc(0, 10, 0.67f);
  */
 
 using System;
@@ -61,47 +46,45 @@ using UnityEngine;
 
 namespace Shears.Tweens
 {
+    public enum TweenEase
+    {
+        Linear = 0,
+        EaseInQuad,
+        EaseOutQuad,
+        EaseInOutQuad,
+        EaseInCubic,
+        EaseOutCubic,
+        EaseInOutCubic,
+        EaseInQuart,
+        EaseOutQuart,
+        EaseInOutQuart,
+        EaseInQuint,
+        EaseOutQuint,
+        EaseInOutQuint,
+        EaseInSine,
+        EaseOutSine,
+        EaseInOutSine,
+        EaseInExpo,
+        EaseOutExpo,
+        EaseInOutExpo,
+        EaseInCirc,
+        EaseOutCirc,
+        EaseInOutCirc,
+        Spring,
+        EaseInBounce,
+        EaseOutBounce,
+        EaseInOutBounce,
+        EaseInBack,
+        EaseOutBack,
+        EaseInOutBack,
+        EaseInElastic,
+        EaseOutElastic,
+        EaseInOutElastic,
+    }
+
     public static class EasingFunction
     {
-        public enum Ease
-        {
-            Linear = 0,
-            EaseInQuad,
-            EaseOutQuad,
-            EaseInOutQuad,
-            EaseInCubic,
-            EaseOutCubic,
-            EaseInOutCubic,
-            EaseInQuart,
-            EaseOutQuart,
-            EaseInOutQuart,
-            EaseInQuint,
-            EaseOutQuint,
-            EaseInOutQuint,
-            EaseInSine,
-            EaseOutSine,
-            EaseInOutSine,
-            EaseInExpo,
-            EaseOutExpo,
-            EaseInOutExpo,
-            EaseInCirc,
-            EaseOutCirc,
-            EaseInOutCirc,
-            Spring,
-            EaseInBounce,
-            EaseOutBounce,
-            EaseInOutBounce,
-            EaseInBack,
-            EaseOutBack,
-            EaseInOutBack,
-            EaseInElastic,
-            EaseOutElastic,
-            EaseInOutElastic,
-        }
-
         private const float NaturalLogOf2 = 0.693147181f;
-
-        // ========== Easing functions ==========
 
         public static float Linear(float start, float end, float value) => Mathf.Lerp(start, end, value);
 
@@ -809,41 +792,41 @@ namespace Shears.Tweens
         /// </summary>
         /// <param name="easingFunction">The enum associated with the easing function.</param>
         /// <returns>The easing function</returns>
-        public static Function GetEasingFunction(Ease easingFunction) =>
+        public static Function GetEasingFunction(TweenEase easingFunction) =>
             easingFunction switch
             {
-                Ease.EaseInQuad => EaseInQuad,
-                Ease.EaseOutQuad => EaseOutQuad,
-                Ease.EaseInOutQuad => EaseInOutQuad,
-                Ease.EaseInCubic => EaseInCubic,
-                Ease.EaseOutCubic => EaseOutCubic,
-                Ease.EaseInOutCubic => EaseInOutCubic,
-                Ease.EaseInQuart => EaseInQuart,
-                Ease.EaseOutQuart => EaseOutQuart,
-                Ease.EaseInOutQuart => EaseInOutQuart,
-                Ease.EaseInQuint => EaseInQuint,
-                Ease.EaseOutQuint => EaseOutQuint,
-                Ease.EaseInOutQuint => EaseInOutQuint,
-                Ease.EaseInSine => EaseInSine,
-                Ease.EaseOutSine => EaseOutSine,
-                Ease.EaseInOutSine => EaseInOutSine,
-                Ease.EaseInExpo => EaseInExpo,
-                Ease.EaseOutExpo => EaseOutExpo,
-                Ease.EaseInOutExpo => EaseInOutExpo,
-                Ease.EaseInCirc => EaseInCirc,
-                Ease.EaseOutCirc => EaseOutCirc,
-                Ease.EaseInOutCirc => EaseInOutCirc,
-                Ease.Linear => Linear,
-                Ease.Spring => Spring,
-                Ease.EaseInBounce => EaseInBounce,
-                Ease.EaseOutBounce => EaseOutBounce,
-                Ease.EaseInOutBounce => EaseInOutBounce,
-                Ease.EaseInBack => EaseInBack,
-                Ease.EaseOutBack => EaseOutBack,
-                Ease.EaseInOutBack => EaseInOutBack,
-                Ease.EaseInElastic => EaseInElastic,
-                Ease.EaseOutElastic => EaseOutElastic,
-                Ease.EaseInOutElastic => EaseInOutElastic,
+                TweenEase.EaseInQuad => EaseInQuad,
+                TweenEase.EaseOutQuad => EaseOutQuad,
+                TweenEase.EaseInOutQuad => EaseInOutQuad,
+                TweenEase.EaseInCubic => EaseInCubic,
+                TweenEase.EaseOutCubic => EaseOutCubic,
+                TweenEase.EaseInOutCubic => EaseInOutCubic,
+                TweenEase.EaseInQuart => EaseInQuart,
+                TweenEase.EaseOutQuart => EaseOutQuart,
+                TweenEase.EaseInOutQuart => EaseInOutQuart,
+                TweenEase.EaseInQuint => EaseInQuint,
+                TweenEase.EaseOutQuint => EaseOutQuint,
+                TweenEase.EaseInOutQuint => EaseInOutQuint,
+                TweenEase.EaseInSine => EaseInSine,
+                TweenEase.EaseOutSine => EaseOutSine,
+                TweenEase.EaseInOutSine => EaseInOutSine,
+                TweenEase.EaseInExpo => EaseInExpo,
+                TweenEase.EaseOutExpo => EaseOutExpo,
+                TweenEase.EaseInOutExpo => EaseInOutExpo,
+                TweenEase.EaseInCirc => EaseInCirc,
+                TweenEase.EaseOutCirc => EaseOutCirc,
+                TweenEase.EaseInOutCirc => EaseInOutCirc,
+                TweenEase.Linear => Linear,
+                TweenEase.Spring => Spring,
+                TweenEase.EaseInBounce => EaseInBounce,
+                TweenEase.EaseOutBounce => EaseOutBounce,
+                TweenEase.EaseInOutBounce => EaseInOutBounce,
+                TweenEase.EaseInBack => EaseInBack,
+                TweenEase.EaseOutBack => EaseOutBack,
+                TweenEase.EaseInOutBack => EaseInOutBack,
+                TweenEase.EaseInElastic => EaseInElastic,
+                TweenEase.EaseOutElastic => EaseOutElastic,
+                TweenEase.EaseInOutElastic => EaseInOutElastic,
                 _ => null
             };
 
@@ -853,41 +836,41 @@ namespace Shears.Tweens
         /// </summary>
         /// <param name="easingFunction"></param>
         /// <returns>The derivative function</returns>
-        public static Function GetEasingFunctionDerivative(Ease easingFunction) =>
+        public static Function GetEasingFunctionDerivative(TweenEase easingFunction) =>
             easingFunction switch
             {
-                Ease.EaseInQuad => EaseInQuadD,
-                Ease.EaseOutQuad => EaseOutQuadD,
-                Ease.EaseInOutQuad => EaseInOutQuadD,
-                Ease.EaseInCubic => EaseInCubicD,
-                Ease.EaseOutCubic => EaseOutCubicD,
-                Ease.EaseInOutCubic => EaseInOutCubicD,
-                Ease.EaseInQuart => EaseInQuartD,
-                Ease.EaseOutQuart => EaseOutQuartD,
-                Ease.EaseInOutQuart => EaseInOutQuartD,
-                Ease.EaseInQuint => EaseInQuintD,
-                Ease.EaseOutQuint => EaseOutQuintD,
-                Ease.EaseInOutQuint => EaseInOutQuintD,
-                Ease.EaseInSine => EaseInSineD,
-                Ease.EaseOutSine => EaseOutSineD,
-                Ease.EaseInOutSine => EaseInOutSineD,
-                Ease.EaseInExpo => EaseInExpoD,
-                Ease.EaseOutExpo => EaseOutExpoD,
-                Ease.EaseInOutExpo => EaseInOutExpoD,
-                Ease.EaseInCirc => EaseInCircD,
-                Ease.EaseOutCirc => EaseOutCircD,
-                Ease.EaseInOutCirc => EaseInOutCircD,
-                Ease.Linear => LinearD,
-                Ease.Spring => SpringD,
-                Ease.EaseInBounce => EaseInBounceD,
-                Ease.EaseOutBounce => EaseOutBounceD,
-                Ease.EaseInOutBounce => EaseInOutBounceD,
-                Ease.EaseInBack => EaseInBackD,
-                Ease.EaseOutBack => EaseOutBackD,
-                Ease.EaseInOutBack => EaseInOutBackD,
-                Ease.EaseInElastic => EaseInElasticD,
-                Ease.EaseOutElastic => EaseOutElasticD,
-                Ease.EaseInOutElastic => EaseInOutElasticD,
+                TweenEase.EaseInQuad => EaseInQuadD,
+                TweenEase.EaseOutQuad => EaseOutQuadD,
+                TweenEase.EaseInOutQuad => EaseInOutQuadD,
+                TweenEase.EaseInCubic => EaseInCubicD,
+                TweenEase.EaseOutCubic => EaseOutCubicD,
+                TweenEase.EaseInOutCubic => EaseInOutCubicD,
+                TweenEase.EaseInQuart => EaseInQuartD,
+                TweenEase.EaseOutQuart => EaseOutQuartD,
+                TweenEase.EaseInOutQuart => EaseInOutQuartD,
+                TweenEase.EaseInQuint => EaseInQuintD,
+                TweenEase.EaseOutQuint => EaseOutQuintD,
+                TweenEase.EaseInOutQuint => EaseInOutQuintD,
+                TweenEase.EaseInSine => EaseInSineD,
+                TweenEase.EaseOutSine => EaseOutSineD,
+                TweenEase.EaseInOutSine => EaseInOutSineD,
+                TweenEase.EaseInExpo => EaseInExpoD,
+                TweenEase.EaseOutExpo => EaseOutExpoD,
+                TweenEase.EaseInOutExpo => EaseInOutExpoD,
+                TweenEase.EaseInCirc => EaseInCircD,
+                TweenEase.EaseOutCirc => EaseOutCircD,
+                TweenEase.EaseInOutCirc => EaseInOutCircD,
+                TweenEase.Linear => LinearD,
+                TweenEase.Spring => SpringD,
+                TweenEase.EaseInBounce => EaseInBounceD,
+                TweenEase.EaseOutBounce => EaseOutBounceD,
+                TweenEase.EaseInOutBounce => EaseInOutBounceD,
+                TweenEase.EaseInBack => EaseInBackD,
+                TweenEase.EaseOutBack => EaseOutBackD,
+                TweenEase.EaseInOutBack => EaseInOutBackD,
+                TweenEase.EaseInElastic => EaseInElasticD,
+                TweenEase.EaseOutElastic => EaseOutElasticD,
+                TweenEase.EaseInOutElastic => EaseInOutElasticD,
                 _ => null
             };
     }

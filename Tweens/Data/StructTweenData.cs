@@ -27,7 +27,7 @@ namespace Shears.Tweens
 
         [Header("Ease Settings")]
         [SerializeField] private bool usesCurve;
-        [SerializeField] private Ease easingFunction;
+        [SerializeField] private TweenEase easingFunction;
         [SerializeField] private AnimationCurve curve;
 
         [Header("Events")]
@@ -40,7 +40,7 @@ namespace Shears.Tweens
         public bool ForceFinalValue { readonly get => UsesDataObject() ? tweenDataObject.ForceFinalValue : forceFinalValue; set => forceFinalValue = value; }
         public int Loops { readonly get => UsesDataObject() ? tweenDataObject.Loops : loops; set => loops = value; }
         public LoopMode LoopMode { readonly get => UsesDataObject() ? tweenDataObject.LoopMode : loopMode; set => loopMode = value; }
-        public Ease EasingFunction { readonly get => UsesDataObject() ? tweenDataObject.EasingFunction : easingFunction; set => easingFunction = value; }
+        public TweenEase EasingFunction { readonly get => UsesDataObject() ? tweenDataObject.EasingFunction : easingFunction; set => easingFunction = value; }
         public bool UsesCurve { readonly get => usesCurve; set => usesCurve = value; }
         public AnimationCurve Curve { readonly get => curve; set => curve = value; }
         public IReadOnlyList<TweenEventBase> Events
@@ -58,7 +58,7 @@ namespace Shears.Tweens
             }
         }
 
-        public StructTweenData(float duration = 1.0f, bool forceFinalValue = true, int loops = 0, LoopMode loopMode = LoopMode.None, Ease easingFunction = Ease.Linear)
+        public StructTweenData(float duration = 1.0f, bool forceFinalValue = true, int loops = 0, LoopMode loopMode = LoopMode.None, TweenEase easingFunction = TweenEase.Linear)
         {
             usesDataObject = false;
             tweenDataObject = null;
