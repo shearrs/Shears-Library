@@ -401,7 +401,7 @@ namespace Shears.HitDetection
                 float t = (float)i / (raysPerSide - 1);
                 Vector2 origin = Vector2.Lerp(start, end, t);
 
-                GizmoUtil.DrawArrow(origin, direction * distance, Vector2.Perpendicular(direction), 0.075f, 0.075f, Color.magenta);
+                GizmosUtil.DrawArrow(origin, direction * distance, Vector2.Perpendicular(direction), 0.075f, 0.075f, Color.magenta);
             }
         }
 

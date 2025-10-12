@@ -356,7 +356,7 @@ namespace Shears.HitDetection
                     Vector3 origin = Vector3.Lerp(start, end, tY) + (columnOffsetDistance * tX * columnOffsetDirection);
                     Vector3 crossAgainst = (direction == Vector3.up) ? Vector3.forward : Vector3.up;
 
-                    GizmoUtil.DrawArrow(origin, direction * distance, Vector3.Cross(direction, crossAgainst), 0.075f, 0.075f, Color.magenta * opacity);
+                    GizmosUtil.DrawArrow(origin, direction * distance, Vector3.Cross(direction, crossAgainst), 0.075f, 0.075f, Color.magenta * opacity);
                 }
             }
         }

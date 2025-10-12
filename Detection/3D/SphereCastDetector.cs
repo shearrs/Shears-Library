@@ -37,7 +37,7 @@ namespace Shears.Detection
             Vector3 p1 = Origin;
             Vector3 p2 = Origin + (Distance * Direction);
 
-            GizmoUtil.DrawWireCapsule(p1, p2, Radius);
+            GizmosUtil.DrawWireCapsule(p1, p2, Radius);
             
             Gizmos.matrix = matrix;
         }
