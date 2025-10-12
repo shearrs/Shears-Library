@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Shears.HitDetection
@@ -11,6 +12,7 @@ namespace Shears.HitDetection
         [SerializeField, Min(0.1f)] private float radius = 0.5f;
         [SerializeField] private Vector3 center;
 
+        private readonly Dictionary<Collider, List<RaycastHit>> recentHits = new();
         private readonly Collider[] results = new Collider[10];
         private Vector3 debugPoint;
         private Vector3 debugOrigin;
@@ -18,6 +20,21 @@ namespace Shears.HitDetection
 
         private Vector3 Center => transform.TransformPoint(center);
         private float Radius => radius * (transform.lossyScale.x + transform.lossyScale.y + transform.lossyScale.z) / 3;
+
+        public Vector3 GetAverageHitNormal(Collider collider)
+        {
+            if (!recentHits.ContainsKey(collider) || recentHits[collider].Count == 0)
+                return Vector3.zero;
+
+            Vector3 averageHitPosition = Vector3.zero;
+
+            foreach (var hit in recentHits[collider])
+                averageHitPosition += hit.point;
+
+            averageHitPosition /= recentHits[collider].Count;
+
+            return averageHitPosition;
+        }
 
         protected override void Sweep()
         {
