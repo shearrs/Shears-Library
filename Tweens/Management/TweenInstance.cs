@@ -149,7 +149,7 @@ namespace Shears.Tweens
                         progress = GetEndValue();
 
                         Update?.Invoke(progress);
-                        UpdateEvents(1.0f);
+                        UpdateEvents(progress);
                     }
 
                     if (loopMode == LoopMode.PingPong)

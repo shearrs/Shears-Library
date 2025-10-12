@@ -90,7 +90,6 @@ namespace Shears.Loading
                 yield return delay;
             }
 
-            // if loading screen, close it
             if (request.OpensLoadingScreen)
             {
                 while (loadingScreen.IsDelaying)
