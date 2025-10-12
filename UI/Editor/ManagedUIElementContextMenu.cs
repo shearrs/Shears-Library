@@ -99,10 +99,14 @@ namespace Shears.UI.Editor
         {
             var parent = Selection.activeGameObject;
             var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
+            Canvas canvas = null;
+
+            if (parent != null && !parent.TryGetComponent(out canvas))
+                canvas = parent.GetComponentInParent<Canvas>(true);
 
             bool isInPrefab = prefabStage != null && prefabStage.mode == PrefabStage.Mode.InIsolation;
 
-            if (!isInPrefab && (parent == null || parent.GetComponent<Canvas>() == null))
+            if (!isInPrefab && canvas == null)
                 parent = CreateCanvas();
             else if (parent == null && isInPrefab)
                 parent = prefabStage.prefabContentsRoot;
@@ -111,6 +115,8 @@ namespace Shears.UI.Editor
             button.transform.SetParent(parent.transform);
             button.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             button.layer = LayerMask.NameToLayer("UI");
+
+            Undo.RegisterCreatedObjectUndo(button, "Create Managed Button");
 
             var rectTransform = button.GetComponent<RectTransform>();
             rectTransform.sizeDelta = new Vector2(200, 100);
