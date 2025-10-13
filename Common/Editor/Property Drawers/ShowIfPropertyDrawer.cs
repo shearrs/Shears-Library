@@ -18,19 +18,26 @@ namespace Shears.Editor
 
         private readonly struct Comparison
         {
-            private readonly SerializedProperty property;
+            private readonly string propertyName;
             private readonly bool negate;
             private readonly object compareValue;
 
-            public Comparison(SerializedProperty property, bool negate, object compareValue)
+            public Comparison(string propertyName, bool negate, object compareValue)
             {
-                this.property = property;
+                this.propertyName = propertyName;
                 this.negate = negate;
                 this.compareValue = compareValue;
             }
 
-            public bool Evaluate()
+            public readonly bool Evaluate(SerializedProperty parent)
             {
+                var property = parent.FindPropertyRelative(propertyName);
+                return property.boxedValue.Equals(compareValue) != negate;
+            }
+
+            public readonly bool Evaluate(SerializedObject parent)
+            {
+                var property = parent.FindProperty(propertyName);
                 return property.boxedValue.Equals(compareValue) != negate;
             }
         }
@@ -38,11 +45,11 @@ namespace Shears.Editor
         public override VisualElement CreatePropertyGUI(SerializedProperty targetProperty)
         {
             var root = new VisualElement();
-            var displayAttribute = attribute as ShowIfAttribute;
+            var showIfAttribute = attribute as ShowIfAttribute;
 
             comparisons.Clear();
 
-            foreach (var conditionName in displayAttribute.Conditions.Keys)
+            foreach (var conditionName in showIfAttribute.Conditions.Keys)
             {
                 string name = conditionName;
                 bool negate = name.StartsWith("!");
@@ -55,21 +62,35 @@ namespace Shears.Editor
                 if (conditionProperty == null)
                     return root;
 
-                comparisons.Add(new(conditionProperty, negate, displayAttribute.Conditions[conditionName]));
+                comparisons.Add(new(name, negate, showIfAttribute.Conditions[conditionName]));
             }
 
-            var propertyField = new PropertyField(targetProperty);
+            var propertyField = new PropertyField(targetProperty)
+            {
+                name = targetProperty.displayName
+            };
 
-            void onValueChanged(SerializedObject serializedObject)
+            void onValueChanged(SerializedProperty parentProperty, SerializedObject parentObject)
             {
                 bool isValid = true;
 
                 foreach (var comparison in comparisons)
                 {
-                    if (!comparison.Evaluate())
+                    if (parentProperty != null)
                     {
-                        isValid = false;
-                        break;
+                        if (!comparison.Evaluate(parentProperty))
+                        {
+                            isValid = false;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        if (!comparison.Evaluate(parentObject))
+                        {
+                            isValid = false;
+                            break;
+                        }
                     }
                 }
 
@@ -80,8 +101,15 @@ namespace Shears.Editor
             }
 
             root.Add(propertyField);
-            root.TrackSerializedObjectValue(targetProperty.serializedObject, onValueChanged);
-            onValueChanged(targetProperty.serializedObject);
+
+            var parentProperty = targetProperty.FindParentProperty();
+
+            if (parentProperty != null)
+                root.TrackPropertyValue(parentProperty, _ => onValueChanged(parentProperty, targetProperty.serializedObject));
+            else
+                root.TrackSerializedObjectValue(targetProperty.serializedObject, _ => onValueChanged(parentProperty, targetProperty.serializedObject));
+
+            onValueChanged(parentProperty, targetProperty.serializedObject);
 
             return root;
         }
@@ -105,17 +133,29 @@ namespace Shears.Editor
                 if (conditionProperty == null)
                     return;
 
-                comparisons.Add(new(conditionProperty, negate, displayAttribute.Conditions[conditionName]));
+                comparisons.Add(new(name, negate, displayAttribute.Conditions[conditionName]));
             }
 
             bool isValid = true;
+            var parentProperty = targetProperty.FindParentProperty();
 
             foreach (var comparison in comparisons)
             {
-                if (!comparison.Evaluate())
+                if (parentProperty != null)
                 {
-                    isValid = false;
-                    break;
+                    if (!comparison.Evaluate(parentProperty))
+                    {
+                        isValid = false;
+                        break;
+                    }
+                }
+                else
+                {
+                    if (!comparison.Evaluate(targetProperty.serializedObject))
+                    {
+                        isValid = false;
+                        break;
+                    }
                 }
             }
 
