@@ -95,5 +95,16 @@ namespace Shears.Pathfinding
 
             return nodes[index];
         }
+    
+        public PathNode GetNodeWithData<T>() where T : PathNodeData
+        {
+            foreach (var node in nodes)
+            {
+                if (node.TryGetData(out T data))
+                    return node;
+            }
+
+            return null;
+        }
     }
 }
