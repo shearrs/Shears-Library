@@ -13,6 +13,6 @@ namespace Shears.Pathfinding
             return MemberwiseClone();
         }
 
-        public virtual void DrawGizmos(Vector3 nodePosition, float nodeSize) { }
+        public virtual void DrawHandles(Vector3 nodePosition, float nodeSize) { }
     }
 }

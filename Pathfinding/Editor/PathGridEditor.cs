@@ -8,6 +8,7 @@ namespace Shears.Pathfinding.Editor
     [CustomEditor(typeof(PathGrid))]
     public class PathGridEditor : UnityEditor.Editor
     {
+        private PathGrid grid;
         private SerializedProperty gridSizeProp;
         private SerializedProperty nodeSizeProp;
         private SerializedProperty nodesProp;
@@ -16,6 +17,7 @@ namespace Shears.Pathfinding.Editor
         {
             var root = new VisualElement();
 
+            grid = serializedObject.targetObject as PathGrid;
             gridSizeProp = serializedObject.FindProperty("gridSize");
             nodeSizeProp = serializedObject.FindProperty("nodeSize");
             nodesProp = serializedObject.FindProperty("nodes");
@@ -68,7 +70,7 @@ namespace Shears.Pathfinding.Editor
                             z * nodeSize
                         );
 
-                        var node = new PathNode(new(x, y, z), localPosition);
+                        var node = new PathNode(new(x, y, z), grid.transform.TransformPoint(localPosition));
                         nodesProp.InsertArrayElementAtIndex(nodesProp.arraySize);
                         nodesProp.GetArrayElementAtIndex(nodesProp.arraySize - 1).boxedValue = node;
                     }
@@ -76,6 +78,14 @@ namespace Shears.Pathfinding.Editor
             }
 
             serializedObject.ApplyModifiedProperties();
+        }
+
+        [MenuItem("CONTEXT/PathGrid/Update World Position")]
+        private static void UpdateWorldPositions(MenuCommand command)
+        {
+            var grid = command.context as PathGrid;
+
+            grid.UpdateWorldPositions();
         }
     }
 }

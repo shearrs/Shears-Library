@@ -13,6 +13,7 @@ namespace Shears.Pathfinding.Editor
     public class PathGridEditorTool : EditorTool, IDrawSelectedHandles
     {
         [SerializeReference] private PathNodeData nodeData;
+        [SerializeField] private int zDepth;
         
         private readonly Dictionary<int, PathNode> nodeHandles = new();
         private readonly List<int> hoveredHandles = new();
@@ -29,14 +30,17 @@ namespace Shears.Pathfinding.Editor
         private SerializedObject editorSO;
         private SerializedObject gridSO;
         private SerializedProperty nodeDataProp;
-        private int zDepth = 0;
+        private SerializedProperty zDepthProp;
 
         private void OnEnable()
         {
             grid = target as PathGrid;
             editorSO = new SerializedObject(this);
-            nodeDataProp = editorSO.FindProperty("nodeData");
             gridSO = new SerializedObject(grid);
+
+            nodeDataProp = editorSO.FindProperty("nodeData");
+            zDepthProp = editorSO.FindProperty("zDepth");
+
             CreateTypeMenu();
         }
 
@@ -71,17 +75,15 @@ namespace Shears.Pathfinding.Editor
             root.style.backgroundColor = new Color(0.2f, 0.2f, 0.2f, 0.8f);
             root.SetAllBorderColors(new Color(0.1f, 0.1f, 0.1f, 0.8f));
             root.SetAllBorders(1);
-
+            
             var depthSlider = new SliderInt("Z Depth", 0, grid.GridSize.z - 1)
             {
-                value = zDepth,
                 showInputField = true
             };
+            depthSlider.BindProperty(zDepthProp);
             depthSlider.style.marginBottom = 8;
             depthSlider.labelElement.style.minWidth = 80;
             depthSlider.hierarchy[1].hierarchy[0].style.minWidth = 60;
-
-            depthSlider.RegisterValueChangedCallback(OnDepthSliderChanged);
 
             var typeContainer = new VisualElement();
             typeContainer.style.flexDirection = FlexDirection.Row;
@@ -106,11 +108,6 @@ namespace Shears.Pathfinding.Editor
 
             if (nodeData != null)
                 UpdateNodeDataFields();
-        }
-
-        private void OnDepthSliderChanged(ChangeEvent<int> evt)
-        {
-            zDepth = evt.newValue;
         }
 
         private void CreateTypeMenu()
@@ -147,9 +144,10 @@ namespace Shears.Pathfinding.Editor
                 nodeDataContainer.style.display = DisplayStyle.None;
             else
             {
-                var defaultFields = VisualElementUtil.CreateDefaultFields(editorSO);
+                var dataField = new PropertyField(nodeDataProp);
+                dataField.Bind(editorSO);
 
-                nodeDataContainer.Add(defaultFields);
+                nodeDataContainer.Add(dataField);
                 nodeDataContainer.style.display = DisplayStyle.Flex;
             }
         }
@@ -163,12 +161,13 @@ namespace Shears.Pathfinding.Editor
                 Handles.color = color;
 
                 foreach (var node in grid.Nodes)
-                    Handles.DrawWireCube(grid.transform.TransformPoint(node.LocalPosition), grid.NodeSize * Vector3.one);
+                    Handles.DrawWireCube(node.WorldPosition, grid.NodeSize * Vector3.one);
 
                 return;
             }
 
             Handles.color = Color.white;
+            nodeHandles.Clear();
 
             foreach (var node in grid.Nodes)
             {
@@ -180,7 +179,7 @@ namespace Shears.Pathfinding.Editor
         private void CreateNodeHandle(PathNode node)
         {
             int controlID = GUIUtility.GetControlID(FocusType.Passive);
-            Vector3 handlePosition = grid.transform.TransformPoint(node.LocalPosition);
+            Vector3 handlePosition = node.WorldPosition;
             Vector3 handleSize = grid.NodeSize * 0.98f * Vector3.one;
             Vector3 screenPosition = Handles.matrix.MultiplyPoint(handlePosition);
 
@@ -237,6 +236,8 @@ namespace Shears.Pathfinding.Editor
 
             Handles.color = color;
             Handles.DrawWireCube(handlePosition, handleSize);
+
+            node.Data?.DrawHandles(node.WorldPosition, grid.NodeSize);
         }
     
         private void PaintHandle(int id)

@@ -7,26 +7,37 @@ namespace Shears.Pathfinding
     public class PathNode
     {
         [SerializeField] private Vector3Int gridPosition;
-        [SerializeField] private Vector3 localPosition;
+        [SerializeField] private Vector3 worldPosition;
         [SerializeReference] private PathNodeData data;
 
-        public Vector3Int GridPosition => gridPosition;
-        public Vector3 LocalPosition => localPosition;
-        public PathNodeData Data { get => data; set => data = value; }
+        private PathNode parent;
+        private int gCost;
+        private int hCost;
 
-        public PathNode(Vector3Int gridPosition, Vector3 localPosition)
+        public Vector3Int GridPosition => gridPosition;
+        public Vector3 WorldPosition { get => worldPosition; internal set => worldPosition = value; }
+        public PathNodeData Data { get => data; set => data = value; }
+        public PathNode Parent { get => parent; set => parent = value; }
+        public int GCost { get => gCost; set => gCost = value; }
+        public int HCost { get => hCost; set => hCost = value; }
+        public int FCost => gCost + hCost;
+
+        public PathNode(Vector3Int gridPosition, Vector3 worldPosition)
         {
             this.gridPosition = gridPosition;
-            this.localPosition = localPosition;
+            this.worldPosition = worldPosition;
         }
 
-        public T GetData<T>() where T : PathNodeData
+        public bool TryGetData<T>(out T nodeData) where T : PathNodeData
         {
             if (data is T tData)
-                return tData;
+            {
+                nodeData = tData;
+                return true;
+            }
 
-            SHLogger.Log($"Could not find data of type {nameof(T)}!", SHLogLevels.Error);
-            return null;
+            nodeData = null;
+            return false;
         }
     }
 }
