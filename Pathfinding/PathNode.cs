@@ -1,10 +1,10 @@
-using Shears.Logging;
+using System;
 using UnityEngine;
 
 namespace Shears.Pathfinding
 {
-    [System.Serializable]
-    public class PathNode
+    [Serializable]
+    public class PathNode : IHeapItem<PathNode>
     {
         [SerializeField] private Vector3Int gridPosition;
         [SerializeField] private Vector3 worldPosition;
@@ -22,6 +22,8 @@ namespace Shears.Pathfinding
         public int HCost { get => hCost; set => hCost = value; }
         public int FCost => gCost + hCost;
 
+        int IHeapItem<PathNode>.HeapIndex { get; set; }
+
         public PathNode(Vector3Int gridPosition, Vector3 worldPosition)
         {
             this.gridPosition = gridPosition;
@@ -30,14 +32,28 @@ namespace Shears.Pathfinding
 
         public bool TryGetData<T>(out T nodeData) where T : PathNodeData
         {
+            nodeData = null;
+
+            if (data == null)
+                return false;
+
             if (data is T tData)
             {
                 nodeData = tData;
                 return true;
             }
 
-            nodeData = null;
             return false;
+        }
+
+        int IComparable<PathNode>.CompareTo(PathNode other)
+        {
+            int compare = FCost.CompareTo(other.FCost);
+
+            if (compare == 0)
+                compare = HCost.CompareTo(other.HCost);
+
+            return -compare;
         }
     }
 }

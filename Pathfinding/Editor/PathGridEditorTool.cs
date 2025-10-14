@@ -1,6 +1,7 @@
 using Shears.Editor;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.EditorTools;
 using UnityEditor.UIElements;
@@ -117,7 +118,15 @@ namespace Shears.Pathfinding.Editor
             typeMenu.AddItem(new("None"), false, () => OnTypeSelected(null));
 
             foreach (var type in TypeCache.GetTypesDerivedFrom<PathNodeData>())
-                typeMenu.AddItem(new(type.Name), false, () => OnTypeSelected(type));
+            {
+                if (!type.IsAbstract)
+                {
+                    var attribute = type.GetCustomAttribute<NodeDataMenuItem>();
+                    string menuPath = attribute == null ? type.Name : attribute.MenuPath;
+
+                    typeMenu.AddItem(new(menuPath), false, () => OnTypeSelected(type));
+                }
+            }
         }
 
         private void OnTypeSelected(Type type)
