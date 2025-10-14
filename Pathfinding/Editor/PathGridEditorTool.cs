@@ -262,6 +262,7 @@ namespace Shears.Pathfinding.Editor
             else if (hoveredHandles.Contains(id))
                 return;
 
+            gridSO.Update();
             var nodesProp = gridSO.FindProperty("nodes");
             Vector3Int pos = node.GridPosition;
             int index = (pos.z * grid.GridSize.y * grid.GridSize.x) + (pos.y * grid.GridSize.x) + pos.x;
