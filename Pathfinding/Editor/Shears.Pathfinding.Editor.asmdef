@@ -1,0 +1,20 @@
+{
+    "name": "Shears.Pathfinding.Editor",
+    "rootNamespace": "Shears.Pathfinding.Editor",
+    "references": [
+        "GUID:b28a31c08beef024d83a7aa1ec3f2f6d",
+        "GUID:b8ce35fbba9686d4a8094487b762ff16",
+        "GUID:0d6eb87f2235cdd4fb2759a4851498b1"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

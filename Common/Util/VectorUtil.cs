@@ -21,6 +21,33 @@ namespace Shears
             return vector;
         }
 
+        public static Vector3Int ClampComponents(this Vector3Int vector, int min, int max)
+        {
+            vector.x = Mathf.Clamp(vector.x, min, max);
+            vector.y = Mathf.Clamp(vector.y, min, max);
+            vector.z = Mathf.Clamp(vector.z, min, max);
+
+            return vector;
+        }
+
+        public static Vector3Int ClampMin(this Vector3Int vector, int min)
+        {
+            vector.x = Mathf.Min(vector.x, min);
+            vector.y = Mathf.Min(vector.y, min);
+            vector.z = Mathf.Min(vector.z, min);
+
+            return vector;
+        }
+
+        public static Vector3Int ClampMax(this Vector3Int vector, int max)
+        {
+            vector.x = Mathf.Max(vector.x, max);
+            vector.y = Mathf.Max(vector.y, max);
+            vector.z = Mathf.Max(vector.z, max);
+
+            return vector;
+        }
+
         public static void Deconstruct(this Vector2 self, out float x, out float y)
         {
             x = self.x;
