@@ -11,7 +11,7 @@ namespace Shears.HitDetection
         private readonly IHitBody3D hitBody;
         private readonly IHurtBody3D hurtBody;
         private readonly HitResult3D result;
-        private readonly Dictionary<Type, object> data;
+        private readonly Dictionary<Type, IHitSubdata> data;
 
         public readonly IHitDeliverer3D Deliverer => deliverer;
         public readonly IHitReceiver3D Receiver => receiver;
@@ -35,7 +35,7 @@ namespace Shears.HitDetection
 
         public HitData3D(IHitDeliverer3D deliverer, IHitReceiver3D receiver,
             IHitBody3D hitBody, IHurtBody3D hurtBody,
-            HitResult3D result, params object[] data)
+            HitResult3D result, params IHitSubdata[] data)
         {
             this.deliverer = deliverer;
             this.receiver = receiver;
@@ -43,6 +43,9 @@ namespace Shears.HitDetection
             this.hurtBody = hurtBody;
             this.result = result;
             this.data = new();
+
+            if (data == null)
+                return;
 
             foreach (var item in data)
             {
@@ -60,7 +63,7 @@ namespace Shears.HitDetection
 
         public readonly bool TryGetData<T>(out T data)
         {
-            if (this.data.TryGetValue(typeof(T), out object value) && value is T typedValue)
+            if (this.data.TryGetValue(typeof(T), out IHitSubdata value) && value is T typedValue)
             {
                 data = typedValue;
 

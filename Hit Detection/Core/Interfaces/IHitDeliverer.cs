@@ -7,9 +7,9 @@ namespace Shears.HitDetection
     {
         public Transform Transform { get; }
 
-        public object[] GetCustomData()
+        public IHitSubdata[] GetCustomData()
         {
-            return Array.Empty<object>();
+            return null;
         }
     }
 
