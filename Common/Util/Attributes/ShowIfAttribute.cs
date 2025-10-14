@@ -28,10 +28,9 @@ namespace Shears
         /// Shows the field if the condition with <see cref="conditionName"/> is equal to <see cref="compareValue"/>.
         /// </summary>
         /// <param name="condition"></param>
-        public ShowIfAttribute(params (string conditionName, object compareValue)[] conditions)
+        public ShowIfAttribute(string conditionName, object compareValue)
         {
-            foreach (var (conditionName, compareValue) in conditions)
-                this.conditions[conditionName] = compareValue;
+            conditions[conditionName] = compareValue;
         }
     }
 }

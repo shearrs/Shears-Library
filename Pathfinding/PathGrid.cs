@@ -7,7 +7,7 @@ namespace Shears.Pathfinding
     {
         [SerializeField] private Vector3Int gridSize;
         [SerializeField] private float nodeSize;
-        [SerializeField, ReadOnly] private List<PathNode> nodes = new();
+        [SerializeField] private List<PathNode> nodes = new();
 
         public Vector3Int GridSize => gridSize;
         public float NodeSize => nodeSize;
@@ -16,6 +16,12 @@ namespace Shears.Pathfinding
         private void OnValidate()
         {
             gridSize = gridSize.ClampMax(1);
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            foreach (var node in nodes)
+                node.Data?.DrawGizmos(transform.TransformPoint(node.LocalPosition), nodeSize);
         }
     }
 }

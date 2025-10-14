@@ -1,7 +1,9 @@
 using Shears.Editor;
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.EditorTools;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -10,27 +12,31 @@ namespace Shears.Pathfinding.Editor
     [EditorTool("Path Grid Tool", typeof(PathGrid))]
     public class PathGridEditorTool : EditorTool, IDrawSelectedHandles
     {
+        [SerializeReference] private PathNodeData nodeData;
+        
+        private readonly Dictionary<int, PathNode> nodeHandles = new();
+        private readonly List<int> hoveredHandles = new();
+
         private bool isActivated = false;
-        private GenericMenu typeMenu;
+        private bool isMouseDown = false;
+        private int hoveredID = -1;
         private VisualElement root;
+        private VisualElement nodeDataContainer;
+        private GenericMenu typeMenu;
+        private Button typeButton;
         private SceneView sceneView;
         private PathGrid grid;
+        private SerializedObject editorSO;
+        private SerializedObject gridSO;
+        private SerializedProperty nodeDataProp;
         private int zDepth = 0;
-        private Type nodeDataType;
-
-        private PathGrid Grid
-        {
-            get
-            {
-                if (grid == null)
-                    grid = target as PathGrid;
-
-                return grid;
-            }
-        }
 
         private void OnEnable()
         {
+            grid = target as PathGrid;
+            editorSO = new SerializedObject(this);
+            nodeDataProp = editorSO.FindProperty("nodeData");
+            gridSO = new SerializedObject(grid);
             CreateTypeMenu();
         }
 
@@ -43,6 +49,7 @@ namespace Shears.Pathfinding.Editor
             if (!sceneView.sceneViewState.fxEnabled)
                 sceneView.sceneViewState.fxEnabled = true;
 
+            nodeHandles.Clear();
             CreateGUI();
         }
 
@@ -65,7 +72,7 @@ namespace Shears.Pathfinding.Editor
             root.SetAllBorderColors(new Color(0.1f, 0.1f, 0.1f, 0.8f));
             root.SetAllBorders(1);
 
-            var depthSlider = new SliderInt("Z Depth", 0, grid.GridSize.z)
+            var depthSlider = new SliderInt("Z Depth", 0, grid.GridSize.z - 1)
             {
                 value = zDepth,
                 showInputField = true
@@ -81,8 +88,8 @@ namespace Shears.Pathfinding.Editor
 
             var typeLabel = new Label("Data Type");
 
-            string typeName = nodeDataType == null ? "None" : nodeDataType.Name;
-            var typeButton = new Button(typeMenu.ShowAsContext)
+            string typeName = nodeData == null ? "None" : nodeData.GetType().Name;
+            typeButton = new Button(typeMenu.ShowAsContext)
             {
                 text = typeName
             };
@@ -91,9 +98,14 @@ namespace Shears.Pathfinding.Editor
 
             typeContainer.AddAll(typeLabel, typeButton);
 
-            root.Add(depthSlider);
-            root.Add(typeContainer);
+            nodeDataContainer = new VisualElement();
+            nodeDataContainer.style.display = DisplayStyle.None;
+
+            root.AddAll(nodeDataContainer, depthSlider, typeContainer);
             sceneView.rootVisualElement.Add(root);
+
+            if (nodeData != null)
+                UpdateNodeDataFields();
         }
 
         private void OnDepthSliderChanged(ChangeEvent<int> evt)
@@ -113,7 +125,33 @@ namespace Shears.Pathfinding.Editor
 
         private void OnTypeSelected(Type type)
         {
-            nodeDataType = type;
+            if (type != null)
+                nodeDataProp.boxedValue = (PathNodeData)Activator.CreateInstance(type);
+            else
+                nodeDataProp.boxedValue = null;
+
+            string typeName = type == null ? "None" : type.Name;
+            typeButton.text = typeName;
+
+            editorSO.ApplyModifiedProperties();
+
+            UpdateNodeDataFields();
+        }
+
+        private void UpdateNodeDataFields()
+        {
+            nodeDataContainer.Clear();
+            nodeDataContainer.Unbind();
+
+            if (nodeData == null)
+                nodeDataContainer.style.display = DisplayStyle.None;
+            else
+            {
+                var defaultFields = VisualElementUtil.CreateDefaultFields(editorSO);
+
+                nodeDataContainer.Add(defaultFields);
+                nodeDataContainer.style.display = DisplayStyle.Flex;
+            }
         }
 
         public void OnDrawHandles()
@@ -124,15 +162,15 @@ namespace Shears.Pathfinding.Editor
                 color.a = 0.1f;
                 Handles.color = color;
 
-                foreach (var node in Grid.Nodes)
-                    Handles.DrawWireCube(Grid.transform.TransformPoint(node.LocalPosition), Grid.NodeSize * Vector3.one);
+                foreach (var node in grid.Nodes)
+                    Handles.DrawWireCube(grid.transform.TransformPoint(node.LocalPosition), grid.NodeSize * Vector3.one);
 
                 return;
             }
 
             Handles.color = Color.white;
 
-            foreach (var node in Grid.Nodes)
+            foreach (var node in grid.Nodes)
             {
                 if (node.GridPosition.z == zDepth)
                     CreateNodeHandle(node);
@@ -142,12 +180,20 @@ namespace Shears.Pathfinding.Editor
         private void CreateNodeHandle(PathNode node)
         {
             int controlID = GUIUtility.GetControlID(FocusType.Passive);
-            Vector3 handlePosition = Grid.transform.TransformPoint(node.LocalPosition);
-            Vector3 handleSize = Grid.NodeSize * Vector3.one;
+            Vector3 handlePosition = grid.transform.TransformPoint(node.LocalPosition);
+            Vector3 handleSize = grid.NodeSize * 0.98f * Vector3.one;
             Vector3 screenPosition = Handles.matrix.MultiplyPoint(handlePosition);
 
-            Color color = Color.white;
-            
+            if (!nodeHandles.ContainsKey(controlID))
+                nodeHandles[controlID] = node;
+
+            Color color;
+
+            if (node.Data != null)
+                color = node.Data.EditorColor;
+            else
+                color = new(1f, 1f, 1f, 0.5f);
+
             switch (Event.current.GetTypeForControl(controlID))
             {
                 case EventType.Layout:
@@ -155,18 +201,33 @@ namespace Shears.Pathfinding.Editor
 
                     break;
                 case EventType.MouseDown:
-                    if (Event.current.button == 0 && HandleUtility.nearestControl == controlID)
+                    isMouseDown = Event.current.button == 0;
+
+                    if (isMouseDown && HandleUtility.nearestControl == controlID)
                     {
                         GUIUtility.hotControl = controlID;
-                        
+                        PaintHandle(controlID);
+
                         Event.current.Use();
                     }
 
+                    break;
+                case EventType.MouseUp:
+                    isMouseDown = false;
+                    hoveredHandles.Clear();
                     break;
                 case EventType.Repaint:
 
                     if (HandleUtility.nearestControl != controlID)
                         break;
+
+                    if (controlID != hoveredID)
+                    {
+                        hoveredID = controlID;
+
+                        if (isMouseDown)
+                            PaintHandle(controlID);
+                    }
 
                     color = Color.yellow;
                     handleSize *= 0.9f;
@@ -176,6 +237,36 @@ namespace Shears.Pathfinding.Editor
 
             Handles.color = color;
             Handles.DrawWireCube(handlePosition, handleSize);
+        }
+    
+        private void PaintHandle(int id)
+        {
+            if (!nodeHandles.TryGetValue(id, out var node))
+            {
+                Debug.LogError("Could not find node for id: " + id);
+                return;
+            }
+
+            if (node.Data == null && nodeData == null)
+                return;
+            else if (hoveredHandles.Contains(id))
+                return;
+
+            var nodesProp = gridSO.FindProperty("nodes");
+            Vector3Int pos = node.GridPosition;
+            int index = (pos.z * grid.GridSize.y * grid.GridSize.x) + (pos.y * grid.GridSize.x) + pos.x;
+            var nodeProp = nodesProp.GetArrayElementAtIndex(index);
+
+            var dataProp = nodeProp.FindPropertyRelative("data");
+
+            if (nodeData == null)
+                dataProp.boxedValue = null;
+            else
+                dataProp.boxedValue = nodeData.Clone();
+
+            hoveredHandles.Add(id);
+            gridSO.ApplyModifiedProperties();
+            return;
         }
     }
 }

@@ -119,5 +119,36 @@ namespace Shears.Editor
 
             return container;
         }
+    
+        public static VisualElement CreateDefaultFields(SerializedProperty serializedProperty)
+        {
+            var container = new VisualElement
+            {
+                name = "Default Fields"
+            };
+
+            var iterator = serializedProperty;
+            bool isNext = iterator.Next(true);
+
+            if (!isNext)
+                return container;
+
+            while (iterator.NextVisible(false))
+            {
+                var prop = iterator.Copy();
+                var field = new PropertyField(prop)
+                {
+                    name = prop.name
+                };
+                field.Bind(prop.serializedObject);
+
+                if (prop.name == "m_Script")
+                    field.SetEnabled(false);
+
+                container.Add(field);
+            }
+
+            return container;
+        }
     }
 }

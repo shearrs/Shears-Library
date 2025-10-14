@@ -35,10 +35,26 @@ namespace Shears.Pathfinding.Editor
 
         private void OnGridChanged()
         {
-            nodesProp.ClearArray();
+            for (int i = 0; i < nodesProp.arraySize; i++)
+            {
+                var element = nodesProp.GetArrayElementAtIndex(i);
 
-            Vector3 gridSize = gridSizeProp.vector3IntValue;
+                if (element.boxedValue == null)
+                {
+                    nodesProp.DeleteArrayElementAtIndex(i);
+                    i--;
+                }
+            }
+
+            Vector3Int gridSize = gridSizeProp.vector3IntValue;
             float nodeSize = nodeSizeProp.floatValue;
+
+            // array already initialized
+            if (nodesProp.arraySize == gridSize.x * gridSize.y * gridSize.z)
+                return;
+
+            Debug.LogWarning("Invalid node array, resetting values.");
+            nodesProp.ClearArray();
 
             for (int z = 0; z < gridSize.z; z++)
             {
