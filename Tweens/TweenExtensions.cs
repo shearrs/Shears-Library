@@ -7,6 +7,8 @@ namespace Shears.Tweens
 {
     public static class TweenExtensions
     {
+        private static readonly int EMISSION_ID = Shader.PropertyToID("_EmissionColor");
+
         private static Tween CreateTween(Action<float> update, ITweenData data) => TweenManager.CreateTween(update, data);
         private static Tween Do(Tween tween)
         {
@@ -240,6 +242,44 @@ namespace Shears.Tweens
 
             return CreateAutoDisposeTween(textMesh, update, data);
         }
+        #endregion
+
+        #region Materials
+        #region Color
+        public static Tween DoColorTween(this Material material, Color targetColor, ITweenData data = null) => Do(GetColorTween(material, targetColor, data));
+        public static Tween GetColorTween(this Material material, Color targetColor, ITweenData data = null)
+        {
+            Color start = material.color;
+
+            void update(float t)
+            {
+                material.color = Color.LerpUnclamped(start, targetColor, t);
+            }
+
+            if (material is UnityEngine.Object unityObject)
+                return CreateAutoDisposeTween(unityObject, update, data);
+            else
+                return CreateTween(update, data);
+        }
+        #endregion
+
+        #region Emission
+        public static Tween DoEmissionTween(this Material material, Color targetEmission, ITweenData data = null) => Do(GetColorTween(material, targetEmission, data));
+        public static Tween GetEmissionTween(this Material material, Color targetEmission, ITweenData data = null)
+        {
+            Color start = material.GetColor(EMISSION_ID);
+
+            void update(float t)
+            {
+                material.SetColor(EMISSION_ID, Color.LerpUnclamped(start, targetEmission, t));
+            }
+
+            if (material is UnityEngine.Object unityObject)
+                return CreateAutoDisposeTween(unityObject, update, data);
+            else
+                return CreateTween(update, data);
+        }
+        #endregion
         #endregion
 
         #region IColorTweenable Tweens
