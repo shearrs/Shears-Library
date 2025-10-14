@@ -62,6 +62,32 @@ namespace Shears.Editor
         }
 
         /// <summary>
+        /// Shorthand function for setting all border values on a <see cref="VisualElement"/>.
+        /// </summary>
+        /// <param name="element">The element to set borders for.</param>
+        /// <param name="border">The size of borders in pixels.</param>
+        public static void SetAllBorders(this VisualElement element, int border)
+        {
+            element.style.borderTopWidth = border;
+            element.style.borderBottomWidth = border;
+            element.style.borderLeftWidth = border;
+            element.style.borderRightWidth = border;
+        }
+
+        /// <summary>
+        /// Shorthand function for setting all border colors on a <see cref="VisualElement"/>.
+        /// </summary>
+        /// <param name="element">The element to set border colors for.</param>
+        /// <param name="color">The color to make the border.</param>
+        public static void SetAllBorderColors(this VisualElement element, Color color)
+        {
+            element.style.borderTopColor = color;
+            element.style.borderBottomColor = color;
+            element.style.borderLeftColor = color;
+            element.style.borderRightColor = color;
+        }
+
+        /// <summary>
         /// Iterates through all visible properties of a <see cref="SerializedObject"/> and creates a <see cref="PropertyField"/> for each one.
         /// </summary>
         /// <param name="serializedObject">The <see cref="SerializedObject"/> to create fields for.</param>

@@ -1,6 +1,9 @@
+using Shears.Editor;
+using System;
 using UnityEditor;
 using UnityEditor.EditorTools;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Shears.Pathfinding.Editor
 {
@@ -8,8 +11,12 @@ namespace Shears.Pathfinding.Editor
     public class PathGridEditorTool : EditorTool, IDrawSelectedHandles
     {
         private bool isActivated = false;
+        private GenericMenu typeMenu;
+        private VisualElement root;
+        private SceneView sceneView;
         private PathGrid grid;
         private int zDepth = 0;
+        private Type nodeDataType;
 
         private PathGrid Grid
         {
@@ -22,43 +29,91 @@ namespace Shears.Pathfinding.Editor
             }
         }
 
+        private void OnEnable()
+        {
+            CreateTypeMenu();
+        }
+
         public override void OnActivated()
         {
             isActivated = true;
+
+            sceneView = EditorWindow.GetWindow<SceneView>();
+
+            if (!sceneView.sceneViewState.fxEnabled)
+                sceneView.sceneViewState.fxEnabled = true;
+
+            CreateGUI();
         }
 
         public override void OnWillBeDeactivated()
         {
             isActivated = false;
+            sceneView.rootVisualElement.Remove(root);
         }
 
-        public override void OnToolGUI(EditorWindow window)
+        private void CreateGUI()
         {
-            if (window is not SceneView sceneView)
-                return;
+            root = new();
+            
+            root.style.marginTop = StyleKeyword.Auto;
+            root.style.marginRight = StyleKeyword.Auto;
+            root.style.marginLeft = 10;
+            root.style.marginBottom = 10;
+            root.SetAllPadding(4);
+            root.style.backgroundColor = new Color(0.2f, 0.2f, 0.2f, 0.8f);
+            root.SetAllBorderColors(new Color(0.1f, 0.1f, 0.1f, 0.8f));
+            root.SetAllBorders(1);
 
-            Handles.BeginGUI();
-            GUILayout.BeginArea(new Rect(10, sceneView.rootVisualElement.layout.height - 55, 300, 100));
-            using (new GUILayout.HorizontalScope())
+            var depthSlider = new SliderInt("Z Depth", 0, grid.GridSize.z)
             {
-                using (new GUILayout.VerticalScope(EditorStyles.helpBox))
-                {
-                    sceneView.sceneViewState.alwaysRefresh = isActivated;
+                value = zDepth,
+                showInputField = true
+            };
+            depthSlider.style.marginBottom = 8;
+            depthSlider.labelElement.style.minWidth = 80;
+            depthSlider.hierarchy[1].hierarchy[0].style.minWidth = 60;
 
-                    if (isActivated)
-                    {
-                        if (!sceneView.sceneViewState.fxEnabled)
-                            sceneView.sceneViewState.fxEnabled = true;
+            depthSlider.RegisterValueChangedCallback(OnDepthSliderChanged);
 
-                        zDepth = Mathf.Clamp(zDepth, 0, Grid.GridSize.z - 1);
-                        zDepth = EditorGUILayout.IntSlider("Z Depth", zDepth, 0, Grid.GridSize.z - 1);
-                    }
-                }
+            var typeContainer = new VisualElement();
+            typeContainer.style.flexDirection = FlexDirection.Row;
 
-                GUILayout.FlexibleSpace();
-            }
-            GUILayout.EndArea();
-            Handles.EndGUI();
+            var typeLabel = new Label("Data Type");
+
+            string typeName = nodeDataType == null ? "None" : nodeDataType.Name;
+            var typeButton = new Button(typeMenu.ShowAsContext)
+            {
+                text = typeName
+            };
+            typeButton.style.marginLeft = 4;
+            typeButton.style.flexGrow = 1;
+
+            typeContainer.AddAll(typeLabel, typeButton);
+
+            root.Add(depthSlider);
+            root.Add(typeContainer);
+            sceneView.rootVisualElement.Add(root);
+        }
+
+        private void OnDepthSliderChanged(ChangeEvent<int> evt)
+        {
+            zDepth = evt.newValue;
+        }
+
+        private void CreateTypeMenu()
+        {
+            typeMenu = new GenericMenu();
+
+            typeMenu.AddItem(new("None"), false, () => OnTypeSelected(null));
+
+            foreach (var type in TypeCache.GetTypesDerivedFrom<PathNodeData>())
+                typeMenu.AddItem(new(type.Name), false, () => OnTypeSelected(type));
+        }
+
+        private void OnTypeSelected(Type type)
+        {
+            nodeDataType = type;
         }
 
         public void OnDrawHandles()
@@ -99,7 +154,7 @@ namespace Shears.Pathfinding.Editor
                     HandleUtility.AddControl(controlID, HandleUtility.DistanceToCube(screenPosition, Quaternion.identity, grid.NodeSize));
 
                     break;
-                case EventType.MouseUp:
+                case EventType.MouseDown:
                     if (Event.current.button == 0 && HandleUtility.nearestControl == controlID)
                     {
                         GUIUtility.hotControl = controlID;
