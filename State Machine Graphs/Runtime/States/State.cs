@@ -27,6 +27,11 @@ namespace Shears.StateMachineGraphs
 
         public SHLogLevels LogLevels { get; set; } = SHLogLevels.Issues;
 
+        public void AddSubState(State state)
+        {
+            state.ParentState = this;
+        }
+
         internal void AddTransition(Transition transition) => transitions.Add(transition);
 
         internal bool EvaluateTransitions(out State newState)
