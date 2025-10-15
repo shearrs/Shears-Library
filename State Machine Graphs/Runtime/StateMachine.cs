@@ -47,6 +47,12 @@ namespace Shears.StateMachineGraphs
             InjectStateReferences();
         }
 
+        private void OnValidate()
+        {
+            foreach (var state in states.Values)
+                state.LogLevels = LogLevels;
+        }
+
         private void OnDisable()
         {
             EnterState(null);
@@ -160,7 +166,14 @@ namespace Shears.StateMachineGraphs
 
         public void AddState(State state)
         {
+            if (state == null)
+            {
+                Log("State cannot be null!", SHLogLevels.Error);
+                return;
+            }
+
             states.Add(Guid.NewGuid().ToString(), state);
+            state.LogLevels = LogLevels;
 
             var type = state.GetType();
 
