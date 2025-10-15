@@ -24,6 +24,7 @@ namespace Shears.StateMachineGraphs.Editor
 
         private Foldout injectedEntryContainer;
         private Foldout runtimeContainer;
+        private VisualElement graphDataField;
 
         private Texture2D warningTexture;
         private VisualElement warningIcon;
@@ -41,16 +42,25 @@ namespace Shears.StateMachineGraphs.Editor
             root.AddStyleSheet(ShearsStyles.InspectorStyles);
             warningTexture = ShearsSymbols.WarningIcon;
 
+            serializedObject.Update();
+
             GetProperties();
 
+            var scriptField = new PropertyField(serializedObject.FindProperty("m_Script"));
+            var logField = new PropertyField(serializedObject.FindProperty("logLevels"));
+            var pollField = new PropertyField(serializedObject.FindProperty("pollTransitions"));
             CreateInjectionContainer();
             CreateRuntimeContainer();
             var useGraphDataField = new PropertyField(useGraphDataProp);
-            var graphDataField = CreateGraphDataField();
-            UpdateGraphFields(graphDataProp);
+            graphDataField = CreateGraphDataField();
+            UpdateGraphFields();
 
-            root.TrackPropertyValue(graphDataProp, UpdateGraphFields);
-            root.AddAll(useGraphDataField, graphDataField, injectedEntryContainer, runtimeContainer);
+            scriptField.enabledSelf = false;
+            useGraphDataField.enabledSelf = !Application.isPlaying;
+            useGraphDataField.RegisterValueChangeCallback(OnUseGraphDataChanged);
+
+            root.TrackPropertyValue(graphDataProp, (prop) => UpdateGraphFields());
+            root.AddAll(logField, useGraphDataField, pollField, graphDataField, injectedEntryContainer, runtimeContainer);
 
             return root;
         }
@@ -96,6 +106,8 @@ namespace Shears.StateMachineGraphs.Editor
             void toggle(bool value)
             {
                 runtimeInfoExpandedProp.boolValue = value;
+
+                serializedObject.Update();
                 serializedObject.ApplyModifiedPropertiesWithoutUndo();
             }
         }
@@ -124,8 +136,13 @@ namespace Shears.StateMachineGraphs.Editor
             return graphDataField;
         }
 
-        private void UpdateGraphFields(SerializedProperty graphDataProp)
+        private void UpdateGraphFields()
         {
+            if (!useGraphDataProp.boolValue)
+                graphDataField.style.display = DisplayStyle.None;
+            else
+                graphDataField.style.display = DisplayStyle.Flex;
+
             RefreshInjectReferences();
             UpdateRuntimeFields();
         }
@@ -306,6 +323,12 @@ namespace Shears.StateMachineGraphs.Editor
 
             foreach (var reference in referencesToRemove)
                 injectedReferences.Remove(reference);
+        }
+    
+        private void OnUseGraphDataChanged(SerializedPropertyChangeEvent evt)
+        {
+            UpdateGraphFields();
+            UpdateRuntimeFields();
         }
     }
 }

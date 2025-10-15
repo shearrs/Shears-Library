@@ -7,8 +7,9 @@ namespace Shears.StateMachineGraphs
 {
     public class StateMachine : SHMonoBehaviourLogger, IParameterProvider
     {
+        [Header("State Machine")]
         [SerializeField] private bool useGraphData = true;
-        [SerializeField, ShowIf("useGraphData")] private StateMachineGraph graphData;
+        [SerializeField] private StateMachineGraph graphData;
         [SerializeField] private bool pollTransitions = true;
         [SerializeReference] private List<State> stateTree = new();
         [SerializeField] private StateInjectReferenceDictionary injectedReferences = new();
@@ -29,16 +30,13 @@ namespace Shears.StateMachineGraphs
         private Dictionary<string, Parameter> parameters = new();
         private int stateSwapID = 0;
 
+        public IReadOnlyCollection<State> States => states.Values;
         public bool PollTransitions { get => pollTransitions; set => pollTransitions = value; }
 
         private void Awake()
         {
             if (!useGraphData)
-            {
-                states = new();
-                
                 return;
-            }
             if (graphData == null)
             {
                 Log("No graph data assigned to the state machine.", SHLogLevels.Warning);
@@ -136,9 +134,14 @@ namespace Shears.StateMachineGraphs
         /// </summary>
         private void UpdateState()
         {
+            int startID = stateSwapID;
+
             foreach (var state in stateTree)
             {
                 state.Update();
+
+                if (stateSwapID != startID)
+                    break;
             }
         }
 
@@ -165,18 +168,24 @@ namespace Shears.StateMachineGraphs
                 stateTypes[type] = state;
 
             state.ParameterProvider ??= this;
-
-            Debug.Log("add state: " + state.Name);
         }
 
         public void AddStates(params State[] states)
         {
+            if (states == null)
+                return;
+
             foreach (var state in states)
                 AddState(state);
         }
 
         public void EnterState(State newState)
         {
+            if (newState != null)
+                Log("Enter state: " + newState.Name, SHLogLevels.Verbose);
+            else
+                Log("Enter null", SHLogLevels.Verbose);
+
             swapStateTree.Clear();
             State currentState = newState;
 
@@ -194,6 +203,17 @@ namespace Shears.StateMachineGraphs
 
             ExitStateTree(swapStateTree);
             EnterStateTree(swapStateTree);
+        }
+
+        public bool IsInStateOfType<T>() where T : State
+        {
+            foreach (var state in stateTree)
+            {
+                if (state is T)
+                    return true;
+            }
+
+            return false;
         }
 
         private void ExitStateTree(List<State> newStateTree)
