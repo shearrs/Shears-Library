@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using static Shears.Tweens.EasingFunction;
 
 namespace Shears.Tweens
 {
     [Serializable]
     public class TweenData : ITweenData
     {
+        #region Variables
         [Header("Tween Data Settings")]
         [SerializeField] private bool usesDataObject;
         [SerializeField, ShowIf("usesDataObject")] private TweenDataObject tweenDataObject;
@@ -31,13 +31,48 @@ namespace Shears.Tweens
         private readonly List<TweenEventBase> events = new();
         private readonly List<TweenEventBase> totalEvents = new();
 
-        public float Duration => UsesDataObject() ? tweenDataObject.Duration : duration;
-        public bool ForceFinalValue => UsesDataObject() ? tweenDataObject.ForceFinalValue : forceFinalValue;
-        public int Loops => UsesDataObject() ? tweenDataObject.Loops : loops;
-        public LoopMode LoopMode => UsesDataObject() ? tweenDataObject.LoopMode : loopMode;
-        public TweenEase EasingFunction => UsesDataObject() ? tweenDataObject.EasingFunction : easingFunction;
-        public bool UsesCurve => usesCurve;
-        public AnimationCurve Curve => curve;
+        public float Duration
+        {
+            get => UsesDataObject()? tweenDataObject.Duration : duration;
+            set => duration = value;
+        }
+
+        public bool ForceFinalValue
+        {
+            get => UsesDataObject() ? tweenDataObject.ForceFinalValue : forceFinalValue;
+            set => forceFinalValue = value;
+        }
+
+        public int Loops
+        { 
+            get => UsesDataObject() ? tweenDataObject.Loops : loops;
+            set => loops = value;
+        }
+
+        public LoopMode LoopMode
+        {
+            get => UsesDataObject() ? tweenDataObject.LoopMode : loopMode;
+            set => loopMode = value;
+        }
+
+        public TweenEase EasingFunction
+        {
+            get => UsesDataObject() ? tweenDataObject.EasingFunction : easingFunction;
+            set => easingFunction = value;
+        }
+
+        public bool UsesCurve
+        {
+            get => usesCurve;
+            set => usesCurve = value;
+        }
+
+        public AnimationCurve Curve
+        {
+            get => curve;
+            set => curve = value;
+        }
+
         public IReadOnlyList<TweenEventBase> Events
         {
             get
@@ -49,6 +84,7 @@ namespace Shears.Tweens
                 return totalEvents;
             }
         }
+        #endregion
 
         public TweenData()
         {
