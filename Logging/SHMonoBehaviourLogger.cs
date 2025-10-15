@@ -25,6 +25,9 @@ namespace Shears.Logging
         public void Log(string message, SHLogLevels level = SHLogLevels.Log, Color color = default, Object context = null, string prefix = "", ISHLogFormatter formatter = default,
         [CallerFilePath] string callerFilePath = "", [CallerLineNumber] long callerLineNumber = 0)
         {
+            if ((SHLogger.LogLevels & level) == 0)
+                return;
+
             if (context == null)
             {
                 if (gameObject == null)
