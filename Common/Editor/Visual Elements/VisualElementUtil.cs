@@ -100,7 +100,10 @@ namespace Shears.Editor
             };
 
             var iterator = serializedObject.GetIterator();
-            iterator.Next(true);
+            bool isNext = iterator.Next(true);
+
+            if (!isNext)
+                return container;
 
             while (iterator.NextVisible(false))
             {

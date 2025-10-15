@@ -40,6 +40,9 @@ namespace Shears.Editor
             public readonly bool Evaluate(SerializedObject parent)
             {
                 var property = parent.FindProperty(propertyName);
+
+                Debug.Log($"does {property.boxedValue} == {compareValue}");
+
                 return property.boxedValue.Equals(compareValue) != negate;
             }
         }
@@ -51,20 +54,23 @@ namespace Shears.Editor
 
             comparisons.Clear();
 
-            foreach (var conditionName in showIfAttribute.Conditions.Keys)
+            foreach (var condition in showIfAttribute.Conditions)
             {
-                string name = conditionName;
+                string name = condition.ConditionName;
                 bool negate = name.StartsWith("!");
 
                 if (negate)
-                    name = conditionName[1..];
+                    name = name[1..];
 
                 var conditionProperty = GetConditionProperty(targetProperty, name);
 
                 if (conditionProperty == null)
+                {
+                    Debug.LogError("could not find property: " + name);
                     return root;
+                }
 
-                comparisons.Add(new(name, negate, showIfAttribute.Conditions[conditionName]));
+                comparisons.Add(new(name, negate, condition.CompareValue));
             }
 
             var propertyField = new PropertyField(targetProperty)
@@ -122,20 +128,23 @@ namespace Shears.Editor
 
             comparisons.Clear();
 
-            foreach (var conditionName in displayAttribute.Conditions.Keys)
+            foreach (var condition in displayAttribute.Conditions)
             {
-                string name = conditionName;
+                string name = condition.ConditionName;
                 bool negate = name.StartsWith("!");
 
                 if (negate)
-                    name = conditionName[1..];
+                    name = name[1..];
 
                 var conditionProperty = GetConditionProperty(targetProperty, name);
 
                 if (conditionProperty == null)
+                {
+                    Debug.LogError("Could not find property: " + name);
                     return;
+                }
 
-                comparisons.Add(new(name, negate, displayAttribute.Conditions[conditionName]));
+                comparisons.Add(new(name, negate, condition.CompareValue));
             }
 
             bool isValid = true;

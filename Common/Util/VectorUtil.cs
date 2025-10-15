@@ -48,6 +48,16 @@ namespace Shears
             return vector;
         }
 
+        public static Vector3 MultiplyComponents(this Vector3 vector, Vector3 otherVector)
+        {
+            return new
+            (
+                vector.x * otherVector.x,
+                vector.y * otherVector.y,
+                vector.z * otherVector.z
+            );
+        }
+
         public static void Deconstruct(this Vector2 self, out float x, out float y)
         {
             x = self.x;

@@ -11,8 +11,8 @@ namespace Shears.Pathfinding
         [SerializeReference] private PathNodeData data;
 
         private PathNode parent;
-        private int gCost;
-        private int hCost;
+        private int gCost; // distance from starting node
+        private int hCost; // distance from end node
 
         public Vector3Int GridPosition => gridPosition;
         public Vector3 WorldPosition { get => worldPosition; internal set => worldPosition = value; }

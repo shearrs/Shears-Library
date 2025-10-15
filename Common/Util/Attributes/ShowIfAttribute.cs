@@ -10,9 +10,24 @@ namespace Shears
     [AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
     public class ShowIfAttribute : PropertyAttribute
     {
-        private readonly Dictionary<string, object> conditions = new();
+        private readonly List<Condition> conditions = new();
 
-        public IReadOnlyDictionary<string, object> Conditions => conditions;
+        public IReadOnlyList<Condition> Conditions => conditions;
+
+        public readonly struct Condition
+        {
+            private readonly string conditionName;
+            private readonly object compareValue;
+
+            public readonly string ConditionName => conditionName;
+            public readonly object CompareValue => compareValue;
+            
+            public Condition(string conditionName, object compareValue)
+            {
+                this.conditionName = conditionName;
+                this.compareValue = compareValue;
+            }
+        }
 
         /// <summary>
         /// Shows the field if the condition with <see cref="conditionName"/> has a value of <c>true</c>.
@@ -21,7 +36,7 @@ namespace Shears
         public ShowIfAttribute(params string[] conditions)
         {
             foreach (var condition in conditions)
-                this.conditions[condition] = true;
+                this.conditions.Add(new(condition, true));
         }
 
         /// <summary>
@@ -30,7 +45,13 @@ namespace Shears
         /// <param name="condition"></param>
         public ShowIfAttribute(string conditionName, object compareValue)
         {
-            conditions[conditionName] = compareValue;
+            conditions.Add(new(conditionName, compareValue));
+        }
+
+        public ShowIfAttribute(string conditionName1, object compareValue1, string conditionName2, object compareValue2)
+        {
+            conditions.Add(new(conditionName1, compareValue1));
+            conditions.Add(new(conditionName2, compareValue2));
         }
     }
 }

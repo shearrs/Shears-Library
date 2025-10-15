@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Shears
 {
+    [AttributeUsage(AttributeTargets.Field, Inherited = true)]
     public class FoldoutGroupAttribute : Attribute
     {
         private readonly string name;
