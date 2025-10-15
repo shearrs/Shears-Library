@@ -4,57 +4,57 @@ namespace Shears
 {
     public static class VectorUtil
     {
-        public static Vector3 ClampComponents(this Vector3 vector, float min, float max)
+        public static Vector3 ClampComponents(this Vector3 v, float min, float max)
         {
-            vector.x = Mathf.Clamp(vector.x, min, max);
-            vector.y = Mathf.Clamp(vector.y, min, max);
-            vector.z = Mathf.Clamp(vector.z, min, max);
+            v.x = Mathf.Clamp(v.x, min, max);
+            v.y = Mathf.Clamp(v.y, min, max);
+            v.z = Mathf.Clamp(v.z, min, max);
 
-            return vector;
+            return v;
         }
 
-        public static Vector2 ClampComponents(this Vector2 vector, float min, float max)
+        public static Vector2 ClampComponents(this Vector2 v, float min, float max)
         {
-            vector.x = Mathf.Clamp(vector.x, min, max);
-            vector.y = Mathf.Clamp(vector.y, min, max);
+            v.x = Mathf.Clamp(v.x, min, max);
+            v.y = Mathf.Clamp(v.y, min, max);
 
-            return vector;
+            return v;
         }
 
-        public static Vector3Int ClampComponents(this Vector3Int vector, int min, int max)
+        public static Vector3Int ClampComponents(this Vector3Int v, int min, int max)
         {
-            vector.x = Mathf.Clamp(vector.x, min, max);
-            vector.y = Mathf.Clamp(vector.y, min, max);
-            vector.z = Mathf.Clamp(vector.z, min, max);
+            v.x = Mathf.Clamp(v.x, min, max);
+            v.y = Mathf.Clamp(v.y, min, max);
+            v.z = Mathf.Clamp(v.z, min, max);
 
-            return vector;
+            return v;
         }
 
-        public static Vector3Int ClampMin(this Vector3Int vector, int min)
+        public static Vector3Int ClampMin(this Vector3Int v, int min)
         {
-            vector.x = Mathf.Min(vector.x, min);
-            vector.y = Mathf.Min(vector.y, min);
-            vector.z = Mathf.Min(vector.z, min);
+            v.x = Mathf.Min(v.x, min);
+            v.y = Mathf.Min(v.y, min);
+            v.z = Mathf.Min(v.z, min);
 
-            return vector;
+            return v;
         }
 
-        public static Vector3Int ClampMax(this Vector3Int vector, int max)
+        public static Vector3Int ClampMax(this Vector3Int v, int max)
         {
-            vector.x = Mathf.Max(vector.x, max);
-            vector.y = Mathf.Max(vector.y, max);
-            vector.z = Mathf.Max(vector.z, max);
+            v.x = Mathf.Max(v.x, max);
+            v.y = Mathf.Max(v.y, max);
+            v.z = Mathf.Max(v.z, max);
 
-            return vector;
+            return v;
         }
 
-        public static Vector3 MultiplyComponents(this Vector3 vector, Vector3 otherVector)
+        public static Vector3 MultiplyComponents(this Vector3 v0, Vector3 v1)
         {
             return new
             (
-                vector.x * otherVector.x,
-                vector.y * otherVector.y,
-                vector.z * otherVector.z
+                v0.x * v1.x,
+                v0.y * v1.y,
+                v0.z * v1.z
             );
         }
 
@@ -76,6 +76,41 @@ namespace Shears
                 Random.Range(min.y, max.y),
                 Random.Range(min.z, max.z)
             );
+        }
+
+        public static Vector3 X(this Vector3 v)
+        {
+            return new(v.x, 0.0f, 0.0f);
+        }
+
+        public static Vector3 Y(this Vector3 v)
+        {
+            return new(0.0f, v.y, 0.0f);
+        }
+
+        public static Vector3 Z(this Vector3 v)
+        {
+            return new(0.0f, 0.0f, v.z);
+        }
+
+        public static Vector3 XY(this Vector3 v)
+        {
+            return new(v.x, v.y, 0.0f);
+        }
+
+        public static Vector3 XZ(this Vector3 v)
+        {
+            return new(v.x, 0.0f, v.z);
+        }
+
+        public static Vector3 YZ(this Vector3 v)
+        {
+            return new(0.0f, v.y, v.z);
+        }
+
+        public static Vector3 With(this Vector3 v, float? x = null, float? y = null, float? z = null)
+        {
+            return new(x == null ? v.x : x.Value, y == null ? v.y : y.Value, z == null ? v.z : z.Value);
         }
     }
 }
