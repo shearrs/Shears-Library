@@ -1,9 +1,10 @@
 using Shears.Input;
+using Shears.Logging;
 using UnityEngine;
 
 namespace Shears.Cameras
 {
-    public abstract class CameraState : MonoBehaviour
+    public abstract class CameraState : SHMonoBehaviourLogger
     {
         protected Transform CameraTransform { get; private set; }
         protected ManagedInputProvider InputProvider { get; private set; }

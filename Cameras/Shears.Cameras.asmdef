@@ -3,7 +3,8 @@
     "rootNamespace": "Shears.Cameras",
     "references": [
         "GUID:b28a31c08beef024d83a7aa1ec3f2f6d",
-        "GUID:624a85509f829424398b0fa44ae4b076"
+        "GUID:624a85509f829424398b0fa44ae4b076",
+        "GUID:f9343658ba9f34f40af4f1a7b0c76be7"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
