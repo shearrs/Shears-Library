@@ -216,6 +216,17 @@ namespace Shears.StateMachineGraphs
             return false;
         }
 
+        public bool IsInState(State state)
+        {
+            foreach (var currentState in stateTree)
+            {
+                if (state == currentState)
+                    return true;
+            }
+
+            return false;
+        }
+
         private void ExitStateTree(List<State> newStateTree)
         {
             if (stateTree.Count == 0)
