@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using UnityEngine;
 using static Shears.Logging.SHLogFormatter;
 
@@ -9,6 +10,10 @@ namespace Shears.Logging
     /// </summary>
     public static class SHLogFormats
     {
+        private static readonly StringBuilder combineBuilder = new(64);
+        private static readonly StringBuilder prefixBuilder = new(64);
+        private static readonly StringBuilder compositorBuilder = new(128);
+
         #region Static Defaults
         /// <summary>
         /// The default log formatter.
@@ -81,11 +86,15 @@ namespace Shears.Logging
             string combinedFormatter(SHLog log)
             {
                 string prefix = string.Empty;
+                combineBuilder.Clear();
 
                 foreach (var formatter in prefixFormatters)
-                    prefix += $"{separator}{formatter(log)}";
+                {
+                    combineBuilder.Append(separator);
+                    combineBuilder.Append(formatter(log));
+                }
 
-                return prefix;
+                return combineBuilder.ToString();
             }
 
             return combinedFormatter;
@@ -112,27 +121,97 @@ namespace Shears.Logging
             long lineNumber = log.CallerLineNumber;
             string logLevelPrefix = GetDefaultLogLevelPrefix(log.Level);
 
-            // if the log already has a set prefix, include it in the total prefix
+            prefixBuilder.Clear();
+
+            string verboseCustomPrefix(bool includeLogLevel)
+            {
+                if (includeLogLevel)
+                {
+                    prefixBuilder.Append('[');
+                    prefixBuilder.Append(logLevelPrefix);
+                    prefixBuilder.Append(']');
+                }
+
+                prefixBuilder.Append('[');
+                prefixBuilder.Append(log.Prefix);
+                prefixBuilder.Append(", File: ");
+                prefixBuilder.Append(fileName);
+                prefixBuilder.Append(", Line: ");
+                prefixBuilder.Append(lineNumber);
+                prefixBuilder.Append(']');
+
+                return prefixBuilder.ToString();
+            }
+
+            string defaultCustomPrefix()
+            {
+                prefixBuilder.Append('[');
+                prefixBuilder.Append(log.Prefix);
+                prefixBuilder.Append(']');
+
+                return prefixBuilder.ToString();
+            }
+
+            string logPrefix()
+            {
+                prefixBuilder.Append('[');
+                prefixBuilder.Append(className);
+                prefixBuilder.Append(']');
+
+                return prefixBuilder.ToString();
+            }
+
+            string verbosePrefix(bool includeLogLevel)
+            {
+                if (includeLogLevel)
+                {
+                    prefixBuilder.Append('[');
+                    prefixBuilder.Append(logLevelPrefix);
+                    prefixBuilder.Append(']');
+                }
+
+                prefixBuilder.Append('[');
+                prefixBuilder.Append(className);
+                prefixBuilder.Append(", File: ");
+                prefixBuilder.Append(fileName);
+                prefixBuilder.Append(", Line: ");
+                prefixBuilder.Append(lineNumber);
+                prefixBuilder.Append(']');
+
+                return prefixBuilder.ToString();
+            }
+
+            string defaultPrefix()
+            {
+                prefixBuilder.Append('[');
+                prefixBuilder.Append(logLevelPrefix);
+                prefixBuilder.Append(']');
+                prefixBuilder.Append('[');
+                prefixBuilder.Append(className);
+                prefixBuilder.Append(']');
+
+                return prefixBuilder.ToString();
+            }
+
             if (log.UsesCustomPrefix)
             {
                 return log.Level switch
                 {
-                    SHLogLevels.Log => $"[{log.Prefix}, File: {fileName}, Line: {lineNumber}]",
-                    SHLogLevels.Verbose => $"[{log.Prefix}, File: {fileName}, Line: {lineNumber}]",
-                    SHLogLevels.Warning => $"[{log.Prefix}, File: {fileName}, Line: {lineNumber}]",
-                    SHLogLevels.Error => $"[{log.Prefix}, File: {fileName}, Line: {lineNumber}]",
-                    _ => $"[{logLevelPrefix} - {log.Prefix}]"
+                    SHLogLevels.Verbose => verboseCustomPrefix(false),
+                    SHLogLevels.Warning => verboseCustomPrefix(true),
+                    SHLogLevels.Error => verboseCustomPrefix(true),
+                    _ => defaultCustomPrefix()
                 };
             }
             else
             {
                 return log.Level switch
                 {
-                    SHLogLevels.Log => $"[{className}]",
-                    SHLogLevels.Verbose => $"[{className}, File: {fileName}, Line: {lineNumber}]",
-                    SHLogLevels.Warning => $"[{className}, File: {fileName}, Line: {lineNumber}]",
-                    SHLogLevels.Error => $"[{className}, File: {fileName}, Line: {lineNumber}]",
-                    _ => $"[{logLevelPrefix} - {className}]"
+                    SHLogLevels.Log => logPrefix(),
+                    SHLogLevels.Verbose => verbosePrefix(false),
+                    SHLogLevels.Warning => verbosePrefix(true),
+                    SHLogLevels.Error => verbosePrefix(true),
+                    _ => defaultPrefix()
                 };
             }
         }
@@ -173,9 +252,16 @@ namespace Shears.Logging
             string minute = GetTwoDigitTime(dateTime.Minute);
             string second = GetTwoDigitTime(dateTime.Second);
 
-            string timeStamp = $"[{hour}:{minute}:{second}]";
+            prefixBuilder.Clear();
+            prefixBuilder.Append('[');
+            prefixBuilder.Append(hour);
+            prefixBuilder.Append(':');
+            prefixBuilder.Append(minute);
+            prefixBuilder.Append(':');
+            prefixBuilder.Append(second);
+            prefixBuilder.Append(']');
 
-            return timeStamp;
+            return prefixBuilder.ToString();
         }
 
         /// <summary>
@@ -192,9 +278,20 @@ namespace Shears.Logging
             string minute = GetTwoDigitTime(dateTime.Minute);
             string second = GetTwoDigitTime(dateTime.Second);
 
-            string timeStamp = $"[{month}/{day} - {hour}:{minute}:{second}]";
+            prefixBuilder.Clear();
+            prefixBuilder.Append('[');
+            prefixBuilder.Append(month);
+            prefixBuilder.Append('/');
+            prefixBuilder.Append(day);
+            prefixBuilder.Append(" - ");
+            prefixBuilder.Append(hour);
+            prefixBuilder.Append(':');
+            prefixBuilder.Append(minute);
+            prefixBuilder.Append(':');
+            prefixBuilder.Append(second);
+            prefixBuilder.Append(']');
 
-            return timeStamp;
+            return prefixBuilder.ToString();
         }
         #endregion
 
@@ -249,9 +346,13 @@ namespace Shears.Logging
         /// <returns>A colored, composed message in the format: "[Prefix] - [Message]".</returns>
         public static string DefaultCompositor(SHLog log, SHLogFormatter format)
         {
+            compositorBuilder.Clear();
+            compositorBuilder.Append(format.FormatPrefix(log));
+            compositorBuilder.Append(" - ");
+            compositorBuilder.Append(format.FormatMessage(log));
             string message = $"{format.FormatPrefix(log)} - {format.FormatMessage(log)}";
 
-            return format.SetColor(log, message) + "\n";
+            return format.SetColor(log, compositorBuilder.ToString()) + "\n";
         }
 
         /// <summary>
@@ -260,12 +361,19 @@ namespace Shears.Logging
         /// <param name="log">The log to read from.</param>
         /// <param name="format">The formatter for the log.</param>
         /// <returns>A colored message composed with no space as: [Prefix][Message].</returns>
-        public static string NoCompositor(SHLog log, SHLogFormatter format) => format.SetColor(log, $"{format.FormatPrefix(log)}{format.FormatMessage(log)}");
+        public static string NoCompositor(SHLog log, SHLogFormatter format)
+        {
+            compositorBuilder.Clear();
+            compositorBuilder.Append(format.FormatPrefix(log));
+            compositorBuilder.Append(format.FormatMessage(log));
+
+            return format.SetColor(log, compositorBuilder.ToString());
+        }
         #endregion
 
         private static string GetDefaultLogLevelPrefix(SHLogLevels level)
         {
-            return $"{level.ToString().ToUpper()}";
+            return level.ToString().ToUpper();
         }
 
         private static string GetTwoDigitTime(int timeUnit)
