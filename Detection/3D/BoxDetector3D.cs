@@ -15,16 +15,19 @@ namespace Shears.Detection
         {
             Vector3 scaledSize = halfExtents.MultiplyComponents(transform.lossyScale);
 
-            int hits = Physics.OverlapBoxNonAlloc(transform.TransformPoint(Offset), scaledSize, detections, Quaternion.identity, DetectionMask, TriggerInteraction);
+            int hits = Physics.OverlapBoxNonAlloc(transform.TransformPoint(Offset), scaledSize, detections, transform.rotation, DetectionMask, TriggerInteraction);
 
             return hits;
         }
 
         protected override void DrawWireGizmos()
         {
-            Vector3 scaledSize = halfExtents.MultiplyComponents(transform.lossyScale);
+            var matrix = Gizmos.matrix;
+            Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, transform.lossyScale);
 
-            Gizmos.DrawWireCube(transform.TransformPoint(Offset), 2.0f * scaledSize);
+            Gizmos.DrawWireCube(offset, 2.0f * halfExtents);
+
+            Gizmos.matrix = matrix;
         }
     }
 }
