@@ -17,6 +17,7 @@ namespace Shears.Pathfinding.Editor
         [SerializeField] private int zDepth;
         
         private readonly Dictionary<int, PathNode> nodeHandles = new();
+        private readonly List<MenuItem> menuItems = new();
         private readonly List<int> hoveredHandles = new();
 
         private bool isActivated = false;
@@ -32,6 +33,24 @@ namespace Shears.Pathfinding.Editor
         private SerializedObject gridSO;
         private SerializedProperty nodeDataProp;
         private SerializedProperty zDepthProp;
+
+        private readonly struct MenuItem
+        {
+            private readonly string name;
+            private readonly int order;
+            private readonly Type type;
+
+            public readonly string MenuPath => name;
+            public readonly int Order => order;
+            public readonly Type Type => type;
+
+            public MenuItem(string name, int order, Type type)
+            {
+                this.name = name;
+                this.order = order;
+                this.type = type;
+            }
+        }
 
         private void OnEnable()
         {
@@ -110,23 +129,34 @@ namespace Shears.Pathfinding.Editor
             if (nodeData != null)
                 UpdateNodeDataFields();
         }
-
+        
         private void CreateTypeMenu()
         {
             typeMenu = new GenericMenu();
 
             typeMenu.AddItem(new("None"), false, () => OnTypeSelected(null));
+            menuItems.Clear();
 
             foreach (var type in TypeCache.GetTypesDerivedFrom<PathNodeData>())
             {
                 if (!type.IsAbstract)
                 {
                     var attribute = type.GetCustomAttribute<NodeDataMenuItem>();
-                    string menuPath = attribute == null ? type.Name : attribute.MenuPath;
+                    MenuItem menuItem;
 
-                    typeMenu.AddItem(new(menuPath), false, () => OnTypeSelected(type));
+                    if (attribute == null)
+                        menuItem = new(type.Name, int.MaxValue, type);
+                    else
+                        menuItem = new(attribute.MenuPath, attribute.Order, type);
+
+                    menuItems.Add(menuItem);
                 }
             }
+
+            menuItems.Sort((item1, item2) => item2.Order.CompareTo(item1.Order));
+            
+            foreach (var item in menuItems)
+                typeMenu.AddItem(new(item.MenuPath), false, () => OnTypeSelected(item.Type));
         }
 
         private void OnTypeSelected(Type type)

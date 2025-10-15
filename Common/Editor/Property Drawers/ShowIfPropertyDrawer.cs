@@ -32,7 +32,6 @@ namespace Shears.Editor
             public readonly bool Evaluate(SerializedProperty parent)
             {
                 var property = parent.FindPropertyRelative(propertyName);
-                Debug.Log($"does {property.boxedValue} == {compareValue}");
 
                 return property.boxedValue.Equals(compareValue) != negate;
             }
@@ -40,8 +39,6 @@ namespace Shears.Editor
             public readonly bool Evaluate(SerializedObject parent)
             {
                 var property = parent.FindProperty(propertyName);
-
-                Debug.Log($"does {property.boxedValue} == {compareValue}");
 
                 return property.boxedValue.Equals(compareValue) != negate;
             }

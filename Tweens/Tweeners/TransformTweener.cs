@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace Shears.Tweens
@@ -111,11 +112,11 @@ namespace Shears.Tweens
                     break;
                 case TweenType.Rotate:
                     target.rotation = Quaternion.Euler(fromData.Rotation);
-                    tween = target.GetRotateTween(Quaternion.Euler(toData.Rotation), true, data);
+                    tween = target.GetRotateTween(Quaternion.Euler(toData.Rotation), false, data);
                     break;
                 case TweenType.LocalRotate:
                     target.rotation = Quaternion.Euler(fromData.Rotation);
-                    tween = target.GetRotateLocalTween(Quaternion.Euler(toData.Rotation), true, data);
+                    tween = target.GetRotateLocalTween(Quaternion.Euler(toData.Rotation), false, data);
                     break;
                 case TweenType.LocalScale:
                     target.localScale = fromData.Scale;

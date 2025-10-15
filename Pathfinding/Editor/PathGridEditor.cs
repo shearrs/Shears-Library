@@ -13,6 +13,14 @@ namespace Shears.Pathfinding.Editor
         private SerializedProperty nodeSizeProp;
         private SerializedProperty nodesProp;
 
+        private void OnEnable()
+        {
+            grid = serializedObject.targetObject as PathGrid;
+
+            if (SerializationUtility.HasManagedReferencesWithMissingTypes(grid))
+                SerializationUtility.ClearAllManagedReferencesWithMissingTypes(grid);
+        }
+
         public override VisualElement CreateInspectorGUI()
         {
             var root = new VisualElement();
