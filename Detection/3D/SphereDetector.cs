@@ -6,8 +6,11 @@ namespace Shears.Detection
     public class SphereDetector : AreaDetector3D
     {
         [Header("Sphere Settings")]
-        [field: SerializeField] public float Radius { get; set; } = 1;
-        [field: SerializeField] public Vector3 Offset { get; set; }
+        [SerializeField] private float radius = 1.0f;
+        [SerializeField] private Vector3 offset = Vector3.zero;
+
+        public float Radius { get => radius; set => radius = value; }
+        public Vector3 Offset { get => offset; set => offset = value; }
 
         protected override int Sweep(Collider[] detections)
         {

@@ -6,17 +6,19 @@ namespace Shears.Detection
 {
     public abstract class AreaDetector3D : MonoBehaviour
     {
-        [Header("Gizmos")]
-        [SerializeField, Tooltip("Whether or not to draw gizmos.")] 
-        private bool drawGizmos = true;
+        protected enum GizmoType { Draw, OnSelected, DontDraw };
 
-        [SerializeField, ShowIf("drawGizmos"), Tooltip("Whether or not to highlight gizmos when actively detecting.")] 
+        [FoldoutGroup("Gizmos", 4)]
+        [SerializeField, Tooltip("Whether or not to draw gizmos.")] 
+        protected GizmoType gizmoType = GizmoType.OnSelected;
+
+        [SerializeField, Tooltip("Whether or not to highlight gizmos when actively detecting.")] 
         private bool highlightOnDetect = false;
 
-        [SerializeField, ShowIf("drawGizmos"), Tooltip("The default gizmo color.")] 
+        [SerializeField, Tooltip("The default gizmo color.")] 
         private Color defaultGizmoColor = Color.red;
 
-        [SerializeField, ShowIf("drawGizmos", "highlightOnDetect"), Tooltip("The gizmo color when actively detecting.")] 
+        [SerializeField, Tooltip("The gizmo color when actively detecting.")] 
         private Color detectingGizmoColor = Color.yellow;
 
         [Header("Detection Settings")]
@@ -89,7 +91,7 @@ namespace Shears.Detection
 
         private void OnDrawGizmos()
         {
-            if (drawGizmos)
+            if (gizmoType == GizmoType.Draw)
             {
                 if (gizmoColor == Color.clear)
                     gizmoColor = defaultGizmoColor;
@@ -100,6 +102,21 @@ namespace Shears.Detection
                 DrawWireGizmos();
             }
         }
+
+        private void OnDrawGizmosSelected()
+        {
+            if (gizmoType == GizmoType.OnSelected)
+            {
+                if (gizmoColor == Color.clear)
+                    gizmoColor = defaultGizmoColor;
+                else if (!isDetecting)
+                    gizmoColor = defaultGizmoColor;
+
+                Gizmos.color = gizmoColor;
+                DrawWireGizmos();
+            }
+        }
+
         protected abstract void DrawWireGizmos();
 
         private IEnumerator IEHighlightGizmos()

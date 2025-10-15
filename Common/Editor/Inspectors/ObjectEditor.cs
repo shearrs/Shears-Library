@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Shears.Editor
@@ -9,7 +10,7 @@ namespace Shears.Editor
     [CustomEditor(typeof(UnityEngine.Object), true), CanEditMultipleObjects]
     public class ObjectEditor : UnityEditor.Editor
     {
-        private const BindingFlags FLAGS = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+        private const BindingFlags FLAGS = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy;
         private readonly Dictionary<string, FoldoutGroup> foldouts = new();
         private CompositeFoldout currentFoldout;
 
@@ -74,7 +75,7 @@ namespace Shears.Editor
 
                 try
                 {
-                    attribute = field.GetCustomAttribute<FoldoutGroupAttribute>();
+                    attribute = field.GetCustomAttribute<FoldoutGroupAttribute>(true);
                 }
                 catch (ArgumentNullException)
                 {

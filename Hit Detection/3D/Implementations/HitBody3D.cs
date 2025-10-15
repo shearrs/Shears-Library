@@ -1,4 +1,5 @@
 using Shears.Logging;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -25,10 +26,20 @@ namespace Shears.HitDetection
 
         IHitDeliverer<HitData3D> IHitBody<HitData3D>.Deliverer => Deliverer;
 
+        public event Action Enabled;
+        public event Action Disabled;
+
         protected virtual void OnEnable()
         {
             ValidHitCount = 0;
             unclearedHits.Clear();
+
+            Enabled?.Invoke();
+        }
+
+        protected virtual void OnDisable()
+        {
+            Disabled?.Invoke();
         }
 
         private void Awake()
