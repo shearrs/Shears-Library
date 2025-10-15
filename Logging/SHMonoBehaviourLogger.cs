@@ -5,8 +5,10 @@ namespace Shears.Logging
 {
     public abstract class SHMonoBehaviourLogger : MonoBehaviour, ISHLoggable
     {
-        [field: Header("Logging")]
-        [field: SerializeField] public SHLogLevels LogLevels { get; set; } = SHLogLevels.Log | SHLogLevels.Issues;
+        [Header("Logging")]
+        [SerializeField] private SHLogLevels logLevels = SHLogLevels.Log | SHLogLevels.Issues;
+
+        public SHLogLevels LogLevels { get => logLevels; set => logLevels = value; }
 
         /// <summary>
         /// Logs a message to the current <see cref="ISHLogger"/>.
