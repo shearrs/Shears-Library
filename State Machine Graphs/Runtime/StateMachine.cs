@@ -9,6 +9,7 @@ namespace Shears.StateMachineGraphs
     {
         [SerializeField] private bool useGraphData = true;
         [SerializeField, ShowIf("useGraphData")] private StateMachineGraph graphData;
+        [SerializeField] private bool pollTransitions = true;
         [SerializeReference] private List<State> stateTree = new();
         [SerializeField] private StateInjectReferenceDictionary injectedReferences = new();
 
@@ -27,6 +28,8 @@ namespace Shears.StateMachineGraphs
         private Dictionary<string, State> states;
         private Dictionary<string, Parameter> parameters;
         private int stateSwapID = 0;
+
+        public bool PollTransitions { get => pollTransitions; set => pollTransitions = value; }
 
         private void Awake()
         {
@@ -64,7 +67,8 @@ namespace Shears.StateMachineGraphs
             if (stateTree.Count == 0)
                 return;
 
-            EvaluateState();
+            if (pollTransitions)
+                EvaluateState();
 
             UpdateState();
         }
