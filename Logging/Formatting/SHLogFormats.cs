@@ -119,6 +119,8 @@ namespace Shears.Logging
                 {
                     SHLogLevels.Log => $"[{log.Prefix}, File: {fileName}, Line: {lineNumber}]",
                     SHLogLevels.Verbose => $"[{log.Prefix}, File: {fileName}, Line: {lineNumber}]",
+                    SHLogLevels.Warning => $"[{log.Prefix}, File: {fileName}, Line: {lineNumber}]",
+                    SHLogLevels.Error => $"[{log.Prefix}, File: {fileName}, Line: {lineNumber}]",
                     _ => $"[{logLevelPrefix} - {log.Prefix}]"
                 };
             }
@@ -128,6 +130,8 @@ namespace Shears.Logging
                 {
                     SHLogLevels.Log => $"[{className}]",
                     SHLogLevels.Verbose => $"[{className}, File: {fileName}, Line: {lineNumber}]",
+                    SHLogLevels.Warning => $"[{className}, File: {fileName}, Line: {lineNumber}]",
+                    SHLogLevels.Error => $"[{className}, File: {fileName}, Line: {lineNumber}]",
                     _ => $"[{logLevelPrefix} - {className}]"
                 };
             }
