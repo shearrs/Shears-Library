@@ -25,8 +25,8 @@ namespace Shears.StateMachineGraphs
         private State defaultState;
         private readonly List<State> swapStateTree = new();
         private readonly Dictionary<Type, State> stateTypes = new();
-        private Dictionary<string, State> states;
-        private Dictionary<string, Parameter> parameters;
+        private Dictionary<string, State> states = new();
+        private Dictionary<string, Parameter> parameters = new();
         private int stateSwapID = 0;
 
         public bool PollTransitions { get => pollTransitions; set => pollTransitions = value; }
@@ -165,6 +165,8 @@ namespace Shears.StateMachineGraphs
                 stateTypes[type] = state;
 
             state.ParameterProvider ??= this;
+
+            Debug.Log("add state: " + state.Name);
         }
 
         public void AddStates(params State[] states)
