@@ -21,7 +21,7 @@ namespace Shears.StateMachineGraphs
         public bool IsActive { get => isActive; internal set => isActive = value; }
         public string Name { get => name; set => name = value; }
         public State ParentState { get => parentState; internal set => parentState = value; }
-        public State DefaultSubState { get => initialSubState; internal set => initialSubState = value; }
+        public State DefaultSubState { get => initialSubState; set => initialSubState = value; }
         public State SubState { get => subState; internal set => subState = value; }
         public int TransitionCount => transitions.Count;
 
@@ -29,6 +29,12 @@ namespace Shears.StateMachineGraphs
 
         public void AddSubState(State state)
         {
+            if (state == this)
+            {
+                Log("State cannot be a substate of itself!", SHLogLevels.Error);
+                return;
+            }
+
             state.ParentState = this;
         }
 
