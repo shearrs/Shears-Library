@@ -33,6 +33,8 @@ namespace Shears.StateMachineGraphs
         public IReadOnlyCollection<State> States => states.Values;
         public bool PollTransitions { get => pollTransitions; set => pollTransitions = value; }
 
+        public event Action<State> EnteredState;
+
         private void Awake()
         {
             if (!useGraphData)
@@ -271,6 +273,8 @@ namespace Shears.StateMachineGraphs
                 {
                     stateTree.Add(currentState);
                     currentState.Enter();
+
+                    EnteredState?.Invoke(currentState);
 
                     if (i > 0)
                         newStateTree[i - 1].SetSubState(currentState);
