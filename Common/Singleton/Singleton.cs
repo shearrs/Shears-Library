@@ -4,6 +4,28 @@ namespace Shears
 {
     // Originally inspired by Tarodev on YouTube: https://www.youtube.com/watch?v=tE1qH8OxO2Y
 
+    internal static class SingletonManager
+    {
+        private static bool canCreateInstances = false;
+
+        public static bool CanCreateInstances => canCreateInstances;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void EnableInstanceCreation()
+        {
+            Debug.Log("set true");
+            canCreateInstances = true;
+
+            Application.quitting -= OnApplicationQuitting;
+            Application.quitting += OnApplicationQuitting;
+        }
+
+        private static void OnApplicationQuitting()
+        {
+            canCreateInstances = false;
+        }
+    }
+
     /// <summary>
     /// A singleton that hides its instance and is used as a static class. Creates itself if none exists, and destroys itself on <see cref="Awake"/> if another instance already exists.
     /// </summary>
@@ -12,6 +34,7 @@ namespace Shears
     public abstract class ProtectedSingleton<T> : MonoBehaviour where T : MonoBehaviour
     {
         protected static T instance;
+
         protected static T Instance
         {
             get
@@ -26,6 +49,7 @@ namespace Shears
                 instance = value;
             }
         }
+        protected static bool CanCreateInstance => SingletonManager.CanCreateInstances;
 
         protected virtual void Awake()
         {
@@ -52,6 +76,9 @@ namespace Shears
 
         private static T CreateInstance()
         {
+            if (!CanCreateInstance)
+                return null;
+
             GameObject obj = new(typeof(T).Name, typeof(T));
             T component = obj.GetComponent<T>();
 
@@ -62,6 +89,9 @@ namespace Shears
 
         public static void CreateInstanceIfNoneExists()
         {
+            if (!CanCreateInstance)
+                return;
+
             if (instance == null)
                 instance = FindAnyObjectByType<T>();
 
