@@ -1,3 +1,4 @@
+using Shears.Logging;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -91,6 +92,13 @@ namespace Shears.Pathfinding
 
         public PathNode GetNode(int x, int y, int z)
         {
+            if (x > gridSize.x || y > gridSize.y || z > gridSize.z
+                || x < 0 || y < 0 || z < 0)
+            {
+                SHLogger.Log($"Invalid coordinates for node: ({x}, {y}, {z})", SHLogLevels.Error);
+                return null;
+            }
+
             int index = (z * gridSize.y * gridSize.x) + (y * gridSize.x) + x;
 
             return nodes[index];

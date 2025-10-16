@@ -36,9 +36,7 @@ namespace Shears.Pathfinding
                     var possibleNode = openSet[i];
 
                     if (possibleNode.FCost < currentNode.FCost || (possibleNode.FCost == currentNode.FCost && possibleNode.HCost < currentNode.HCost))
-                    {
                         currentNode = openSet[i];
-                    }
                 }
 
                 openSet.Remove(currentNode);
