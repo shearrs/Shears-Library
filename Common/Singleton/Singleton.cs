@@ -13,7 +13,6 @@ namespace Shears
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void EnableInstanceCreation()
         {
-            Debug.Log("set true");
             canCreateInstances = true;
 
             Application.quitting -= OnApplicationQuitting;
