@@ -67,7 +67,6 @@ namespace Shears.UI
             var ray = camera.ScreenPointToRay(pointerPos);
 
             int hits = Physics.RaycastNonAlloc(ray, results3D, 1000, detectionMask, QueryTriggerInteraction.Collide);
-            Debug.DrawRay(ray.origin, ray.direction * 1000, Color.red);
 
             for (int i = 0; i < hits; i++)
             {
