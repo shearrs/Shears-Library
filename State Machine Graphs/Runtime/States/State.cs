@@ -16,7 +16,9 @@ namespace Shears.StateMachineGraphs
         private State parentState;
         private State subState;
         private bool isActive;
+        private string id = string.Empty;
 
+        internal string ID { get => id; set => id = value; }
         internal IParameterProvider ParameterProvider { get => parameterProvider; set => parameterProvider = value; }
         public bool IsActive { get => isActive; internal set => isActive = value; }
         public string Name { get => name; set => name = value; }

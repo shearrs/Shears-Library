@@ -174,7 +174,9 @@ namespace Shears.StateMachineGraphs
                 return;
             }
 
-            states.Add(Guid.NewGuid().ToString(), state);
+            string id = Guid.NewGuid().ToString();
+            state.ID = id;
+            states.Add(id, state);
             state.LogLevels = LogLevels;
 
             var type = state.GetType();
@@ -288,6 +290,9 @@ namespace Shears.StateMachineGraphs
 
             while (currentSubState != null && !stateTree.Contains(currentSubState))
             {
+                if (currentSubState.ID == null || !states.ContainsKey(currentSubState.ID))
+                    Log($"StateMachine does not contain state {currentSubState}, did you forget to add it?", SHLogLevels.Warning);
+
                 stateTree.Add(currentSubState);
                 currentSubState.Enter();
 
