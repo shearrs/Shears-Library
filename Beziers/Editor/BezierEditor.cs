@@ -12,7 +12,8 @@ namespace Shears.Beziers.Editor
         {
             var bezier = (Bezier)target;
 
-            float biggestScale = Mathf.Max(bezier.transform.localScale.x, bezier.transform.localScale.y, bezier.transform.localScale.z);
+            if (!bezier.DrawGizmos)
+                return;
 
             foreach (var point in bezier.Points)
             {
@@ -105,6 +106,12 @@ namespace Shears.Beziers.Editor
             }
         }
 
-        private Vector3 Snap(Vector3 position) => Snapping.Snap(position, EditorSnapSettings.gridSize);
+        private Vector3 Snap(Vector3 position)
+        {
+            if (EditorSnapSettings.snapEnabled)
+                position = Snapping.Snap(position, EditorSnapSettings.gridSize);
+
+            return position;
+        }
     }
 }

@@ -18,7 +18,14 @@ namespace Shears.Beziers
         [SerializeField, Tooltip("Whether or not the last point should connect back to the first.")] private bool closed = false;
         [SerializeField, Tooltip("The points that define the curve.")] private List<BezierPoint> points = new();
 
+        public bool DrawGizmos => drawGizmos;
         public IReadOnlyList<BezierPoint> Points => points;
+
+        private void Reset()
+        {
+            AddPoint(Vector3.zero);
+            AddPoint(Vector3.right);
+        }
 
         private void OnValidate()
         {
