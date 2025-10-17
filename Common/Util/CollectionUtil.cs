@@ -10,7 +10,7 @@ namespace Shears
     {
         private static readonly StringBuilder stringBuilder = new();
 
-        public static string ToCollectionString<T>(this IReadOnlyCollection<T> collection, Func<T, string> toString = null)
+        public static string ToCollectionString<T>(this IReadOnlyCollection<T> collection, Func<T, string> toString = null, string separator = ", ")
         {
             stringBuilder.Clear();
 
@@ -22,7 +22,7 @@ namespace Shears
                     stringBuilder.Append(collection.ElementAt(i).ToString());
 
                 if (i < collection.Count - 1)
-                    stringBuilder.Append(", ");
+                    stringBuilder.Append(separator);
             }
 
             return stringBuilder.ToString();
