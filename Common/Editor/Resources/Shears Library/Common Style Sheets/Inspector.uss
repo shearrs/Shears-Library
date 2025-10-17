@@ -3,6 +3,7 @@
 	-unity-font-style: bold;
 	margin-top: 10px;
 	margin-bottom: 2px;
+	margin-left: 2px;
 }
 
 .darkContainer
@@ -24,7 +25,26 @@
 	border-width: 1px;
 }
 
+.lightContainer
+{
+	background-color: var(--unity-colors-headerbar_column-background-hover);
+	padding: 4px;
+	border-radius: 4px;
+	border-color: rgba(20, 20, 20, 1);
+	border-width: 1px;
+}
+
 .darkFoldout > .unity-toggle
 {
 	padding-left: 16px;
+}
+
+.darkFocusable:hover
+{
+	background-color: rgba(100, 100, 100, 0.5);
+}
+
+.darkFocusable:focus
+{
+	background-color: var(--unity-colors-button-background-pressed);
 }

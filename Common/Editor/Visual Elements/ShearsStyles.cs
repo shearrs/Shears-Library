@@ -15,5 +15,7 @@ namespace Shears.Editor
         public const string HeaderClass = "header";
         public const string DarkContainerClass = "darkContainer";
         public const string DarkFoldoutClass = "darkFoldout";
+        public const string LightContainerClass = "lightContainer";
+        public const string FocusableClass = "darkFocusable";
     }
 }

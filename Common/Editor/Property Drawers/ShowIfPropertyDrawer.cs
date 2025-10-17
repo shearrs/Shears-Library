@@ -33,6 +33,8 @@ namespace Shears.Editor
             {
                 var property = parent.FindPropertyRelative(propertyName);
 
+                //Debug.Log($"does {property.name} == {compareValue}?: {property.boxedValue.Equals(compareValue)}");
+
                 return property.boxedValue.Equals(compareValue) != negate;
             }
 
