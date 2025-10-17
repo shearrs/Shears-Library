@@ -133,9 +133,13 @@ namespace Shears.UI.Editor
             canvas.vertexColorAlwaysGammaSpace = true;
             canvas.additionalShaderChannels = AdditionalCanvasShaderChannels.TexCoord1;
 
-            canvasGO.AddComponent<CanvasScaler>();
+            var scaler = canvasGO.AddComponent<CanvasScaler>();
             canvasGO.AddComponent<GraphicRaycaster>();
             canvasGO.AddComponent<ManagedCanvas>();
+
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new(1920, 1080);
+            scaler.matchWidthOrHeight = 0.45f;
 
             ManagedUIEventSystem.CreateInstanceIfNoneExists();
 

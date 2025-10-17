@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 namespace Shears.UI
 {
@@ -36,6 +37,17 @@ namespace Shears.UI
 
             if (canvas.enabled != enabled)
                 StartCoroutine(IEToggleCanvas(canvas));
+        }
+
+        protected override void OnDestroy()
+        {
+            if (TryGetComponent(out CanvasScaler scaler))
+                Destroy(scaler);
+
+            if (TryGetComponent(out GraphicRaycaster raycaster))
+                Destroy(raycaster);
+
+            base.OnDestroy();
         }
 
         public void Enable()
