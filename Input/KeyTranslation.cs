@@ -33,7 +33,9 @@ namespace Shears.Input
         N,
         M,
         Backspace,
-        Enter
+        Enter,
+        LeftShift,
+        Space
     }
 
     public static class KeyTranslation
@@ -70,6 +72,8 @@ namespace Shears.Input
                 Key.M => ManagedKey.M,
                 Key.Backspace => ManagedKey.Backspace,
                 Key.Enter => ManagedKey.Enter,
+                Key.LeftShift => ManagedKey.LeftShift,
+                Key.Space => ManagedKey.Space,
                 _ => ManagedKey.None
             };
         }
@@ -113,6 +117,8 @@ namespace Shears.Input
                 "M" => ManagedKey.M,
                 "Backspace" => ManagedKey.Backspace,
                 "Enter" => ManagedKey.Enter,
+                "Left Shift" => ManagedKey.LeftShift,
+                " " => ManagedKey.Space,
                 _ => ManagedKey.None
             };
         }
@@ -149,6 +155,8 @@ namespace Shears.Input
                 ManagedKey.M => "M",
                 ManagedKey.Backspace => "Backspace",
                 ManagedKey.Enter => "Enter",
+                ManagedKey.LeftShift => "Left Shift",
+                ManagedKey.Space => " ",
                 _ => ""
             };
         }
