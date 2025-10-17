@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Shears.Signals
 {
-    public class SignalShuttle
+    public static class SignalShuttle
     {
         private static readonly Dictionary<Type, ISignalBindings> signals = new();
 
