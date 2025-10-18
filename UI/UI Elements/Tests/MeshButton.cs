@@ -32,6 +32,7 @@ namespace Shears.UI
                 if (material == null)
                 {
                     material = Instantiate(meshRenderer.material);
+                    originalColor = material.color;
                     meshRenderer.material = material;
                 }
                 
@@ -46,13 +47,7 @@ namespace Shears.UI
         {
             base.Awake();
 
-            if (material == null)
-            {
-                material = Instantiate(meshRenderer.material);
-                meshRenderer.material = material;
-            }
-
-            originalColor = material.color;
+            var material = Material;
 
             if (!selectable)
                 material.color = originalColor * notSelectableColor;
@@ -98,7 +93,8 @@ namespace Shears.UI
                 clicked.Invoke();
             }
 
-            TweenToColor(pressedColor, hoverTweenData);
+            if (selectable)
+                TweenToColor(pressedColor, hoverTweenData);
         }
 
         private void OnPointerUp(PointerUpEvent evt)
@@ -153,7 +149,7 @@ namespace Shears.UI
                 }
             }
             else
-                Material.color = notSelectableColor;
+                Material.color = originalColor * notSelectableColor;
 
             selectable = value;
         }
