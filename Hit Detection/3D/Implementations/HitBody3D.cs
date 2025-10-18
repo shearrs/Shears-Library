@@ -2,6 +2,7 @@ using Shears.Logging;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace Shears.HitDetection
 {
@@ -16,9 +17,11 @@ namespace Shears.HitDetection
         [SerializeField] protected LayerMask collisionMask = 1;
         [SerializeField] protected List<Collider> ignoreList;
 
+        private bool wasBlockedNoMultiHit = false;
+
         private IHitDeliverer3D deliverer;
-        private readonly List<IHitReceiver<HitData3D>> unclearedHits = new(10);
-        protected readonly Dictionary<Collider, RaycastHit> finalHits = new(10);
+        private List<IHitReceiver<HitData3D>> unclearedHits;
+        protected Dictionary<Collider, RaycastHit> finalHits;
 
         public IHitDeliverer3D Deliverer => deliverer;
         public int ValidHitCount { get; private set; }
@@ -29,10 +32,25 @@ namespace Shears.HitDetection
         public event Action Enabled;
         public event Action Disabled;
 
+        private void Awake()
+        {
+            deliverer = GetComponentInParent<IHitDeliverer3D>();
+
+            unclearedHits = ListPool<IHitReceiver<HitData3D>>.Get();
+            finalHits = DictionaryPool<Collider, RaycastHit>.Get();
+        }
+
+        private void OnDestroy()
+        {
+            ListPool<IHitReceiver<HitData3D>>.Release(unclearedHits);
+            DictionaryPool<Collider, RaycastHit>.Release(finalHits);
+        }
+
         protected virtual void OnEnable()
         {
             ValidHitCount = 0;
             unclearedHits.Clear();
+            wasBlockedNoMultiHit = false;
 
             Enabled?.Invoke();
         }
@@ -40,11 +58,6 @@ namespace Shears.HitDetection
         protected virtual void OnDisable()
         {
             Disabled?.Invoke();
-        }
-
-        private void Awake()
-        {
-            deliverer = GetComponentInParent<IHitDeliverer3D>();
         }
 
         private void Update()
@@ -61,6 +74,9 @@ namespace Shears.HitDetection
 
         private void CheckForHits()
         {
+            if (wasBlockedNoMultiHit)
+                return;
+
             finalHits.Clear();
             Sweep();
 
@@ -85,19 +101,36 @@ namespace Shears.HitDetection
                     return;
                 }
 
-                if (multiHits || !unclearedHits.Contains(receiver))
+                if (receiver is IHitBlocker3D blocker && blocker.IsBlocking)
                 {
-                    HitData3D hitData = new(deliverer, receiver, this, hurtbody, new(hit), deliverer.GetCustomData());
+                    var hitData = new HitData3D(deliverer, receiver, this, hurtbody, new(hit), deliverer.GetCustomData());
 
-                    deliverer.OnHitDelivered(hitData);
-                    receiver.OnHitReceived(hitData);
+                    deliverer.OnHitBlocked(hitData);
+                    blocker.OnHitBlocked(hitData);
 
                     if (!multiHits)
-                        unclearedHits.Add(receiver);
+                        wasBlockedNoMultiHit = true;
 
-                    ValidHitCount++;
+                    return;
                 }
+
+                if (multiHits || !unclearedHits.Contains(receiver))
+                    SendHitEvents(hurtbody, hit);
             }
+        }
+
+        private void SendHitEvents(HurtBody3D body, RaycastHit hit)
+        {
+            var receiver = body.Receiver;
+            HitData3D hitData = new(deliverer, receiver, this, body, new(hit), deliverer.GetCustomData());
+
+            deliverer.OnHitDelivered(hitData);
+            receiver.OnHitReceived(hitData);
+
+            if (!multiHits)
+                unclearedHits.Add(receiver);
+
+            ValidHitCount++;
         }
 
         protected abstract void Sweep();

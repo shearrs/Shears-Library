@@ -20,7 +20,7 @@ namespace Shears.HitDetection
 
         public void OnHitBlocked(T hitData)
         {
-
+            OnHitDelivered(hitData);
         }
     }
 }

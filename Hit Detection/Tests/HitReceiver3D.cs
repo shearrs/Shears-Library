@@ -8,12 +8,12 @@ namespace Shears.HitDetection
     {
         Transform IHitReceiver.Transform => transform;
 
-        public event Action<HitData3D> ReceivedHit;
+        public event Action<HitData3D> HitReceived;
 
         public void OnHitReceived(HitData3D hitData)
         {
             ReceiveHit(hitData);
-            ReceivedHit?.Invoke(hitData);
+            HitReceived?.Invoke(hitData);
         }
 
         protected virtual void ReceiveHit(HitData3D hitData) { }
