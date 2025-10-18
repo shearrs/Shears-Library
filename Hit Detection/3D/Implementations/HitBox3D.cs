@@ -354,7 +354,7 @@ namespace Shears.HitDetection
                     float tX = (float)column / (raysPerFace - 1);
 
                     Vector3 origin = Vector3.Lerp(start, end, tY) + (columnOffsetDistance * tX * columnOffsetDirection);
-                    Vector3 crossAgainst = (direction == Vector3.up) ? Vector3.forward : Vector3.up;
+                    Vector3 crossAgainst = (direction == Vector3.up || direction == Vector3.down) ? Vector3.forward : Vector3.up;
 
                     GizmosUtil.DrawArrow(origin, direction * distance, Vector3.Cross(direction, crossAgainst), 0.075f, 0.075f, Color.magenta * opacity);
                 }

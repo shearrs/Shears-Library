@@ -11,13 +11,14 @@ namespace Shears.HitDetection
         private readonly IHitBody3D hitBody;
         private readonly IHurtBody3D hurtBody;
         private readonly HitResult3D result;
-        private readonly Dictionary<Type, IHitSubdata> data;
+        private readonly IReadOnlyCollection<IHitSubdata> data; // IMPORTANT !!! this is NOT being copied by default, if we are changing damage values often, we need to copy our collections
 
         public readonly IHitDeliverer3D Deliverer => deliverer;
         public readonly IHitReceiver3D Receiver => receiver;
         public readonly IHitBody3D HitBody => hitBody;
         public readonly IHurtBody3D HurtBody => hurtBody;
         public readonly HitResult3D Result => result;
+        public readonly IReadOnlyCollection<IHitSubdata> Data => data;
 
         #region Interface Variables
         IHitDeliverer<HitData3D> IHitData<HitData3D, HitResult3D>.Deliverer => deliverer;
@@ -35,46 +36,29 @@ namespace Shears.HitDetection
 
         public HitData3D(IHitDeliverer3D deliverer, IHitReceiver3D receiver,
             IHitBody3D hitBody, IHurtBody3D hurtBody,
-            HitResult3D result, params IHitSubdata[] data)
+            HitResult3D result, IReadOnlyCollection<IHitSubdata> data)
         {
             this.deliverer = deliverer;
             this.receiver = receiver;
             this.hitBody = hitBody;
             this.hurtBody = hurtBody;
             this.result = result;
-            this.data = new();
-
-            if (data == null)
-                return;
-
-            foreach (var item in data)
-            {
-                if (item != null)
-                {
-                    Type type = item.GetType();
-
-                    if (!this.data.ContainsKey(type))
-                        this.data[type] = item;
-                    else
-                        SHLogger.Log($"Data of type {type} already exists in HitData3D.", SHLogLevels.Warning);
-                }
-            }
+            this.data = data;
         }
 
-        public readonly bool TryGetData<T>(out T data)
+        public readonly bool TryGetData<T>(out T data) where T : IHitSubdata
         {
-            if (this.data.TryGetValue(typeof(T), out IHitSubdata value) && value is T typedValue)
+            foreach (var hitData in this.data)
             {
-                data = typedValue;
-
-                return true;
+                if (hitData is T typedData)
+                {
+                    data = typedData;
+                    return true;
+                }
             }
-            else
-            {
-                data = default;
 
-                return false;
-            }
+            data = default;
+            return false;
         }
     }
 }

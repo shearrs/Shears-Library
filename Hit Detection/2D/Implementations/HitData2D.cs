@@ -11,7 +11,7 @@ namespace Shears.HitDetection
         private readonly IHitBody2D hitBody;
         private readonly IHurtBody2D hurtBody;
         private readonly HitResult2D result;
-        private readonly Dictionary<Type, IHitSubdata> data;
+        private readonly IReadOnlyCollection<IHitSubdata> data;
 
         public readonly IHitDeliverer2D Deliverer => deliverer;
         public readonly IHitReceiver2D Receiver => receiver;
@@ -35,46 +35,29 @@ namespace Shears.HitDetection
 
         public HitData2D(IHitDeliverer2D deliverer, IHitReceiver2D receiver, 
             IHitBody2D hitBody, IHurtBody2D hurtBody, 
-            HitResult2D result, params IHitSubdata[] data)
+            HitResult2D result, IReadOnlyCollection<IHitSubdata> data)
         {
             this.deliverer = deliverer;
             this.receiver = receiver;
             this.hitBody = hitBody;
             this.hurtBody = hurtBody;
             this.result = result;
-            this.data = new();
-
-            if (data == null)
-                return;
-
-            foreach (var item in data)
-            {
-                if (item != null)
-                {
-                    Type type = item.GetType();
-
-                    if (!this.data.ContainsKey(type))
-                        this.data[type] = item;
-                    else
-                        SHLogger.Log($"Data of type {type} already exists in HitData3D.", SHLogLevels.Warning);
-                }
-            }
+            this.data = data;
         }
 
-        public readonly bool TryGetData<T>(out T data)
+        public readonly bool TryGetData<T>(out T data) where T : IHitSubdata
         {
-            if (this.data.TryGetValue(typeof(T), out IHitSubdata value) && value is T typedValue)
+            foreach (var hitData in this.data)
             {
-                data = typedValue;
-
-                return true;
+                if (hitData is T typedData)
+                {
+                    data = typedData;
+                    return true;
+                }
             }
-            else
-            {
-                data = default;
 
-                return false;
-            }
+            data = default;
+            return false;
         }
 
         #region Operator Overrides

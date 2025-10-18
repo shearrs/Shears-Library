@@ -6,16 +6,16 @@ namespace Shears.HitDetection
 {
     public class HitReceiver3D : MonoBehaviour, IHitReceiver3D
     {
-        [SerializeField] private UnityEvent<HitData3D> onReceiveHit;
-
         Transform IHitReceiver.Transform => transform;
 
-        public event Action<HitData3D> OnReceiveHit;
+        public event Action<HitData3D> ReceivedHit;
 
         public void OnHitReceived(HitData3D hitData)
         {
-            OnReceiveHit?.Invoke(hitData);
-            onReceiveHit.Invoke(hitData);
+            ReceiveHit(hitData);
+            ReceivedHit?.Invoke(hitData);
         }
+
+        protected virtual void ReceiveHit(HitData3D hitData) { }
     }
 }

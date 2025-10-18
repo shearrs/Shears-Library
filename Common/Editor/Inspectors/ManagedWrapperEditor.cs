@@ -46,9 +46,7 @@ namespace Shears.Editor
         public override VisualElement CreateInspectorGUI()
         {
             var root = new VisualElement();
-
             var defaultFields = VisualElementUtil.CreateDefaultFields(serializedObject);
-            
             var wrappedValueSO = new SerializedObject(wrappedValue);
 
             var wrappedFoldout = new Foldout

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Shears.HitDetection
@@ -7,7 +8,7 @@ namespace Shears.HitDetection
     {
         public Transform Transform { get; }
 
-        public IHitSubdata[] GetCustomData()
+        public IReadOnlyCollection<IHitSubdata> GetCustomData()
         {
             return null;
         }

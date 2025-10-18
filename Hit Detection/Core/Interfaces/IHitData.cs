@@ -10,7 +10,7 @@ namespace Shears.HitDetection
         public IHurtBody HurtBody { get; }
         public IHitResult Result { get; }
 
-        public bool TryGetData<T>(out T data);
+        public bool TryGetData<T>(out T data) where T : IHitSubdata;
     }
 
     public interface IHitData<HitDataType, HitResultType> : IHitData 
