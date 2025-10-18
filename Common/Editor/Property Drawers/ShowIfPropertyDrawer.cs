@@ -65,7 +65,7 @@ namespace Shears.Editor
 
                 if (conditionProperty == null)
                 {
-                    Debug.LogError("could not find property: " + name);
+                    Debug.LogError($"Could not find property {name} in {targetProperty.propertyPath}!");
                     return root;
                 }
 
@@ -139,7 +139,7 @@ namespace Shears.Editor
 
                 if (conditionProperty == null)
                 {
-                    Debug.LogError("Could not find property: " + name);
+                    Debug.LogError($"Could not find property {name} in {targetProperty.name}!");
                     return;
                 }
 
