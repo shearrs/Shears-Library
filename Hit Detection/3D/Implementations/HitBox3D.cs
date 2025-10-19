@@ -54,6 +54,7 @@ namespace Shears.HitDetection
         [SerializeField] private GizmoSettings gizmoSettings;
 
         [Header("Collision Settings")]
+        [SerializeField, Range(0, 100)] private int maxHits = 10;
         [SerializeField, Range(2, 32)] private int raysPerFace = 3;
         [SerializeField] private SourceDirections sourceDirections = (SourceDirections)(-1);
 
@@ -63,7 +64,7 @@ namespace Shears.HitDetection
         [SerializeField] private Vector3 size = Vector3.one;
 
         private readonly Dictionary<Collider, List<RaycastHit>> recentHits = new();
-        private readonly RaycastHit[] results = new RaycastHit[100];
+        private RaycastHit[] results;
 
         private Vector3 TCenter => transform.position + center;
         private Quaternion TOrientation => transform.rotation * Quaternion.Euler(orientation);
@@ -72,6 +73,11 @@ namespace Shears.HitDetection
         public Vector3 Center { get => center; set => center = value; }
         public Quaternion Orientation { get => Quaternion.Euler(orientation); set => orientation = value.eulerAngles; }
         public Vector3 Size { get => size; set => size = value; }
+
+        private void Awake()
+        {
+            results = new RaycastHit[maxHits];
+        }
 
         private void Reset()
         {

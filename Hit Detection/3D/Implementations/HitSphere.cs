@@ -9,17 +9,23 @@ namespace Shears.HitDetection
         [SerializeField] private bool drawGizmos = true;
 
         [Header("Collision Settings")]
+        [SerializeField, Range(0, 100)] private int maxHits = 10;
         [SerializeField, Min(0.1f)] private float radius = 0.5f;
         [SerializeField] private Vector3 center;
 
         private readonly Dictionary<Collider, List<RaycastHit>> recentHits = new();
-        private readonly Collider[] results = new Collider[10];
+        private Collider[] results;
         private Vector3 debugPoint;
         private Vector3 debugOrigin;
         private bool debugHitThisFrame;
 
         private Vector3 Center => transform.TransformPoint(center);
         private float Radius => radius * (transform.lossyScale.x + transform.lossyScale.y + transform.lossyScale.z) / 3;
+
+        private void Awake()
+        {
+            results = new Collider[maxHits];
+        }
 
         public Vector3 GetAverageHitNormal(Collider collider)
         {
