@@ -22,6 +22,7 @@ namespace Shears.Tweens
         [Header("Duration")]
         [ReadOnly, SerializeField] private float progress = 0;
         [ReadOnly, SerializeField] private bool forceFinalValue;
+        [ReadOnly, SerializeField] private Tween.UpdateMode updateMode;
 
         [Header("Loops")]
         [ReadOnly, SerializeField] private int loops;
@@ -50,6 +51,7 @@ namespace Shears.Tweens
         internal string ID => id;
         public bool IsValid => IsActive;
         public float Duration { get; private set; }
+        public Tween.UpdateMode UpdateMode => updateMode;
         public float Progress => Mathf.Abs(progress / Duration);
         public bool IsPlaying { get; private set; }
         public bool Paused { get; private set; }
@@ -214,7 +216,12 @@ namespace Shears.Tweens
 
                 progress += Time.deltaTime;
 
-                yield return null;
+                if (updateMode == Tween.UpdateMode.Update)
+                    yield return null;
+                else if (updateMode == Tween.UpdateMode.LateUpdate)
+                    yield return CoroutineUtil.WaitForEndOfFrame;
+                else if (updateMode == Tween.UpdateMode.FixedUpdate)
+                    yield return CoroutineUtil.WaitForFixedUpdate;
             }
         }
         #endregion

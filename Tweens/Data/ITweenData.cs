@@ -8,6 +8,7 @@ namespace Shears.Tweens
     {
         public float Duration { get; }
         public bool ForceFinalValue { get; }
+        public Tween.UpdateMode UpdateMode { get; }
         public int Loops { get; }
         public LoopMode LoopMode { get; }
         public TweenEase EasingFunction { get; }

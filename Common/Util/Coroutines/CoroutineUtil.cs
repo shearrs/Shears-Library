@@ -10,8 +10,10 @@ namespace Shears
         private static readonly Dictionary<float, WaitForSeconds> waitForSeconds = new();
         private static readonly Dictionary<float, WaitForSecondsRealtime> waitForSecondsRealtime = new();
         private static readonly WaitForEndOfFrame waitForEndOfFrame = new();
+        private static readonly WaitForFixedUpdate waitForFixedUpdate = new();
 
         public static WaitForEndOfFrame WaitForEndOfFrame => waitForEndOfFrame;
+        public static WaitForFixedUpdate WaitForFixedUpdate => waitForFixedUpdate;
 
         public static WaitForSeconds WaitForSeconds(float seconds)
         {

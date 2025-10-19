@@ -14,6 +14,7 @@ namespace Shears.Tweens.Editor
             var dataObjectProp = property.FindPropertyRelative("tweenDataObject");
             var durationProp = property.FindPropertyRelative("duration");
             var forceFinalValueProp = property.FindPropertyRelative("forceFinalValue");
+            var updateModeProp = property.FindPropertyRelative("updateMode");
             var loopsProp = property.FindPropertyRelative("loops");
             var loopModeProp = property.FindPropertyRelative("loopMode");
             var easingFunctionProp = property.FindPropertyRelative("easingFunction");
@@ -33,6 +34,7 @@ namespace Shears.Tweens.Editor
             {
                 durationProp.floatValue = 1.0f;
                 forceFinalValueProp.boolValue = true;
+                updateModeProp.enumValueIndex = (int)Tween.UpdateMode.Update;
                 curveProp.boxedValue = AnimationCurve.Linear(0, 0, 1, 1);
 
                 property.serializedObject.ApplyModifiedProperties();
@@ -48,6 +50,7 @@ namespace Shears.Tweens.Editor
             var dataObjectField = new PropertyField(dataObjectProp);
             var durationField = new PropertyField(durationProp);
             var forceFinalValueField = new PropertyField(forceFinalValueProp);
+            var updateModeField = new PropertyField(updateModeProp);
             var loopsField = new PropertyField(loopsProp);
             var loopModeField = new PropertyField(loopModeProp);
             var usesCurveField = new PropertyField(usesCurveProp);
@@ -57,7 +60,7 @@ namespace Shears.Tweens.Editor
             var settingsContainer = new VisualElement();
             settingsContainer.AddAll(
                 dataObjectField, durationField, forceFinalValueField,
-                loopsField, loopModeField
+                updateModeField, loopsField, loopModeField
             );
 
             var curveContainer = new VisualElement();
@@ -72,6 +75,7 @@ namespace Shears.Tweens.Editor
                 dataObjectField.style.display = usesObject.boolValue ? DisplayStyle.Flex : DisplayStyle.None;
                 durationField.style.display = usesObject.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
                 forceFinalValueField.style.display = usesObject.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
+                updateModeField.style.display = usesObject.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
                 loopsField.style.display = usesObject.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
                 loopModeField.style.display = usesObject.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
                 curveContainer.style.display = usesObject.boolValue ? DisplayStyle.None : DisplayStyle.Flex;

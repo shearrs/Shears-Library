@@ -15,6 +15,7 @@ namespace Shears.Tweens
         [Header("Duration Settings")]
         [SerializeField, ShowIf("!usesDataObject"), Min(0f)] private float duration = 1.0f;
         [SerializeField, ShowIf("!usesDataObject")] private bool forceFinalValue = true;
+        [SerializeField, ShowIf("!usesDataObject")] private Tween.UpdateMode updateMode;
 
         [Header("Loop Settings")]
         [SerializeField, ShowIf("!usesDataObject"), Min(-1)] private int loops = 0;
@@ -41,6 +42,12 @@ namespace Shears.Tweens
         {
             get => UsesDataObject() ? tweenDataObject.ForceFinalValue : forceFinalValue;
             set => forceFinalValue = value;
+        }
+
+        public Tween.UpdateMode UpdateMode
+        {
+            get => UsesDataObject() ? tweenDataObject.UpdateMode : updateMode;
+            set => updateMode = value;
         }
 
         public int Loops

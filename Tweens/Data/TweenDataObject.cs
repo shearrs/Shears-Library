@@ -10,6 +10,7 @@ namespace Shears.Tweens
         [field: Header("Duration Settings")]
         [field: SerializeField] public float Duration { get; private set; } = 1;
         [field: SerializeField] public bool ForceFinalValue { get; private set; } = true;
+        [field: SerializeField] public Tween.UpdateMode UpdateMode { get; private set; } = Tween.UpdateMode.Update;
 
         [field: Header("Loop Settings")]
         [field: SerializeField] public int Loops { get; private set; } = 0;

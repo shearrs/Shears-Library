@@ -6,6 +6,8 @@ namespace Shears.Tweens
 {
     public readonly struct Tween
     {
+        public enum UpdateMode { Update, LateUpdate, FixedUpdate }
+
         private readonly TweenInstance tween;
         private readonly string id;
 
