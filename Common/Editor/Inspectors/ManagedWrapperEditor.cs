@@ -16,8 +16,21 @@ namespace Shears.Editor
 
             var wrapper = target as ManagedWrapper;
 
+            if (wrapper == null)
+                return;
+
             wrappedValue = wrapper.WrappedValue;
 
+            EditorApplication.delayCall += SetHideFlags;
+        }
+
+        private void OnDisable()
+        {
+            EditorApplication.delayCall -= SetHideFlags;
+        }
+
+        private void SetHideFlags()
+        {
             var wrappedValueSO = new SerializedObject(wrappedValue);
             wrappedValueSO.FindProperty("m_ObjectHideFlags").intValue = (int)HideFlags.HideInInspector;
             wrappedValueSO.ApplyModifiedPropertiesWithoutUndo();
@@ -63,6 +76,11 @@ namespace Shears.Editor
             root.AddAll(defaultFields, wrappedFoldout);
 
             return root;
+        }
+
+        public override void OnInspectorGUI()
+        {
+            VisualElementUtil.CreateDefaultFieldsIMGUI(serializedObject);
         }
     }
 }
