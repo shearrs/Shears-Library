@@ -66,13 +66,15 @@ namespace Shears.HitDetection
         private readonly Dictionary<Collider, List<RaycastHit>> recentHits = new();
         private RaycastHit[] results;
 
-        private Vector3 TCenter => transform.position + center;
+        private Vector3 TCenter => transform.position + TOrientation * center;
         private Quaternion TOrientation => transform.rotation * Quaternion.Euler(orientation);
         private Vector3 TSize => Vector3.Scale(size, transform.lossyScale);
 
         public Vector3 Center { get => center; set => center = value; }
         public Quaternion Orientation { get => Quaternion.Euler(orientation); set => orientation = value.eulerAngles; }
         public Vector3 Size { get => size; set => size = value; }
+
+        public Vector3 WorldCenter { get => transform.TransformPoint(center); set => center = transform.InverseTransformPoint(value); }
 
         protected override void Awake()
         {
