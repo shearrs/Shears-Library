@@ -127,7 +127,7 @@ namespace Shears.Cameras
             zoomChain.Clear();
             zoomChain
                 .Tween((t) => zoom = Mathf.Lerp(from, to, t), zoomTime)
-                .Run();
+                .Start();
         }
 
         private void UpdateTargetPosition()

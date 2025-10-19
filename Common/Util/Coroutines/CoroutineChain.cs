@@ -185,7 +185,7 @@ namespace Shears
             return this;
         }
 
-        public Coroutine Run()
+        public Coroutine Start()
         {
             if (isRunning)
                 return null;

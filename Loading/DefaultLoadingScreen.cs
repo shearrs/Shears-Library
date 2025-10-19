@@ -54,7 +54,7 @@ namespace Shears.Loading
                 }, 3.0f)
                 .Then(() => IsDelaying = false);
 
-            yield return coroutineChain.Run();
+            yield return coroutineChain.Start();
 
             StartCoroutine(IEDelay());
         }

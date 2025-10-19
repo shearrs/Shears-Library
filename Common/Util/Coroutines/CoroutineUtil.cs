@@ -34,5 +34,17 @@ namespace Shears
 
             return wait;
         }
+
+        public static Coroutine DoAfter(Action action, float time)
+        {
+            return CoroutineRunner.Start(IEDoAfter(action, time));
+        }
+
+        private static IEnumerator IEDoAfter(Action action, float time)
+        {
+            yield return WaitForSeconds(time);
+
+            action?.Invoke();
+        }
     }
 }
