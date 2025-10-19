@@ -74,8 +74,10 @@ namespace Shears.HitDetection
         public Quaternion Orientation { get => Quaternion.Euler(orientation); set => orientation = value.eulerAngles; }
         public Vector3 Size { get => size; set => size = value; }
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
+
             results = new RaycastHit[maxHits];
         }
 

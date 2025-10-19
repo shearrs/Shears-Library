@@ -22,8 +22,10 @@ namespace Shears.HitDetection
         private Vector3 Center => transform.TransformPoint(center);
         private float Radius => radius * (transform.lossyScale.x + transform.lossyScale.y + transform.lossyScale.z) / 3;
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
+
             results = new Collider[maxHits];
         }
 

@@ -32,7 +32,7 @@ namespace Shears.HitDetection
         public event Action Enabled;
         public event Action Disabled;
 
-        private void Awake()
+        protected virtual void Awake()
         {
             deliverer = GetComponentInParent<IHitDeliverer3D>();
 
