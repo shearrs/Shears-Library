@@ -157,5 +157,30 @@ namespace Shears.Editor
 
             return container;
         }
+    
+        public static void CreateDefaultFieldsIMGUI(SerializedObject serializedObject, bool includeScript = true)
+        {
+            var iterator = serializedObject.GetIterator();
+            bool isNext = iterator.Next(true);
+
+            if (!isNext)
+                return;
+
+            while (iterator.NextVisible(false))
+            {
+                var prop = iterator.Copy();
+
+                if (prop.name == "m_Script" && !includeScript)
+                    continue;
+
+                if (prop.name == "m_Script")
+                    EditorGUI.BeginDisabledGroup(true);
+
+                EditorGUILayout.PropertyField(prop);
+
+                if (prop.name == "m_Script")
+                    EditorGUI.EndDisabledGroup();
+            }
+        }
     }
 }
