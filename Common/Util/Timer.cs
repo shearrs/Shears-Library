@@ -21,6 +21,7 @@ namespace Shears
         [SerializeField, ReadOnly] private bool isDone = true;
         
         private CancellationTokenSource tokenSource;
+        private bool isQuitting = false;
 
         public float Time { get => time; set => time = value; }
         public float CurrentTime => currentTime;
@@ -34,6 +35,19 @@ namespace Shears
         public Timer(float time)
         {
             this.time = time;
+
+            Application.quitting += OnApplicationQuit;
+        }
+
+        ~Timer()
+        {
+            Application.quitting -= OnApplicationQuit;
+        }
+
+        private void OnApplicationQuit()
+        {
+            isQuitting = true;
+            Application.quitting -= OnApplicationQuit;
         }
 
         /// <summary>
@@ -127,6 +141,9 @@ namespace Shears
             while (currentTime < time)
             {
                 currentTime += UnityEngine.Time.deltaTime;
+
+                if (isQuitting)
+                    break;
 
                 await SafeAwaitable.NextFrameAsync(token);
             }
