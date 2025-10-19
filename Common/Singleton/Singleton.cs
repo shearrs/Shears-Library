@@ -10,7 +10,7 @@ namespace Shears
 
         public static bool CanCreateInstances => canCreateInstances;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void EnableInstanceCreation()
         {
             canCreateInstances = true;
