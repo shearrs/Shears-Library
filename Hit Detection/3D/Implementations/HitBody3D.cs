@@ -42,8 +42,11 @@ namespace Shears.HitDetection
 
         private void OnDestroy()
         {
-            ListPool<IHitReceiver<HitData3D>>.Release(unclearedHits);
-            DictionaryPool<Collider, RaycastHit>.Release(finalHits);
+            if (unclearedHits != null)
+                ListPool<IHitReceiver<HitData3D>>.Release(unclearedHits);
+
+            if (finalHits != null)
+                DictionaryPool<Collider, RaycastHit>.Release(finalHits);
         }
 
         protected virtual void OnEnable()
