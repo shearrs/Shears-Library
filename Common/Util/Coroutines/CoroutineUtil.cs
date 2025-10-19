@@ -46,5 +46,17 @@ namespace Shears
 
             action?.Invoke();
         }
+
+        public static Coroutine DoDeferred(Action action)
+        {
+            return CoroutineRunner.Start(IEDoDeferred(action));
+        }
+
+        private static IEnumerator IEDoDeferred(Action action)
+        {
+            yield return WaitForEndOfFrame;
+            
+            action?.Invoke();
+        }
     }
 }
