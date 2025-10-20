@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Shears.HitDetection
@@ -64,6 +65,7 @@ namespace Shears.HitDetection
         [SerializeField] private Vector3 size = Vector3.one;
 
         private readonly Dictionary<Collider, List<RaycastHit>> recentHits = new();
+        private readonly List<int> sortedResults = new();
         private RaycastHit[] results;
 
         private Vector3 TCenter => transform.position + TOrientation * center;
@@ -232,16 +234,23 @@ namespace Shears.HitDetection
                     int hits = Physics.RaycastNonAlloc(origin, direction, results, distance, collisionMask, QueryTriggerInteraction.Collide);
 
                     if (hits > 0)
-                        AddValidHits(hits);
+                        AddValidHits(hits, origin);
                 }
             }
         }
 
-        private void AddValidHits(int hits)
+        private void AddValidHits(int hits, Vector3 origin)
         {
+            sortedResults.Clear();
+
             for (int i = 0; i < hits; i++)
+                sortedResults.Add(i);
+
+            sortedResults.Sort((i1, i2) => results[i1].distance.CompareTo(results[i2].distance));
+
+            foreach (var hitIndex in sortedResults)
             {
-                RaycastHit result = results[i];
+                RaycastHit result = results[hitIndex];
 
                 if (result.collider == null)
                     continue;
@@ -250,6 +259,23 @@ namespace Shears.HitDetection
                     recentHitsForCollider.Add(result);
                 else
                     recentHits.Add(result.collider, new List<RaycastHit> { result });
+
+                var body = GetHurtBodyForCollider(result.collider, result.transform);
+
+                if (body != null && body.Receiver is IHitBlocker3D blocker && blocker.IsBlocking)
+                {
+                    var data = new HitData3D(Deliverer, body.Receiver, this, body, new(result), Deliverer.GetCustomData());
+
+                    blocker.OnHitBlocked(data);
+                    Deliverer.OnHitBlocked(data);
+
+                    return;
+                }
+                else
+                {
+                    var color = hitIndex == 0 ? Color.red : Color.yellow;
+                    Debug.DrawLine(origin, result.point, color);
+                }
 
                 if (finalHits.TryGetValue(result.collider, out var oldHit))
                 {

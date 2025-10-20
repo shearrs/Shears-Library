@@ -1,6 +1,7 @@
 using Shears.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -16,8 +17,6 @@ namespace Shears.HitDetection
         [SerializeField] private bool multiHits;
         [SerializeField] protected LayerMask collisionMask = 1;
         [SerializeField] protected List<Collider> ignoreList;
-
-        private bool wasBlockedNoMultiHit = false;
 
         private IHitDeliverer3D deliverer;
         private List<IHitReceiver<HitData3D>> unclearedHits;
@@ -53,7 +52,6 @@ namespace Shears.HitDetection
         {
             ValidHitCount = 0;
             unclearedHits.Clear();
-            wasBlockedNoMultiHit = false;
 
             Enabled?.Invoke();
         }
@@ -77,9 +75,6 @@ namespace Shears.HitDetection
 
         private void CheckForHits()
         {
-            if (wasBlockedNoMultiHit)
-                return;
-
             finalHits.Clear();
             Sweep();
 
@@ -104,19 +99,6 @@ namespace Shears.HitDetection
                     return;
                 }
 
-                if (receiver is IHitBlocker3D blocker && blocker.IsBlocking)
-                {
-                    var hitData = new HitData3D(deliverer, receiver, this, hurtbody, new(hit), deliverer.GetCustomData());
-
-                    deliverer.OnHitBlocked(hitData);
-                    blocker.OnHitBlocked(hitData);
-
-                    if (!multiHits)
-                        wasBlockedNoMultiHit = true;
-
-                    return;
-                }
-
                 if (multiHits || !unclearedHits.Contains(receiver))
                     SendHitEvents(hurtbody, hit);
             }
@@ -138,7 +120,7 @@ namespace Shears.HitDetection
 
         protected abstract void Sweep();
 
-        private HurtBody3D GetHurtBodyForCollider(Collider collider, Transform transform)
+        protected HurtBody3D GetHurtBodyForCollider(Collider collider, Transform transform)
         {
             if (transform == null || collider == null)
                 return null;
