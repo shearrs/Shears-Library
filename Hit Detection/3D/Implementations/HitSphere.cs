@@ -9,11 +9,13 @@ namespace Shears.HitDetection
         [SerializeField] private bool drawGizmos = true;
 
         [Header("Collision Settings")]
+        [SerializeField] private bool unblockable = false;
         [SerializeField, Range(0, 100)] private int maxHits = 10;
         [SerializeField, Min(0.1f)] private float radius = 0.5f;
         [SerializeField] private Vector3 center;
 
         private readonly Dictionary<Collider, List<RaycastHit>> recentHits = new();
+        private readonly List<int> sortedResults = new();
         private Collider[] results;
         private Vector3 debugPoint;
         private Vector3 debugOrigin;
@@ -55,6 +57,21 @@ namespace Shears.HitDetection
         {
             debugHitThisFrame = false;
 
+            sortedResults.Clear();
+
+            for (int i = 0; i < hits; i++)
+                sortedResults.Add(i);
+
+            sortedResults.Sort((i1, i2) =>
+            {
+                float sqrDist1 = (results[i1].transform.position - Center).sqrMagnitude;
+                float sqrDist2 = (results[i2].transform.position - Center).sqrMagnitude;
+
+                return i1.CompareTo(i2);
+            });
+
+
+
             for (int i = 0; i < hits; i++)
             {
                 Collider result = results[i];
@@ -74,6 +91,21 @@ namespace Shears.HitDetection
                 if (hit.transform == null) hit = CastFromOrigin(center - sideOrigin, closestPoint);
                 if (hit.transform == null) hit = CastFromOrigin(center + topOrigin, closestPoint);
                 if (hit.transform == null) hit = CastFromOrigin(center - topOrigin, closestPoint);
+
+                var body = GetHurtBodyForCollider(result, result.transform);
+
+                if (!unblockable)
+                {
+                    if (body != null && body.Receiver is IHitBlocker3D blocker && blocker.IsBlocking)
+                    {
+                        var data = new HitData3D(Deliverer, body.Receiver, this, body, new(hit), Deliverer.GetCustomData());
+
+                        blocker.OnHitBlocked(data);
+                        Deliverer.OnHitBlocked(data);
+
+                        return;
+                    }
+                }
 
                 if (hit.transform != null && !finalHits.ContainsKey(hit.collider))
                 {
