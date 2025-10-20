@@ -271,11 +271,6 @@ namespace Shears.HitDetection
 
                     return;
                 }
-                else
-                {
-                    var color = hitIndex == 0 ? Color.red : Color.yellow;
-                    Debug.DrawLine(origin, result.point, color);
-                }
 
                 if (finalHits.TryGetValue(result.collider, out var oldHit))
                 {
