@@ -1,30 +1,54 @@
 using Shears.Input;
 using Shears.Logging;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Shears.UI
 {
     [DefaultExecutionOrder(-1000)]
-    public class UIElementEventSystem : ProtectedSingleton<UIElementEventSystem>
+    public class UIElementEventSystem : MonoBehaviour
     {
-        private readonly RaycastHit[] results3D = new RaycastHit[10];
-        private LayerMask detectionMask;
+        private enum DetectionType { Canvas, World3D }
 
+        private static bool applicationIsQuitting = false;
+        private static UIElementEventSystem canvasSystem;
+
+        [SerializeField] private DetectionType detectionType = DetectionType.Canvas;
+
+        private readonly RaycastHit[] results3D = new RaycastHit[10];
+        private readonly HashSet<UIElementCanvas> registeredCanvases = new();
+        private readonly List<Graphic> hitGraphics = new();
+        private LayerMask detectionMask;
         private ManagedInputMap inputMap;
         private IManagedInput clickInput;
         private UIElement hoveredElement;
         private UIElement pointerDownElement;
 
-        protected override void Awake()
+        [RuntimeInitializeOnLoadMethod()]
+        private static void ApplicationRegistration()
         {
-            base.Awake();
+            applicationIsQuitting = false;
+            Application.quitting += OnApplicationQuitting;
+        }
 
+        private static void OnApplicationQuitting()
+        {
+            applicationIsQuitting = true;
+        }
+
+        private void Awake()
+        {
             detectionMask = LayerMask.GetMask("UI");
 
             if (inputMap == null)
                 inputMap = Resources.Load<ManagedInputMap>("ManagedElements/Shears_DefaultEventSystemInputMap");
 
             clickInput = inputMap.GetInput("Click");
+
+            if (detectionType == DetectionType.Canvas)
+                canvasSystem = this;
         }
 
         private void OnEnable()
@@ -44,9 +68,48 @@ namespace Shears.UI
             UpdateHoveredElement();
         }
 
+        public static void RegisterCanvas(UIElementCanvas canvas)
+        {
+            if (canvasSystem == null)
+            {
+                SHLogger.Log($"No canvas system was set! You need to have a {nameof(UIElementEventSystem)} with {nameof(detectionType)} set to {nameof(DetectionType.Canvas)}!", SHLogLevels.Error);
+                return;
+            }
+
+            canvasSystem.InstRegisterCanvas(canvas);
+        }
+        private void InstRegisterCanvas(UIElementCanvas canvas)
+        {
+            if (!registeredCanvases.Contains(canvas))
+                registeredCanvases.Add(canvas);
+        }
+
+        public static void DeregisterCanvas(UIElementCanvas canvas)
+        {
+            if (applicationIsQuitting)
+                return;
+
+            if (canvasSystem == null)
+            {
+                SHLogger.Log($"No canvas system was set! You need to have a {nameof(UIElementEventSystem)} with {nameof(detectionType)} set to {nameof(DetectionType.Canvas)}!", SHLogLevels.Error);
+                return;
+            }
+
+            canvasSystem.InstDeregisterCanvas(canvas);
+        }
+        private void InstDeregisterCanvas(UIElementCanvas canvas)
+        {
+            registeredCanvases.Remove(canvas);
+        }
+
         private void UpdateHoveredElement()
         {
-            var newHoverTarget = Raycast3D();
+            UIElement newHoverTarget = null;
+
+            if (detectionType == DetectionType.Canvas)
+                newHoverTarget = RaycastCanvas();
+            else if (detectionType == DetectionType.World3D)
+                newHoverTarget = Raycast3D();
 
             if (newHoverTarget == hoveredElement)
                 return;
@@ -58,6 +121,55 @@ namespace Shears.UI
 
             if (hoveredElement != null)
                 hoveredElement.InvokeEvent(new HoverEnterEvent());
+        }
+
+        private UIElement RaycastCanvas()
+        {
+            Vector2 pointerPos = ManagedPointer.Current.Position;
+            hitGraphics.Clear();
+
+            foreach (var canvas in registeredCanvases)
+            {
+                if (canvas.Raycaster == null)
+                    continue;
+
+                var raycastableGraphics = GraphicRegistry.GetRaycastableGraphicsForCanvas(canvas.UnityCanvas);
+
+                for (int i = 0; i < raycastableGraphics.Count; i++)
+                {
+                    var graphic = raycastableGraphics[i];
+
+                    if (graphic == null || !graphic.raycastTarget)
+                        continue;
+
+                    if (RectTransformUtility.RectangleContainsScreenPoint(graphic.rectTransform, pointerPos))
+                        hitGraphics.Add(graphic);
+                }
+            }
+
+            int greatestDepth = int.MinValue;
+            UIElement element = null;
+
+            foreach (var graphic in hitGraphics)
+            {
+                if (graphic.depth > greatestDepth && TryGetUIElement(graphic.gameObject, out var hitElement))
+                {
+                    greatestDepth = graphic.depth;
+                    element = hitElement;
+                }
+            }
+
+            return element;
+        }
+
+        private bool TryGetUIElement(GameObject gameObject, out UIElement element)
+        {
+            if (gameObject.TryGetComponent(out element))
+                return true;
+
+            element = gameObject.GetComponentInParent<UIElement>();
+
+            return element != null;
         }
 
         private UIElement Raycast3D()
