@@ -55,7 +55,7 @@ namespace Shears.HitDetection
         [SerializeField] private GizmoSettings gizmoSettings;
 
         [Header("Collision Settings")]
-        [SerializeField, Range(0, 100)] private int maxHits = 10;
+        [SerializeField, Range(0, 500)] private int maxHits = 10;
         [SerializeField, Range(2, 32)] private int raysPerFace = 3;
         [SerializeField] private SourceDirections sourceDirections = (SourceDirections)(-1);
 
