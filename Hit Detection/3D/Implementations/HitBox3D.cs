@@ -58,6 +58,7 @@ namespace Shears.HitDetection
         [SerializeField, Range(0, 500)] private int maxHits = 10;
         [SerializeField, Range(2, 32)] private int raysPerFace = 3;
         [SerializeField] private SourceDirections sourceDirections = (SourceDirections)(-1);
+        [SerializeField] private bool unblockable = false;
 
         [Header("Transform Settings")]
         [SerializeField] private Vector3 center;
@@ -262,14 +263,17 @@ namespace Shears.HitDetection
 
                 var body = GetHurtBodyForCollider(result.collider, result.transform);
 
-                if (body != null && body.Receiver is IHitBlocker3D blocker && blocker.IsBlocking)
+                if (!unblockable)
                 {
-                    var data = new HitData3D(Deliverer, body.Receiver, this, body, new(result), Deliverer.GetCustomData());
+                    if (body != null && body.Receiver is IHitBlocker3D blocker && blocker.IsBlocking)
+                    {
+                        var data = new HitData3D(Deliverer, body.Receiver, this, body, new(result), Deliverer.GetCustomData());
 
-                    blocker.OnHitBlocked(data);
-                    Deliverer.OnHitBlocked(data);
+                        blocker.OnHitBlocked(data);
+                        Deliverer.OnHitBlocked(data);
 
-                    return;
+                        return;
+                    }
                 }
 
                 if (finalHits.TryGetValue(result.collider, out var oldHit))

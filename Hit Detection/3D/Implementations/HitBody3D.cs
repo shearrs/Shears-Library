@@ -25,6 +25,7 @@ namespace Shears.HitDetection
         public IHitDeliverer3D Deliverer => deliverer;
         public int ValidHitCount { get; private set; }
         public List<Collider> IgnoreList { get => ignoreList; set => ignoreList = value; }
+        public LayerMask CollisionMask { get => collisionMask; set => collisionMask = value; }
 
         IHitDeliverer<HitData3D> IHitBody<HitData3D>.Deliverer => Deliverer;
 
