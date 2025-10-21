@@ -54,19 +54,15 @@ namespace Shears.StateMachineGraphs.Editor
             GenericMenu menu = new();
 
             menu.AddItem(new GUIContent("Empty State"), false, SetEmptyState);
+            var types = TypeCache.GetTypesWithAttribute<StateMenuItem>();
 
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (var type in types)
             {
-                var types = TypeCache.GetTypesWithAttribute<StateMenuItem>();
+                if (type.IsAbstract)
+                    continue;
 
-                foreach (var type in types)
-                {
-                    if (type.IsAbstract)
-                        continue;
-
-                    if (type.IsSubclassOf(STATE_TYPE))
-                        TryAddMenuItem(menu, type);
-                }
+                if (type.IsSubclassOf(STATE_TYPE))
+                    TryAddMenuItem(menu, type);
             }
 
             menu.ShowAsContext();

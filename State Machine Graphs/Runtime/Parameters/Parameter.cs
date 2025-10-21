@@ -1,12 +1,16 @@
+using System;
 using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
-    [System.Serializable]
+    [Serializable]
     public abstract class Parameter
     {
         [SerializeField] private string name;
+        private Guid id;
+
         public string Name { get => name; set => name = value; }
+        internal Guid ID { get => id; set => id = value; }
 
         public Parameter(ParameterData data)
         {
@@ -14,7 +18,7 @@ namespace Shears.StateMachineGraphs
         }
     }
 
-    [System.Serializable]
+    [Serializable]
     public abstract class Parameter<T> : Parameter
     {
         [SerializeField] private T value;

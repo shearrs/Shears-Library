@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
+    [DefaultExecutionOrder(-100)]
     public class StateMachine : SHMonoBehaviourLogger, IParameterProvider
     {
         [Header("State Machine")]
@@ -25,9 +26,10 @@ namespace Shears.StateMachineGraphs
 
         private State defaultState;
         private readonly List<State> swapStateTree = new();
-        private readonly Dictionary<Type, State> stateTypes = new();
-        private Dictionary<string, State> states = new();
-        private Dictionary<string, Parameter> parameters = new();
+        private readonly Dictionary<Type, State> stateTypeCache = new();
+        private readonly Dictionary<Guid, State> states = new();
+        private readonly Dictionary<string, Guid> parameterNameCache = new();
+        private readonly Dictionary<Guid, Parameter> parameters = new();
         private int stateSwapID = 0;
 
         public IReadOnlyCollection<State> States => states.Values;
@@ -39,7 +41,7 @@ namespace Shears.StateMachineGraphs
         {
             if (!useGraphData)
                 return;
-            if (graphData == null)
+            else if (graphData == null)
             {
                 Log("No graph data assigned to the state machine.", SHLogLevels.Warning);
                 return;
@@ -82,22 +84,38 @@ namespace Shears.StateMachineGraphs
         #region Graph Compilation
         private void CompileGraph()
         {
-            var compiledData = graphData.CompilationData;
+            var compiledData = graphData.GetData();
 
-            states = compiledData.StateIDs;
+            foreach (var stringID in compiledData.StateIDs.Keys)
+            {
+                var state = compiledData.StateIDs[stringID];
+                var id = Guid.NewGuid();
+                state.ID = id;
+
+                states.Add(id, state);
+            }
 
             foreach (var state in states.Values)
             {
                 var type = state.GetType();
 
-                if (!stateTypes.ContainsKey(type))
-                    stateTypes[type] = state;
+                if (!stateTypeCache.ContainsKey(type))
+                    stateTypeCache[type] = state;
 
                 state.ParameterProvider ??= this;
             }
 
             defaultState = compiledData.DefaultState;
-            parameters = compiledData.ParameterNames;
+
+            foreach (var parameterName in compiledData.ParameterNames.Keys)
+            {
+                var parameter = compiledData.ParameterNames[parameterName];
+                var id = Guid.NewGuid();
+                parameter.ID = id;
+
+                parameterNameCache.Add(parameterName, id);
+                parameters.Add(id, parameter);
+            }
 
 #if UNITY_EDITOR
             parameterDisplay.AddRange(parameters.Values);
@@ -155,7 +173,7 @@ namespace Shears.StateMachineGraphs
 
         public State EnterStateOfType<T>()
         {
-            if (!stateTypes.TryGetValue(typeof(T), out var state))
+            if (!stateTypeCache.TryGetValue(typeof(T), out var state))
             {
                 Log($"StateMachine on {gameObject.name} does not have state of type '{typeof(T).Name}'!", SHLogLevels.Error);
                 return null;
@@ -174,15 +192,15 @@ namespace Shears.StateMachineGraphs
                 return;
             }
 
-            string id = Guid.NewGuid().ToString();
+            Guid id = Guid.NewGuid();
             state.ID = id;
             states.Add(id, state);
             state.LogLevels = LogLevels;
 
             var type = state.GetType();
 
-            if (!stateTypes.ContainsKey(type))
-                stateTypes[type] = state;
+            if (!stateTypeCache.ContainsKey(type))
+                stateTypeCache[type] = state;
 
             state.ParameterProvider ??= this;
         }
@@ -303,32 +321,47 @@ namespace Shears.StateMachineGraphs
         #endregion 
 
         #region Parameters
-        public T GetParameter<T>(string name)
+        public Guid GetParameterID(string name)
         {
-            if (parameters.TryGetValue(name, out var parameter))
+            if (parameterNameCache.TryGetValue(name, out var id))
+                return id;
+            else
+            {
+                Log($"Could not find parameter with name '{name}'.", SHLogLevels.Error);
+                return Guid.Empty;
+            }
+        }
+
+        public T GetParameter<T>(string name) => GetParameter<T>(GetParameterID(name));
+
+        public T GetParameter<T>(Guid id)
+        {
+            if (parameters.TryGetValue(id, out var parameter))
             {
                 if (parameter is Parameter<T> typedParameter)
                     return typedParameter.Value;
                 else
-                    Log($"Parameter '{name}' is not of type {typeof(T)}.", SHLogLevels.Error);
+                    Log($"Parameter '{parameter.Name}' is not of type {typeof(T)}.", SHLogLevels.Error);
             }
             else
-                Log($"Parameter '{name}' not found in the state machine.", SHLogLevels.Error);
+                Log($"Could not find parameter with id '{id}' in the state machine.", SHLogLevels.Error);
 
             return default;
         }
 
-        public void SetParameter<T>(string name, T value)
+        public void SetParameter<T>(string name, T value) => SetParameter(GetParameterID(name), value);
+
+        public void SetParameter<T>(Guid id, T value)
         {
-            if (parameters.TryGetValue(name, out var parameter))
+            if (parameters.TryGetValue(id, out var parameter))
             {
                 if (parameter is Parameter<T> typedParameter)
                     typedParameter.Value = value;
                 else
-                    Log($"Parameter '{name}' is not of type {typeof(T)}.", SHLogLevels.Error);
+                    Log($"Parameter '{parameter.Name}' is not of type {typeof(T)}.", SHLogLevels.Error);
             }
             else
-                Log($"Parameter '{name}' not found in the state machine.", SHLogLevels.Error);
+                Log($"Could not find parameter with id '{id}' in the state machine.", SHLogLevels.Error);
         }
         #endregion
     }

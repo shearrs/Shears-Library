@@ -75,15 +75,15 @@ namespace Shears
         private readonly struct KeyToRemove
         {
             private readonly TKey key;
-            private readonly int index;
+            private readonly TValue value;
 
             public readonly TKey Key => key;
-            public readonly int Index => index;
+            public readonly TValue Value => value;
 
-            public KeyToRemove(TKey key, int index)
+            public KeyToRemove(TKey key, TValue value)
             {
                 this.key = key;
-                this.index = index;
+                this.value = value;
             }
         }
 
@@ -103,13 +103,13 @@ namespace Shears
             for (int i = 0; i < keys.Count; i++)
             {
                 if (!ContainsKey(keys[i]))
-                    keysToRemove.Add(new(keys[i], i));
+                    keysToRemove.Add(new(keys[i], values[i]));
             }
 
             foreach (var key in keysToRemove)
             {
                 keys.Remove(key.Key);
-                values.RemoveAt(key.Index);
+                values.Remove(key.Value);
             }
         }
 

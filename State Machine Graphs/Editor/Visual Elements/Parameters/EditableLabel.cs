@@ -26,7 +26,8 @@ namespace Shears.StateMachineGraphs.Editor
             textField = new()
             {
                 value = text,
-                pickingMode = PickingMode.Ignore
+                pickingMode = PickingMode.Ignore,
+                isDelayed = true
             };
 
             label.AddToClassList(SMEditorUtil.EditableLabelLabelClassName);

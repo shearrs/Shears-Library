@@ -29,7 +29,7 @@ namespace Shears.StateMachineGraphs.Editor
         private static void CompileAllStateMachineGraphs()
         {
             var guids = AssetDatabase.FindAssets("t:StateMachineGraph");
-
+            
             foreach (var guid in guids)
             {
                 var path = AssetDatabase.GUIDToAssetPath(guid);
@@ -46,8 +46,17 @@ namespace Shears.StateMachineGraphs.Editor
 
                 Log($"Compiling StateMachineGraph at path: {path}");
 
+                var oldData = graph.GetData(true);
+
+                if (oldData != null)
+                    AssetDatabase.RemoveObjectFromAsset(oldData);
+
                 graph.Compile();
-                EditorUtility.SetDirty(graph);
+                var data = graph.GetData(true);
+
+                AssetDatabase.AddObjectToAsset(data, path);
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
             }
         }
 

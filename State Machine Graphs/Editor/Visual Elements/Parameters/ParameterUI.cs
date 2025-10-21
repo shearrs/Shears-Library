@@ -75,6 +75,10 @@ namespace Shears.StateMachineGraphs.Editor
         private void UpdateMovementButtons(ParameterData data)
         {
             var parameters = graphData.GetParameters();
+
+            if (parameters.Count == 0)
+                return;
+
             moveUpButton.SetEnabled(parameters[0] != parameterData);
             moveDownButton.SetEnabled(parameters[^1] != parameterData);
         }

@@ -1,11 +1,12 @@
 using Shears.Logging;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
-    [System.Serializable]
+    [Serializable]
     public abstract class State : ISHLoggable
     {
         [SerializeField, ReadOnly] private string name;
@@ -16,9 +17,9 @@ namespace Shears.StateMachineGraphs
         private State parentState;
         private State subState;
         private bool isActive;
-        private string id = string.Empty;
+        private Guid id;
 
-        internal string ID { get => id; set => id = value; }
+        internal Guid ID { get => id; set => id = value; }
         internal IParameterProvider ParameterProvider { get => parameterProvider; set => parameterProvider = value; }
         public bool IsActive { get => isActive; internal set => isActive = value; }
         public string Name { get => name; set => name = value; }
@@ -100,7 +101,7 @@ namespace Shears.StateMachineGraphs
         /// <param name="callerFilePath">The file path of the class who called this. Should not be set manually.</param>
         /// <param name="callerLineNumber">The line number of the class who called this. Should not be set manually.</param>
         [HideInCallstack]
-        protected void Log(string message, SHLogLevels level = SHLogLevels.Log, Color color = default, Object context = null, string prefix = "", ISHLogFormatter formatter = default,
+        protected void Log(string message, SHLogLevels level = SHLogLevels.Log, Color color = default, UnityEngine.Object context = null, string prefix = "", ISHLogFormatter formatter = default,
         [CallerFilePath] string callerFilePath = "", [CallerLineNumber] long callerLineNumber = 0)
         => this.Log(new SHLog(message, context, prefix, level, color), formatter, callerFilePath, callerLineNumber);
     }
