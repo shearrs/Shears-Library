@@ -50,7 +50,7 @@ namespace Shears.StateMachineGraphs.Editor
 
                 if (oldData != null)
                     AssetDatabase.RemoveObjectFromAsset(oldData);
-
+                
                 graph.Compile();
                 var data = graph.GetData(true);
 

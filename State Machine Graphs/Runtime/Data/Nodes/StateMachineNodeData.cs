@@ -9,7 +9,7 @@ namespace Shears.StateMachineGraphs
     public class StateMachineNodeData : GraphMultiNodeData, IStateNodeData, ICopyable<StateMachineNodeClipboardData>
     {
         [SerializeField] private string defaultStateID;
-        [SerializeField] private SerializableSystemType stateType = new(typeof(EmptyState));
+        [SerializeField] private SerializableSystemType stateType;
 
         public event Action SetAsLayerDefault;
         public event Action RemovedAsLayerDefault;

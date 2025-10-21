@@ -11,10 +11,10 @@ namespace Shears.StateMachineGraphs
     {
         [SerializeField, ReadOnly] private string name;
         [SerializeField] private List<Transition> transitions = new();
+        [SerializeReference] private State parentState;
+        [SerializeReference] private State defaultSubState;
 
         private IParameterProvider parameterProvider;
-        private State initialSubState;
-        private State parentState;
         private State subState;
         private bool isActive;
         private Guid id;
@@ -24,7 +24,7 @@ namespace Shears.StateMachineGraphs
         public bool IsActive { get => isActive; internal set => isActive = value; }
         public string Name { get => name; set => name = value; }
         public State ParentState { get => parentState; internal set => parentState = value; }
-        public State DefaultSubState { get => initialSubState; set => initialSubState = value; }
+        public State DefaultSubState { get => defaultSubState; set => defaultSubState = value; }
         public State SubState { get => subState; internal set => subState = value; }
         public int TransitionCount => transitions.Count;
 
@@ -86,8 +86,14 @@ namespace Shears.StateMachineGraphs
         protected abstract void OnUpdate();
         protected abstract void OnExit();
 
+        protected Guid GetParameterID(string name) => parameterProvider.GetParameterID(name);
         protected T GetParameter<T>(string name) => parameterProvider.GetParameter<T>(name);
+        protected T GetParameter<T>(Guid id) => parameterProvider.GetParameter<T>(id);
         protected void SetParameter<T>(string name, T value) => parameterProvider.SetParameter(name, value);
+        protected void SetParameter<T>(Guid id, T value)
+        {
+            parameterProvider.SetParameter(id, value);
+        }
 
         /// <summary>
         /// Logs a message to the current <see cref="ISHLogger"/>.

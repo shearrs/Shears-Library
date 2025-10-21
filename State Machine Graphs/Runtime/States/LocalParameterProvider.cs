@@ -1,10 +1,11 @@
 using Shears.Logging;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
-    [System.Serializable]
+    [Serializable]
     public class LocalParameterProvider : IParameterProvider
     {
 #if UNITY_EDITOR
@@ -12,11 +13,17 @@ namespace Shears.StateMachineGraphs
         [SerializeReference] private List<Parameter> parameterDisplay = new();
 #endif
 
-        private readonly Dictionary<string, Parameter> parameters;
+        private readonly Dictionary<string, Guid> parameterNameCache = new();
+        private readonly Dictionary<Guid, Parameter> parameters = new();
 
         public LocalParameterProvider(string name, Dictionary<string, Parameter> parameters)
         {
-            this.parameters = parameters;
+            foreach (var parameterName in parameters.Keys)
+            {
+                var id = Guid.NewGuid();
+                parameterNameCache.Add(parameterName, id);
+                this.parameters.Add(id, parameters[parameterName]);
+            }
 
 #if UNITY_EDITOR
             this.name = name;
@@ -24,32 +31,45 @@ namespace Shears.StateMachineGraphs
 #endif
         }
 
-        public T GetParameter<T>(string name)
+        public T GetParameter<T>(string name) => GetParameter<T>(GetParameterID(name));
+        public T GetParameter<T>(Guid id)
         {
-            if (parameters.TryGetValue(name, out var parameter))
+            if (parameters.TryGetValue(id, out var parameter))
             {
                 if (parameter is Parameter<T> typedParameter)
                     return typedParameter.Value;
                 else
-                    SHLogger.Log($"Parameter '{name}' is not of type {typeof(T)}.", SHLogLevels.Error);
+                    SHLogger.Log($"Parameter '{parameter.Name}' is not of type {typeof(T)}.", SHLogLevels.Error);
             }
             else
-                SHLogger.Log($"Parameter '{name}' not found in the state machine.", SHLogLevels.Error);
+                SHLogger.Log($"Could not find parameter with id '{id}' in the state machine.", SHLogLevels.Error);
 
             return default;
         }
 
-        public void SetParameter<T>(string name, T value)
+        public void SetParameter<T>(string name, T value) => SetParameter(GetParameterID(name), value);
+        public void SetParameter<T>(Guid id, T value)
         {
-            if (parameters.TryGetValue(name, out var parameter))
+            if (parameters.TryGetValue(id, out var parameter))
             {
                 if (parameter is Parameter<T> typedParameter)
                     typedParameter.Value = value;
                 else
-                    SHLogger.Log($"Parameter '{name}' is not of type {typeof(T)}.", SHLogLevels.Error);
+                    SHLogger.Log($"Parameter '{parameter.Name}' is not of type {typeof(T)}.", SHLogLevels.Error);
             }
             else
-                SHLogger.Log($"Parameter '{name}' not found in the state machine.", SHLogLevels.Error);
+                SHLogger.Log($"Could not find parameter with id '{id}' in the state machine.", SHLogLevels.Error);
+        }
+
+        public Guid GetParameterID(string name)
+        {
+            if (parameterNameCache.TryGetValue(name, out var id))
+                return id;
+            else
+            {
+                SHLogger.Log($"Could not find parameter with name '{name}'.", SHLogLevels.Error);
+                return Guid.Empty;
+            }
         }
     }
 }

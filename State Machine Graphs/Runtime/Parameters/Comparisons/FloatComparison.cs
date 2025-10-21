@@ -4,7 +4,7 @@ namespace Shears.StateMachineGraphs
 {
     public class FloatComparison : ParameterComparison<float>
     {
-        private readonly FloatComparisonData.CompareType compareType;
+        [SerializeField] private FloatComparisonData.CompareType compareType;
 
         public FloatComparison(FloatComparisonData data, FloatParameter parameter) : base(data, parameter)
         {

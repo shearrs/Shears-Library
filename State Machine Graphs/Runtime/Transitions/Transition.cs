@@ -9,10 +9,9 @@ namespace Shears.StateMachineGraphs
 #if UNITY_EDITOR
         [SerializeField, ReadOnly] private string toName;
 #endif
+        [SerializeReference] private State from;
+        [SerializeReference] private State to;
         [SerializeReference] private List<ParameterComparison> comparisons = new();
-
-        private readonly State from;
-        private readonly State to;
 
         public State From => from;
         public State To => to;
@@ -33,9 +32,7 @@ namespace Shears.StateMachineGraphs
             foreach (var comparison in comparisons)
             {
                 if (!comparison.Evaluate())
-                {
                     return false;
-                }
             }
 
             return true;
