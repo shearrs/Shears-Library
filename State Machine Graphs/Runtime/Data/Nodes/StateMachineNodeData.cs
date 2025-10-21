@@ -17,7 +17,10 @@ namespace Shears.StateMachineGraphs
         public string DefaultStateID => defaultStateID;
         public SerializableSystemType StateType => stateType;
 
-        public StateMachineNodeData() { }
+        public StateMachineNodeData(SerializableSystemType stateType)
+        {
+            this.stateType = stateType;
+        }
 
         public StateMachineNodeData(string name, Vector2 position, string parentID, SerializableSystemType stateType)
         {

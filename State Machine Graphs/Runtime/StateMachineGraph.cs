@@ -77,7 +77,7 @@ namespace Shears.StateMachineGraphs
             var parameterIDs = new ParameterDictionary();
             var stateIDs = new StateDictionary();
             var parameterProviders = new List<LocalParameterProvider>();
-            State defaultState;
+            State defaultState = null;
 
             foreach (var parameterData in GetParameters())
             {
@@ -143,7 +143,8 @@ namespace Shears.StateMachineGraphs
             foreach (var stateNode in stateNodes)
                 CreateTransitions(stateNode, stateIDs[stateNode.ID], stateIDs, parameterIDs);
 
-            defaultState = stateIDs[RootDefaultStateID];
+            if (stateIDs.ContainsKey(RootDefaultStateID))
+                defaultState = stateIDs[RootDefaultStateID];
 
             compilationData = GraphCompilationData.Create(parameterNames, parameterIDs, stateIDs, parameterProviders, defaultState);
             needsCompilation = false;
@@ -310,7 +311,7 @@ namespace Shears.StateMachineGraphs
 
         public StateMachineNodeData CreateStateMachineNodeData(Vector2 position)
         {
-            var nodeData = new StateMachineNodeData
+            var nodeData = new StateMachineNodeData(typeof(EmptyState))
             {
                 Position = position,
                 Name = "New State Machine"
