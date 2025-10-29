@@ -27,9 +27,9 @@ namespace Shears.StateMachineGraphs
         private State defaultState;
         private readonly List<State> swapStateTree = new();
         private readonly Dictionary<Type, State> stateTypeCache = new();
-        private readonly Dictionary<Guid, State> states = new();
-        private readonly Dictionary<string, Guid> parameterNameCache = new();
-        private readonly Dictionary<Guid, Parameter> parameters = new();
+        private readonly Dictionary<SMID, State> states = new();
+        private readonly Dictionary<string, SMID> parameterNameCache = new();
+        private readonly Dictionary<SMID, Parameter> parameters = new();
         private int stateSwapID = 0;
 
         public IReadOnlyCollection<State> States => states.Values;
@@ -89,7 +89,7 @@ namespace Shears.StateMachineGraphs
             foreach (var stringID in compiledData.StateIDs.Keys)
             {
                 var state = compiledData.StateIDs[stringID];
-                var id = Guid.NewGuid();
+                var id = SMID.Create();
                 state.ID = id;
 
                 states.Add(id, state);
@@ -110,7 +110,7 @@ namespace Shears.StateMachineGraphs
             foreach (var parameterName in compiledData.ParameterNames.Keys)
             {
                 var parameter = compiledData.ParameterNames[parameterName];
-                var id = Guid.NewGuid();
+                var id = SMID.Create();
                 parameter.ID = id;
 
                 parameterNameCache.Add(parameterName, id);
@@ -192,7 +192,7 @@ namespace Shears.StateMachineGraphs
                 return;
             }
 
-            Guid id = Guid.NewGuid();
+            SMID id = SMID.Create();
             state.ID = id;
             states.Add(id, state);
             state.LogLevels = LogLevels;
@@ -321,20 +321,20 @@ namespace Shears.StateMachineGraphs
         #endregion 
 
         #region Parameters
-        public Guid GetParameterID(string name)
+        public SMID GetParameterID(string name)
         {
             if (parameterNameCache.TryGetValue(name, out var id))
                 return id;
             else
             {
                 Log($"Could not find parameter with name '{name}'.", SHLogLevels.Error);
-                return Guid.Empty;
+                return SMID.Empty;
             }
         }
 
         public T GetParameter<T>(string name) => GetParameter<T>(GetParameterID(name));
 
-        public T GetParameter<T>(Guid id)
+        public T GetParameter<T>(SMID id)
         {
             if (parameters.TryGetValue(id, out var parameter))
             {
@@ -351,7 +351,7 @@ namespace Shears.StateMachineGraphs
 
         public void SetParameter<T>(string name, T value) => SetParameter(GetParameterID(name), value);
 
-        public void SetParameter<T>(Guid id, T value)
+        public void SetParameter<T>(SMID id, T value)
         {
             if (parameters.TryGetValue(id, out var parameter))
             {
@@ -364,5 +364,11 @@ namespace Shears.StateMachineGraphs
                 Log($"Could not find parameter with id '{id}' in the state machine.", SHLogLevels.Error);
         }
         #endregion
+
+        private void OnDrawGizmosSelected()
+        {
+            foreach (var state in stateTree)
+                state.DrawGizmos();
+        }
     }
 }

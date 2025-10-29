@@ -13,14 +13,14 @@ namespace Shears.StateMachineGraphs
         [SerializeReference] private List<Parameter> parameterDisplay = new();
 #endif
 
-        private readonly Dictionary<string, Guid> parameterNameCache = new();
-        private readonly Dictionary<Guid, Parameter> parameters = new();
+        private readonly Dictionary<string, SMID> parameterNameCache = new();
+        private readonly Dictionary<SMID, Parameter> parameters = new();
 
         public LocalParameterProvider(string name, Dictionary<string, Parameter> parameters)
         {
             foreach (var parameterName in parameters.Keys)
             {
-                var id = Guid.NewGuid();
+                var id = SMID.Create();
                 parameterNameCache.Add(parameterName, id);
                 this.parameters.Add(id, parameters[parameterName]);
             }
@@ -32,7 +32,7 @@ namespace Shears.StateMachineGraphs
         }
 
         public T GetParameter<T>(string name) => GetParameter<T>(GetParameterID(name));
-        public T GetParameter<T>(Guid id)
+        public T GetParameter<T>(SMID id)
         {
             if (parameters.TryGetValue(id, out var parameter))
             {
@@ -48,7 +48,7 @@ namespace Shears.StateMachineGraphs
         }
 
         public void SetParameter<T>(string name, T value) => SetParameter(GetParameterID(name), value);
-        public void SetParameter<T>(Guid id, T value)
+        public void SetParameter<T>(SMID id, T value)
         {
             if (parameters.TryGetValue(id, out var parameter))
             {
@@ -61,14 +61,14 @@ namespace Shears.StateMachineGraphs
                 SHLogger.Log($"Could not find parameter with id '{id}' in the state machine.", SHLogLevels.Error);
         }
 
-        public Guid GetParameterID(string name)
+        public SMID GetParameterID(string name)
         {
             if (parameterNameCache.TryGetValue(name, out var id))
                 return id;
             else
             {
                 SHLogger.Log($"Could not find parameter with name '{name}'.", SHLogLevels.Error);
-                return Guid.Empty;
+                return SMID.Empty;
             }
         }
     }

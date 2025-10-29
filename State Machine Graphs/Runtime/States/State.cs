@@ -17,9 +17,9 @@ namespace Shears.StateMachineGraphs
         private IParameterProvider parameterProvider;
         private State subState;
         private bool isActive;
-        private Guid id;
+        private SMID id;
 
-        internal Guid ID { get => id; set => id = value; }
+        internal SMID ID { get => id; set => id = value; }
         internal IParameterProvider ParameterProvider { get => parameterProvider; set => parameterProvider = value; }
         public bool IsActive { get => isActive; internal set => isActive = value; }
         public string Name { get => name; set => name = value; }
@@ -86,11 +86,13 @@ namespace Shears.StateMachineGraphs
         protected abstract void OnUpdate();
         protected abstract void OnExit();
 
-        protected Guid GetParameterID(string name) => parameterProvider.GetParameterID(name);
+        public virtual void DrawGizmos() { }
+
+        protected SMID GetParameterID(string name) => parameterProvider.GetParameterID(name);
         protected T GetParameter<T>(string name) => parameterProvider.GetParameter<T>(name);
-        protected T GetParameter<T>(Guid id) => parameterProvider.GetParameter<T>(id);
+        protected T GetParameter<T>(SMID id) => parameterProvider.GetParameter<T>(id);
         protected void SetParameter<T>(string name, T value) => parameterProvider.SetParameter(name, value);
-        protected void SetParameter<T>(Guid id, T value)
+        protected void SetParameter<T>(SMID id, T value)
         {
             parameterProvider.SetParameter(id, value);
         }
