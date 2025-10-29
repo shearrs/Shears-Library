@@ -48,10 +48,11 @@ namespace Shears.StateMachineGraphs.Editor
 
             var scriptField = new PropertyField(serializedObject.FindProperty("m_Script"));
             var logField = new PropertyField(serializedObject.FindProperty("logLevels"));
+            var useGraphDataField = new PropertyField(useGraphDataProp);
             var pollField = new PropertyField(serializedObject.FindProperty("pollTransitions"));
             CreateInjectionContainer();
             CreateRuntimeContainer();
-            var useGraphDataField = new PropertyField(useGraphDataProp);
+
             graphDataField = CreateGraphDataField();
             UpdateGraphFields();
 
@@ -212,6 +213,11 @@ namespace Shears.StateMachineGraphs.Editor
             serializedObject.ApplyModifiedProperties();
             serializedObject.Update();
         }
+
+        /* Two kinds of coverage:
+         *      - global
+         *      - specific list of states (stored by ID, but UI for selection shows their path in the graph)
+         */
 
         private void CreateNewReferences(string parentGraphID, string graphID, IReadOnlyList<IStateNodeData> stateNodes)
         {
