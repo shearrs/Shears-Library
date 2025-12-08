@@ -52,7 +52,6 @@ namespace Shears.GraphViews.Editor
             float distance = heading.magnitude;
 
             float angle = Vector2.SignedAngle(Vector2.right, direction);
-            Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
 
             if (!float.IsNaN(layout.width))
             {
@@ -68,10 +67,10 @@ namespace Shears.GraphViews.Editor
                     geometryInitialized = true;
                 }
             }
-
+            
             style.width = distance;
-            style.translate = center;
-            style.rotate = rotation;
+            style.translate = new Translate(center.x, center.y);
+            style.rotate = new Rotate(angle);
         }
 
         public void SetAnchor2(Vector2 anchor)

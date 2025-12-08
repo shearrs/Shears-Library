@@ -98,7 +98,7 @@ namespace Shears.GraphViews.Editor
                 Vector2 pos = start + delta;
                 pos = RoundToPixelGrid(pos);
 
-                node.style.translate = pos;
+                node.style.translate = new Translate(pos.x, pos.y);
             }
 
             evt.StopPropagation();

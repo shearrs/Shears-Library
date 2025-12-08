@@ -88,8 +88,8 @@ namespace Shears.GraphViews.Editor
             }
 
             style.width = distance;
-            style.translate = center;
-            style.rotate = rotation;
+            style.translate = new Translate(center.x, center.y);
+            style.rotate = new Rotate(angle);
         }
 
         protected void SetAnchor1(IEdgeAnchorable anchor)

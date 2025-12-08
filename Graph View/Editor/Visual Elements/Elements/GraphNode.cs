@@ -43,7 +43,7 @@ namespace Shears.GraphViews.Editor
 
             Add(nameLabel);
 
-            style.translate = data.Position;
+            style.translate = new Translate(data.Position.x, data.Position.y);
 
             data.Selected += Select;
             data.Deselected += Deselect;

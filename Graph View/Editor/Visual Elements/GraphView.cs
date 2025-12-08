@@ -31,7 +31,7 @@ namespace Shears.GraphViews.Editor
         private VisualElement contentViewContainer; // holds things in the graph
         private GridBackground gridBackground;
         private ElementTransform viewTransform;
-        
+
         protected VisualElement RootContainer => rootContainer;
         protected VisualElement BodyContainer => bodyContainer;
         protected VisualElement GraphViewContainer => graphViewContainer;
@@ -49,9 +49,17 @@ namespace Shears.GraphViews.Editor
         {
             private readonly VisualElement element;
 
-            public Vector3 Position { get => element.resolvedStyle.translate; set => element.style.translate = value; }
-            public Vector3 Scale { get => element.resolvedStyle.scale.value; set => element.style.scale = value; }
-            public Quaternion Rotation { get => Quaternion.Euler(0, 0, element.resolvedStyle.rotate.angle.value); set => element.style.rotate = value; }
+            public Vector3 Position { get => element.resolvedStyle.translate; set => element.style.translate = new Translate(value.x, value.y); }
+            public Vector3 Scale { get => element.resolvedStyle.scale.value; set => element.style.scale = new Scale(value); }
+            public Quaternion Rotation
+            {
+                get => Quaternion.Euler(0, 0, element.resolvedStyle.rotate.angle.value); set
+                {
+                    value.ToAngleAxis(out float angle, out Vector3 _);
+
+                    element.style.rotate = new Rotate(angle);
+                }
+            }
 
             public ElementTransform(VisualElement element) => this.element = element;
         }
@@ -140,8 +148,8 @@ namespace Shears.GraphViews.Editor
 
         public void ClearGraphData()
         {
-            if (graphData == null) 
-                return; 
+            if (graphData == null)
+                return;
 
             graphData.LayersChanged -= ReloadLayer;
             graphData.NodeDataAddedToLayer -= AddNodeFromData;
@@ -336,7 +344,7 @@ namespace Shears.GraphViews.Editor
             UpdateViewTransform(averagePosition, ViewTransform.Scale);
             SaveViewTransform();
         }
-        
+
         private void TryOpenSelection()
         {
             var selection = GetSelection();
@@ -355,7 +363,7 @@ namespace Shears.GraphViews.Editor
             LoadNodes();
             LoadEdges();
         }
-        
+
         private void LoadNodes()
         {
             foreach (var nodeData in graphData.GetActiveNodes())
@@ -586,7 +594,7 @@ namespace Shears.GraphViews.Editor
                 graphData.Select(selectable.GetData(), isMultiSelect);
             }
         }
-    
+
         protected IReadOnlyList<ISelectable> GetSelection()
         {
             instanceSelection.Clear();
