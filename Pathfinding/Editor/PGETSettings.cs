@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Shears.Pathfinding.Editor
 {
-    [System.Serializable]
+    [Serializable]
     public class PGETSettings
     {
         [SerializeField] private bool drawNodeData = true;
@@ -14,7 +14,11 @@ namespace Shears.Pathfinding.Editor
         [SerializeReference] private PathNodeData nodeData;
         [SerializeField] private GameObject nodePrefab;
 
+        private bool isActivated = false;
+
         private readonly PathGrid grid;
+        private readonly SerializedObject gridSO;
+        private readonly SerializedObject editorSO;
         private readonly SerializedProperty nodeDataProp;
         private readonly SerializedProperty zDepthProp;
         private readonly SerializedProperty nodePrefabProp;
@@ -22,8 +26,16 @@ namespace Shears.Pathfinding.Editor
         private readonly SerializedProperty drawPrefabProp;
         private readonly SerializedProperty drawAllDepthsProp;
 
+        public bool DrawNodeData => drawNodeData;
+        public bool DrawPrefab => drawPrefab;
+        public bool DrawAllDepths => drawAllDepths;
+        public int ZDepth => zDepth;
         public PathNodeData NodeData => nodeData;
+        public GameObject NodePrefab => nodePrefab;
+        public bool IsActivated => isActivated;
         public PathGrid Grid => grid;
+        public SerializedObject GridSO => gridSO;
+        public SerializedObject EditorSO => editorSO;
         public SerializedProperty NodeDataProp => nodeDataProp;
         public SerializedProperty ZDepthProp => zDepthProp;
         public SerializedProperty NodePrefabProp => nodePrefabProp;
@@ -31,24 +43,24 @@ namespace Shears.Pathfinding.Editor
         public SerializedProperty DrawPrefabProp => drawPrefabProp;
         public SerializedProperty DrawAllDepthsProp => drawAllDepthsProp;
 
-        public event Action NodeDataChanged;
-
-        public PGETSettings(SerializedObject editorSO, PathGrid grid)
+        public PGETSettings(SerializedObject editorSO, PathGrid grid, SerializedObject gridSO)
         {
+            this.editorSO = editorSO;
             this.grid = grid;
-            nodeDataProp = editorSO.FindProperty("nodeData");
-            zDepthProp = editorSO.FindProperty("zDepth");
-            nodePrefabProp = editorSO.FindProperty("nodePrefab");
-            drawNodeDataProp = editorSO.FindProperty("drawNodeData");
-            drawPrefabProp = editorSO.FindProperty("drawPrefab");
-            drawAllDepthsProp = editorSO.FindProperty("drawAllDepths");
+            this.gridSO = gridSO;
+
+            var settingsProp = editorSO.FindProperty("settings");
+            nodeDataProp = settingsProp.FindPropertyRelative("nodeData");
+            zDepthProp = settingsProp.FindPropertyRelative("zDepth");
+            nodePrefabProp = settingsProp.FindPropertyRelative("nodePrefab");
+            drawNodeDataProp = settingsProp.FindPropertyRelative("drawNodeData");
+            drawPrefabProp = settingsProp.FindPropertyRelative("drawPrefab");
+            drawAllDepthsProp = settingsProp.FindPropertyRelative("drawAllDepths");
         }
 
-        public void SetNodeData(PathNodeData newData)
+        public void SetActivated(bool activated)
         {
-            nodeData = newData;
-
-            NodeDataChanged?.Invoke();
+            isActivated = activated;
         }
     }
 }
