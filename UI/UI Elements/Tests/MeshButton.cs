@@ -18,8 +18,8 @@ namespace Shears.UI
         [Header("Events")]
         [SerializeField] private UnityEvent clicked;
 
-        private readonly StructTweenData hoverTweenData = new(0.1f, easingFunction: TweenEase.EaseInOutQuad);
-        private readonly StructTweenData notSelectableTweenData = new(0.1f, easingFunction: TweenEase.EaseInOutQuad);
+        private readonly StructTweenData hoverTweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
+        private readonly StructTweenData notSelectableTweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
         private Material material;
         private Color originalColor;
         private Tween tween;
