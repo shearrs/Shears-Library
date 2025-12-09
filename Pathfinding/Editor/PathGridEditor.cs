@@ -1,4 +1,5 @@
 using Shears.Editor;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -10,6 +11,7 @@ namespace Shears.Pathfinding.Editor
     public class PathGridEditor : UnityEditor.Editor
     {
         private PathGrid grid;
+        private Vector3Int previousGridSize;
         private SerializedProperty gridSizeProp;
         private SerializedProperty nodeSizeProp;
         private SerializedProperty nodesProp;
@@ -30,6 +32,8 @@ namespace Shears.Pathfinding.Editor
             gridSizeProp = serializedObject.FindProperty("gridSize");
             nodeSizeProp = serializedObject.FindProperty("nodeSize");
             nodesProp = serializedObject.FindProperty("nodes");
+
+            previousGridSize = gridSizeProp.vector3IntValue;
 
             var scriptField = VisualElementUtil.CreateScriptField(serializedObject);
             var gridSizeField = new PropertyField(gridSizeProp);
@@ -58,11 +62,11 @@ namespace Shears.Pathfinding.Editor
                 }
             }
 
-            Vector3Int gridSize = gridSizeProp.vector3IntValue;
+            Vector3Int newGridSize = gridSizeProp.vector3IntValue;
             float nodeSize = nodeSizeProp.floatValue;
 
             // array already initialized
-            if (nodesProp.arraySize == gridSize.x * gridSize.y * gridSize.z)
+            if (nodesProp.arraySize == newGridSize.x * newGridSize.y * newGridSize.z)
                 return;
 
             // destroy objects
@@ -70,28 +74,65 @@ namespace Shears.Pathfinding.Editor
             // decreasing => delete extras
             // increasing => add new ones, we can only grow outwards to the right and up so it should be easy
 
-            nodesProp.ClearArray();
-
-            for (int z = 0; z < gridSize.z; z++)
+            List<PathNode> newNodes = new();
+            for (int z = 0; z < newGridSize.z; z++)
             {
-                for (int y = 0; y < gridSize.y; y++)
+                for (int y = 0; y < newGridSize.y; y++)
                 {
-                    for (int x = 0; x < gridSize.x; x++)
+                    for (int x = 0; x < newGridSize.x; x++)
                     {
-                        Vector3 localPosition = new(
-                            x * nodeSize,
-                            y * nodeSize,
-                            z * nodeSize
-                        );
+                        // check if this node existed in the previous grid
+                        if (x < previousGridSize.x && y < previousGridSize.y && z < previousGridSize.z)
+                        {
+                            int oldIndex = (z * previousGridSize.y * previousGridSize.x) + (y * previousGridSize.x) + x; ;
+                            var existingNode = nodesProp.GetArrayElementAtIndex(oldIndex).boxedValue as PathNode;
 
-                        var node = new PathNode(new(x, y, z), grid.transform.TransformPoint(localPosition));
-                        nodesProp.InsertArrayElementAtIndex(nodesProp.arraySize);
-                        nodesProp.GetArrayElementAtIndex(nodesProp.arraySize - 1).boxedValue = node;
+                            newNodes.Add(existingNode);
+                        }
+                        else // create new node
+                        {
+                            Vector3 localPosition = new(
+                                x * nodeSize,
+                                y * nodeSize,
+                                z * nodeSize
+                            );
+
+                            var newNode = new PathNode(new(x, y, z), grid.transform.TransformPoint(localPosition));
+                            newNodes.Add(newNode);
+                        }
                     }
                 }
             }
 
-            serializedObject.ApplyModifiedProperties();
+            nodesProp.ClearArray();
+
+            for (int i = 0; i < newNodes.Count; i++)
+            {
+                nodesProp.InsertArrayElementAtIndex(nodesProp.arraySize);
+                nodesProp.GetArrayElementAtIndex(nodesProp.arraySize - 1).boxedValue = newNodes[i];
+            }
+
+            //for (int z = 0; z < newGridSize.z; z++)
+            //{
+            //    for (int y = 0; y < newGridSize.y; y++)
+            //    {
+            //        for (int x = 0; x < newGridSize.x; x++)
+            //        {
+            //            Vector3 localPosition = new(
+            //                x * nodeSize,
+            //                y * nodeSize,
+            //                z * nodeSize
+            //            );
+
+            //            var node = new PathNode(new(x, y, z), grid.transform.TransformPoint(localPosition));
+            //            nodesProp.InsertArrayElementAtIndex(nodesProp.arraySize);
+            //            nodesProp.GetArrayElementAtIndex(nodesProp.arraySize - 1).boxedValue = node;
+            //        }
+            //    }
+            //}
+
+            previousGridSize = newGridSize;
+            serializedObject.ApplyModifiedPropertiesWithoutUndo();
         }
 
         [MenuItem("CONTEXT/PathGrid/Update World Position")]
