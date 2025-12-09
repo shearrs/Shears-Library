@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Shears.HitDetection
 {
-    public readonly struct HitResult3D : IHitResult
+    public readonly struct HitResult3D
     {
         private readonly Vector3 point;
         private readonly Vector3 normal;

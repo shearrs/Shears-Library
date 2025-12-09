@@ -1,19 +1,32 @@
+using Shears.Logging;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Shears.HitDetection
 {
-    public class HurtBody3D : MonoBehaviour, IHurtBody3D
+    public class HurtBody3D : MonoBehaviour, ISHLoggable
     {
-        [SerializeField] private Collider col;
+        [field: Header("Logging")]
+        [field: SerializeField]
+        public SHLogLevels LogLevels { get; set; } = SHLogLevels.Log | SHLogUtil.Issues;
 
-        public IHitReceiver3D Receiver { get; private set; }
-        public Collider Collider => col;
+        [Header("Settings")]
+        [SerializeField, Tooltip("Whether or not this HurtBody3D blocks hits.")]
+        private bool isBlocking = false;
 
-        IHitReceiver<HitData3D> IHurtBody<HitData3D>.Receiver => Receiver;
+        [SerializeField, Tooltip("The colliders for receiving hits.")]
+        private List<Collider> colliders;
 
-        private void Start()
+        public bool IsBlocking { get => isBlocking; set => isBlocking = value; }
+        public List<Collider> Colliders { get => colliders; set => colliders = value; }
+
+        public event Action<HitData3D> HitReceived;
+
+        internal void OnHitReceived(HitData3D data)
         {
-            Receiver = GetComponentInParent<IHitReceiver3D>();
+            this.Log("HurtBody3D received a hit.", SHLogLevels.Verbose);
+            HitReceived?.Invoke(data);
         }
     }
 }
