@@ -1,3 +1,4 @@
+using Shears.Editor;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -30,6 +31,7 @@ namespace Shears.Pathfinding.Editor
             nodeSizeProp = serializedObject.FindProperty("nodeSize");
             nodesProp = serializedObject.FindProperty("nodes");
 
+            var scriptField = VisualElementUtil.CreateScriptField(serializedObject);
             var gridSizeField = new PropertyField(gridSizeProp);
             var nodeSizeField = new PropertyField(nodeSizeProp);
             var nodesField = new PropertyField(nodesProp);
@@ -38,7 +40,7 @@ namespace Shears.Pathfinding.Editor
             nodeSizeField.RegisterValueChangeCallback((evt) => OnGridChanged());
             nodesField.RegisterValueChangeCallback((evt) => OnGridChanged());
 
-            root.AddAll(gridSizeField, nodeSizeField, nodesField);
+            root.AddAll(scriptField, gridSizeField, nodeSizeField, nodesField);
 
             return root;
         }
@@ -62,6 +64,11 @@ namespace Shears.Pathfinding.Editor
             // array already initialized
             if (nodesProp.arraySize == gridSize.x * gridSize.y * gridSize.z)
                 return;
+
+            // destroy objects
+            // it would be nice if we didnt just clear this and instead we just removed things if they needed to be shrunk, or added things if they needed to be added
+            // decreasing => delete extras
+            // increasing => add new ones, we can only grow outwards to the right and up so it should be easy
 
             nodesProp.ClearArray();
 

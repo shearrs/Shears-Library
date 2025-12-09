@@ -35,7 +35,9 @@ namespace Shears.Input
         Backspace,
         Enter,
         LeftShift,
-        Space
+        Space,
+        Digit1,
+        Digit2,
     }
 
     public static class KeyTranslation
@@ -74,6 +76,8 @@ namespace Shears.Input
                 Key.Enter => ManagedKey.Enter,
                 Key.LeftShift => ManagedKey.LeftShift,
                 Key.Space => ManagedKey.Space,
+                Key.Digit1 => ManagedKey.Digit1,
+                Key.Digit2 => ManagedKey.Digit2,
                 _ => ManagedKey.None
             };
         }
@@ -119,6 +123,8 @@ namespace Shears.Input
                 "Enter" => ManagedKey.Enter,
                 "Left Shift" => ManagedKey.LeftShift,
                 " " => ManagedKey.Space,
+                "1" => ManagedKey.Digit1,
+                "2" => ManagedKey.Digit2,
                 _ => ManagedKey.None
             };
         }
@@ -157,6 +163,8 @@ namespace Shears.Input
                 ManagedKey.Enter => "Enter",
                 ManagedKey.LeftShift => "Left Shift",
                 ManagedKey.Space => " ",
+                ManagedKey.Digit1 => "1",
+                ManagedKey.Digit2 => "2",
                 _ => ""
             };
         }

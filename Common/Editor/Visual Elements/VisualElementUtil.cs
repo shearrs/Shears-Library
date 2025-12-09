@@ -182,5 +182,19 @@ namespace Shears.Editor
                     EditorGUI.EndDisabledGroup();
             }
         }
+
+        public static VisualElement CreateScriptField(SerializedObject serializedObject)
+        {
+            var scriptProp = serializedObject.FindProperty("m_Script");
+            var scriptField = new PropertyField(scriptProp)
+            {
+                name = "m_Script"
+            };
+
+            scriptField.Bind(serializedObject);
+            scriptField.SetEnabled(false);
+
+            return scriptField;
+        }
     }
 }

@@ -2,18 +2,31 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 
 namespace Shears.Input
 {
     public static class ManagedKeyboard
     {
-        public static event Action<char> OnTextInput { add => Keyboard.current.onTextInput += value; remove => Keyboard.current.onTextInput -= value; }
+        private static Keyboard current;
+        private static readonly Dictionary<ManagedKey, KeyControl> keyTranslationCache = new();
 
-        public static bool IsKeyPressed(string displayName)
+        public static event Action<char> TextInput { add => Keyboard.current.onTextInput += value; remove => Keyboard.current.onTextInput -= value; }
+
+        public static bool IsKeyPressed(ManagedKey key)
         {
-            var key = Keyboard.current.FindKeyOnCurrentKeyboardLayout(displayName);
-            
-            return key.isPressed;
+            if (current != Keyboard.current)
+                InitializeKeyboard();
+
+            return keyTranslationCache[key].isPressed;
+        }
+
+        public static bool WasKeyPressedThisFrame(ManagedKey key)
+        {
+            if (current != Keyboard.current)
+                InitializeKeyboard();
+
+            return keyTranslationCache[key].wasPressedThisFrame;
         }
 
         public static void GetKeysPressedThisFrame(List<ManagedKey> pressedKeys)
@@ -31,6 +44,15 @@ namespace Shears.Input
                 if (control.wasPressedThisFrame)
                     pressedKeys.Add(KeyTranslation.TranslateKey(control.keyCode));
             }
+        }
+
+        private static void InitializeKeyboard()
+        {
+            current = Keyboard.current;
+            keyTranslationCache.Clear();
+
+            foreach (var control in Keyboard.current.allKeys)
+                keyTranslationCache[KeyTranslation.TranslateKey(control.keyCode)] = control;
         }
     }
 }
