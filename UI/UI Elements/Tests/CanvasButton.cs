@@ -27,6 +27,7 @@ namespace Shears.UI
         public bool Selectable { get => selectable; set => SetSelectable(value); }
 
         public event Action Clicked;
+        public event Action Hovered;
 
         protected override void Awake()
         {
@@ -52,6 +53,7 @@ namespace Shears.UI
             if (!selectable)
                 return;
 
+            Hovered?.Invoke();
             TweenToColor(hoverColor, hoverTweenData);
         }
 

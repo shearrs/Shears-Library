@@ -27,7 +27,7 @@ namespace Shears.UI
         {
             get => baseColor;
             set 
-            { 
+            {
                 baseColor = value;
 
                 Image.color = baseColor * modulate;
