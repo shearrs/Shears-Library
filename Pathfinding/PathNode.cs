@@ -9,6 +9,7 @@ namespace Shears.Pathfinding
         [SerializeField] private Vector3Int gridPosition;
         [SerializeField] private Vector3 worldPosition;
         [SerializeReference] private PathNodeData data;
+        [SerializeField, HideInInspector] private GameObject nodeObject;
 
         private PathNode parent;
         private int gCost; // distance from starting node

@@ -17,7 +17,10 @@ namespace Shears.Pathfinding
         private void OnValidate()
         {
             gridSize = gridSize.ClampMax(1);
+        }
 
+        private void Awake()
+        {
             UpdateWorldPositions();
         }
 
@@ -108,7 +111,7 @@ namespace Shears.Pathfinding
         {
             foreach (var node in nodes)
             {
-                if (node.TryGetData(out T data))
+                if (node.TryGetData(out T _))
                     return node;
             }
 

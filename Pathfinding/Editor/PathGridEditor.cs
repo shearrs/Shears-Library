@@ -63,7 +63,6 @@ namespace Shears.Pathfinding.Editor
             if (nodesProp.arraySize == gridSize.x * gridSize.y * gridSize.z)
                 return;
 
-            Debug.LogWarning("Invalid node array, resetting values.");
             nodesProp.ClearArray();
 
             for (int z = 0; z < gridSize.z; z++)
