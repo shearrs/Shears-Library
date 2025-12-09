@@ -112,5 +112,40 @@ namespace Shears
         {
             return new(x == null ? v.x : x.Value, y == null ? v.y : y.Value, z == null ? v.z : z.Value);
         }
+
+        public static Vector3Int X(this Vector3Int v)
+        {
+            return new(v.x, 0, 0);
+        }
+
+        public static Vector3Int Y(this Vector3Int v)
+        {
+            return new(0, v.y, 0);
+        }
+
+        public static Vector3Int Z(this Vector3Int v)
+        {
+            return new(0, 0, v.z);
+        }
+
+        public static Vector3Int XY(this Vector3Int v)
+        {
+            return new(v.x, v.y, 0);
+        }
+
+        public static Vector3Int XZ(this Vector3Int v)
+        {
+            return new(v.x, 0, v.z);
+        }
+
+        public static Vector3Int YZ(this Vector3Int v)
+        {
+            return new(0, v.y, v.z);
+        }
+
+        public static Vector3Int With(this Vector3Int v, int? x = null, int? y = null, int? z = null)
+        {
+            return new(x == null ? v.x : x.Value, y == null ? v.y : y.Value, z == null ? v.z : z.Value);
+        }
     }
 }

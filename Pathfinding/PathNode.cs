@@ -15,6 +15,7 @@ namespace Shears.Pathfinding
         private int gCost; // distance from starting node
         private int hCost; // distance from end node
 
+        public GameObject NodeObject => nodeObject;
         public Vector3Int GridPosition => gridPosition;
         public Vector3 WorldPosition { get => worldPosition; internal set => worldPosition = value; }
         public PathNodeData Data { get => data; set => data = value; }

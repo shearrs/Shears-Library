@@ -1,5 +1,4 @@
 using Shears.Editor;
-using Shears.Input;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -7,7 +6,6 @@ using UnityEditor;
 using UnityEditor.EditorTools;
 using UnityEditor.UIElements;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 using UnityEngine.UIElements;
 using SearchViewFlags = UnityEngine.Search.SearchViewFlags;
 
@@ -19,11 +17,13 @@ namespace Shears.Pathfinding.Editor
         #region Variables
         [SerializeField] private bool drawNodeData = true;
         [SerializeField] private bool drawPrefab = true;
+        [SerializeField] private bool drawAllDepths = true;
         [SerializeField] private int zDepth;
         [SerializeReference] private PathNodeData nodeData;
         [SerializeField] private GameObject nodePrefab;
 
         private readonly Dictionary<int, PathNode> nodeHandles = new();
+        private readonly Dictionary<Vector2Int, List<PathNode>> nodeHandleRows = new();
         private readonly List<MenuItem> menuItems = new();
         private readonly List<int> hoveredHandles = new();
 
@@ -43,6 +43,7 @@ namespace Shears.Pathfinding.Editor
         private SerializedProperty nodePrefabProp;
         private SerializedProperty drawNodeDataProp;
         private SerializedProperty drawPrefabProp;
+        private SerializedProperty drawAllDepthsProp;
         #endregion
 
         private readonly struct MenuItem
@@ -74,6 +75,7 @@ namespace Shears.Pathfinding.Editor
             nodePrefabProp = editorSO.FindProperty("nodePrefab");
             drawNodeDataProp = editorSO.FindProperty("drawNodeData");
             drawPrefabProp = editorSO.FindProperty("drawPrefab");
+            drawAllDepthsProp = editorSO.FindProperty("drawAllDepths");
 
             CreateTypeMenu();
         }
@@ -88,6 +90,8 @@ namespace Shears.Pathfinding.Editor
                 sceneView.sceneViewState.fxEnabled = true;
 
             nodeHandles.Clear();
+            nodeHandleRows.Clear();
+
             CreateGUI();
         }
 
@@ -96,7 +100,7 @@ namespace Shears.Pathfinding.Editor
             isActivated = false;
             sceneView.rootVisualElement.Remove(root);
         }
-        
+
         public override void OnToolGUI(EditorWindow window)
         {
             if (Event.current.type == EventType.KeyDown && Event.current.shift)
@@ -113,7 +117,7 @@ namespace Shears.Pathfinding.Editor
                 }
             }
         }
-        
+
         private void CreateGUI()
         {
             root = new();
@@ -155,18 +159,45 @@ namespace Shears.Pathfinding.Editor
 
             var drawNodeDataField = new PropertyField(drawNodeDataProp);
             var drawPrefabField = new PropertyField(drawPrefabProp);
+            var drawAllDepthsField = new PropertyField(drawAllDepthsProp);
 
             drawNodeDataField.BindProperty(drawNodeDataProp);
             drawPrefabField.BindProperty(drawPrefabProp);
+            drawAllDepthsField.BindProperty(drawAllDepthsProp);
 
             nodeDataContainer = new VisualElement();
             nodeDataContainer.style.display = DisplayStyle.None;
 
-            root.AddAll(nodeDataContainer, drawNodeDataField, drawPrefabField, depthSlider, prefabField, typeContainer);
+            root.AddAll(nodeDataContainer, drawNodeDataField, drawPrefabField, drawAllDepthsField, depthSlider, prefabField, typeContainer);
             sceneView.rootVisualElement.Add(root);
+
+            CreateNodeRows();
 
             if (nodeData != null)
                 UpdateNodeDataFields();
+        }
+
+        private void CreateNodeRows()
+        {
+            foreach (var node in grid.Nodes)
+            {
+                Vector2Int flatPosition = (Vector2Int)node.GridPosition.XY();
+
+                if (nodeHandleRows.TryGetValue(flatPosition, out var row))
+                {
+                    if (!row.Contains(node))
+                        row.Add(node);
+                }
+                else
+                {
+                    var list = new List<PathNode>
+                    {
+                        node
+                    };
+
+                    nodeHandleRows[flatPosition] = list;
+                }
+            }
         }
 
         private void CreateTypeMenu()
@@ -343,22 +374,58 @@ namespace Shears.Pathfinding.Editor
 
         private void PaintHandle(int id)
         {
+            if (hoveredHandles.Contains(id))
+                return;
+
             if (!nodeHandles.TryGetValue(id, out var node))
             {
                 Debug.LogError("Could not find node for id: " + id);
                 return;
             }
 
-            if (hoveredHandles.Contains(id))
-                return;
+            if (drawAllDepths)
+            {
+                Vector2Int flatPosition = (Vector2Int)node.GridPosition.XY();
 
-            gridSO.Update();
-            Vector3Int pos = node.GridPosition;
-            int index = (pos.z * grid.GridSize.y * grid.GridSize.x) + (pos.y * grid.GridSize.x) + pos.x;
+                if (!nodeHandleRows.TryGetValue(flatPosition, out var row))
+                {
+                    Debug.LogError("Could not find node row for id: " + id);
+                    return;
+                }
 
-            var nodesProp = gridSO.FindProperty("nodes");
-            var nodeProp = nodesProp.GetArrayElementAtIndex(index);
+                gridSO.Update();
+                foreach (var rowNode in row)
+                {
+                    Vector3Int pos = rowNode.GridPosition;
+                    int index = (pos.z * grid.GridSize.y * grid.GridSize.x) + (pos.y * grid.GridSize.x) + pos.x;
 
+                    var nodesProp = gridSO.FindProperty("nodes");
+                    var nodeProp = nodesProp.GetArrayElementAtIndex(index);
+
+                    PaintNode(rowNode, nodeProp);
+                }
+
+                hoveredHandles.Add(id);
+                gridSO.ApplyModifiedProperties();
+            }
+            else
+            {
+                gridSO.Update();
+                Vector3Int pos = node.GridPosition;
+                int index = (pos.z * grid.GridSize.y * grid.GridSize.x) + (pos.y * grid.GridSize.x) + pos.x;
+
+                var nodesProp = gridSO.FindProperty("nodes");
+                var nodeProp = nodesProp.GetArrayElementAtIndex(index);
+
+                PaintNode(node, nodeProp);
+
+                hoveredHandles.Add(id);
+                gridSO.ApplyModifiedProperties();
+            }
+        }
+
+        private void PaintNode(PathNode node, SerializedProperty nodeProp)
+        {
             if (drawNodeData && (node.Data != null || nodeData != null))
             {
                 var dataProp = nodeProp.FindPropertyRelative("data");
@@ -371,9 +438,6 @@ namespace Shears.Pathfinding.Editor
 
             if (drawPrefab)
                 PaintPrefab(node, nodeProp);
-
-            hoveredHandles.Add(id);
-            gridSO.ApplyModifiedProperties();
         }
 
         private void PaintPrefab(PathNode node, SerializedProperty nodeProp)

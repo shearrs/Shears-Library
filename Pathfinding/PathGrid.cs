@@ -6,9 +6,14 @@ namespace Shears.Pathfinding
 {
     public class PathGrid : MonoBehaviour
     {
-        [SerializeField] private Vector3Int gridSize = Vector3Int.one;
-        [SerializeField] private float nodeSize = 1.0f;
-        [SerializeField] private List<PathNode> nodes = new();
+        [SerializeField, Delayed]
+        private Vector3Int gridSize = Vector3Int.one;
+
+        [SerializeField, Delayed]
+        private float nodeSize = 1.0f;
+
+        [SerializeField]
+        private List<PathNode> nodes = new();
 
         public Vector3Int GridSize => gridSize;
         public float NodeSize => nodeSize;
