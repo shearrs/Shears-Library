@@ -29,7 +29,6 @@ namespace Shears.Pathfinding.Editor
             gridSO = new SerializedObject(grid);
 
             settings = new(editorSO, grid, gridSO);
-            Debug.Log("create settings");
             painter = new(settings);
         }
 
