@@ -22,11 +22,13 @@ namespace Shears
         
         private CancellationTokenSource tokenSource;
         private bool isQuitting = false;
+        private bool isPaused = false;
 
         public float Time { get => time; set => time = value; }
         public float CurrentTime => currentTime;
         public float Percentage => CurrentTime / Time;
         public bool IsDone => isDone;
+        public bool IsPaused => isPaused;
 
         public event Action Completed;
 
@@ -71,8 +73,25 @@ namespace Shears
             var appToken = Application.exitCancellationToken;
             tokenSource = CancellationTokenSource.CreateLinkedTokenSource(appToken);
 
+            isPaused = false;
             Time = time;
             RunAsync(time, tokenSource.Token);
+        }
+
+        /// <summary>
+        /// Sets the timer's <see cref="isPaused"/> state to true, and pauses the timer's accumulation.
+        /// </summary>
+        public void Pause()
+        {
+            isPaused = true;
+        }
+
+        /// <summary>
+        /// Sets the timer's <see cref="isPaused"/> state to false, and resumes the timer's accumulation.
+        /// </summary>
+        public void Unpause()
+        {
+            isPaused = false;
         }
 
         /// <summary>
@@ -85,6 +104,7 @@ namespace Shears
 
             tokenSource?.Cancel();
             isDone = true;
+            isPaused = false;
         }
 
         /// <summary>
@@ -107,26 +127,7 @@ namespace Shears
         }
 
         /// <summary>
-        /// Adds a callback action for when the timer completes.<br/>
-        /// These actions are not cleared and will be called every time the timer completes.
-        /// </summary>
-        /// <param name="action">The callback to add.</param>
-        public void AddOnComplete(Action action)
-        {
-            Completed += action;
-        }
-
-        /// <summary>
-        /// Removes a callback action from the completion list.
-        /// </summary>
-        /// <param name="action">The callback to remove.</param>
-        public void RemoveOnComplete(Action action)
-        {
-            Completed -= action;
-        }
-
-        /// <summary>
-        /// Clears all callback actions from the completion list.
+        /// Clears all <see cref="Completed"/> callbacks.
         /// </summary>
         public void ClearOnCompletes()
         {
@@ -140,6 +141,9 @@ namespace Shears
 
             while (currentTime < time)
             {
+                while (isPaused)
+                    await SafeAwaitable.NextFrameAsync(token);
+
                 currentTime += UnityEngine.Time.deltaTime;
 
                 if (isQuitting)
