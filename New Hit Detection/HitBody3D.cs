@@ -13,26 +13,26 @@ public class HitBody3D : MonoBehaviour, ISHLoggable
     public SHLogLevels LogLevels { get; set; }
 
     [Header("Components")]
-    [SerializeField]
+    [SerializeField, Tooltip("The shapes this HitBody3D uses to detect hits.")]
     private List<HitShape3D> shapes;
 
-    [SerializeField]
+    [SerializeField, Tooltip("Optional provider for extra data to be sent with hits.")]
     private IHitDataProvider dataProvider;
 
     [Header("Hit Settings")]
-    [SerializeField, RuntimeReadonly]
+    [SerializeField, RuntimeReadonly, Tooltip("Whether or not this HitBody3D enables itself on Start.")]
     private bool enableOnStart = true;
 
-    [SerializeField]
+    [SerializeField, Tooltip("Whether or not this HitBody3D updates in FixedUpdate.")]
     private bool fixedUpdate = false;
 
-    [SerializeField] 
+    [SerializeField, Tooltip("Whether or not this HitBody3D can repeatedly hit the same target without resetting.")]
     private bool multiHits;
 
-    [SerializeField] 
+    [SerializeField, Tooltip("The LayerMask that this HitBody3D can detect HurtBody3Ds on.")]
     protected LayerMask collisionMask = 1;
 
-    [SerializeField] 
+    [SerializeField, Tooltip("An optional list of HurtBody3Ds to ignore detection for.")]
     protected List<HurtBody3D> ignoreList;
 
     private bool isEnabled = false;
@@ -158,6 +158,9 @@ public class HitBody3D : MonoBehaviour, ISHLoggable
             }
             else
                 finalHits[hurtBody] = hit;
+
+            if (hurtBody.IsBlocking)
+                return;
         }
     }
 
@@ -202,7 +205,7 @@ public class HitBody3D : MonoBehaviour, ISHLoggable
         return null;
     }
 
-    public void OnHitDelivered(HitData3D data)
+    internal void OnHitDelivered(HitData3D data)
     {
         this.Log("HitBody3D delivered a hit.", SHLogLevels.Verbose);
         HitDelivered?.Invoke(data);
