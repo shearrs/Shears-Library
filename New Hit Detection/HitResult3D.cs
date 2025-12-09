@@ -1,16 +1,25 @@
 using UnityEngine;
 
-public class HitResult3D : MonoBehaviour
+public readonly struct HitResult3D
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    private readonly Vector3 point;
+    private readonly Vector3 normal;
+    private readonly float distance;
+    private readonly Transform transform;
+    private readonly Collider collider;
 
-    // Update is called once per frame
-    void Update()
+    public readonly Vector3 Point => point;
+    public readonly Vector3 Normal => normal;
+    public readonly float Distance => distance;
+    public readonly Transform Transform => transform;
+    public readonly Collider Collider => collider;
+
+    public HitResult3D(RaycastHit hit)
     {
-        
+        point = hit.point;
+        normal = hit.normal;
+        distance = hit.distance;
+        transform = hit.collider.transform;
+        collider = hit.collider;
     }
 }

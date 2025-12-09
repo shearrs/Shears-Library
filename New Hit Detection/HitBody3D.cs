@@ -1,3 +1,4 @@
+using Shears;
 using Shears.Logging;
 using System;
 using System.Collections.Generic;
@@ -6,43 +7,72 @@ using UnityEngine.Pool;
 
 public class HitBody3D : MonoBehaviour, ISHLoggable
 {
+    #region Variables
     [field: Header("Logging")]
-    [field: SerializeField] public SHLogLevels LogLevels { get; set; }
+    [field: SerializeField] 
+    public SHLogLevels LogLevels { get; set; }
+
+    [Header("Components")]
+    [SerializeField]
+    private List<HitShape3D> shapes;
+
+    [SerializeField]
+    private IHitDataProvider dataProvider;
 
     [Header("Hit Settings")]
-    [SerializeField] private HitShape3D shape;
-    [SerializeField] private bool fixedUpdate = false;
-    [SerializeField] private bool multiHits;
-    [SerializeField] protected LayerMask collisionMask = 1;
-    [SerializeField] protected List<Collider> ignoreList;
+    [SerializeField, RuntimeReadonly]
+    private bool enableOnStart = true;
+
+    [SerializeField]
+    private bool fixedUpdate = false;
+
+    [SerializeField] 
+    private bool multiHits;
+
+    [SerializeField] 
+    protected LayerMask collisionMask = 1;
+
+    [SerializeField] 
+    protected List<HurtBody3D> ignoreList;
 
     private bool isEnabled = false;
     private List<HurtBody3D> unclearedHits;
-    private Dictionary<Collider, RaycastHit> finalHits;
+    private List<HurtBody3D> foundHurtbodies;
+    private Dictionary<HurtBody3D, RaycastHit> finalHits;
     private List<int> sortedHits = new();
 
-    public HitShape3D Shape { get => shape; set => shape = value; }
+    public List<HitShape3D> Shapes { get => shapes; set => shapes = value; }
     public bool UseFixedUpdate { get => fixedUpdate; set => fixedUpdate = value; }
     public bool MultiHits { get => multiHits; set => multiHits = value; }
     public LayerMask CollisionMask { get => collisionMask; set => collisionMask = value; }
-    public List<Collider> IgnoreList { get => ignoreList; set => ignoreList = value; }
+    public List<HurtBody3D> IgnoreList { get => ignoreList; set => ignoreList = value; }
 
     public event Action Enabled;
     public event Action Disabled;
-    public event Action HitDelivered;
+    public event Action<HitData3D> HitDelivered;
+    #endregion
 
+    #region Initialization
     private void Awake()
     {
-        finalHits = DictionaryPool<Collider, RaycastHit>.Get();
-        sortedHits = ListPool<int>.Get();
         unclearedHits = ListPool<HurtBody3D>.Get();
+        foundHurtbodies = ListPool<HurtBody3D>.Get();
+        finalHits = DictionaryPool<HurtBody3D, RaycastHit>.Get();
+        sortedHits = ListPool<int>.Get();
+    }
+
+    private void Start()
+    {
+        if (enableOnStart)
+            Enable();
     }
 
     private void OnDestroy()
     {
-        DictionaryPool<Collider, RaycastHit>.Release(finalHits);
-        ListPool<int>.Release(sortedHits);
         ListPool<HurtBody3D>.Release(unclearedHits);
+        ListPool<HurtBody3D>.Release(foundHurtbodies);
+        DictionaryPool<HurtBody3D, RaycastHit>.Release(finalHits);
+        ListPool<int>.Release(sortedHits);
     }
 
     public void Enable()
@@ -50,6 +80,7 @@ public class HitBody3D : MonoBehaviour, ISHLoggable
         if (isEnabled)
             return;
 
+        unclearedHits.Clear();
         isEnabled = true;
         Enabled?.Invoke();
     }
@@ -62,6 +93,7 @@ public class HitBody3D : MonoBehaviour, ISHLoggable
         isEnabled = false;
         Disabled?.Invoke();
     }
+    #endregion
 
     private void Update()
     {
@@ -81,48 +113,98 @@ public class HitBody3D : MonoBehaviour, ISHLoggable
 
     private void DetectHits()
     {
-        if (shape == null)
+        if (shapes.Count == 0)
         {
-            this.Log("HitShape3D is not assigned.", SHLogLevels.Issues);
+            this.Log("No shapes are assigned.", SHLogLevels.Warning);
             return;
         }
 
-        var hitRays = shape.Sweep();
+        finalHits.Clear();
 
-        foreach (var hitCollection in hitRays)
-            ValidateHits(hitCollection);
+        foreach (var shape in shapes)
+            shape.Sweep(collisionMask, ValidateHits);
 
         DeliverHits();
     }
 
-    private void ValidateHits(RaycastHit[] hits)
+    private void ValidateHits(RaycastHit[] results, int hits)
     {
         sortedHits.Clear();
 
-        for (int i = 0; i < hits.Length; i++)
+        for (int i = 0; i < hits; i++)
             sortedHits.Add(i);
 
-        sortedHits.Sort((h1, h2) => hits[h1].distance.CompareTo(hits[h2].distance));
+        sortedHits.Sort((h1, h2) => results[h1].distance.CompareTo(results[h2].distance));
 
         foreach (var hitIndex in sortedHits)
         {
-            RaycastHit hit = hits[hitIndex];
+            RaycastHit hit = results[hitIndex];
 
             if (hit.collider == null)
                 continue;
 
-            if (finalHits.TryGetValue(hit.collider, out var oldHit))
+            var hurtBody = GetHurtBodyForCollider(hit.collider);
+
+            if (hurtBody == null)
+                continue;
+
+            if (unclearedHits.Contains(hurtBody) && !multiHits)
+                continue;
+
+            if (finalHits.TryGetValue(hurtBody, out var oldHit))
             {
                 if (oldHit.distance < hit.distance)
-                    finalHits[hit.collider] = hit;
+                    finalHits[hurtBody] = hit;
             }
             else
-                finalHits[hit.collider] = hit;
+                finalHits[hurtBody] = hit;
         }
     }
 
     private void DeliverHits()
     {
+        foreach (var (hurtBody, hit) in finalHits)
+        {
+            var subData = dataProvider?.GetData();
+            var hitData = new HitData3D(this, hurtBody, new(hit), subData);
 
+            OnHitDelivered(hitData);
+            hurtBody.OnHitReceived(hitData);
+
+            if (!multiHits)
+                unclearedHits.Add(hurtBody);
+        }
+    }
+
+    private HurtBody3D GetHurtBodyForCollider(Collider collider)
+    {
+        if (collider == null)
+            return null;
+
+        collider.transform.GetComponents(foundHurtbodies);
+
+        foreach (var hurtBody in foundHurtbodies)
+        {
+            if (ignoreList.Contains(hurtBody))
+            {
+                this.Log($"Ignoring HurtBody3D {hurtBody} due to ignore list.", SHLogLevels.Verbose);
+
+                if (hurtBody.Colliders.Contains(collider))
+                    return null;
+
+                continue;
+            }
+
+            if (hurtBody.Colliders.Contains(collider))
+                return hurtBody;
+        }
+
+        return null;
+    }
+
+    public void OnHitDelivered(HitData3D data)
+    {
+        this.Log("HitBody3D delivered a hit.", SHLogLevels.Verbose);
+        HitDelivered?.Invoke(data);
     }
 }

@@ -10,7 +10,7 @@ namespace Shears.HitDetection
     public abstract class HitBody3D : MonoBehaviour, IHitBody3D, ISHLoggable
     {
         [field: Header("Logging")]
-        [field: SerializeField] public SHLogLevels LogLevels { get; set; } = SHLogLevels.Log | SHLogLevels.Issues;
+        [field: SerializeField] public SHLogLevels LogLevels { get; set; } = SHLogLevels.Log | SHLogUtil.Issues;
 
         [Header("Hit Settings")]
         [SerializeField] private bool fixedUpdate = false;

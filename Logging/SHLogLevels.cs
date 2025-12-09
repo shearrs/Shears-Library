@@ -5,8 +5,9 @@ namespace Shears.Logging
 {
     public static class SHLogUtil
     {
-        public static SHLogLevels Nothing = 0;
-        public static SHLogLevels Everything = (SHLogLevels)(-1);
+        public static readonly SHLogLevels Nothing = 0;
+        public static readonly SHLogLevels Everything = (SHLogLevels)(-1);
+        public static readonly SHLogLevels Issues = SHLogLevels.Warning | SHLogLevels.Error | SHLogLevels.Fatal;
     }
 
     /// <summary>
@@ -27,6 +28,5 @@ namespace Shears.Logging
         Warning = 4,
         Error = 8, 
         Fatal = 16,
-        Issues = Warning | Error | Fatal
     }
 }

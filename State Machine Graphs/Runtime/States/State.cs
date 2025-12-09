@@ -28,7 +28,7 @@ namespace Shears.StateMachineGraphs
         public State SubState { get => subState; internal set => subState = value; }
         public int TransitionCount => transitions.Count;
 
-        public SHLogLevels LogLevels { get; set; } = SHLogLevels.Log | SHLogLevels.Issues;
+        public SHLogLevels LogLevels { get; set; } = SHLogLevels.Log | SHLogUtil.Issues;
 
         public void AddSubState(State state)
         {

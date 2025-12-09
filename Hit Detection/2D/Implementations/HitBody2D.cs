@@ -7,8 +7,9 @@ namespace Shears.HitDetection
 {
     public abstract class HitBody2D : MonoBehaviour, IHitBody2D, ISHLoggable
     {
+        #region Variables
         [field: Header("Logging")]
-        [field: SerializeField] public SHLogLevels LogLevels { get; set; } = SHLogLevels.Issues;
+        [field: SerializeField] public SHLogLevels LogLevels { get; set; } = SHLogLevels.Log | SHLogUtil.Issues;
 
         [Header("Hit Settings")]
         [SerializeField] private bool fixedUpdate = false;
@@ -27,6 +28,7 @@ namespace Shears.HitDetection
         public List<Collider2D> IgnoreList { get => ignoreList; set => ignoreList = value; }
 
         IHitDeliverer<HitData2D> IHitBody<HitData2D>.Deliverer => Deliverer;
+        #endregion
 
         protected virtual void OnEnable()
         {
