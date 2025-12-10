@@ -27,7 +27,10 @@ namespace Shears.UI
         public bool Selectable { get => selectable; set => SetSelectable(value); }
 
         public event Action Clicked;
-        public event Action Hovered;
+        public event Action PointerDown;
+        public event Action PointerUp;
+        public event Action HoverEntered;
+        public event Action HoverExited;
 
         protected override void Awake()
         {
@@ -53,7 +56,7 @@ namespace Shears.UI
             if (!selectable)
                 return;
 
-            Hovered?.Invoke();
+            HoverEntered?.Invoke();
             TweenToColor(hoverColor, hoverTweenData);
         }
 
@@ -64,6 +67,7 @@ namespace Shears.UI
             if (!selectable)
                 return;
 
+            HoverExited?.Invoke();
             TweenToColor(Color.white, hoverTweenData);
         }
 
@@ -78,6 +82,8 @@ namespace Shears.UI
                 clicked.Invoke();
             }
 
+            PointerDown?.Invoke();
+
             if (selectable)
                 TweenToColor(pressedColor, hoverTweenData);
         }
@@ -88,6 +94,8 @@ namespace Shears.UI
                 return;
 
             Color targetColor = isHovered ? hoverColor : Color.white;
+
+            PointerUp?.Invoke();
 
             TweenToColor(targetColor, hoverTweenData);
         }
