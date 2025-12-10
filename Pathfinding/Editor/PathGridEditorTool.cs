@@ -104,6 +104,7 @@ namespace Shears.Pathfinding.Editor
 
         private void OnPaintRequested(PathNode node, SerializedProperty nodeProp)
         {
+            settings.GridSO.Update();
             painter.PaintNode(node, nodeProp);
             settings.GridSO.ApplyModifiedProperties();
         }
