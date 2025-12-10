@@ -29,6 +29,7 @@ namespace Shears.Pathfinding.Editor
             gridSO = new SerializedObject(grid);
 
             settings = new(editorSO, grid, gridSO);
+            ui = new(settings);
             painter = new(settings);
         }
 
@@ -81,8 +82,6 @@ namespace Shears.Pathfinding.Editor
             root.style.marginRight = StyleKeyword.Auto;
             root.style.marginLeft = 10;
             root.style.marginBottom = 10;
-
-            ui = new(settings);
 
             root.Add(ui);
             sceneView.rootVisualElement.Add(root);
