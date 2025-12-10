@@ -1,4 +1,5 @@
 using Shears.Logging;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -18,6 +19,8 @@ namespace Shears.Pathfinding
         public Vector3Int GridSize => gridSize;
         public float NodeSize => nodeSize;
         public IReadOnlyList<PathNode> Nodes => nodes;
+
+        public event Action GridChanged;
 
         private void OnValidate()
         {
@@ -47,6 +50,8 @@ namespace Shears.Pathfinding
 
                 node.WorldPosition = transform.TransformPoint(localPosition);
             }
+
+            GridChanged?.Invoke();
         }
 
         public PathNode GetNodeForPosition(Vector3 worldPosition)
@@ -97,6 +102,8 @@ namespace Shears.Pathfinding
                 }
             }
         }
+
+        public PathNode GetNode(Vector3Int position) => GetNode(position.x, position.y, position.z);
 
         public PathNode GetNode(int x, int y, int z)
         {

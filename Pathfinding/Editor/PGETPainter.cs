@@ -41,9 +41,12 @@ namespace Shears.Pathfinding.Editor
                 return;
             }
 
-            var newInstance = PrefabUtility.InstantiatePrefab(settings.NodePrefab, settings.Grid.transform) as GameObject;
+            var newInstance = PrefabUtility.InstantiatePrefab(settings.NodePrefab, settings.Grid.transform) as PathNodeObject;
             Undo.RegisterCreatedObjectUndo(newInstance, "Instantiate Node Prefab");
             newInstance.transform.position = PathGridEditorTool.GetWorldPosition(settings.Grid, node);
+
+            newInstance.Grid = settings.Grid;
+            newInstance.Node = node;
 
             nodeObjectProp.objectReferenceValue = newInstance;
         }

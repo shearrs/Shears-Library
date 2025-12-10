@@ -12,7 +12,7 @@ namespace Shears.Pathfinding.Editor
         [SerializeField] private bool drawAllDepths = true;
         [SerializeField] private int zDepth;
         [SerializeReference] private PathNodeData nodeData;
-        [SerializeField] private GameObject nodePrefab;
+        [SerializeField] private PathNodeObject nodePrefab;
 
         private bool isActivated = false;
 
@@ -31,7 +31,7 @@ namespace Shears.Pathfinding.Editor
         public bool DrawAllDepths => drawAllDepths;
         public int ZDepth => zDepth;
         public PathNodeData NodeData => nodeData;
-        public GameObject NodePrefab => nodePrefab;
+        public PathNodeObject NodePrefab => nodePrefab;
         public bool IsActivated => isActivated;
         public PathGrid Grid => grid;
         public SerializedObject GridSO => gridSO;
