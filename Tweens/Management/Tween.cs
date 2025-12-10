@@ -18,7 +18,7 @@ namespace Shears.Tweens
         public readonly bool IsPlaying => IsTweenValid() && tween.IsPlaying;
         public readonly bool Paused => IsTweenValid() && tween.Paused;
         public readonly int Loops => IsTweenValid() ? tween.Loops : 0;
-        public readonly event Action Completed { add => tween.Completed += value; remove => tween.Completed -= value; }
+        public readonly event Action Completed { add => AddOnComplete(value); remove => RemoveOnComplete(value); }
         #endregion
 
         public Tween(TweenInstance tween)
