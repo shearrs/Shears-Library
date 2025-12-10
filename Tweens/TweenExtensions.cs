@@ -61,19 +61,18 @@ namespace Shears.Tweens
                 update = (t) => transform.rotation = Quaternion.LerpUnclamped(start, targetRot, t);
             else
             {
+                start.ToAngleAxis(out float sourceAngle, out Vector3 _);
+                targetRot.ToAngleAxis(out float targetAngle, out Vector3 targetAxis);
+
                 update = (t) =>
                 {
-                    start.ToAngleAxis(out float sourceAngle, out Vector3 sourceAxis);
-                    targetRot.ToAngleAxis(out float targetAngle, out Vector3 targetAxis);
-
                     float angle = Mathf.LerpUnclamped(sourceAngle, targetAngle, t);
-                    Vector3 axis = Vector3.SlerpUnclamped(sourceAxis, targetAxis, t);
 
-                    transform.rotation = Quaternion.AngleAxis(angle, axis);
+                    transform.rotation = Quaternion.AngleAxis(angle, targetAxis);
                 };
             }
 
-                return CreateAutoDisposeTween(transform, update, data);
+            return CreateAutoDisposeTween(transform, update, data);
         }
         #endregion
 
@@ -89,15 +88,14 @@ namespace Shears.Tweens
                 update = (t) => transform.localRotation = Quaternion.LerpUnclamped(start, targetRot, t);
             else
             {
+                start.ToAngleAxis(out float sourceAngle, out Vector3 _);
+                targetRot.ToAngleAxis(out float targetAngle, out Vector3 targetAxis);
+
                 update = (t) =>
                 {
-                    start.ToAngleAxis(out float sourceAngle, out Vector3 sourceAxis);
-                    targetRot.ToAngleAxis(out float targetAngle, out Vector3 targetAxis);
-
                     float angle = Mathf.LerpUnclamped(sourceAngle, targetAngle, t);
-                    Vector3 axis = Vector3.SlerpUnclamped(sourceAxis, targetAxis, t);
 
-                    transform.localRotation = Quaternion.AngleAxis(angle, axis);
+                    transform.localRotation = Quaternion.AngleAxis(angle, targetAxis);
                 };
             }
 

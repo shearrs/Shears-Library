@@ -11,6 +11,7 @@ namespace Shears.Tweens
         [Header("Settings")]
         [SerializeField] private OnEnableBehaviour onEnableBehaviour;
         [SerializeField] private TweenType type;
+        [SerializeField] private bool shortestPathRotation = false;
 
         [Header("References")]
         [SerializeField] private Transform target;
@@ -112,11 +113,11 @@ namespace Shears.Tweens
                     break;
                 case TweenType.Rotate:
                     target.rotation = Quaternion.Euler(fromData.Rotation);
-                    tween = target.GetRotateTween(Quaternion.Euler(toData.Rotation), false, data);
+                    tween = target.GetRotateTween(Quaternion.Euler(toData.Rotation), shortestPathRotation, data);
                     break;
                 case TweenType.LocalRotate:
                     target.rotation = Quaternion.Euler(fromData.Rotation);
-                    tween = target.GetRotateLocalTween(Quaternion.Euler(toData.Rotation), false, data);
+                    tween = target.GetRotateLocalTween(Quaternion.Euler(toData.Rotation), shortestPathRotation, data);
                     break;
                 case TweenType.LocalScale:
                     target.localScale = fromData.Scale;
