@@ -12,7 +12,7 @@ namespace Shears.UI
 
         private Image image;
 
-        protected Image Image
+        public Image RawImage
         {
             get
             {
@@ -30,7 +30,7 @@ namespace Shears.UI
             {
                 baseColor = value;
 
-                Image.color = baseColor * modulate;
+                RawImage.color = baseColor * modulate;
             }
         }
 
@@ -43,8 +43,10 @@ namespace Shears.UI
 
                 var color = baseColor * modulate;
                 color.a = baseColor.a * modulate.a;
-                Image.color = color;
+                RawImage.color = color;
             }
         }
+    
+        public Sprite Sprite { get => RawImage.sprite; set => RawImage.sprite = value; }
     }
 }
