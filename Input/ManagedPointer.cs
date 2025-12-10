@@ -19,5 +19,7 @@ namespace Shears.Input
         {
             Position = pointer.position.ReadValue();
         }
+
+        public bool IsValid() => Pointer.current.deviceId != Pointer.InvalidDeviceId;
     }
 }

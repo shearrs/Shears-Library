@@ -126,6 +126,10 @@ namespace Shears.UI
         private UIElement RaycastCanvas()
         {
             Vector2 pointerPos = ManagedPointer.Current.Position;
+
+            if (pointerPos == Vector2.zero)
+                return null;
+
             hitGraphics.Clear();
 
             foreach (var canvas in registeredCanvases)
@@ -146,7 +150,7 @@ namespace Shears.UI
                         hitGraphics.Add(graphic);
                 }
             }
-
+            
             int greatestDepth = int.MinValue;
             UIElement element = null;
 
