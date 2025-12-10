@@ -25,16 +25,16 @@ namespace Shears.UI
         {
             clickInput ??= inputMap.GetInput("Click");
 
-            clickInput.Started += BeginClick;
-            clickInput.Canceled += EndClick;
+            clickInput.StartedWithInfo += BeginClick;
+            clickInput.CanceledWithInfo += EndClick;
 
             inputMap.EnableAllInputs();
         }
 
         private void OnDisable()
         {
-            clickInput.Started -= BeginClick;
-            clickInput.Canceled -= EndClick;
+            clickInput.StartedWithInfo -= BeginClick;
+            clickInput.CanceledWithInfo -= EndClick;
 
             inputMap.DisableAllInputs();
         }

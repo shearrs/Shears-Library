@@ -53,14 +53,14 @@ namespace Shears.UI
 
         private void OnEnable()
         {
-            clickInput.Started += OnPointerDown;
-            clickInput.Canceled += OnPointerUp;
+            clickInput.StartedWithInfo += OnPointerDown;
+            clickInput.CanceledWithInfo += OnPointerUp;
         }
 
         private void OnDisable()
         {
-            clickInput.Started -= OnPointerDown;
-            clickInput.Canceled -= OnPointerUp;
+            clickInput.StartedWithInfo -= OnPointerDown;
+            clickInput.CanceledWithInfo -= OnPointerUp;
         }
 
         private void Update()

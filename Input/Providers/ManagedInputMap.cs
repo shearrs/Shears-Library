@@ -20,14 +20,14 @@ namespace Shears.Input
         public override void GetInputs(params (string name, Action<IManagedInput> action)[] inputs)
             => GetRuntimeMap().GetInputs(inputs);
 
-        public override ManagedInputGroup GetInputGroup(params (string name, ManagedInputPhase phase, ManagedInputEvent action)[] bindings)
+        public override ManagedInputGroup GetInputGroup(params (string name, ManagedInputPhase phase, ManagedInputEventWithInfo action)[] bindings)
             => GetRuntimeMap().GetInputGroup(bindings);
 
         public void EnableAllInputs() => GetRuntimeMap().EnableAllInputs();
 
         public void DisableAllInputs() => GetRuntimeMap().DisableAllInputs();
 
-        public void DeregisterAllInputs(ManagedInputEvent action) => GetRuntimeMap().DeregisterAllInputs(action);
+        public void DeregisterAllInputs(ManagedInputEventWithInfo action) => GetRuntimeMap().DeregisterAllInputs(action);
 
         private RuntimeInputMap GetRuntimeMap()
         {

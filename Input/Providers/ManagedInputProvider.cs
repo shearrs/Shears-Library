@@ -9,6 +9,6 @@ namespace Shears.Input
 
         public abstract void GetInputs(params (string name, Action<IManagedInput> action)[] inputs);
 
-        public abstract ManagedInputGroup GetInputGroup(params (string name, ManagedInputPhase phase, ManagedInputEvent action)[] bindings);
+        public abstract ManagedInputGroup GetInputGroup(params (string name, ManagedInputPhase phase, ManagedInputEventWithInfo action)[] bindings);
     }
 }

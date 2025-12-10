@@ -25,24 +25,28 @@ namespace Shears.Input
         public event ManagedInputEvent Started;
         public event ManagedInputEvent Performed;
         public event ManagedInputEvent Canceled;
+        public event ManagedInputEventWithInfo StartedWithInfo;
+        public event ManagedInputEventWithInfo PerformedWithInfo;
+        public event ManagedInputEventWithInfo CanceledWithInfo;
 
         public void Enable();
         public void Disable();
 
-        public void Bind(ManagedInputPhase phase, ManagedInputEvent action);
-        public void Unbind(ManagedInputPhase phase, ManagedInputEvent action);
+        public void Bind(ManagedInputPhase phase, ManagedInputEventWithInfo action);
+        public void Unbind(ManagedInputPhase phase, ManagedInputEventWithInfo action);
 
         public T ReadValue<T>() where T : struct;
         public bool IsPressed();
         public bool WasPressedThisFrame();
     }
 
-    public delegate void ManagedInputEvent(ManagedInputInfo inputInfo);
+    public delegate void ManagedInputEvent();
+    public delegate void ManagedInputEventWithInfo(ManagedInputInfo inputInfo);
 
     public class ManagedInput : IManagedInput
     {
         private readonly InputAction inputAction;
-        private readonly Dictionary<ManagedInputBinding, Action<InputAction.CallbackContext>> bindings = new();
+        private readonly Dictionary<IManagedInputBinding, Action<InputAction.CallbackContext>> bindings = new();
 
         public string Name { get; private set; }
         public bool Enabled => inputAction.enabled;
@@ -59,6 +63,22 @@ namespace Shears.Input
             remove => Unbind(ManagedInputPhase.Performed, value);
         }
         public event ManagedInputEvent Canceled
+        {
+            add => Bind(ManagedInputPhase.Canceled, value);
+            remove => Unbind(ManagedInputPhase.Canceled, value);
+        }
+
+        public event ManagedInputEventWithInfo StartedWithInfo
+        {
+            add => Bind(ManagedInputPhase.Started, value);
+            remove => Unbind(ManagedInputPhase.Started, value);
+        }
+        public event ManagedInputEventWithInfo PerformedWithInfo
+        {
+            add => Bind(ManagedInputPhase.Performed, value);
+            remove => Unbind(ManagedInputPhase.Performed, value);
+        }
+        public event ManagedInputEventWithInfo CanceledWithInfo
         {
             add => Bind(ManagedInputPhase.Canceled, value);
             remove => Unbind(ManagedInputPhase.Canceled, value);
@@ -99,8 +119,20 @@ namespace Shears.Input
         {
             inputAction.Disable();
         }
-        
+
         public void Bind(ManagedInputPhase phase, ManagedInputEvent action)
+        {
+            void callback(InputAction.CallbackContext ctx)
+            {
+                action?.Invoke();
+            }
+
+            var binding = new ManagedInputBinding(phase, action);
+
+            AddBinding(binding, callback);
+        }
+
+        public void Bind(ManagedInputPhase phase, ManagedInputEventWithInfo action)
         {
             void callback(InputAction.CallbackContext ctx)
             {
@@ -110,45 +142,23 @@ namespace Shears.Input
                 action?.Invoke(info);
             }
 
-            ManagedInputBinding binding = new(phase, action);
+            var binding = new ManagedInputBindingWithInfo(phase, action);
 
-            switch (phase)
-            {
-                case ManagedInputPhase.Started:
-                    inputAction.started += callback;
-                    break;
-                case ManagedInputPhase.Performed:
-                    inputAction.performed += callback;
-                    break;
-                case ManagedInputPhase.Canceled:
-                    inputAction.canceled += callback;
-                    break;
-            }
-
-            bindings.Add(binding, callback);
+            AddBinding(binding, callback);
         }
 
         public void Unbind(ManagedInputPhase phase, ManagedInputEvent action)
         {
-            ManagedInputBinding binding = new(phase, action);
+            var binding = new ManagedInputBinding(phase, action);
 
-            if (!bindings.TryGetValue(binding, out var callback))
-                return;
+            RemoveBinding(binding);
+        }
 
-            switch (phase)
-            {
-                case ManagedInputPhase.Started:
-                    inputAction.started -= callback;
-                    break;
-                case ManagedInputPhase.Performed:
-                    inputAction.performed -= callback;
-                    break;
-                case ManagedInputPhase.Canceled:
-                    inputAction.canceled -= callback;
-                    break;
-            }
+        public void Unbind(ManagedInputPhase phase, ManagedInputEventWithInfo action)
+        {
+            var binding = new ManagedInputBindingWithInfo(phase, action);
 
-            bindings.Remove(binding);
+            RemoveBinding(binding);
         }
 
         public T ReadValue<T>() where T : struct
@@ -180,6 +190,45 @@ namespace Shears.Input
                 InputActionPhase.Waiting => ManagedInputPhase.Waiting,
                 _ => default,
             };
+        }
+
+        private void AddBinding(IManagedInputBinding binding, Action<InputAction.CallbackContext> callback)
+        {
+            switch (binding.Phase)
+            {
+                case ManagedInputPhase.Started:
+                    inputAction.started += callback;
+                    break;
+                case ManagedInputPhase.Performed:
+                    inputAction.performed += callback;
+                    break;
+                case ManagedInputPhase.Canceled:
+                    inputAction.canceled += callback;
+                    break;
+            }
+
+            bindings.Add(binding, callback);
+        }
+
+        private void RemoveBinding(IManagedInputBinding binding)
+        {
+            if (!bindings.TryGetValue(binding, out var callback))
+                return;
+
+            switch (binding.Phase)
+            {
+                case ManagedInputPhase.Started:
+                    inputAction.started -= callback;
+                    break;
+                case ManagedInputPhase.Performed:
+                    inputAction.performed -= callback;
+                    break;
+                case ManagedInputPhase.Canceled:
+                    inputAction.canceled -= callback;
+                    break;
+            }
+
+            bindings.Remove(binding);
         }
     }
 }

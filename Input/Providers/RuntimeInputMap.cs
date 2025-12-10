@@ -43,7 +43,7 @@ namespace Shears.Input
                 input.assignmentAction(GetInput(input.name));
         }
 
-        public ManagedInputGroup GetInputGroup(params (string name, ManagedInputPhase phase, ManagedInputEvent action)[] bindings)
+        public ManagedInputGroup GetInputGroup(params (string name, ManagedInputPhase phase, ManagedInputEventWithInfo action)[] bindings)
         {
             ManagedInputBindingInstance[] bindingInstances = new ManagedInputBindingInstance[bindings.Length];
             
@@ -71,13 +71,13 @@ namespace Shears.Input
                 input.Disable();
         }
 
-        public void DeregisterAllInputs(ManagedInputEvent action)
+        public void DeregisterAllInputs(ManagedInputEventWithInfo action)
         {
             foreach (var input in managedInputs.Values)
                 DeregisterAllPhases(input, action);
         }
 
-        private void DeregisterAllPhases(IManagedInput input, ManagedInputEvent action)
+        private void DeregisterAllPhases(IManagedInput input, ManagedInputEventWithInfo action)
         {
             input.Unbind(ManagedInputPhase.Disabled, action);
             input.Unbind(ManagedInputPhase.Waiting, action);

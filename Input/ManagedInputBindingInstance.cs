@@ -6,9 +6,9 @@ namespace Shears.Input
     {
         private readonly IManagedInput input;
         private readonly ManagedInputPhase phase;
-        private readonly ManagedInputEvent action;
+        private readonly ManagedInputEventWithInfo action;
 
-        public ManagedInputBindingInstance(IManagedInput input, ManagedInputPhase phase, ManagedInputEvent action)
+        public ManagedInputBindingInstance(IManagedInput input, ManagedInputPhase phase, ManagedInputEventWithInfo action)
         {
             this.input = input;
             this.phase = phase;
