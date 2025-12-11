@@ -1,4 +1,3 @@
-using Shears.Editor;
 using System;
 using UnityEditor;
 using UnityEditor.EditorTools;

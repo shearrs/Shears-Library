@@ -157,7 +157,7 @@ namespace Shears.Pathfinding.Editor
 
         private VisualElement CreateNodePrefabField()
         {
-            var searchContext = UnityEditor.Search.SearchService.CreateContext("asset", $"p: t:{nameof(PathNodeObject)}");
+            var searchContext = UnityEditor.Search.SearchService.CreateContext("asset", $"p: t:{nameof(PathNodeObject)} -name:_Base_");
             var searchViewFlags = SearchViewFlags.Borderless | SearchViewFlags.DisableInspectorPreview;
             var searchState = new UnityEditor.Search.SearchViewState(searchContext, searchViewFlags);
 
