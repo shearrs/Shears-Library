@@ -24,7 +24,7 @@ namespace Shears.UI
         private Tween tween;
         private bool isHovered = false;
 
-        public ManagedImage Image => image;
+        public ManagedImage Image { get => image; set => image = value; }
         public bool Selectable { get => selectable; set => SetSelectable(value); }
 
         public event Action Clicked;

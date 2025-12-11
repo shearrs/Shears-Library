@@ -1,7 +1,6 @@
 using Shears.Input;
 using Shears.Logging;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,7 +9,7 @@ namespace Shears.UI
     [DefaultExecutionOrder(-1000)]
     public class UIElementEventSystem : MonoBehaviour
     {
-        private enum DetectionType { Canvas, World3D }
+        public enum DetectionType { Canvas, World3D }
 
         private static bool applicationIsQuitting = false;
         private static UIElementEventSystem canvasSystem;
@@ -25,6 +24,8 @@ namespace Shears.UI
         private IManagedInput clickInput;
         private UIElement hoveredElement;
         private UIElement pointerDownElement;
+
+        public DetectionType SystemType => detectionType; 
 
         [RuntimeInitializeOnLoadMethod()]
         private static void ApplicationRegistration()
