@@ -147,7 +147,12 @@ namespace Shears.UI
                     if (graphic == null || !graphic.raycastTarget)
                         continue;
 
-                    if (RectTransformUtility.RectangleContainsScreenPoint(graphic.rectTransform, pointerPos))
+                    var cam = canvas.UnityCanvas.worldCamera;
+
+                    if (canvas.UnityCanvas.renderMode != RenderMode.ScreenSpaceCamera)
+                        cam = null;
+
+                    if (RectTransformUtility.RectangleContainsScreenPoint(graphic.rectTransform, pointerPos, cam))
                         hitGraphics.Add(graphic);
                 }
             }
