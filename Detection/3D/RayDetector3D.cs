@@ -122,7 +122,7 @@ namespace Shears.Detection
                 dir = transform.TransformDirection(direction);
             }
 
-            Gizmos.DrawRay(transform.position, dir * distance);
+            Gizmos.DrawRay(origin, dir * distance);
 
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireSphere(origin, 0.15f);
