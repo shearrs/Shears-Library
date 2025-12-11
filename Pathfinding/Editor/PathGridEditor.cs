@@ -73,7 +73,7 @@ namespace Shears.Pathfinding.Editor
             // it would be nice if we didnt just clear this and instead we just removed things if they needed to be shrunk, or added things if they needed to be added
             // decreasing => delete extras
             // increasing => add new ones, we can only grow outwards to the right and up so it should be easy
-            HashSet<GameObject> reusedObjects = new();
+            HashSet<PathNodeObject> reusedObjects = new();
             List<PathNode> newNodes = new();
 
             for (int z = 0; z < newGridSize.z; z++)

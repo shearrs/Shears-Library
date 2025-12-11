@@ -32,6 +32,19 @@ namespace Shears.Pathfinding
             UpdateWorldPositions();
         }
 
+        [ContextMenu("Update Node Objects")]
+        private void UpdateNodeObjects()
+        {
+            foreach (var node in nodes)
+            {
+                if (node.NodeObject == null)
+                    continue;
+
+                node.NodeObject.Grid = this;
+                node.NodeObject.Node = node;
+            }
+        }
+
         public void UpdateWorldPositions()
         {
             if (nodes.Count == 0)

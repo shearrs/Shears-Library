@@ -33,7 +33,12 @@ namespace Shears.Pathfinding.Editor
             var nodeObjectProp = nodeProp.FindPropertyRelative("nodeObject");
 
             if (nodeObjectProp.objectReferenceValue != null)
-                Undo.DestroyObjectImmediate(nodeObjectProp.objectReferenceValue);
+            {
+                var nodeObject = nodeObjectProp.objectReferenceValue as PathNodeObject;
+
+                if (nodeObject != null)
+                    Undo.DestroyObjectImmediate(nodeObject.gameObject);
+            }
 
             if (settings.NodePrefab == null) // if we are placing nothing, just clear the object value
             {
@@ -42,11 +47,16 @@ namespace Shears.Pathfinding.Editor
             }
 
             var newInstance = PrefabUtility.InstantiatePrefab(settings.NodePrefab, settings.Grid.transform) as PathNodeObject;
-            Undo.RegisterCreatedObjectUndo(newInstance, "Instantiate Node Prefab");
             newInstance.transform.position = PathGridEditorTool.GetWorldPosition(settings.Grid, node);
+            Undo.RegisterCreatedObjectUndo(newInstance.gameObject, "Instantiate Node Prefab");
 
-            newInstance.Grid = settings.Grid;
-            newInstance.Node = node;
+            var objSO = new SerializedObject(newInstance);
+            var gridProp = objSO.FindProperty("grid");
+            var objNodeProp = objSO.FindProperty("node");
+
+            gridProp.objectReferenceValue = settings.Grid;
+            objNodeProp.boxedValue = node;
+            objSO.ApplyModifiedProperties();
 
             nodeObjectProp.objectReferenceValue = newInstance;
         }
