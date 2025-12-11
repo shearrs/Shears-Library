@@ -19,7 +19,12 @@ namespace Shears
                 if (toString != null)
                     stringBuilder.Append(toString(collection.ElementAt(i)));
                 else
-                    stringBuilder.Append(collection.ElementAt(i).ToString());
+                {
+                    var element = collection.ElementAt(i);
+                    string value = (element != null) ? element.ToString() : "NULL";
+
+                    stringBuilder.Append(value);
+                }
 
                 if (i < collection.Count - 1)
                     stringBuilder.Append(separator);
