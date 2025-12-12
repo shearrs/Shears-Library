@@ -8,19 +8,23 @@ namespace Shears.HitDetection
         private readonly HurtBody3D hurtBody;
         private readonly HitResult3D result;
         private readonly IReadOnlyCollection<IHitSubdata> data;
+        private readonly bool blocked;
 
         public readonly HitBody3D HitBody => hitBody;
         public readonly HurtBody3D HurtBody => hurtBody;
         public readonly HitResult3D Result => result;
         public readonly IReadOnlyCollection<IHitSubdata> Data => data;
+        public readonly bool Blocked => blocked;
 
         public HitData3D(HitBody3D hitBody, HurtBody3D hurtBody,
-            HitResult3D result, IReadOnlyCollection<IHitSubdata> data)
+            HitResult3D result, IReadOnlyCollection<IHitSubdata> data,
+            bool blocked)
         {
             this.hitBody = hitBody;
             this.hurtBody = hurtBody;
             this.result = result;
             this.data = data;
+            this.blocked = blocked;
         }
 
         public readonly bool TryGetData<T>(out T data) where T : IHitSubdata

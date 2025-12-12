@@ -171,7 +171,7 @@ namespace Shears.HitDetection
             foreach (var (hurtBody, hit) in finalHits)
             {
                 var subData = dataProvider?.GetData();
-                var hitData = new HitData3D(this, hurtBody, new(hit), subData);
+                var hitData = new HitData3D(this, hurtBody, new(hit), subData, hurtBody.IsBlocking);
 
                 OnHitDelivered(hitData);
                 hurtBody.OnHitReceived(hitData);
