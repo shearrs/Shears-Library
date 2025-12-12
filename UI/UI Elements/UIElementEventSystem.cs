@@ -172,16 +172,6 @@ namespace Shears.UI
             return element;
         }
 
-        private bool TryGetUIElement(GameObject gameObject, out UIElement element)
-        {
-            if (gameObject.TryGetComponent(out element))
-                return true;
-
-            element = gameObject.GetComponentInParent<UIElement>();
-
-            return element != null;
-        }
-
         private UIElement Raycast3D()
         {
             Vector2 pointerPos = ManagedPointer.Current.Position;
@@ -194,13 +184,23 @@ namespace Shears.UI
             {
                 var hit = results3D[i];
 
-                if (hit.collider.TryGetComponent<UIElement>(out var element))
+                if (TryGetUIElement(hit.collider.gameObject, out var element))
                     return element;
             }
 
             return null;
         }
-    
+
+        private bool TryGetUIElement(GameObject gameObject, out UIElement element)
+        {
+            if (gameObject.TryGetComponent(out element))
+                return true;
+
+            element = gameObject.GetComponentInParent<UIElement>();
+
+            return element != null;
+        }
+
         private void OnPointerDown(ManagedInputInfo info)
         {
             if (hoveredElement == null)
