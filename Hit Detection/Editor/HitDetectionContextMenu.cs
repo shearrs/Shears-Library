@@ -1,0 +1,34 @@
+using UnityEditor;
+using UnityEngine;
+
+namespace Shears.HitDetection.Editor
+{
+    public class HitDetectionContextMenu : MonoBehaviour
+    {
+        [MenuItem("GameObject/Shears Library/Hit Detection/Hit Body 3D", secondaryPriority = 100)]
+        private static void CreateHitBody3D()
+        {
+            var gameObject = new GameObject("Hit Body 3D");
+            gameObject.AddComponent<HitBody3D>();
+
+            ParentToSelection(gameObject);
+        }
+
+        [MenuItem("GameObject/Shears Library/Hit Detection/Hit Box 3D")]
+        private static void CreateHitBox3D()
+        {
+            var gameObject = new GameObject("Hit Box 3D");
+            gameObject.AddComponent<HitBox3D>();
+
+            ParentToSelection(gameObject);
+        }
+
+        private static void ParentToSelection(GameObject gameObject)
+        {
+            var selection = Selection.activeGameObject;
+
+            if (selection != null)
+                gameObject.transform.SetParent(selection.transform, false);
+        }
+    }
+}

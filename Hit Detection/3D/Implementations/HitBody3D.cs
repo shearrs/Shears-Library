@@ -12,7 +12,7 @@ namespace Shears.HitDetection
         #region Variables
         [field: Header("Logging")]
         [field: SerializeField]
-        public SHLogLevels LogLevels { get; set; }
+        public SHLogLevels LogLevels { get; set; } = SHLogLevels.Log | SHLogUtil.Issues;
 
         [Header("Components")]
         [SerializeField, Tooltip("The shapes this HitBody3D uses to detect hits.")]
