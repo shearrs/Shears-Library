@@ -72,6 +72,7 @@ namespace Shears.HitDetection
         private Vector3 size = Vector3.one;
 
         private RaycastHit[] results;
+        private bool isDetecting = false;
 
         private Vector3 TCenter => transform.position + TOrientation * center;
         private Quaternion TOrientation => transform.rotation * Quaternion.Euler(orientation);
@@ -101,6 +102,8 @@ namespace Shears.HitDetection
 
         internal override void Sweep(LayerMask collisionMask, Action<RaycastHit[], int> validateHits)
         {
+            isDetecting = true;
+
             Vector3 halfSize = TSize * 0.5f;
             Vector3 forward = TOrientation * Vector3.forward;
             Vector3 back = TOrientation * Vector3.back;
@@ -226,7 +229,7 @@ namespace Shears.HitDetection
 
         private void DrawBoxGizmos()
         {
-            Color opacity = isActiveAndEnabled ? Color.white : new(1, 1, 1, 0.15f);
+            Color opacity = isDetecting ? Color.white : new(1, 1, 1, 0.15f);
 
             if ((gizmoSettings.Modes & GizmoModes.Hitbox) != 0)
             {
@@ -286,11 +289,14 @@ namespace Shears.HitDetection
                 if ((sourceDirections & SourceDirections.Bottom) != 0)
                     DrawArrayCast(bottomStart, bottomEnd, right, TSize.x, up, TSize.y);
             }
+
+            if (isDetecting)
+                isDetecting = false;
         }
 
         private void DrawArrayCast(Vector3 start, Vector3 end, Vector3 columnOffsetDirection, float columnOffsetDistance, Vector3 direction, float distance)
         {
-            Color opacity = isActiveAndEnabled ? Color.white : new(1, 1, 1, 0.15f);
+            Color opacity = isDetecting ? Color.white : new(1, 1, 1, 0.35f);
             Gizmos.color = Color.yellow * opacity;
 
             for (int column = 0; column < raysPerFace; column++)
