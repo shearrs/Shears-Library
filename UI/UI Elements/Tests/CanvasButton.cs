@@ -131,12 +131,20 @@ namespace Shears.UI
             if (isActiveAndEnabled)
             {
                 if (selectable)
+                {
                     TweenToColor(notSelectableColor, notSelectableTweenData);
+
+                    if (isHovered)
+                        HoverExited?.Invoke();
+                }
                 else
                 {
                     Color targetColor = isHovered ? hoverColor : Color.white;
 
                     TweenToColor(targetColor, notSelectableTweenData);
+
+                    if (isHovered)
+                        HoverEntered?.Invoke();
                 }
             }
             else
