@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Shears.HitDetection
 {
@@ -8,12 +9,13 @@ namespace Shears.HitDetection
         private readonly HurtBody3D hurtBody;
         private readonly HitResult3D result;
         private readonly IReadOnlyCollection<IHitSubdata> data;
+        private readonly int dataCount;
         private readonly bool blocked;
 
         public readonly HitBody3D HitBody => hitBody;
         public readonly HurtBody3D HurtBody => hurtBody;
         public readonly HitResult3D Result => result;
-        public readonly IReadOnlyCollection<IHitSubdata> Data => data;
+        public readonly int DataCount => dataCount;
         public readonly bool Blocked => blocked;
 
         public HitData3D(HitBody3D hitBody, HurtBody3D hurtBody,
@@ -24,8 +26,11 @@ namespace Shears.HitDetection
             this.hurtBody = hurtBody;
             this.result = result;
             this.data = data;
+            dataCount = (data == null) ? 0 : data.Count;
             this.blocked = blocked;
         }
+
+        public readonly IHitSubdata GetDataAt(int index) => data.ElementAt(index);
 
         public readonly bool TryGetData<T>(out T data) where T : IHitSubdata
         {

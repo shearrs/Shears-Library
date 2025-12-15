@@ -15,11 +15,11 @@ namespace Shears.HitDetection
         public SHLogLevels LogLevels { get; set; } = SHLogLevels.Log | SHLogUtil.Issues;
 
         [Header("Components")]
+        [SerializeField, Tooltip("Optional provider for extra data to be sent with hits.")]
+        private InterfaceReference<IHitDataProvider> dataProvider;
+
         [SerializeField, Tooltip("The shapes this HitBody3D uses to detect hits.")]
         private List<HitShape3D> shapes;
-
-        [SerializeField, Tooltip("Optional provider for extra data to be sent with hits.")]
-        private IHitDataProvider dataProvider;
 
         [Header("Hit Settings")]
         [SerializeField, RuntimeReadonly, Tooltip("Whether or not this HitBody3D enables itself on Start.")]
@@ -170,7 +170,7 @@ namespace Shears.HitDetection
         {
             foreach (var (hurtBody, hit) in finalHits)
             {
-                var subData = dataProvider?.GetData();
+                var subData = dataProvider.Value?.GetData();
                 var hitData = new HitData3D(this, hurtBody, new(hit), subData, hurtBody.IsBlocking);
 
                 OnHitDelivered(hitData);

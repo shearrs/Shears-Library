@@ -23,6 +23,15 @@ namespace Shears.HitDetection.Editor
             ParentToSelection(gameObject);
         }
 
+        [MenuItem("GameObject/Shears Library/Hit Detection/Hurt Body 3D")]
+        private static void CreateHurtBody3D()
+        {
+            var gameObject = new GameObject("Hurt Body 3D");
+            gameObject.AddComponent<HurtBody3D>();
+
+            ParentToSelection(gameObject);
+        }
+
         private static void ParentToSelection(GameObject gameObject)
         {
             var selection = Selection.activeGameObject;
