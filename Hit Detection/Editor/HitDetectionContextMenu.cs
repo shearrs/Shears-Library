@@ -6,7 +6,7 @@ namespace Shears.HitDetection.Editor
 {
     public class HitDetectionContextMenu : MonoBehaviour
     {
-        [MenuItem("GameObject/Shears Library/Hit Detection/Hit Body 3D", secondaryPriority = 100)]
+        [MenuItem("GameObject/Shears Library/Hit Detection/Hit Body 3D", priority = 3)]
         private static void CreateHitBody3D()
         {
             var gameObject = new GameObject("Hit Body 3D");
@@ -15,7 +15,16 @@ namespace Shears.HitDetection.Editor
             ParentToSelection(gameObject);
         }
 
-        [MenuItem("GameObject/Shears Library/Hit Detection/Shapes/Hit Box 3D")]
+        [MenuItem("GameObject/Shears Library/Hit Detection/Hurt Body 3D", priority = 3)]
+        private static void CreateHurtBody3D()
+        {
+            var gameObject = new GameObject("Hurt Body 3D");
+            gameObject.AddComponent<HurtBody3D>();
+
+            ParentToSelection(gameObject);
+        }
+
+        [MenuItem("GameObject/Shears Library/Hit Detection/Shapes/Hit Box 3D", priority = 4)]
         private static void CreateHitBox3D()
         {
             var gameObject = new GameObject("Hit Box 3D");
@@ -29,15 +38,6 @@ namespace Shears.HitDetection.Editor
         {
             var gameObject = new GameObject("Hit Sphere");
             gameObject.AddComponent<HitSphere>();
-
-            ParentToSelection(gameObject);
-        }
-
-        [MenuItem("GameObject/Shears Library/Hit Detection/Hurt Body 3D")]
-        private static void CreateHurtBody3D()
-        {
-            var gameObject = new GameObject("Hurt Body 3D");
-            gameObject.AddComponent<HurtBody3D>();
 
             ParentToSelection(gameObject);
         }
@@ -59,6 +59,8 @@ namespace Shears.HitDetection.Editor
 
             gameObject.transform.SetParent(parent, false);
             Selection.activeGameObject = gameObject;
+
+            Undo.RegisterCreatedObjectUndo(gameObject, $"Create {gameObject.name}");
         }
     }
 }
