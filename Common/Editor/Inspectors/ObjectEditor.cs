@@ -53,6 +53,11 @@ namespace Shears.Editor
         {
             var defaultFieldsContainer = VisualElementUtil.CreateDefaultFields(serializedObject);
 
+            var targetObject = serializedObject.targetObject;
+
+            if (targetObject == null)
+                return defaultFieldsContainer;
+
             for (int i = 0; i < defaultFieldsContainer.childCount; i++)
             {
                 var childField = defaultFieldsContainer[i];
@@ -67,7 +72,6 @@ namespace Shears.Editor
                     continue;
                 }
 
-                var targetObject = serializedObject.targetObject;
                 Type type = targetObject.GetType();
                 FieldInfo field = type.GetField(propName, FLAGS);
                 
