@@ -37,14 +37,19 @@ namespace Shears
             return wait;
         }
 
-        public static Coroutine DoAfter(Action action, float time)
+        public static Coroutine DoAfter(Action action, float time, Component lifetime = null)
         {
-            return CoroutineRunner.Start(IEDoAfter(action, time));
+            bool hasLifetime = lifetime != null;
+
+            return CoroutineRunner.Start(IEDoAfter(action, time, lifetime, hasLifetime));
         }
 
-        private static IEnumerator IEDoAfter(Action action, float time)
+        private static IEnumerator IEDoAfter(Action action, float time, Component lifetime, bool hasLifetime)
         {
             yield return WaitForSeconds(time);
+
+            if (hasLifetime && lifetime == null)
+                yield break;
 
             action?.Invoke();
         }
