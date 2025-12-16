@@ -1,4 +1,5 @@
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,7 +13,7 @@ namespace Shears.UI.Editor
             var gameObject = new GameObject("Image");
             gameObject.AddComponent<ManagedImage>();
 
-            var parent = GetOrCreateCanvas();
+            var parent = GetOrCreateParent();
             gameObject.transform.SetParent(parent.transform);
 
             gameObject.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
@@ -31,7 +32,7 @@ namespace Shears.UI.Editor
             image.Sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
             image.RawImage.type = Image.Type.Sliced;
 
-            var parent = GetOrCreateCanvas();
+            var parent = GetOrCreateParent();
             gameObject.transform.SetParent(parent.transform);
 
             gameObject.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
@@ -69,18 +70,29 @@ namespace Shears.UI.Editor
                 MenuCreateUIElementEventSystem();
         }
 
-        private static UIElementCanvas GetOrCreateCanvas()
+        private static GameObject GetOrCreateParent()
         {
+            var stage = PrefabStageUtility.GetCurrentPrefabStage();
+            var selection = Selection.activeGameObject;
+
+            if (stage != null)
+            {
+                if (selection != null)
+                    return selection;
+
+                return stage.prefabContentsRoot;
+            }
+
             if (Selection.activeGameObject != null)
             {
                 var activeGameObject = Selection.activeGameObject;
                 var canvas = activeGameObject.GetComponentInParent<UIElementCanvas>(true);
 
                 if (canvas != null)
-                    return canvas;
+                    return canvas.gameObject;
             }
 
-            return CreateUICanvas();
+            return CreateUICanvas().gameObject;
         }
 
         private static UIElementCanvas CreateUICanvas()
