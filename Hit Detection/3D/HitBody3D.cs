@@ -124,19 +124,21 @@ namespace Shears.HitDetection
             finalHits.Clear();
 
             foreach (var shape in shapes)
-                shape.Sweep(collisionMask, ValidateHits);
+                shape.Sweep(new(collisionMask, ValidateHits));
 
             DeliverHits();
         }
 
-        private void ValidateHits(RaycastHit[] results, int hits)
+        private void ValidateHits(RaycastHit[] results, int hits, Comparison<int> sortFunc = null)
         {
             sortedHits.Clear();
 
             for (int i = 0; i < hits; i++)
                 sortedHits.Add(i);
 
-            sortedHits.Sort((h1, h2) => results[h1].distance.CompareTo(results[h2].distance));
+            sortFunc ??= (h1, h2) => results[h1].distance.CompareTo(results[h2].distance);
+
+            sortedHits.Sort(sortFunc);
 
             foreach (var hitIndex in sortedHits)
             {

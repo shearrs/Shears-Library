@@ -11,7 +11,7 @@ namespace Shears.HitDetection
         [field: Header("Logging")]
         [field: SerializeField] public SHLogLevels LogLevels { get; set; } = SHLogLevels.Log | SHLogUtil.Issues;
 
-        internal abstract void Sweep(LayerMask collisionMask, Action<RaycastHit[], int> validateHits);
+        internal abstract void Sweep(DetectionHandle handle);
 
         /// <summary>
         /// Logs a message to the current <see cref="ISHLogger"/>.

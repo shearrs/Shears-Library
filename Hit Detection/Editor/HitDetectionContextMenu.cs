@@ -1,4 +1,5 @@
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace Shears.HitDetection.Editor
@@ -14,11 +15,20 @@ namespace Shears.HitDetection.Editor
             ParentToSelection(gameObject);
         }
 
-        [MenuItem("GameObject/Shears Library/Hit Detection/Hit Box 3D")]
+        [MenuItem("GameObject/Shears Library/Hit Detection/Shapes/Hit Box 3D")]
         private static void CreateHitBox3D()
         {
             var gameObject = new GameObject("Hit Box 3D");
             gameObject.AddComponent<HitBox3D>();
+
+            ParentToSelection(gameObject);
+        }
+
+        [MenuItem("GameObject/Shears Library/Hit Detection/Shapes/Hit Sphere")]
+        private static void CreateHitSphere()
+        {
+            var gameObject = new GameObject("Hit Sphere");
+            gameObject.AddComponent<HitSphere>();
 
             ParentToSelection(gameObject);
         }
@@ -35,9 +45,20 @@ namespace Shears.HitDetection.Editor
         private static void ParentToSelection(GameObject gameObject)
         {
             var selection = Selection.activeGameObject;
+            Transform parent = null;
 
             if (selection != null)
-                gameObject.transform.SetParent(selection.transform, false);
+                parent = selection.transform;
+            else
+            {
+                var stage = PrefabStageUtility.GetCurrentPrefabStage();
+
+                if (stage != null)
+                    parent = stage.prefabContentsRoot.transform;
+            }
+
+            gameObject.transform.SetParent(parent, false);
+            Selection.activeGameObject = gameObject;
         }
     }
 }

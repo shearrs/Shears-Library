@@ -13,8 +13,6 @@ namespace Shears.HitDetection
         {
             Hitbox = 1 << 0,
             Rays = 1 << 1,
-            HitAverages = 1 << 3,
-            Activity = 1 << 4
         }
 
         [Flags]
@@ -100,7 +98,7 @@ namespace Shears.HitDetection
             ArrayPool<RaycastHit>.Shared.Return(results);
         }
 
-        internal override void Sweep(LayerMask collisionMask, Action<RaycastHit[], int> validateHits)
+        internal override void Sweep(DetectionHandle handle)
         {
             isDetecting = true;
 
@@ -120,7 +118,7 @@ namespace Shears.HitDetection
                     backStart, backEnd,
                     right, TSize.x,
                     forward, TSize.z,
-                    collisionMask, validateHits
+                    handle
                 );
             }
 
@@ -133,7 +131,7 @@ namespace Shears.HitDetection
                     frontStart, frontEnd,
                     right, TSize.x,
                     back, TSize.z,
-                    collisionMask, validateHits
+                    handle
                 );
             }
 
@@ -146,7 +144,7 @@ namespace Shears.HitDetection
                     leftStart, leftEnd,
                     back, TSize.z,
                     right, TSize.x,
-                    collisionMask, validateHits
+                    handle
                 );
             }
 
@@ -159,7 +157,7 @@ namespace Shears.HitDetection
                     rightStart, rightEnd,
                     back, TSize.z,
                     left, TSize.x,
-                    collisionMask, validateHits
+                    handle
                 );
             }
 
@@ -172,7 +170,7 @@ namespace Shears.HitDetection
                     topStart, topEnd,
                     right, TSize.x,
                     down, TSize.y,
-                    collisionMask, validateHits
+                    handle
                 );
             }
 
@@ -185,7 +183,7 @@ namespace Shears.HitDetection
                     bottomStart, bottomEnd,
                     right, TSize.x,
                     up, TSize.y,
-                    collisionMask, validateHits
+                    handle
                 );
             }
         }
@@ -194,7 +192,7 @@ namespace Shears.HitDetection
             Vector3 start, Vector3 end,
             Vector3 columnOffsetDirection, float columnOffsetDistance,
             Vector3 direction, float distance,
-            LayerMask collisionMask, Action<RaycastHit[], int> validateHits
+            DetectionHandle handle
         )
         {
             for (int column = 0; column < raysPerFace; column++)
@@ -206,10 +204,10 @@ namespace Shears.HitDetection
 
                     Vector3 origin = Vector3.Lerp(start, end, tY) + (columnOffsetDistance * tX * columnOffsetDirection);
 
-                    int hits = Physics.RaycastNonAlloc(origin, direction, results, distance, collisionMask, QueryTriggerInteraction.Collide);
+                    int hits = Physics.RaycastNonAlloc(origin, direction, results, distance, handle.CollisionMask, QueryTriggerInteraction.Collide);
 
                     if (hits > 0)
-                        validateHits(results, hits);
+                        handle.ValidateCallback(results, hits, null);
                 }
             }
         }
@@ -303,8 +301,8 @@ namespace Shears.HitDetection
             {
                 for (int row = 0; row < raysPerFace; row++)
                 {
-                    float tY = (float)row / (raysPerFace - 1);
                     float tX = (float)column / (raysPerFace - 1);
+                    float tY = (float)row / (raysPerFace - 1);
 
                     Vector3 origin = Vector3.Lerp(start, end, tY) + (columnOffsetDistance * tX * columnOffsetDirection);
                     Vector3 crossAgainst = (direction == Vector3.up || direction == Vector3.down) ? Vector3.forward : Vector3.up;

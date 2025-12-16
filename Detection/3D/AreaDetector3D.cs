@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Shears.Detection
 {
+    [DefaultExecutionOrder(-100)]
     public abstract class AreaDetector3D : MonoBehaviour
     {
         protected enum GizmoType { Draw, OnSelected, DontDraw };
