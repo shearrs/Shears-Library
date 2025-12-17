@@ -67,9 +67,20 @@ namespace Shears.Pathfinding
             GridChanged?.Invoke();
         }
 
+        public Vector3 GetPositionForNode(PathNode node)
+        {
+            Vector3 localPosition = new(
+                nodeSize * node.GridPosition.x,
+                nodeSize * node.GridPosition.y,
+                nodeSize * node.GridPosition.z
+            );
+
+            return transform.TransformPoint(localPosition);
+        }
+
         public PathNode GetNodeForPosition(Vector3 worldPosition)
         {
-            Vector3 gridWorldSize = nodeSize * (Vector3)gridSize;
+            Vector3 gridWorldSize = nodeSize * ((Vector3)gridSize - Vector3.one);
             Vector3 center = transform.position + (0.5f * nodeSize * ((Vector3)gridSize - Vector3.one));
             worldPosition -= center;
 
@@ -120,7 +131,7 @@ namespace Shears.Pathfinding
 
         public PathNode GetNode(int x, int y, int z)
         {
-            if (x > gridSize.x || y > gridSize.y || z > gridSize.z
+            if (x >= gridSize.x || y >= gridSize.y || z >= gridSize.z
                 || x < 0 || y < 0 || z < 0)
             {
                 SHLogger.Log($"Invalid coordinates for node: ({x}, {y}, {z})", SHLogLevels.Error);
