@@ -16,6 +16,8 @@ namespace Shears.Pathfinding
         [SerializeField]
         private List<PathNode> nodes = new();
 
+        private readonly List<PathNode> boundsNodes = new();
+
         public Vector3Int GridSize => gridSize;
         public float NodeSize => nodeSize;
         public IReadOnlyList<PathNode> Nodes => nodes;
@@ -53,7 +55,7 @@ namespace Shears.Pathfinding
             if (nodes[0].WorldPosition == transform.position)
                 return;
 
-            foreach (var node in nodes) 
+            foreach (var node in nodes)
             {
                 Vector3 localPosition = new(
                     nodeSize * node.GridPosition.x,
@@ -81,7 +83,7 @@ namespace Shears.Pathfinding
         public PathNode GetNodeForPosition(Vector3 worldPosition)
         {
             Vector3 gridWorldSize = nodeSize * ((Vector3)gridSize - Vector3.one);
-            Vector3 center = transform.position + (0.5f * nodeSize * ((Vector3)gridSize - Vector3.one));
+            Vector3 center = GetCenter();
             worldPosition -= center;
 
             float xPercent = (worldPosition.x + (0.5f * gridWorldSize.x)) / gridWorldSize.x;
@@ -97,6 +99,49 @@ namespace Shears.Pathfinding
             int z = Mathf.RoundToInt((gridSize.z - 1) * zPercent);
 
             return GetNode(x, y, z);
+        }
+
+        public IReadOnlyList<PathNode> GetNodesInBounds(Bounds bounds)
+        {
+            boundsNodes.Clear();
+
+            Vector3 min = bounds.min;
+            Vector3 max = bounds.max;
+            Vector3 noZ = Vector3.one.With(z: 0);
+
+            min -= transform.position - (0.5f * nodeSize * noZ);
+            max -= transform.position + (0.5f * nodeSize * noZ);
+
+            Vector3Int localMin = min.RoundToInt();
+            Vector3Int localMax = max.RoundToInt();
+
+            for (int x = localMin.x; x <= localMax.x; x++)
+            {
+                if (x < 0)
+                    continue;
+                else if (x >= gridSize.x)
+                    break;
+
+                for (int y = localMin.y; y <= localMax.y; y++)
+                {
+                    if (y < 0)
+                        continue;
+                    else if (y >= gridSize.y)
+                        break;
+
+                    for (int z = localMin.z; z <= localMax.z; z++)
+                    {
+                        if (z < 0)
+                            continue;
+                        else if (z >= gridSize.z)
+                            break;
+
+                        boundsNodes.Add(GetNode(x, y, z));
+                    }
+                }
+            }
+
+            return boundsNodes;
         }
 
         public void GetNeighbors(PathNode node, List<PathNode> neighbors)
@@ -142,7 +187,7 @@ namespace Shears.Pathfinding
 
             return nodes[index];
         }
-    
+
         public PathNode GetNodeWithData<T>() where T : PathNodeData
         {
             foreach (var node in nodes)
@@ -152,6 +197,11 @@ namespace Shears.Pathfinding
             }
 
             return null;
+        }
+    
+        private Vector3 GetCenter()
+        {
+            return transform.position + (0.5f * nodeSize * ((Vector3)gridSize - Vector3.one));
         }
     }
 }
