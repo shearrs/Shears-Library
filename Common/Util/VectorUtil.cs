@@ -113,6 +113,11 @@ namespace Shears
             return new(x == null ? v.x : x.Value, y == null ? v.y : y.Value, z == null ? v.z : z.Value);
         }
 
+        public static Vector3Int RoundToInt(this Vector3 v)
+        {
+            return new(Mathf.RoundToInt(v.x), Mathf.RoundToInt(v.y), Mathf.RoundToInt(v.z));
+        }
+
         public static Vector3Int X(this Vector3Int v)
         {
             return new(v.x, 0, 0);
@@ -147,5 +152,6 @@ namespace Shears
         {
             return new(x == null ? v.x : x.Value, y == null ? v.y : y.Value, z == null ? v.z : z.Value);
         }
+   
     }
 }
