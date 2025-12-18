@@ -254,7 +254,7 @@ namespace Shears.Pathfinding.Editor
 
             Color color;
 
-            if (node.Data != null)
+            if (settings.DrawNodeData && node.Data != null)
                 color = node.Data.EditorColor;
             else
                 color = new(1f, 1f, 1f, 0.5f);
@@ -303,7 +303,8 @@ namespace Shears.Pathfinding.Editor
             Handles.color = color;
             Handles.DrawWireCube(handlePosition, handleSize);
 
-            node.Data?.DrawHandles(handlePosition, Grid.NodeSize);
+            if (settings.DrawNodeData)
+                node.Data?.DrawHandles(handlePosition, Grid.NodeSize);
         }
 
         private void RequestPaint(int controlID)

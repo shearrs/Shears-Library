@@ -1,3 +1,4 @@
+using Shears.Editor;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -5,9 +6,9 @@ using UnityEngine.UI;
 
 namespace Shears.UI.Editor
 {
-    public static class UIElementsContextMenu
+    public static class UIElementsCreateMenu
     {
-        [MenuItem("GameObject/Shears Library/UI Elements/Image", secondaryPriority = 0)]
+        [MenuItem(CreateMenuUtility.LIBRARY_PATH + "/UI Elements/Image", priority = CreateMenuUtility.LIBRARY_PRIORITY, secondaryPriority = 0)]
         private static void MenuCreateManagedImage()
         {
             var gameObject = new GameObject("Image");
@@ -20,7 +21,7 @@ namespace Shears.UI.Editor
             gameObject.transform.localScale = Vector3.one;
         }
 
-        [MenuItem("GameObject/Shears Library/UI Elements/Button", secondaryPriority = 1)]
+        [MenuItem(CreateMenuUtility.LIBRARY_PATH + "/UI Elements/Button", priority = CreateMenuUtility.LIBRARY_PRIORITY, secondaryPriority = 1)]
         private static void MenuCreateCanvasButton()
         {
             var gameObject = new GameObject("Button");
@@ -39,13 +40,13 @@ namespace Shears.UI.Editor
             gameObject.transform.localScale = Vector3.one;
         }
 
-        [MenuItem("GameObject/Shears Library/UI Elements/Canvas", priority = 2, secondaryPriority = 10)]
+        [MenuItem(CreateMenuUtility.LIBRARY_PATH + "/UI Elements/Canvas", priority = CreateMenuUtility.LIBRARY_PRIORITY, secondaryPriority = 10)]
         private static void MenuCreateUIElementCanvas()
         {
             CreateUICanvas();
         }
 
-        [MenuItem("GameObject/Shears Library/UI Elements/Event System", secondaryPriority = 100)]
+        [MenuItem(CreateMenuUtility.LIBRARY_PATH + "/UI Elements/Event System", priority = CreateMenuUtility.LIBRARY_PRIORITY, secondaryPriority = 100)]
         private static void MenuCreateUIElementEventSystem()
         {
             var gameObject = new GameObject("UI Element Event System");

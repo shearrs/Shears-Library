@@ -2,6 +2,7 @@
     "name": "Shears.HitDetection.Editor",
     "rootNamespace": "Shears.HitDetection.Editor",
     "references": [
+        "GUID:b8ce35fbba9686d4a8094487b762ff16",
         "GUID:69ade876bdffc744c9dc2fa170065e7b"
     ],
     "includePlatforms": [

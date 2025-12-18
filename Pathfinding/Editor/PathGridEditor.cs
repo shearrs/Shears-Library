@@ -86,6 +86,9 @@ namespace Shears.Pathfinding.Editor
                         if (isInitialized && x < previousGridSize.x && y < previousGridSize.y && z < previousGridSize.z)
                         {
                             int oldIndex = (z * previousGridSize.y * previousGridSize.x) + (y * previousGridSize.x) + x;
+                            Debug.Log("array size: " + nodesProp.arraySize);
+                            Debug.Log("index: " + oldIndex);
+
                             var existingNodeProp = nodesProp.GetArrayElementAtIndex(oldIndex);
                             var existingNode = existingNodeProp.boxedValue as PathNode;
 
@@ -115,7 +118,7 @@ namespace Shears.Pathfinding.Editor
                 var node = element.boxedValue as PathNode;
 
                 if (node.NodeObject != null && !reusedObjects.Contains(node.NodeObject))
-                    Undo.DestroyObjectImmediate(node.NodeObject);
+                    Undo.DestroyObjectImmediate(node.NodeObject.gameObject);
             }
 
             nodesProp.ClearArray();
