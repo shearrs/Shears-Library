@@ -8,6 +8,7 @@ namespace Shears.Pathfinding
     {
         [SerializeField] private Vector3Int gridPosition;
         [SerializeField] private Vector3 worldPosition;
+        [SerializeField] private float size;
         [SerializeReference] private PathNodeData data;
         [SerializeField] private PathNodeObject nodeObject;
 
@@ -18,6 +19,7 @@ namespace Shears.Pathfinding
         public PathNodeObject NodeObject => nodeObject;
         public Vector3Int GridPosition => gridPosition;
         public Vector3 WorldPosition { get => worldPosition; internal set => worldPosition = value; }
+        public float Size { get => size; internal set => size = value; }
         public PathNodeData Data { get => data; set => data = value; }
         public PathNode Parent { get => parent; set => parent = value; }
         public int GCost { get => gCost; set => gCost = value; }

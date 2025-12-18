@@ -123,7 +123,11 @@ namespace Shears.Pathfinding.Editor
             for (int i = 0; i < newNodes.Count; i++)
             {
                 nodesProp.InsertArrayElementAtIndex(nodesProp.arraySize);
-                nodesProp.GetArrayElementAtIndex(nodesProp.arraySize - 1).boxedValue = newNodes[i];
+                var newNodeProp = nodesProp.GetArrayElementAtIndex(nodesProp.arraySize - 1);
+                newNodeProp.boxedValue = newNodes[i];
+
+                var sizeProp = newNodeProp.FindPropertyRelative("size");
+                sizeProp.floatValue = grid.NodeSize;
             }
 
             previousGridSize = newGridSize;

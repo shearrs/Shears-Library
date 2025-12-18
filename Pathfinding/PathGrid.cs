@@ -63,6 +63,7 @@ namespace Shears.Pathfinding
                     nodeSize * node.GridPosition.z
                 );
 
+                node.Size = nodeSize;
                 node.WorldPosition = transform.TransformPoint(localPosition);
             }
 
@@ -199,7 +200,7 @@ namespace Shears.Pathfinding
             return null;
         }
     
-        private Vector3 GetCenter()
+        public Vector3 GetCenter()
         {
             return transform.position + (0.5f * nodeSize * ((Vector3)gridSize - Vector3.one));
         }
