@@ -23,7 +23,7 @@ namespace Shears.HitDetection
 
         [Header("Hit Settings")]
         [SerializeField, RuntimeReadonly, Tooltip("Whether or not this HitBody3D enables itself on Start.")]
-        private bool enableOnStart = true;
+        private bool enableOnStart = false;
 
         [SerializeField, Tooltip("Whether or not this HitBody3D updates in FixedUpdate.")]
         private bool fixedUpdate = false;
@@ -145,15 +145,24 @@ namespace Shears.HitDetection
                 RaycastHit hit = results[hitIndex];
 
                 if (hit.collider == null)
+                {
+                    SHLogger.Log($"Hit had no collider: {hit.transform.name}.", SHLogLevels.Verbose, context: hit.transform);
                     continue;
+                }
 
                 var hurtBody = GetHurtBodyForCollider(hit.collider);
 
                 if (hurtBody == null)
+                {
+                    SHLogger.Log($"Hit had no HurtBody: {hit.transform.name}.", SHLogLevels.Verbose, context: hit.transform);
                     continue;
+                }
 
                 if (unclearedHits.Contains(hurtBody) && !multiHits)
+                {
+                    SHLogger.Log($"Hit was uncleared: {hurtBody.name}.", SHLogLevels.Verbose, context: hurtBody);
                     continue;
+                }
 
                 if (finalHits.TryGetValue(hurtBody, out var oldHit))
                 {
@@ -188,7 +197,7 @@ namespace Shears.HitDetection
             if (collider == null)
                 return null;
 
-            collider.transform.GetComponents(foundHurtbodies);
+            collider.transform.GetComponentsInParent(true, foundHurtbodies);
 
             foreach (var hurtBody in foundHurtbodies)
             {
