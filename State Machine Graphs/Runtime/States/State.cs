@@ -22,7 +22,17 @@ namespace Shears.StateMachineGraphs
         internal SMID ID { get => id; set => id = value; }
         internal IParameterProvider ParameterProvider { get => parameterProvider; set => parameterProvider = value; }
         public bool IsActive { get => isActive; internal set => isActive = value; }
-        public string Name { get => name; set => name = value; }
+        public string Name
+        {
+            get
+            {
+                if (name == string.Empty)
+                    name = GetType().Name;
+
+                return name;
+            }
+            set => name = value;
+        }
         public State ParentState { get => parentState; internal set => parentState = value; }
         public State DefaultSubState { get => defaultSubState; set => defaultSubState = value; }
         public State SubState { get => subState; internal set => subState = value; }
