@@ -1,0 +1,75 @@
+{
+    "version": 1,
+    "name": "Game Console Input Actions",
+    "maps": [
+        {
+            "name": "Console",
+            "id": "2fb5dab0-fb3c-4088-b792-cf24a6306b93",
+            "actions": [
+                {
+                    "name": "Toggle",
+                    "type": "Button",
+                    "id": "306fdd1f-bd2e-400a-9c94-cc16efaf63b9",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Previous Command",
+                    "type": "Button",
+                    "id": "46e9c251-8029-47f2-9f4b-8dde6c14f8a5",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Next Command",
+                    "type": "Button",
+                    "id": "bfdc9e3a-8ce8-4c4e-9caa-fadab5b8bfb9",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "aa2309f4-6959-4531-835a-5dca5b1cdda1",
+                    "path": "<Keyboard>/backquote",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Toggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3d05d111-388c-4a8a-bf7c-1a3265d88a23",
+                    "path": "<Keyboard>/upArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Previous Command",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5babd18a-eb1a-4703-ae53-327d48f16ad2",
+                    "path": "<Keyboard>/downArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Next Command",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
