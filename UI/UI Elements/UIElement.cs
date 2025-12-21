@@ -33,7 +33,7 @@ namespace Shears.UI
             if (!isEnabled)
                 return;
 
-            gameObject.SetActive(true);
+            gameObject.SetActive(false);
 
             isEnabled = false;
         }
