@@ -117,7 +117,7 @@ namespace Shears.GameConsole
             {
                 if (inputText.StartsWith(command.Command))
                 {
-                    command.TryExecuteCommand(inputText, ConsoleMessage, ConsoleError);
+                    command.TryExecuteCommand(inputText, new(ConsoleMessage, ConsoleError));
                     foundValidCommand = true;
 
                     break;
@@ -202,6 +202,7 @@ namespace Shears.GameConsole
         #endregion
 
         #region Console Messages
+        [HideInCallstack]
         private void ConsoleError(string text)
         {
             ConsoleMessage(text, ERROR_COLOR);

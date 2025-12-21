@@ -8,6 +8,6 @@ namespace Shears.GameConsole
         public string Command { get; }
         public string Description { get; }
 
-        public void TryExecuteCommand(string input, Action<string> consoleMessage, Action<string> consoleError);
+        public void TryExecuteCommand(string input, GameConsoleHandle console);
     }
 }
