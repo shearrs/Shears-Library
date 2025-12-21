@@ -146,7 +146,7 @@ namespace Shears.HitDetection
 
                 if (hit.collider == null)
                 {
-                    SHLogger.Log($"Hit had no collider: {hit.transform.name}.", SHLogLevels.Verbose, context: hit.transform);
+                    this.Log($"Hit had no collider: {hit.transform.name}.", SHLogLevels.Verbose, context: hit.transform);
                     continue;
                 }
 
@@ -154,13 +154,13 @@ namespace Shears.HitDetection
 
                 if (hurtBody == null)
                 {
-                    SHLogger.Log($"Hit had no HurtBody: {hit.transform.name}.", SHLogLevels.Verbose, context: hit.transform);
+                    this.Log($"Hit had no HurtBody: {hit.transform.name}.", SHLogLevels.Verbose, context: hit.transform);
                     continue;
                 }
 
                 if (unclearedHits.Contains(hurtBody) && !multiHits)
                 {
-                    SHLogger.Log($"Hit was uncleared: {hurtBody.name}.", SHLogLevels.Verbose, context: hurtBody);
+                    this.Log($"Hit was uncleared: {hurtBody.name}.", SHLogLevels.Verbose, context: hurtBody);
                     continue;
                 }
 
