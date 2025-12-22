@@ -1,6 +1,5 @@
 using Shears.Editor;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace Shears.HitDetection.Editor

@@ -1,0 +1,19 @@
+{
+    "name": "Shears.Detection.Editor",
+    "rootNamespace": "Shears.Detection.Editor",
+    "references": [
+        "GUID:b8ce35fbba9686d4a8094487b762ff16",
+        "GUID:82e1ca9b695ad5f4b9951665b5cfbd3f"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
