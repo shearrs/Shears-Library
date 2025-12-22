@@ -1,11 +1,14 @@
 using System;
 using System.Buffers;
 using UnityEngine;
+using static UnityEngine.Rendering.VirtualTexturing.Debugging;
 
 namespace Shears.HitDetection
 {
     public class HitSphere : HitShape3D
     {
+        private const float EDGE_OFFSET = 0.1f;
+
         #region Nested Types
         [Flags]
         private enum GizmoModes
@@ -66,14 +69,13 @@ namespace Shears.HitDetection
         private Vector3 orientation = Vector3.zero;
 
         [SerializeField]
-        private float radius = 1.0f;
+        private float radius = 0.5f;
 
         private RaycastHit[] results;
         private bool isDetecting = false;
 
-        private Vector3 TCenter => transform.position + TOrientation * center;
-        private Quaternion TOrientation => transform.rotation * Quaternion.Euler(orientation);
-        private float TRadius => transform.localScale.magnitude * radius;
+        private Vector3 TCenter => transform.position + center;
+        private float TRadius => transform.localScale.GetAverage() * radius;
 
         public Vector3 Center { get => center; set => center = value; }
         public Quaternion Orientation { get => Quaternion.Euler(orientation); set => orientation = value.eulerAngles; }
@@ -101,23 +103,31 @@ namespace Shears.HitDetection
         {
             isDetecting = true;
 
+            var orientation = Quaternion.Euler(this.orientation);
+            Vector3 forward = orientation * transform.TransformDirection(Vector3.forward);
+            Vector3 back = orientation * transform.TransformDirection(Vector3.back);
+            Vector3 right = orientation * transform.TransformDirection(Vector3.right);
+            Vector3 left = orientation * transform.TransformDirection(Vector3.left);
+            Vector3 up = orientation * transform.TransformDirection(Vector3.up);
+            Vector3 down = orientation * transform.TransformDirection(Vector3.down);
+
             if ((sourceDirections & SourceDirections.Back) != 0)
-                ArrayCast(Vector3.forward, Vector3.right, Vector3.up, handle);
+                ArrayCast(forward, right, up, handle);
 
             if ((sourceDirections & SourceDirections.Front) != 0)
-                ArrayCast(Vector3.back, Vector3.left, Vector3.up, handle);
+                ArrayCast(back, left, up, handle);
 
             if ((sourceDirections & SourceDirections.Left) != 0)
-                ArrayCast(Vector3.right, Vector3.back, Vector3.up, handle);
+                ArrayCast(right, back, up, handle);
 
             if ((sourceDirections & SourceDirections.Right) != 0)
-                ArrayCast(Vector3.left, Vector3.forward, Vector3.up, handle);
+                ArrayCast(left, forward, up, handle);
 
             if ((sourceDirections & SourceDirections.Top) != 0)
-                ArrayCast(Vector3.down, Vector3.right, Vector3.forward, handle);
+                ArrayCast(down, right, forward, handle);
 
             if ((sourceDirections & SourceDirections.Bottom) != 0)
-                ArrayCast(Vector3.up, Vector3.right, Vector3.back, handle);
+                ArrayCast(up, right, back, handle);
         }
 
         private void ArrayCast(
@@ -125,9 +135,8 @@ namespace Shears.HitDetection
             Vector3 offsetDirectionY, DetectionHandle handle
         )
         {
-            const float EDGE_OFFSET = 0.1f;
-
-            float radius = TRadius - EDGE_OFFSET;
+            float trueRadius = TRadius;
+            float radius = trueRadius - EDGE_OFFSET;
             float diameter = 2.0f * radius;
             Vector3 startOffset = -radius * (offsetDirectionX + offsetDirectionY);
 
@@ -139,9 +148,10 @@ namespace Shears.HitDetection
                     float tY = (float)column / (raysPerSide - 1);
 
                     Vector3 offset = startOffset + diameter * ((tX * offsetDirectionX) + (tY * offsetDirectionY));
-                    float distance = Mathf.Sqrt(TRadius * TRadius - offset.sqrMagnitude);
+                    float distance = Mathf.Sqrt(trueRadius * trueRadius - offset.sqrMagnitude);
 
                     Vector3 origin = TCenter + offset + (distance * -direction);
+                    distance *= 2.0f;
 
                     int hits = Physics.RaycastNonAlloc(origin, direction, results, distance, handle.CollisionMask, QueryTriggerInteraction.Collide);
 
@@ -181,9 +191,24 @@ namespace Shears.HitDetection
             if ((gizmoSettings.Modes & GizmoModes.Rays) != 0)
             {
                 Gizmos.color = opacity * Color.yellow;
-                DrawArrayCast(Vector3.forward, Vector3.right, Vector3.up);
-                DrawArrayCast(Vector3.right, Vector3.back, Vector3.up);
-                DrawArrayCast(Vector3.up, Vector3.right, Vector3.back);
+
+                if ((sourceDirections & SourceDirections.Back) != 0)
+                    DrawArrayCast(Vector3.forward, Vector3.right, Vector3.up);
+
+                if ((sourceDirections & SourceDirections.Front) != 0)
+                    DrawArrayCast(Vector3.back, Vector3.left, Vector3.up);
+
+                if ((sourceDirections & SourceDirections.Left) != 0)
+                    DrawArrayCast(Vector3.right, Vector3.back, Vector3.up);
+
+                if ((sourceDirections & SourceDirections.Right) != 0)
+                    DrawArrayCast(Vector3.left, Vector3.forward, Vector3.up);
+
+                if ((sourceDirections & SourceDirections.Top) != 0)
+                    DrawArrayCast(Vector3.down, Vector3.right, Vector3.forward);
+
+                if ((sourceDirections & SourceDirections.Bottom) != 0)
+                    DrawArrayCast(Vector3.up, Vector3.right, Vector3.back);
             }
 
             Gizmos.matrix = matrix;
@@ -194,8 +219,6 @@ namespace Shears.HitDetection
 
         private void DrawArrayCast(Vector3 direction, Vector3 offsetDirectionX, Vector3 offsetDirectionY)
         {
-            const float EDGE_OFFSET = 0.1f;
-
             float radius = this.radius - EDGE_OFFSET;
             float diameter = 2.0f * radius;
             Vector3 startOffset = -radius * (offsetDirectionX + offsetDirectionY);
@@ -211,7 +234,9 @@ namespace Shears.HitDetection
                     float distance = Mathf.Sqrt(this.radius * this.radius - offset.sqrMagnitude);
 
                     Vector3 origin = center + offset + (distance * -direction);
-                    Gizmos.DrawRay(origin, 2.0f * distance * direction);
+                    distance *= 2.0f;
+
+                    Gizmos.DrawRay(origin, distance * direction);
                 }
             }
         }

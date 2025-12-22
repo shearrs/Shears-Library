@@ -4,6 +4,8 @@ namespace Shears
 {
     public static class VectorUtil
     {
+        private const float ONE_THIRD = 1.0f / 3.0f;
+
         public static Vector3 ClampComponents(this Vector3 v, float min, float max)
         {
             v.x = Mathf.Clamp(v.x, min, max);
@@ -56,6 +58,11 @@ namespace Shears
                 v0.y * v1.y,
                 v0.z * v1.z
             );
+        }
+
+        public static float GetAverage(this Vector3 v)
+        {
+            return ONE_THIRD * (v.x + v.y + v.z);
         }
 
         public static void Deconstruct(this Vector2 self, out float x, out float y)
