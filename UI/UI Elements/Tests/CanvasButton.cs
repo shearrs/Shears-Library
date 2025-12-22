@@ -2,7 +2,6 @@ using Shears.Tweens;
 using System;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.UI;
 
 namespace Shears.UI
 {
@@ -24,6 +23,7 @@ namespace Shears.UI
         private Tween tween;
         private bool isHovered = false;
 
+        public bool IsHovered => isHovered;
         public ManagedImage Image { get => image; set => image = value; }
         public bool Selectable { get => selectable; set => SetSelectable(value); }
 
