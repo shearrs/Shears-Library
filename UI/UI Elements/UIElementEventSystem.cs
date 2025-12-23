@@ -110,7 +110,12 @@ namespace Shears.UI
             if (detectionType == DetectionType.Canvas)
                 newHoverTarget = RaycastCanvas();
             else if (detectionType == DetectionType.World3D)
-                newHoverTarget = Raycast3D();
+            {
+                if (canvasSystem != null && canvasSystem.hoveredElement != null) // world raycasts are blocked by canvas elements
+                    newHoverTarget = null;
+                else
+                    newHoverTarget = Raycast3D();
+            }
 
             if (newHoverTarget == hoveredElement)
                 return;
