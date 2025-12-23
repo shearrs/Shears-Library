@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System;
 using UnityEngine;
 
@@ -6,7 +7,8 @@ namespace Shears
     /// <summary>
     /// Fields marked with this attribute will have the specified event automatically subscribed to the specified callback method in generated OnEnable and OnDisable methods.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Field, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited = true)]
+    [MeansImplicitUse]
     public class AutoEventAttribute : Attribute
     {
         private readonly string eventName;
