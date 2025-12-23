@@ -7,7 +7,7 @@ namespace Shears
     /// <summary>
     /// Fields marked with this attribute will have the specified event automatically subscribed to the specified callback method in generated OnEnable and OnDisable methods.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited = true, AllowMultiple = true)]
     [MeansImplicitUse]
     public class AutoEventAttribute : Attribute
     {
