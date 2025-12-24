@@ -156,7 +156,7 @@ namespace Shears.HitDetection
                     int hits = Physics.RaycastNonAlloc(origin, direction, results, distance, handle.CollisionMask, QueryTriggerInteraction.Collide);
 
                     if (hits > 0)
-                        handle.ValidateCallback(results, hits, null);
+                        handle.ValidateCallback(results, hits, null, out _);
                 }
             }
         }

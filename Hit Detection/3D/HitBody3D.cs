@@ -129,7 +129,7 @@ namespace Shears.HitDetection
             DeliverHits();
         }
 
-        private void ValidateHits(RaycastHit[] results, int hits, Comparison<int> sortFunc = null)
+        private void ValidateHits(RaycastHit[] results, int hits, Comparison<int> sortFunc, out bool blocked)
         {
             sortedHits.Clear();
 
@@ -173,8 +173,13 @@ namespace Shears.HitDetection
                     finalHits[hurtBody] = hit;
 
                 if (hurtBody.IsBlocking)
+                {
+                    blocked = true;
                     return;
+                }
             }
+
+            blocked = false;
         }
 
         private void DeliverHits()

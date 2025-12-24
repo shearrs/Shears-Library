@@ -1,7 +1,9 @@
 using Shears;
 using System;
 using System.Buffers;
+using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.Rendering.VirtualTexturing.Debugging;
 
 namespace Shears.HitDetection
 {
@@ -59,6 +61,12 @@ namespace Shears.HitDetection
         [SerializeField]
         private SourceDirections sourceDirections = (SourceDirections)(-1);
 
+        [SerializeField]
+        private bool continuousDetection = false;
+
+        [SerializeField, Min(0.01f), ShowIf("continuousDetection")]
+        private float continuousDetectionStep = 0.25f;
+
         [Header("Transform Settings")]
         [SerializeField]
         private Vector3 center;
@@ -69,8 +77,10 @@ namespace Shears.HitDetection
         [SerializeField]
         private Vector3 size = Vector3.one;
 
+        private readonly HashSet<HitRay> blockedRays = new();
         private RaycastHit[] results;
         private bool isDetecting = false;
+        private Vector3 previousPosition;
 
         private Vector3 TCenter => transform.position + TOrientation * center;
         private Quaternion TOrientation => transform.rotation * Quaternion.Euler(orientation);
@@ -83,6 +93,24 @@ namespace Shears.HitDetection
         public Vector3 WorldCenter { get => transform.TransformPoint(center); set => center = transform.InverseTransformPoint(value); }
         #endregion
 
+        private readonly struct HitRay
+        {
+            private readonly SourceDirections direction;
+            private readonly int row;
+            private readonly int column;
+
+            public readonly SourceDirections Direction => direction;
+            public readonly int Row => row;
+            public readonly int Column => column;
+
+            public HitRay(SourceDirections direction, int row, int column)
+            {
+                this.direction = direction;
+                this.row = row;
+                this.column = column;
+            }
+        }
+
         private void Reset()
         {
             ResetGizmoSettings();
@@ -93,6 +121,11 @@ namespace Shears.HitDetection
             results = ArrayPool<RaycastHit>.Shared.Rent(maxHits);
         }
 
+        private void Update()
+        {
+            previousPosition = TCenter;
+        }
+
         private void OnDestroy()
         {
             ArrayPool<RaycastHit>.Shared.Return(results);
@@ -101,7 +134,36 @@ namespace Shears.HitDetection
         internal override void Sweep(DetectionHandle handle)
         {
             isDetecting = true;
+            blockedRays.Clear();
 
+            ArrayCastDirections(TCenter, handle);
+
+            if (continuousDetection)
+                ContinuousSweep(handle);
+        }
+
+        private void ContinuousSweep(DetectionHandle handle)
+        {
+            Vector3 heading = TCenter - previousPosition;
+            float distance = heading.magnitude;
+
+            if (distance < continuousDetectionStep)
+                return;
+
+            Vector3 direction = heading / distance;
+            float traveled = 0f;
+
+            while (traveled < distance)
+            {
+                Vector3 currentOrigin = previousPosition + direction * traveled;
+                ArrayCastDirections(currentOrigin, handle);
+
+                traveled += continuousDetectionStep;
+            }
+        }
+
+        private void ArrayCastDirections(Vector3 origin, DetectionHandle handle)
+        {
             Vector3 halfSize = TSize * 0.5f;
             Vector3 forward = TOrientation * Vector3.forward;
             Vector3 back = TOrientation * Vector3.back;
@@ -112,9 +174,10 @@ namespace Shears.HitDetection
 
             if ((sourceDirections & SourceDirections.Back) != 0)
             {
-                Vector3 backStart = TCenter + (back * halfSize.z) + (up * halfSize.y) + (left * halfSize.x);
+                Vector3 backStart = origin + (back * halfSize.z) + (up * halfSize.y) + (left * halfSize.x);
                 Vector3 backEnd = backStart + (down * TSize.y);
                 ArrayCast(
+                    SourceDirections.Back,
                     backStart, backEnd,
                     right, TSize.x,
                     forward, TSize.z,
@@ -124,10 +187,11 @@ namespace Shears.HitDetection
 
             if ((sourceDirections & SourceDirections.Front) != 0)
             {
-                Vector3 frontStart = TCenter + (forward * halfSize.z) + (up * halfSize.y) + (left * halfSize.x);
+                Vector3 frontStart = origin + (forward * halfSize.z) + (up * halfSize.y) + (left * halfSize.x);
                 Vector3 frontEnd = frontStart + (down * TSize.y);
 
                 ArrayCast(
+                    SourceDirections.Front,
                     frontStart, frontEnd,
                     right, TSize.x,
                     back, TSize.z,
@@ -137,10 +201,11 @@ namespace Shears.HitDetection
 
             if ((sourceDirections & SourceDirections.Left) != 0)
             {
-                Vector3 leftStart = TCenter + (left * halfSize.x) + (up * halfSize.y) + (forward * halfSize.z);
+                Vector3 leftStart = origin + (left * halfSize.x) + (up * halfSize.y) + (forward * halfSize.z);
                 Vector3 leftEnd = leftStart + (down * TSize.y);
 
                 ArrayCast(
+                    SourceDirections.Left,
                     leftStart, leftEnd,
                     back, TSize.z,
                     right, TSize.x,
@@ -150,10 +215,11 @@ namespace Shears.HitDetection
 
             if ((sourceDirections & SourceDirections.Right) != 0)
             {
-                Vector3 rightStart = TCenter + (right * halfSize.x) + (up * halfSize.y) + (forward * halfSize.z);
+                Vector3 rightStart = origin + (right * halfSize.x) + (up * halfSize.y) + (forward * halfSize.z);
                 Vector3 rightEnd = rightStart + (down * TSize.y);
 
                 ArrayCast(
+                    SourceDirections.Right,
                     rightStart, rightEnd,
                     back, TSize.z,
                     left, TSize.x,
@@ -163,10 +229,11 @@ namespace Shears.HitDetection
 
             if ((sourceDirections & SourceDirections.Top) != 0)
             {
-                Vector3 topStart = TCenter + (up * halfSize.y) + (left * halfSize.x) + (forward * halfSize.z);
+                Vector3 topStart = origin + (up * halfSize.y) + (left * halfSize.x) + (forward * halfSize.z);
                 Vector3 topEnd = topStart + (back * TSize.z);
 
                 ArrayCast(
+                    SourceDirections.Top,
                     topStart, topEnd,
                     right, TSize.x,
                     down, TSize.y,
@@ -176,10 +243,11 @@ namespace Shears.HitDetection
 
             if ((sourceDirections & SourceDirections.Bottom) != 0)
             {
-                Vector3 bottomStart = TCenter + (down * halfSize.y) + (left * halfSize.x) + (forward * halfSize.z);
+                Vector3 bottomStart = origin + (down * halfSize.y) + (left * halfSize.x) + (forward * halfSize.z);
                 Vector3 bottomEnd = bottomStart + (back * TSize.z);
 
                 ArrayCast(
+                    SourceDirections.Bottom,
                     bottomStart, bottomEnd,
                     right, TSize.x,
                     up, TSize.y,
@@ -189,6 +257,7 @@ namespace Shears.HitDetection
         }
 
         private void ArrayCast(
+            SourceDirections sourceDirection, 
             Vector3 start, Vector3 end,
             Vector3 columnOffsetDirection, float columnOffsetDistance,
             Vector3 direction, float distance,
@@ -199,6 +268,11 @@ namespace Shears.HitDetection
             {
                 for (int row = 0; row < raysPerFace; row++)
                 {
+                    var ray = new HitRay(sourceDirection, row, column);
+
+                    if (blockedRays.Contains(ray))
+                        continue;
+
                     float tY = (float)row / (raysPerFace - 1);
                     float tX = (float)column / (raysPerFace - 1);
 
@@ -207,7 +281,12 @@ namespace Shears.HitDetection
                     int hits = Physics.RaycastNonAlloc(origin, direction, results, distance, handle.CollisionMask, QueryTriggerInteraction.Collide);
 
                     if (hits > 0)
-                        handle.ValidateCallback(results, hits, null);
+                    {
+                        handle.ValidateCallback(results, hits, null, out bool blocked);
+
+                        if (blocked)
+                            blockedRays.Add(ray);
+                    }
                 }
             }
         }
