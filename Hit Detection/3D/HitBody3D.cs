@@ -38,11 +38,13 @@ namespace Shears.HitDetection
         protected List<HurtBody3D> ignoreList;
 
         private bool isEnabled = false;
+        private float enabledTime = 0.0f;
         private List<HurtBody3D> unclearedHits;
         private List<HurtBody3D> foundHurtbodies;
         private Dictionary<HurtBody3D, RaycastHit> finalHits;
         private List<int> sortedHits = new();
 
+        public float EnabledTime => enabledTime;
         public List<HitShape3D> Shapes { get => shapes; set => shapes = value; }
         public bool UseFixedUpdate { get => fixedUpdate; set => fixedUpdate = value; }
         public bool MultiHits { get => multiHits; set => multiHits = value; }
@@ -92,6 +94,7 @@ namespace Shears.HitDetection
             if (!isEnabled)
                 return;
 
+            enabledTime = 0.0f;
             isEnabled = false;
             Disabled?.Invoke();
         }
@@ -99,7 +102,12 @@ namespace Shears.HitDetection
 
         private void Update()
         {
-            if (!isEnabled || fixedUpdate)
+            if (!isEnabled)
+                return;
+
+            enabledTime += Time.deltaTime;
+
+            if (fixedUpdate)
                 return;
 
             DetectHits();
