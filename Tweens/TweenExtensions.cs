@@ -228,6 +228,7 @@ namespace Shears.Tweens
         #endregion
 
         #region TextMesh Tweens
+        #region Color
         public static Tween DoColorTween(this TextMeshProUGUI textMesh, Color targetColor, ITweenData data = null) => Do(GetColorTween(textMesh, targetColor, data));
         public static Tween GetColorTween(this TextMeshProUGUI textMesh, Color targetColor, ITweenData data = null)
         {
@@ -240,6 +241,23 @@ namespace Shears.Tweens
 
             return CreateAutoDisposeTween(textMesh, update, data);
         }
+        #endregion
+
+        #region Counter
+        public static Tween DoCounterTween(this TextMeshPro textMesh, int targetNumber, int startNumber = 0, string prefix = "", string suffix = "", ITweenData data = null)
+            => Do(GetCounterTween(textMesh, targetNumber, startNumber, prefix, suffix, data));
+        public static Tween GetCounterTween(this TextMeshPro textMesh, int targetNumber, int startNumber = 0, string prefix = "", string suffix = "", ITweenData data = null)
+        {
+            void update(float t)
+            {
+                int num = Mathf.RoundToInt(Mathf.Lerp(startNumber, targetNumber, t));
+
+                textMesh.text = $"{prefix}{num}{suffix}";
+            }
+
+            return CreateAutoDisposeTween(textMesh, update, data);
+        }
+        #endregion
         #endregion
 
         #region Materials
