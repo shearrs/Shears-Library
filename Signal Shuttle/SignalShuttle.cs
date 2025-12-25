@@ -1,4 +1,3 @@
-using Shears.Logging;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,23 +6,11 @@ namespace Shears.Signals
 {
     public static class SignalShuttle
     {
-        private static readonly Dictionary<Type, ISignalBindings> signals = new();
+        private static readonly Dictionary<Type, object> signals = new();
 
-        private interface ISignalBindings
+        private sealed class SignalBindings<TSignal> where TSignal : struct, ISignal
         {
-            public void AddListener(Action<ISignal> listener);
-            public void RemoveListener(Action<ISignal> listener);
-            public void Invoke(ISignal signal);
-        }
-
-        private readonly struct SignalBindings<TSignal> : ISignalBindings where TSignal : ISignal
-        {
-            private readonly List<Action<TSignal>> listeners;
-
-            public SignalBindings(List<Action<TSignal>> listeners)
-            {
-                this.listeners = listeners;
-            }
+            private readonly List<Action<TSignal>> listeners = new();
 
             public void AddListener(Action<TSignal> listener)
             {
@@ -35,22 +22,10 @@ namespace Shears.Signals
                 listeners.Remove(listener);
             }
 
-            public void Invoke(ISignal signal)
+            public void Invoke(in TSignal signal)
             {
-               foreach (var listener in listeners)
-                    listener?.Invoke((TSignal)signal);
-            }
-
-            void ISignalBindings.AddListener(Action<ISignal> listener)
-            {
-                if (listener is Action<TSignal> action)
-                    AddListener(action);
-            }
-
-            void ISignalBindings.RemoveListener(Action<ISignal> listener)
-            {
-                if (listener is Action<TSignal> action)
-                    RemoveListener(action);
+                for (int i = 0; i < listeners.Count; i++)
+                    listeners[i]?.Invoke(signal);
             }
         }
 
@@ -60,43 +35,31 @@ namespace Shears.Signals
             signals.Clear();
         }
 
-        public static void Register<TSignal>(Action<TSignal> listener) where TSignal: ISignal
+        public static void Register<TSignal>(Action<TSignal> listener) where TSignal: struct, ISignal
         {
-            if (!signals.TryGetValue(typeof(TSignal), out var bindings))
+            var type = typeof(TSignal);
+
+            if (!signals.TryGetValue(type, out var bindings))
             {
-                bindings = new SignalBindings<TSignal>(new List<Action<TSignal>>());
-                signals[typeof(TSignal)] = bindings;
+                bindings = new SignalBindings<TSignal>();
+                signals[type] = bindings;
             }
 
-            if (bindings is not SignalBindings<TSignal> typedBindings)
-            {
-                SHLogger.Log($"Signal type {typeof(TSignal)} is already registered with a different listener type.", color: Color.magenta);
-                return;
-            }
-
-            typedBindings.AddListener(listener);
+            ((SignalBindings<TSignal>)bindings).AddListener(listener);
         }
 
-        public static void Deregister<TSignal>(Action<TSignal> listener) where TSignal: ISignal
+        public static void Deregister<TSignal>(Action<TSignal> listener) where TSignal: struct, ISignal
         {
             if (signals.TryGetValue(typeof(TSignal), out var bindings))
             {
-                if (bindings is not SignalBindings<TSignal> typedBindings)
-                {
-                    SHLogger.Log($"Signal type {typeof(TSignal)} is already registered with a different listener type.");
-                    return;
-                }
-
-                typedBindings.RemoveListener(listener);
+                ((SignalBindings<TSignal>)bindings).RemoveListener(listener);
             }
         }
 
-        public static void Emit<TSignal>(TSignal signal) where TSignal : ISignal
+        public static void Emit<TSignal>(TSignal signal) where TSignal : struct, ISignal
         {
             if (signals.TryGetValue(typeof(TSignal), out var bindings))
-            {
-                bindings.Invoke(signal);
-            }
+                ((SignalBindings<TSignal>)bindings).Invoke(signal);
         }
     }
 }
