@@ -197,8 +197,8 @@ namespace Shears.HitDetection
                 var subData = dataProvider.Value?.GetData();
                 var hitData = new HitData3D(this, hurtBody, new(hit), subData, hurtBody.IsBlocking);
 
-                OnHitDelivered(hitData);
                 hurtBody.OnHitReceived(hitData);
+                OnHitDelivered(hitData);
 
                 if (!multiHits)
                     unclearedHits.Add(hurtBody);
