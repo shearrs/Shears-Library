@@ -13,6 +13,11 @@ namespace Shears.StateMachineGraphs.Editor
 
         public int callbackOrder => 0;
         
+        static StateMachineGraphCompiler()
+        {
+
+        }
+
         public void OnPreprocessBuild(BuildReport report)
         {
             Log("Starting StateMachineGraph compilation...");
@@ -20,7 +25,7 @@ namespace Shears.StateMachineGraphs.Editor
         }
 
         [InitializeOnEnterPlayMode]
-        public static void OnEnterPlayMode(EnterPlayModeOptions options)
+        public static void OnEnterPlayMode(EnterPlayModeOptions _)
         {
             Log("Entering Play Mode: Compiling StateMachineGraphs...");
             CompileAllStateMachineGraphs();
