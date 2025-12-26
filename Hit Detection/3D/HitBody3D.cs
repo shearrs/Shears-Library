@@ -31,6 +31,9 @@ namespace Shears.HitDetection
         [SerializeField, Tooltip("Whether or not this HitBody3D can repeatedly hit the same target without resetting.")]
         private bool multiHits;
 
+        [SerializeField, Tooltip("Whether or not this HitBody3D is unblockable.")]
+        private bool unblockable = false;
+
         [SerializeField, Tooltip("The LayerMask that this HitBody3D can detect HurtBody3Ds on.")]
         protected LayerMask collisionMask = 1;
 
@@ -38,16 +41,15 @@ namespace Shears.HitDetection
         protected List<HurtBody3D> ignoreList;
 
         private bool isEnabled = false;
-        private float enabledTime = 0.0f;
         private List<HurtBody3D> unclearedHits;
         private List<HurtBody3D> foundHurtbodies;
         private Dictionary<HurtBody3D, RaycastHit> finalHits;
         private List<int> sortedHits = new();
 
-        public float EnabledTime => enabledTime;
         public List<HitShape3D> Shapes { get => shapes; set => shapes = value; }
         public bool UseFixedUpdate { get => fixedUpdate; set => fixedUpdate = value; }
         public bool MultiHits { get => multiHits; set => multiHits = value; }
+        public bool Unblockable { get => unblockable; set => unblockable = value; }
         public LayerMask CollisionMask { get => collisionMask; set => collisionMask = value; }
         public List<HurtBody3D> IgnoreList { get => ignoreList; set => ignoreList = value; }
 
@@ -94,7 +96,6 @@ namespace Shears.HitDetection
             if (!isEnabled)
                 return;
 
-            enabledTime = 0.0f;
             isEnabled = false;
             Disabled?.Invoke();
         }
@@ -109,8 +110,6 @@ namespace Shears.HitDetection
         {
             if (!isEnabled)
                 return;
-
-            enabledTime += Time.deltaTime;
 
             if (fixedUpdate)
                 return;
@@ -185,7 +184,7 @@ namespace Shears.HitDetection
                 else
                     finalHits[hurtBody] = hit;
 
-                if (hurtBody.IsBlocking)
+                if (!unblockable && hurtBody.IsBlocking)
                 {
                     var blockHitData = new HitData3D(this, hurtBody, new(hit), dataProvider.Value?.GetData(), false);
 
@@ -207,7 +206,7 @@ namespace Shears.HitDetection
                 var subData = dataProvider.Value?.GetData();
                 var hitData = new HitData3D(this, hurtBody, new(hit), subData, false);
 
-                if (hurtBody.IsBlocking)
+                if (!unblockable && hurtBody.IsBlocking)
                     hitData = new HitData3D(this, hurtBody, new(hit), subData, hurtBody.CanBlock(hitData));
 
                 hurtBody.OnHitReceived(hitData);
