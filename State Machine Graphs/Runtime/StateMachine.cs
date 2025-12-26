@@ -32,8 +32,9 @@ namespace Shears.StateMachineGraphs
         private readonly Dictionary<SMID, Parameter> parameters = new();
         private int stateSwapID = 0;
 
-        public IReadOnlyCollection<State> States => states.Values;
+        public bool UseGraphData { get => useGraphData; set => useGraphData = value; }
         public bool PollTransitions { get => pollTransitions; set => pollTransitions = value; }
+        public IReadOnlyCollection<State> States => states.Values;
 
         public event Action<State> EnteredState;
 
