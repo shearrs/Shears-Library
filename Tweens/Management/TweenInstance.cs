@@ -17,8 +17,6 @@ namespace Shears.Tweens
     [Serializable]
     public class TweenInstance
     {
-        [ReadOnly, SerializeField] private string id;
-
         [Header("Duration")]
         [ReadOnly, SerializeField] private float progress = 0;
         [ReadOnly, SerializeField] private bool forceFinalValue;
@@ -37,6 +35,7 @@ namespace Shears.Tweens
         [Header("Events")]
         [ReadOnly, SerializeField] private List<TweenEventBase> events = new();
 
+        private Guid id;
         private bool isInvokingEvents = false;
         private bool disposeAfterEvents = false;
         private readonly List<TweenEventBase> activeEvents = new();
@@ -48,7 +47,7 @@ namespace Shears.Tweens
         [field: ReadOnly, SerializeField] internal bool IsActive { get; set; }
         internal Action<TweenInstance> Release { get; set; }
         internal Action<float> Update { get; set; }
-        internal string ID => id;
+        internal Guid ID => id;
         public bool IsValid => IsActive;
         public float Duration { get; private set; }
         public Tween.UpdateMode UpdateMode => updateMode;
@@ -299,7 +298,7 @@ namespace Shears.Tweens
 
         internal void SetData(ITweenData data)
         {
-            id = Guid.NewGuid().ToString();
+            id = Guid.NewGuid();
             Duration = data.Duration;
             forceFinalValue = data.ForceFinalValue;
             loops = data.Loops;

@@ -9,7 +9,7 @@ namespace Shears.Tweens
         public enum UpdateMode { Update, LateUpdate, FixedUpdate }
 
         private readonly TweenInstance tween;
-        private readonly string id;
+        private readonly Guid id;
 
         #region Wrapped Tween Properties
         public readonly bool IsValid => IsTweenValid();

@@ -7,7 +7,9 @@ namespace Shears.Tweens
 {
     public class TweenManager : PersistentProtectedSingleton<TweenManager>
     {
-        [SerializeField] private List<TweenInstance> tweens = new();
+#if UNITY_EDITOR
+        [SerializeField] private List<TweenInstance> tweensDisplay = new();
+#endif
         private ObjectPool<TweenInstance> tweenPool;
         private ITweenData defaultTweenData;
 
@@ -66,7 +68,9 @@ namespace Shears.Tweens
         {
             TweenInstance tween = new();
 
-            tweens.Add(tween);
+#if UNITY_EDITOR
+            tweensDisplay.Add(tween);
+#endif
 
             return tween;
         }

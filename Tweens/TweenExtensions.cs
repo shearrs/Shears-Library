@@ -241,6 +241,19 @@ namespace Shears.Tweens
 
             return CreateAutoDisposeTween(textMesh, update, data);
         }
+
+        public static Tween DoColorTween(this TextMeshPro textMesh, Color targetColor, ITweenData data = null) => Do(GetColorTween(textMesh, targetColor, data));
+        public static Tween GetColorTween(this TextMeshPro textMesh, Color targetColor, ITweenData data = null)
+        {
+            Color start = textMesh.color;
+
+            void update(float t)
+            {
+                textMesh.color = Color.LerpUnclamped(start, targetColor, t);
+            }
+
+            return CreateAutoDisposeTween(textMesh, update, data);
+        }
         #endregion
 
         #region Counter
