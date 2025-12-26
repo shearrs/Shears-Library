@@ -328,12 +328,15 @@ namespace Shears.Tweens
                 return CreateTween(update, data);
         }
 
-        public static Tween DoColorMultTween(this IColorTweenable colorTweenable, Color baseColor, Color startColor, Color endColor, ITweenData data = null) => Do(GetColorMultTween(colorTweenable, baseColor, startColor, endColor, data));
-        public static Tween GetColorMultTween(this IColorTweenable colorTweenable, Color baseColor, Color startColor, Color endColor, ITweenData data = null)
+        public static Tween DoColorMultTween(this IColorTweenable colorTweenable, Color targetColor, ITweenData data = null) => Do(GetColorMultTween(colorTweenable, targetColor, data));
+        public static Tween GetColorMultTween(this IColorTweenable colorTweenable, Color targetColor, ITweenData data = null)
         {
+            var baseColor = colorTweenable.BaseColor;
+            var startColor = colorTweenable.Modulate;
+
             void update(float t)
             {
-                colorTweenable.Modulate = baseColor * Color.LerpUnclamped(startColor, endColor, t);
+                colorTweenable.Modulate = baseColor * Color.LerpUnclamped(startColor, targetColor, t);
             }
 
             if (colorTweenable is UnityEngine.Object unityObject)

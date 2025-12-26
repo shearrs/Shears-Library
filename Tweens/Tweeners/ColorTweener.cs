@@ -68,7 +68,7 @@ namespace Shears.Tweens
             if (type == TweenType.Multiply)
                 initial = Target.BaseColor * Color1;
 
-            Play(GetTween(initial, color1, color2));
+            Play(GetTween(initial, color2));
         }
         public void Play2To1()
         {
@@ -77,7 +77,7 @@ namespace Shears.Tweens
             if (type == TweenType.Multiply)
                 initial = Target.BaseColor * Color2;
 
-            Play(GetTween(initial, color2, color1));
+            Play(GetTween(initial, color1));
         }
 
         private void Play(Tween tween)
@@ -95,14 +95,14 @@ namespace Shears.Tweens
             tween.Dispose();
         }
 
-        private Tween GetTween(Color initial, Color from, Color to)
+        private Tween GetTween(Color initial, Color to)
         {
             Target.Modulate = initial;
 
             var tween = type switch
             {
                 TweenType.Override => Target.GetColorTween(to, tweenData),
-                TweenType.Multiply => Target.GetColorMultTween(Target.BaseColor, from, to, tweenData),
+                TweenType.Multiply => Target.GetColorMultTween(to, tweenData),
                 _ => Target.GetColorTween(to, tweenData),
             };
 
