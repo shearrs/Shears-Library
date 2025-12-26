@@ -44,6 +44,24 @@ namespace Shears.HitDetection
             public Color HitboxColor { readonly get => hitboxColor; set => hitboxColor = value; }
             public Color RayColor { readonly get => rayColor; set => rayColor = value; }
         }
+
+        private readonly struct HitRay
+        {
+            private readonly SourceDirections direction;
+            private readonly int row;
+            private readonly int column;
+
+            public readonly SourceDirections Direction => direction;
+            public readonly int Row => row;
+            public readonly int Column => column;
+
+            public HitRay(SourceDirections direction, int row, int column)
+            {
+                this.direction = direction;
+                this.row = row;
+                this.column = column;
+            }
+        }
         #endregion
 
         #region Variables
@@ -93,24 +111,6 @@ namespace Shears.HitDetection
         public Vector3 WorldCenter { get => transform.TransformPoint(center); set => center = transform.InverseTransformPoint(value); }
         #endregion
 
-        private readonly struct HitRay
-        {
-            private readonly SourceDirections direction;
-            private readonly int row;
-            private readonly int column;
-
-            public readonly SourceDirections Direction => direction;
-            public readonly int Row => row;
-            public readonly int Column => column;
-
-            public HitRay(SourceDirections direction, int row, int column)
-            {
-                this.direction = direction;
-                this.row = row;
-                this.column = column;
-            }
-        }
-
         private void Reset()
         {
             ResetGizmoSettings();
@@ -136,10 +136,10 @@ namespace Shears.HitDetection
             isDetecting = true;
             blockedRays.Clear();
 
-            ArrayCastDirections(TCenter, handle);
-
             if (continuousDetection)
                 ContinuousSweep(handle);
+            else
+                ArrayCastDirections(TCenter, handle);
         }
 
         private void ContinuousSweep(DetectionHandle handle)
@@ -153,12 +153,15 @@ namespace Shears.HitDetection
             Vector3 direction = heading / distance;
             float traveled = 0f;
 
-            while (traveled < distance)
+            while (traveled <= distance)
             {
                 Vector3 currentOrigin = previousPosition + direction * traveled;
                 ArrayCastDirections(currentOrigin, handle);
 
-                traveled += continuousDetectionStep;
+                if (traveled == distance)
+                    break;
+
+                traveled = Mathf.Min(traveled + continuousDetectionStep, distance);
             }
         }
 

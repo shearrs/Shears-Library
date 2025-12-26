@@ -151,7 +151,7 @@ namespace Shears.HitDetection
             foreach (var hitIndex in sortedHits)
             {
                 RaycastHit hit = results[hitIndex];
-
+                
                 if (hit.collider == null)
                 {
                     this.Log($"Hit had no collider: {hit.transform.name}.", SHLogLevels.Verbose, context: hit.transform);
@@ -182,8 +182,13 @@ namespace Shears.HitDetection
 
                 if (hurtBody.IsBlocking)
                 {
-                    blocked = true;
-                    return;
+                    var blockHitData = new HitData3D(this, hurtBody, new(hit), dataProvider.Value?.GetData(), false);
+
+                    if (hurtBody.CanBlock(blockHitData))
+                    {
+                        blocked = true;
+                        return;
+                    }
                 }
             }
 
@@ -195,12 +200,15 @@ namespace Shears.HitDetection
             foreach (var (hurtBody, hit) in finalHits)
             {
                 var subData = dataProvider.Value?.GetData();
-                var hitData = new HitData3D(this, hurtBody, new(hit), subData, hurtBody.IsBlocking);
+                var hitData = new HitData3D(this, hurtBody, new(hit), subData, false);
+
+                if (hurtBody.IsBlocking)
+                    hitData = new HitData3D(this, hurtBody, new(hit), subData, hurtBody.CanBlock(hitData));
 
                 hurtBody.OnHitReceived(hitData);
                 OnHitDelivered(hitData);
 
-                if (!multiHits)
+                if (!multiHits && hitData.Blocked) // we don't store blocking as they can continue blocking
                     unclearedHits.Add(hurtBody);
             }
         }

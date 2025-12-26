@@ -18,7 +18,7 @@ namespace Shears.HitDetection
         public readonly int DataCount => dataCount;
         public readonly bool Blocked => blocked;
 
-        public HitData3D(HitBody3D hitBody, HurtBody3D hurtBody,
+        internal HitData3D(HitBody3D hitBody, HurtBody3D hurtBody,
             HitResult3D result, IReadOnlyCollection<IHitSubdata> data,
             bool blocked)
         {

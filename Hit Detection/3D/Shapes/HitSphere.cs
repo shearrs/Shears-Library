@@ -1,13 +1,15 @@
 using System;
 using System.Buffers;
+using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.Rendering.VirtualTexturing.Debugging;
 
 namespace Shears.HitDetection
 {
     public class HitSphere : HitShape3D
     {
         private const float EDGE_OFFSET = 0.1f;
+        const float RIGHT_DEGREE_STEP = 15.0f;
+        const float UP_DEGREE_STEP = 15.0f;
 
         #region Nested Types
         [Flags]
@@ -44,6 +46,33 @@ namespace Shears.HitDetection
             public Color SphereColor { readonly get => sphereColor; set => sphereColor = value; }
             public Color RayColor { readonly get => rayColor; set => rayColor = value; }
         }
+
+        private readonly struct HitRay
+        {
+            public readonly SourceDirections direction;
+            public readonly int row;
+            public readonly int column;
+            public readonly float xDegrees;
+            public readonly float yDegrees;
+
+            public HitRay(SourceDirections direction, int row, int column)
+            {
+                this.direction = direction;
+                this.row = row;
+                this.column = column;
+                xDegrees = 0.0f;
+                yDegrees = 0.0f;
+            }
+
+            public HitRay(float xDegrees, float yDegrees)
+            {
+                this.xDegrees = xDegrees;
+                this.yDegrees = yDegrees;
+                direction = default;
+                row = 0;
+                column = 0;
+            }
+        }
         #endregion
 
         #region Variables
@@ -52,13 +81,16 @@ namespace Shears.HitDetection
         private GizmoSettings gizmoSettings;
 
         [Header("Collision Settings")]
+        [SerializeField, RuntimeReadonly]
+        private bool castFromCenter = false;
+
         [SerializeField, Range(0, 500), RuntimeReadonly]
         private int maxHits = 10;
 
         [SerializeField, Range(2, 32), RuntimeReadonly]
         private int raysPerSide = 5;
 
-        [SerializeField]
+        [SerializeField, ShowIf("!castFromCenter")]
         private SourceDirections sourceDirections = (SourceDirections)(-1);
 
         [Header("Transform Settings")]
@@ -71,6 +103,7 @@ namespace Shears.HitDetection
         [SerializeField]
         private float radius = 0.5f;
 
+        private readonly HashSet<HitRay> blockedRays = new();
         private RaycastHit[] results;
         private bool isDetecting = false;
 
@@ -102,35 +135,42 @@ namespace Shears.HitDetection
         internal override void Sweep(DetectionHandle handle)
         {
             isDetecting = true;
+            blockedRays.Clear();
 
-            var orientation = Quaternion.Euler(this.orientation);
-            Vector3 forward = orientation * transform.TransformDirection(Vector3.forward);
-            Vector3 back = orientation * transform.TransformDirection(Vector3.back);
-            Vector3 right = orientation * transform.TransformDirection(Vector3.right);
-            Vector3 left = orientation * transform.TransformDirection(Vector3.left);
-            Vector3 up = orientation * transform.TransformDirection(Vector3.up);
-            Vector3 down = orientation * transform.TransformDirection(Vector3.down);
+            if (castFromCenter)
+                CenterCast(handle);
+            else
+            {
+                Quaternion orientation = Quaternion.Euler(this.orientation);
+                Vector3 forward = orientation * transform.forward;
+                Vector3 back = orientation * -transform.forward;
+                Vector3 right = orientation * transform.right;
+                Vector3 left = orientation * -transform.right;
+                Vector3 up = orientation * transform.up;
+                Vector3 down = orientation * -transform.up;
 
-            if ((sourceDirections & SourceDirections.Back) != 0)
-                ArrayCast(forward, right, up, handle);
+                if ((sourceDirections & SourceDirections.Back) != 0)
+                    ArrayCast(SourceDirections.Back, forward, right, up, handle);
 
-            if ((sourceDirections & SourceDirections.Front) != 0)
-                ArrayCast(back, left, up, handle);
+                if ((sourceDirections & SourceDirections.Front) != 0)
+                    ArrayCast(SourceDirections.Front, back, left, up, handle);
 
-            if ((sourceDirections & SourceDirections.Left) != 0)
-                ArrayCast(right, back, up, handle);
+                if ((sourceDirections & SourceDirections.Left) != 0)
+                    ArrayCast(SourceDirections.Left, right, back, up, handle);
 
-            if ((sourceDirections & SourceDirections.Right) != 0)
-                ArrayCast(left, forward, up, handle);
+                if ((sourceDirections & SourceDirections.Right) != 0)
+                    ArrayCast(SourceDirections.Right, left, forward, up, handle);
 
-            if ((sourceDirections & SourceDirections.Top) != 0)
-                ArrayCast(down, right, forward, handle);
+                if ((sourceDirections & SourceDirections.Top) != 0)
+                    ArrayCast(SourceDirections.Top, down, right, forward, handle);
 
-            if ((sourceDirections & SourceDirections.Bottom) != 0)
-                ArrayCast(up, right, back, handle);
+                if ((sourceDirections & SourceDirections.Bottom) != 0)
+                    ArrayCast(SourceDirections.Bottom, up, right, back, handle);
+            }
         }
 
         private void ArrayCast(
+            SourceDirections sourceDirection,
             Vector3 direction, Vector3 offsetDirectionX, 
             Vector3 offsetDirectionY, DetectionHandle handle
         )
@@ -144,6 +184,11 @@ namespace Shears.HitDetection
             {
                 for (int row = 0; row < raysPerSide; row++)
                 {
+                    var ray = new HitRay(sourceDirection, row, column);
+
+                    if (blockedRays.Contains(ray))
+                        continue;
+
                     float tX = (float)row / (raysPerSide - 1);
                     float tY = (float)column / (raysPerSide - 1);
 
@@ -156,8 +201,52 @@ namespace Shears.HitDetection
                     int hits = Physics.RaycastNonAlloc(origin, direction, results, distance, handle.CollisionMask, QueryTriggerInteraction.Collide);
 
                     if (hits > 0)
-                        handle.ValidateCallback(results, hits, null, out _);
+                    {
+                        handle.ValidateCallback(results, hits, null, out bool blocked);
+
+                        if (blocked)
+                            blockedRays.Add(ray);
+                    }
                 }
+            }
+        }
+
+        private void CenterCast(DetectionHandle handle)
+        {
+            float xStep = 360.0f / raysPerSide;
+            float yStep = 360.0f / raysPerSide;
+            float xDegrees = 0.0f;
+            float yDegrees = 0.0f;
+            Quaternion orientation = Quaternion.Euler(this.orientation);
+            Vector3 forward = orientation * transform.forward; 
+
+            while (xDegrees < 360.0f)
+            {
+                while (yDegrees < 360.0f)
+                {
+                    var ray = new HitRay(xDegrees, yDegrees);
+
+                    if (blockedRays.Contains(ray))
+                        continue;
+
+                    Quaternion rotation = Quaternion.Euler(new(xDegrees, yDegrees, 0.0f));
+                    Vector3 direction = rotation * forward;
+
+                    int hits = Physics.RaycastNonAlloc(TCenter, direction, results, TRadius, handle.CollisionMask, QueryTriggerInteraction.Collide);
+
+                    if (hits > 0)
+                    {
+                        handle.ValidateCallback(results, hits, null, out bool blocked);
+
+                        if (blocked)
+                            blockedRays.Add(ray);
+                    }
+
+                    yDegrees += yStep;
+                }
+
+                yDegrees = 0.0f;
+                xDegrees += xStep;
             }
         }
 
@@ -192,23 +281,30 @@ namespace Shears.HitDetection
             {
                 Gizmos.color = opacity * Color.yellow;
 
-                if ((sourceDirections & SourceDirections.Back) != 0)
-                    DrawArrayCast(Vector3.forward, Vector3.right, Vector3.up);
+                if (castFromCenter)
+                {
+                    DrawCenterCast();
+                }
+                else
+                {
+                    if ((sourceDirections & SourceDirections.Back) != 0)
+                        DrawArrayCast(Vector3.forward, Vector3.right, Vector3.up);
 
-                if ((sourceDirections & SourceDirections.Front) != 0)
-                    DrawArrayCast(Vector3.back, Vector3.left, Vector3.up);
+                    if ((sourceDirections & SourceDirections.Front) != 0)
+                        DrawArrayCast(Vector3.back, Vector3.left, Vector3.up);
 
-                if ((sourceDirections & SourceDirections.Left) != 0)
-                    DrawArrayCast(Vector3.right, Vector3.back, Vector3.up);
+                    if ((sourceDirections & SourceDirections.Left) != 0)
+                        DrawArrayCast(Vector3.right, Vector3.back, Vector3.up);
 
-                if ((sourceDirections & SourceDirections.Right) != 0)
-                    DrawArrayCast(Vector3.left, Vector3.forward, Vector3.up);
+                    if ((sourceDirections & SourceDirections.Right) != 0)
+                        DrawArrayCast(Vector3.left, Vector3.forward, Vector3.up);
 
-                if ((sourceDirections & SourceDirections.Top) != 0)
-                    DrawArrayCast(Vector3.down, Vector3.right, Vector3.forward);
+                    if ((sourceDirections & SourceDirections.Top) != 0)
+                        DrawArrayCast(Vector3.down, Vector3.right, Vector3.forward);
 
-                if ((sourceDirections & SourceDirections.Bottom) != 0)
-                    DrawArrayCast(Vector3.up, Vector3.right, Vector3.back);
+                    if ((sourceDirections & SourceDirections.Bottom) != 0)
+                        DrawArrayCast(Vector3.up, Vector3.right, Vector3.back);
+                }
             }
 
             Gizmos.matrix = matrix;
@@ -238,6 +334,30 @@ namespace Shears.HitDetection
 
                     Gizmos.DrawRay(origin, distance * direction);
                 }
+            }
+        }
+
+        private void DrawCenterCast()
+        {
+            float xStep = 360.0f / raysPerSide;
+            float yStep = 360.0f / raysPerSide;
+            float xDegrees = 0.0f;
+            float yDegrees = 0.0f;
+
+            while (xDegrees < 360.0f)
+            {
+                while (yDegrees < 360.0f)
+                {
+                    Quaternion rotation = Quaternion.Euler(new(xDegrees, yDegrees, 0.0f));
+                    Vector3 direction = rotation * Vector3.forward;
+
+                    Gizmos.DrawRay(center, direction * radius);
+
+                    yDegrees += yStep;
+                }
+
+                yDegrees = 0.0f;
+                xDegrees += xStep;
             }
         }
 
