@@ -62,6 +62,11 @@ namespace Shears
             return UnityEngine.Random.Range(range.Min, range.Max);
         }
 
+        public static float Midpoint(this Range<float> range)
+        {
+            return 0.5f * (range.Min + range.Max);
+        }
+
         /// <summary>
         /// Interpolates between the minimum and maximum range values by t.
         /// </summary>
