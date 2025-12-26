@@ -98,6 +98,11 @@ namespace Shears.HitDetection
             isEnabled = false;
             Disabled?.Invoke();
         }
+        
+        public void ClearHits()
+        {
+            unclearedHits.Clear();
+        }
         #endregion
 
         private void Update()

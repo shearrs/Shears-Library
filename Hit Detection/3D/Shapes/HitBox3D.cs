@@ -98,6 +98,7 @@ namespace Shears.HitDetection
         private readonly HashSet<HitRay> blockedRays = new();
         private RaycastHit[] results;
         private bool isDetecting = false;
+        private bool isFirstFrame = true;
         private Vector3 previousPosition;
 
         private Vector3 TCenter => transform.position + TOrientation * center;
@@ -137,9 +138,16 @@ namespace Shears.HitDetection
             blockedRays.Clear();
 
             if (continuousDetection)
-                ContinuousSweep(handle);
+            {
+                if (isFirstFrame)
+                    ArrayCastDirections(TCenter, handle);
+                else
+                    ContinuousSweep(handle);
+            }
             else
                 ArrayCastDirections(TCenter, handle);
+
+            isFirstFrame = false;
         }
 
         private void ContinuousSweep(DetectionHandle handle)
