@@ -257,6 +257,20 @@ namespace Shears.Tweens
         #endregion
 
         #region Counter
+        public static Tween DoCounterTween(this TextMeshProUGUI textMesh, int targetNumber, int startNumber = 0, string prefix = "", string suffix = "", ITweenData data = null)
+    => Do(GetCounterTween(textMesh, targetNumber, startNumber, prefix, suffix, data));
+        public static Tween GetCounterTween(this TextMeshProUGUI textMesh, int targetNumber, int startNumber = 0, string prefix = "", string suffix = "", ITweenData data = null)
+        {
+            void update(float t)
+            {
+                int num = Mathf.RoundToInt(Mathf.Lerp(startNumber, targetNumber, t));
+
+                textMesh.text = $"{prefix}{num}{suffix}";
+            }
+
+            return CreateAutoDisposeTween(textMesh, update, data);
+        }
+
         public static Tween DoCounterTween(this TextMeshPro textMesh, int targetNumber, int startNumber = 0, string prefix = "", string suffix = "", ITweenData data = null)
             => Do(GetCounterTween(textMesh, targetNumber, startNumber, prefix, suffix, data));
         public static Tween GetCounterTween(this TextMeshPro textMesh, int targetNumber, int startNumber = 0, string prefix = "", string suffix = "", ITweenData data = null)
