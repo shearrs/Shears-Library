@@ -82,9 +82,7 @@ namespace Shears.Detection
                 hits = MaxDetections;
 
             for (int i = 0; i < hits; i++)
-            {
                 detections[i] = raycastHits[i].collider;
-            }
 
             return hits;
         }
