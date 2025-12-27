@@ -10,12 +10,16 @@ namespace Shears.Cameras
         [SerializeField] private ManagedInputMap inputMap;
         [SerializeField] private List<CameraState> states = new();
 
+        private Camera rawCamera;
         private CameraState currentState;
 
         public ManagedInputMap InputMap { get => inputMap; set => inputMap = value; }
+        public Camera RawCamera => rawCamera;
 
         private void Awake()
         {
+            rawCamera = GetComponent<Camera>();
+
             foreach (var state in states)
             {
                 state.SetGlobalValues(transform, inputMap);
