@@ -167,10 +167,11 @@ namespace Shears.UI
 
             foreach (var graphic in hitGraphics)
             {
-                if (graphic.depth > greatestDepth && TryGetUIElement(graphic.gameObject, out var hitElement))
+                if (graphic.depth > greatestDepth)
                 {
                     greatestDepth = graphic.depth;
-                    element = hitElement;
+
+                    TryGetUIElement(graphic.gameObject, out element);
                 }
             }
 
