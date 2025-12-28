@@ -20,6 +20,7 @@ namespace Shears.Tweens
         [SerializeField, Min(0f)] private float duration;
         [SerializeField] private bool forceFinalValue;
         [SerializeField] private Tween.UpdateMode updateMode;
+        [SerializeField] private bool unscaledTime;
 
         [Header("Loop Settings")]
         [SerializeField, Min(-1)] private int loops;
@@ -39,6 +40,7 @@ namespace Shears.Tweens
         public float Duration { readonly get => UsesDataObject() ? tweenDataObject.Duration : duration; set => duration = value; }
         public bool ForceFinalValue { readonly get => UsesDataObject() ? tweenDataObject.ForceFinalValue : forceFinalValue; set => forceFinalValue = value; }
         public Tween.UpdateMode UpdateMode { readonly get => UsesDataObject() ? tweenDataObject.UpdateMode : updateMode; set => updateMode = value; }
+        public bool UnscaledTime { readonly get => UsesDataObject() ? tweenDataObject.UnscaledTime : unscaledTime; set => unscaledTime = value; }
         public int Loops { readonly get => UsesDataObject() ? tweenDataObject.Loops : loops; set => loops = value; }
         public LoopMode LoopMode { readonly get => UsesDataObject() ? tweenDataObject.LoopMode : loopMode; set => loopMode = value; }
         public TweenEase EasingFunction { readonly get => UsesDataObject() ? tweenDataObject.EasingFunction : easingFunction; set => easingFunction = value; }
@@ -59,7 +61,12 @@ namespace Shears.Tweens
             }
         }
 
-        public StructTweenData(float duration = 1.0f, bool forceFinalValue = true, Tween.UpdateMode updateMode = Tween.UpdateMode.Update, int loops = 0, LoopMode loopMode = LoopMode.None, TweenEase easingFunction = TweenEase.Linear)
+        public StructTweenData(
+            float duration = 1.0f, bool forceFinalValue = true, 
+            Tween.UpdateMode updateMode = Tween.UpdateMode.Update, 
+            bool unscaledTime = false, int loops = 0, 
+            LoopMode loopMode = LoopMode.None, 
+            TweenEase easingFunction = TweenEase.Linear)
         {
             usesDataObject = false;
             tweenDataObject = null;
@@ -67,6 +74,7 @@ namespace Shears.Tweens
             this.duration = duration;
             this.forceFinalValue = forceFinalValue;
             this.updateMode = updateMode;
+            this.unscaledTime = false;
             this.loops = loops;
             this.loopMode = loopMode;
             this.easingFunction = easingFunction;

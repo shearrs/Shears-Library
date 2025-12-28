@@ -16,6 +16,7 @@ namespace Shears.Tweens
         [SerializeField, ShowIf("!usesDataObject"), Min(0f)] private float duration = 1.0f;
         [SerializeField, ShowIf("!usesDataObject")] private bool forceFinalValue = true;
         [SerializeField, ShowIf("!usesDataObject")] private Tween.UpdateMode updateMode;
+        [SerializeField, ShowIf("!usesDataObject")] private bool unscaledTime = false;
 
         [Header("Loop Settings")]
         [SerializeField, ShowIf("!usesDataObject"), Min(-1)] private int loops = 0;
@@ -48,6 +49,12 @@ namespace Shears.Tweens
         {
             get => UsesDataObject() ? tweenDataObject.UpdateMode : updateMode;
             set => updateMode = value;
+        }
+
+        public bool UnscaledTime
+        {
+            get => UsesDataObject() ? tweenDataObject.UnscaledTime : unscaledTime;
+            set => unscaledTime = value;
         }
 
         public int Loops
@@ -102,10 +109,17 @@ namespace Shears.Tweens
             easingFunction = TweenEase.Linear;
         }
 
-        public TweenData(float duration, bool forceFinalValue = true, int loops = 0, LoopMode loopMode = LoopMode.None, TweenEase easingFunction = TweenEase.Linear)
+        public TweenData(
+            float duration = 1.0f, bool forceFinalValue = true,
+            Tween.UpdateMode updateMode = Tween.UpdateMode.Update,
+            bool unscaledTime = false, int loops = 0,
+            LoopMode loopMode = LoopMode.None,
+            TweenEase easingFunction = TweenEase.Linear)
         {
             this.duration = duration;
             this.forceFinalValue = forceFinalValue;
+            this.updateMode = updateMode;
+            this.unscaledTime = unscaledTime;
             this.loops = loops;
             this.loopMode = loopMode;
             this.easingFunction = easingFunction;

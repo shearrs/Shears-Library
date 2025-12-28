@@ -21,6 +21,7 @@ namespace Shears.Tweens
         [ReadOnly, SerializeField] private float progress = 0;
         [ReadOnly, SerializeField] private bool forceFinalValue;
         [ReadOnly, SerializeField] private Tween.UpdateMode updateMode;
+        [ReadOnly, SerializeField] private bool unscaledTime = false;
 
         [Header("Loops")]
         [ReadOnly, SerializeField] private int loops;
@@ -51,6 +52,7 @@ namespace Shears.Tweens
         public bool IsValid => IsActive;
         public float Duration { get; private set; }
         public Tween.UpdateMode UpdateMode => updateMode;
+        public bool UnscaledTime => unscaledTime;
         public float Progress => Mathf.Abs(progress / Duration);
         public bool IsPlaying { get; private set; }
         public bool Paused { get; private set; }
@@ -213,7 +215,9 @@ namespace Shears.Tweens
                 Update?.Invoke(t);
                 UpdateEvents(t);
 
-                progress += Time.deltaTime;
+                float time = unscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
+
+                progress += time;
 
                 if (updateMode == Tween.UpdateMode.Update)
                     yield return null;
@@ -301,6 +305,8 @@ namespace Shears.Tweens
             id = Guid.NewGuid();
             Duration = data.Duration;
             forceFinalValue = data.ForceFinalValue;
+            updateMode = data.UpdateMode;
+            unscaledTime = data.UnscaledTime;
             loops = data.Loops;
             loopMode = data.LoopMode;
             reversed = false;
