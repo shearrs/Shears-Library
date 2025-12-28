@@ -1,11 +1,18 @@
 using Shears.Input;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Shears.Detection
 {
     public class RayDetector3D : AreaDetector3D
     {
+        [SerializeField, Tooltip("Continous detection can solve missing detections at lower framerates or higher speeds.")]
+        private bool continuousDetection = false;
+
+        [SerializeField, ShowIf("continuousDetection"), Min(0.01f)]
+        private float continuousDetectionStep = 0.1f;
+
         [Header("Ray Settings")]
         [SerializeField, Tooltip("Whether or not to cast from the camera's world position to the cursor's world position.")]
         private bool castCameraToCursor = false;
@@ -22,7 +29,12 @@ namespace Shears.Detection
         [SerializeField, Tooltip("The distance to cast.")]
         private float distance = 1.0f;
 
+        private readonly List<Collider> continuousDetections = new();
+        private Collider[] singleContinuousDetection;
         private RaycastHit[] raycastHits;
+        private bool isRayDetecting = false;
+        private bool isFirstFrame = true;
+        private Vector3 previousPosition;
 
         public bool CastCameraToCursor { get => castCameraToCursor; set => castCameraToCursor = value; }
         public Camera OriginCamera { get => originCamera; set => originCamera = value; }
@@ -35,28 +47,97 @@ namespace Shears.Detection
             base.Awake();
 
             raycastHits = new RaycastHit[MaxDetections];
+            singleContinuousDetection = new Collider[MaxDetections];
+        }
+
+        private void Update()
+        {
+            if (isRayDetecting)
+                isRayDetecting = false;
+            else
+                isFirstFrame = true;
+
+            previousPosition = transform.TransformPoint(offset);
         }
 
         protected override int Sweep(Collider[] detections)
         {
-            Vector3 origin;
-            Vector3 dir;
+            isRayDetecting = true;
 
             if (castCameraToCursor)
-            {
-                var cam = originCamera == null ? Camera.main : originCamera;
-
-                Ray cameraRay = cam.ScreenPointToRay(ManagedPointer.Current.Position);
-                origin = cameraRay.origin;
-                dir = cameraRay.direction;
-            }
+                return CameraSweep(detections);
             else
             {
-                origin = transform.TransformPoint(offset);
-                dir = transform.TransformDirection(direction);
+                if (continuousDetection && !isFirstFrame)
+                    return ContinuousSweep(detections);
+                else
+                {
+                    isFirstFrame = false;
+                    return Sweep(transform.TransformPoint(offset), transform.TransformDirection(direction), detections);
+                }
+            }
+        }
+
+        private int CameraSweep(Collider[] detections)
+        {
+            var cam = originCamera == null ? Camera.main : originCamera;
+
+            Ray cameraRay = cam.ScreenPointToRay(ManagedPointer.Current.Position);
+            Vector3 origin = cameraRay.origin;
+            Vector3 dir = cameraRay.direction;
+
+            return Sweep(origin, dir, detections);
+        }
+
+        private int ContinuousSweep(Collider[] detections)
+        {
+            continuousDetections.Clear();
+
+            Vector3 currentPos = transform.TransformPoint(offset);
+            Vector3 direction = transform.TransformDirection(this.direction);
+
+            Vector3 heading = currentPos - previousPosition;
+            float distance = heading.magnitude;
+            Vector3 offsetDirection = heading / distance;
+
+            if (distance < continuousDetectionStep)
+                return Sweep(currentPos, direction, detections);
+
+            float traveled = 0f;
+
+            while (traveled <= distance)
+            {
+                Vector3 currentOrigin = previousPosition + offsetDirection * traveled;
+
+                int hits = Sweep(currentOrigin, direction, singleContinuousDetection);
+
+                for (int i = 0; i < hits; i++)
+                {
+                    var detection = singleContinuousDetection[i];
+
+                    continuousDetections.Add(detection);
+                }
+
+                if (traveled == distance)
+                    break;
+
+                traveled = Mathf.Min(traveled + continuousDetectionStep, distance);
             }
 
-            int hits = Physics.RaycastNonAlloc(origin, dir, raycastHits, distance, DetectionMask, TriggerInteraction);
+            for (int i = 0; i < detections.Length; i++)
+            {
+                if (i >= continuousDetections.Count)
+                    break;
+
+                detections[i] = continuousDetections[i];
+            }
+
+            return continuousDetections.Count;
+        }
+
+        private int Sweep(Vector3 origin, Vector3 direction, Collider[] detections)
+        {
+            int hits = Physics.RaycastNonAlloc(origin, direction, raycastHits, distance, DetectionMask, TriggerInteraction);
 
             Array.Sort(raycastHits, (h1, h2) =>
             {

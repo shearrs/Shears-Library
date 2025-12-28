@@ -23,7 +23,7 @@ namespace Shears.Detection
         private Color detectingGizmoColor = Color.yellow;
 
         [Header("Detection Settings")]
-        [SerializeField, Tooltip("The maximum number of detections for one detection. Does not update at runtime.")]
+        [SerializeField, RuntimeReadonly, Tooltip("The maximum number of detections for one detection. Does not update at runtime.")]
         protected int maxDetections = 10;
 
         [SerializeField, Tooltip("The layermask to detect colliders on.")] 
