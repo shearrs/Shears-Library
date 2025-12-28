@@ -90,12 +90,6 @@ namespace Shears.UI
             if (applicationIsQuitting)
                 return;
 
-            if (canvasSystem == null)
-            {
-                SHLogger.Log($"No canvas system was set! You need to have a {nameof(UIElementEventSystem)} with {nameof(detectionType)} set to {nameof(DetectionType.Canvas)}!", SHLogLevels.Error);
-                return;
-            }
-
             canvasSystem.InstDeregisterCanvas(canvas);
         }
         private void InstDeregisterCanvas(UIElementCanvas canvas)
