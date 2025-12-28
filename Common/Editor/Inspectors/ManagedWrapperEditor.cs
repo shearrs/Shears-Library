@@ -1,4 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -59,21 +63,76 @@ namespace Shears.Editor
         public override VisualElement CreateInspectorGUI()
         {
             var root = new VisualElement();
-            var defaultFields = VisualElementUtil.CreateDefaultFields(serializedObject);
             var wrappedValueSO = new SerializedObject(wrappedValue);
+            var wrapperType = target.GetType();
 
-            var wrappedFoldout = new Foldout
-            {
-                text = $"Wrapped {wrappedValue.GetType().Name} Settings",
-                value = false
-            };
-            wrappedFoldout.AddStyleSheet(ShearsStyles.InspectorStyles);
-            wrappedFoldout.AddToClassList(ShearsStyles.DarkFoldoutClass);
-
+            var defaultFields = VisualElementUtil.CreateDefaultFields(serializedObject);
             var wrappedFields = VisualElementUtil.CreateDefaultFields(wrappedValueSO);
-            wrappedFoldout.Add(wrappedFields);
 
-            root.AddAll(defaultFields, wrappedFoldout);
+            if (TryGetAttribute(wrapperType, out var attribute))
+            {
+                if (attribute.ShowAllFields)
+                {
+                    RemoveChildWithName("m_Script", wrappedFields);
+                    root.AddAll(defaultFields, wrappedFields);
+                }
+                else if (attribute.DisplayFields != null)
+                {
+                    var displayFieldsContainer = new VisualElement();
+                    RemoveChildWithName("m_Script", wrappedFields);
+
+                    for (int i = 0; i < attribute.DisplayFields.Length; i++)
+                    {
+                        string fieldName = attribute.DisplayFields[i];
+
+                        var prop = wrappedValueSO.FindProperty(fieldName);
+
+                        if (prop == null)
+                        {
+                            Debug.LogError($"Could not find property with name {fieldName} on type {wrappedValue.GetType().Name}!");
+                            continue;
+                        }
+
+                        var propField = new PropertyField(prop);
+
+                        displayFieldsContainer.Add(propField);
+
+                        RemoveChildWithName(fieldName, wrappedFields);
+                    }
+
+                    root.AddAll(defaultFields, displayFieldsContainer);
+
+                    if (wrappedFields.childCount > 0)
+                        root.Add(wrappedFields);
+                }
+                else
+                {
+                    var wrappedFoldout = createFoldout(wrappedFields);
+
+                    root.AddAll(defaultFields, wrappedFoldout);
+                }
+            }
+            else
+            {
+                var wrappedFoldout = createFoldout(wrappedFields);
+
+                root.AddAll(defaultFields, wrappedFoldout);
+            }
+
+            VisualElement createFoldout(VisualElement fields)
+            {
+                var wrappedFoldout = new Foldout
+                {
+                    text = $"Wrapped {wrappedValue.GetType().Name} Settings",
+                    value = false
+                };
+                wrappedFoldout.AddStyleSheet(ShearsStyles.InspectorStyles);
+                wrappedFoldout.AddToClassList(ShearsStyles.DarkFoldoutClass);
+
+                wrappedFoldout.Add(fields);
+
+                return wrappedFoldout;
+            }
 
             return root;
         }
@@ -81,6 +140,29 @@ namespace Shears.Editor
         public override void OnInspectorGUI()
         {
             VisualElementUtil.CreateDefaultFieldsIMGUI(serializedObject);
+        }
+
+        private bool TryGetAttribute(Type type, out CustomWrapperAttribute attribute)
+        {
+            attribute = type.GetCustomAttribute<CustomWrapperAttribute>();
+
+            return attribute != null;
+        }
+
+        private void RemoveChildWithName(string name, VisualElement container)
+        {
+            VisualElement childToRemove = null;
+            foreach (var child in container.Children())
+            {
+                if (child.name == name)
+                {
+                    childToRemove = child;
+                    break;
+                }
+            }
+
+            if (childToRemove != null)
+                container.Remove(childToRemove);
         }
     }
 }
