@@ -83,7 +83,7 @@ namespace Shears.HitDetection
         private bool continuousDetection = false;
 
         [SerializeField, Min(0.01f), ShowIf("continuousDetection")]
-        private float continuousDetectionStep = 0.25f;
+        private float continuousDetectionStep = 0.1f;
 
         [Header("Transform Settings")]
         [SerializeField]
@@ -98,6 +98,7 @@ namespace Shears.HitDetection
         private readonly HashSet<HitRay> blockedRays = new();
         private RaycastHit[] results;
         private bool isDetecting = false;
+        private bool debugIsDetecting = false;
         private bool isFirstFrame = true;
         private Vector3 previousPosition;
 
@@ -124,6 +125,11 @@ namespace Shears.HitDetection
 
         private void Update()
         {
+            if (isDetecting)
+                isDetecting = false;
+            else
+                isFirstFrame = true;
+
             previousPosition = TCenter;
         }
 
@@ -135,6 +141,7 @@ namespace Shears.HitDetection
         internal override void Sweep(DetectionHandle handle)
         {
             isDetecting = true;
+            debugIsDetecting = true;
             blockedRays.Clear();
 
             if (continuousDetection)
@@ -317,7 +324,7 @@ namespace Shears.HitDetection
 
         private void DrawBoxGizmos()
         {
-            Color opacity = isDetecting ? Color.white : new(1, 1, 1, 0.15f);
+            Color opacity = debugIsDetecting ? Color.white : new(1, 1, 1, 0.15f);
 
             if ((gizmoSettings.Modes & GizmoModes.Hitbox) != 0)
             {
@@ -378,13 +385,13 @@ namespace Shears.HitDetection
                     DrawArrayCast(bottomStart, bottomEnd, right, TSize.x, up, TSize.y);
             }
 
-            if (isDetecting)
-                isDetecting = false;
+            if (debugIsDetecting)
+                debugIsDetecting = false;
         }
 
         private void DrawArrayCast(Vector3 start, Vector3 end, Vector3 columnOffsetDirection, float columnOffsetDistance, Vector3 direction, float distance)
         {
-            Color opacity = isDetecting ? Color.white : new(1, 1, 1, 0.35f);
+            Color opacity = debugIsDetecting ? Color.white : new(1, 1, 1, 0.35f);
             Gizmos.color = Color.yellow * opacity;
 
             for (int column = 0; column < raysPerFace; column++)
