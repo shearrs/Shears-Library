@@ -22,9 +22,9 @@ namespace Shears.Loading
         public static bool IsLoading => Instance.processingRequest;
         public static bool IsDelaying { get => Instance.delaying; private set => Instance.delaying = value; }
 
-        public static event Action OnLoadStart;
-        public static event Action OnLoadPreComplete;
-        public static event Action OnLoadComplete;
+        public static event Action LoadStarted;
+        public static event Action LoadPrecompleted;
+        public static event Action LoadCompleted;
 
         public static void EnqueueRequest(LoadRequest request) => Instance.InstEnqueueRequest(request);
         private void InstEnqueueRequest(LoadRequest request)
@@ -54,7 +54,7 @@ namespace Shears.Loading
             if (request.OpensLoadingScreen)
                 yield return loadingScreen.Enable();
 
-            OnLoadStart?.Invoke();
+            LoadStarted?.Invoke();
 
             foreach (var action in request.Actions)
             {
@@ -74,14 +74,14 @@ namespace Shears.Loading
             else
             {
                 processingRequest = false;
-                OnLoadComplete?.Invoke();
+                LoadCompleted?.Invoke();
             }
         }
 
         private IEnumerator IEProcessDelays(LoadRequest request)
         {
             IsDelaying = true;
-            OnLoadPreComplete?.Invoke();
+            LoadPrecompleted?.Invoke();
 
             while (loadDelays.Count > 0)
             {
@@ -128,24 +128,35 @@ namespace Shears.Loading
 
         private IEnumerator IEUnload(LoadAction action)
         {
-            if (!loadedScenes.TryGetValue(action.SceneAddress, out SceneInstance scene))
+            if (loadedScenes.TryGetValue(action.SceneAddress, out SceneInstance scene))
             {
-                Debug.LogWarning($"Cannot unload scene [{action.SceneAddress}]!");
+                var asyncLoad = Addressables.UnloadSceneAsync(scene);
 
-                yield break;
+                if (!asyncLoad.IsValid())
+                {
+                    Debug.LogError($"Failed to unload scene: {action.SceneAddress}");
+                    yield break;
+                }
+
+                yield return asyncLoad;
+
+                loadedScenes.Remove(action.SceneAddress);
             }
-
-            var asyncLoad = Addressables.UnloadSceneAsync(scene);
-
-            yield return asyncLoad;
-
-            if (!asyncLoad.IsValid())
+            else
             {
-                Debug.LogError($"Failed to unload scene: {action.SceneAddress}!");
-                yield break;
-            }
+                var initialScene = SceneManager.GetSceneByName(action.SceneAddress);
 
-            loadedScenes.Remove(action.SceneAddress);
+                if (initialScene == null)
+                {
+                    Debug.LogWarning($"Cannot unload scene [{action.SceneAddress}]!");
+
+                    yield break;
+                }
+
+                var asyncLoad = SceneManager.UnloadSceneAsync(initialScene);
+
+                yield return asyncLoad;
+            }
         }
     }
 }

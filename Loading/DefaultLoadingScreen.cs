@@ -1,4 +1,5 @@
 using Shears.Tweens;
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,6 +14,12 @@ namespace Shears.Loading
         [SerializeField] private Slider loadingBar;
 
         private CoroutineChain coroutineChain;
+
+        public Canvas Canvas => canvas;
+
+        public event Action Enabled;
+        public event Action PreDisabled;
+        public event Action Disabled;
 
         private void Awake()
         {
@@ -31,12 +38,13 @@ namespace Shears.Loading
 
         private IEnumerator IEFadeIn()
         {
+            Enabled?.Invoke();
+
             canvas.enabled = true;
             IsDelaying = true;
 
-            var color = backgroundImage.color;
-            var transparentColor = color;
-            transparentColor.a = 0;
+            var color = backgroundImage.color.With(a: 1.0f);
+            var transparentColor = color.With(a: 0.0f);
 
             backgroundImage.color = transparentColor;
 
@@ -68,10 +76,18 @@ namespace Shears.Loading
 
         private IEnumerator IEFadeOut()
         {
-            canvas.enabled = false;
+            PreDisabled?.Invoke();
             container.gameObject.SetActive(false);
 
-            yield break;
+            var transparentColor = backgroundImage.color.With(a:0.0f);
+            var tween = backgroundImage.DoColorTween(transparentColor);
+
+            while (tween.IsPlaying)
+                yield return null;
+
+            canvas.enabled = false;
+
+            Disabled?.Invoke();
         }
     }
 }
