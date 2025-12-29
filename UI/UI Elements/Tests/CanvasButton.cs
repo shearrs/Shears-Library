@@ -1,5 +1,9 @@
+using Shears.Logging;
 using Shears.Tweens;
 using System;
+using System.Collections.Generic;
+using TMPro;
+using TreeEditor;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -20,8 +24,10 @@ namespace Shears.UI
 
         private readonly StructTweenData hoverTweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
         private readonly StructTweenData notSelectableTweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
+        private readonly List<TextMeshProUGUI> textChildren = new();
         private Tween tween;
         private bool isHovered = false;
+        private bool isFading = false;
 
         public bool IsHovered => isHovered;
         public ManagedImage Image { get => image; set => image = value; }
@@ -48,6 +54,84 @@ namespace Shears.UI
             RegisterEvent<PointerDownEvent>(OnPointerDown);
             RegisterEvent<PointerUpEvent>(OnPointerUp);
             RegisterEvent<ClickEvent>(OnClicked);
+        }
+
+        public void FadeIn(float duration = 0.5f, Color? modulateColor = null)
+        {
+            if (isFading)
+            {
+                Log("Already fading!", SHLogLevels.Error);
+                return;
+            }
+
+            isFading = true;
+            var tweenData = new StructTweenData(duration, easingFunction: TweenEase.InOutQuad);
+
+            Enable();
+            bool wasSelectable = selectable;
+            selectable = false;
+
+            Color targetColor = modulateColor == null ? Color.white : modulateColor.Value;
+
+            image.Modulate = image.Modulate.With(a: 0.0f);
+            TweenToColor(targetColor, tweenData);
+
+            GetComponentsInChildren(true, textChildren);
+            for (int i = 0; i < textChildren.Count; i++)
+            {
+                var child = textChildren[i];
+                var childColor = child.color;
+
+                child.color = childColor.With(a: 0.0f);
+                child.DoColorTween(childColor, tweenData);
+            }
+
+            tween.Completed += () =>
+            {
+                selectable = wasSelectable;
+                isFading = false;
+            };
+        }
+
+        public void FadeOut(float duration = 0.5f)
+        {
+            if (isFading)
+            {
+                Log("Already fading!", SHLogLevels.Error);
+                return;
+            }
+
+            isFading = true;
+            var tweenData = new StructTweenData(duration, easingFunction: TweenEase.InOutQuad);
+
+            bool wasSelectable = selectable;
+            selectable = false;
+
+            TweenToColor(image.Modulate.With(a: 0.0f), tweenData);
+
+            GetComponentsInChildren(true, textChildren);
+
+            for (int i = 0; i < textChildren.Count; i++)
+            {
+                var child = textChildren[i];
+                var childColor = child.color;
+                var targetColor = childColor.With(a: 0.0f);
+
+                var childTween = child.DoColorTween(targetColor, tweenData);
+                tween.Completed += () =>
+                {
+                    childTween.Dispose();
+                    child.color = childColor;
+                };
+            }
+
+            tween.Completed += () =>
+            {
+                selectable = wasSelectable;
+                Disable();
+
+                isFading = false;
+            };
         }
 
         private void OnHoverEnter(HoverEnterEvent evt)
