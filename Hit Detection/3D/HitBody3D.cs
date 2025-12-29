@@ -222,7 +222,7 @@ namespace Shears.HitDetection
             if (collider == null)
                 return null;
 
-            collider.transform.GetComponentsInParent(true, foundHurtbodies);
+            collider.transform.GetComponentsInParent(false, foundHurtbodies);
 
             foreach (var hurtBody in foundHurtbodies)
             {
