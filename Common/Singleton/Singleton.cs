@@ -3,28 +3,6 @@ using UnityEngine;
 namespace Shears
 {
     // Originally inspired by Tarodev on YouTube: https://www.youtube.com/watch?v=tE1qH8OxO2Y
-
-    internal static class SingletonManager
-    {
-        private static bool canCreateInstances = false;
-
-        public static bool CanCreateInstances => canCreateInstances;
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void EnableInstanceCreation()
-        {
-            canCreateInstances = true;
-
-            Application.quitting -= OnApplicationQuitting;
-            Application.quitting += OnApplicationQuitting;
-        }
-
-        private static void OnApplicationQuitting()
-        {
-            canCreateInstances = false;
-        }
-    }
-
     /// <summary>
     /// A singleton that hides its instance and is used as a static class. Creates itself if none exists, and destroys itself on <see cref="Awake"/> if another instance already exists.
     /// </summary>
@@ -48,7 +26,7 @@ namespace Shears
                 instance = value;
             }
         }
-        protected static bool CanCreateInstance => SingletonManager.CanCreateInstances;
+        protected static bool CanCreateInstance => Application.isPlaying;
 
         protected virtual void Awake()
         {
@@ -134,9 +112,7 @@ namespace Shears
         protected virtual void Awake()
         {
             if (instance == null)
-            {
                 instance = GetComponent<T>();
-            }
         }
 
         private static T CreateInstance()
