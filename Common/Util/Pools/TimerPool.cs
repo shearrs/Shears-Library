@@ -11,13 +11,6 @@ namespace Shears
         private static void Initialize()
         {
             pool.Clear();
-
-            Application.quitting += OnApplicationQuit;
-        }
-
-        private static void OnApplicationQuit()
-        {
-            Application.quitting -= OnApplicationQuit;
         }
 
         public static Timer Get()
