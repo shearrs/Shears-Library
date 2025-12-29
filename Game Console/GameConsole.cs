@@ -134,7 +134,15 @@ namespace Shears.GameConsole
         public static void StoreSingleton<T>(T instance) => Instance.InstStoreSingleton(instance);
         private void InstStoreSingleton<T>(T instance)
         {
-            storedSingletons.Add(typeof(T), instance);
+            var type = typeof(T);
+
+            if (storedSingletons.TryGetValue(type, out var singleton) && singleton != null)
+            {
+                SHLogger.Log($"GameConsole already contains a singleton of type {type.Name}!", SHLogLevels.Error);
+                return;
+            }
+
+            storedSingletons[type] = instance;
         }
 
         public static T GetSingleton<T>() => Instance.InstGetSingleton<T>();
