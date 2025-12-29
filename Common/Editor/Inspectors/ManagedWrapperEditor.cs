@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -74,6 +73,7 @@ namespace Shears.Editor
                 if (attribute.ShowAllFields)
                 {
                     RemoveChildWithName("m_Script", wrappedFields);
+
                     root.AddAll(defaultFields, wrappedFields);
                 }
                 else if (attribute.DisplayFields != null)
@@ -94,6 +94,7 @@ namespace Shears.Editor
                         }
 
                         var propField = new PropertyField(prop);
+                        propField.BindProperty(prop);
 
                         displayFieldsContainer.Add(propField);
 
@@ -103,7 +104,10 @@ namespace Shears.Editor
                     root.AddAll(defaultFields, displayFieldsContainer);
 
                     if (wrappedFields.childCount > 0)
-                        root.Add(wrappedFields);
+                    {
+                        var wrappedFoldout = createFoldout(wrappedFields);
+                        root.Add(wrappedFoldout);
+                    }
                 }
                 else
                 {
