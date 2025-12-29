@@ -97,8 +97,6 @@ namespace Shears.Editor
                         propField.BindProperty(prop);
 
                         displayFieldsContainer.Add(propField);
-
-                        RemoveChildWithName(fieldName, wrappedFields);
                     }
 
                     root.AddAll(defaultFields, displayFieldsContainer);
