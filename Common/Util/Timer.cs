@@ -146,7 +146,7 @@ namespace Shears
 
                 currentTime += UnityEngine.Time.deltaTime;
 
-                if (isQuitting)
+                if (isQuitting || token.IsCancellationRequested)
                     break;
 
                 await SafeAwaitable.NextFrameAsync(token);
