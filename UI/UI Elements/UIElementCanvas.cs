@@ -3,6 +3,7 @@ using UnityEngine.UI;
 
 namespace Shears.UI
 {
+    [CustomWrapper(DisplayFields = new string[] { "m_RenderMode", "m_Camera", "m_PlaneDistance" })]
     public class UIElementCanvas : ManagedWrapper<Canvas>
     {
         private GraphicRaycaster raycaster;
