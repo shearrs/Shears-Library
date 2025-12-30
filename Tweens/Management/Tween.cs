@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -19,6 +20,7 @@ namespace Shears.Tweens
         public readonly bool Paused => IsTweenValid() && tween.Paused;
         public readonly int Loops => IsTweenValid() ? tween.Loops : 0;
         public readonly event Action Completed { add => AddOnComplete(value); remove => RemoveOnComplete(value); }
+        public readonly Coroutine CoroutineHandle => IsTweenValid() ? tween.GetCoroutineHandle() : null;
         #endregion
 
         public Tween(TweenInstance tween)

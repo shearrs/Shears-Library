@@ -36,14 +36,15 @@ namespace Shears.Tweens
         [Header("Events")]
         [ReadOnly, SerializeField] private List<TweenEventBase> events = new();
 
-        private Guid id;
-        private bool isInvokingEvents = false;
-        private bool disposeAfterEvents = false;
         private readonly List<TweenEventBase> activeEvents = new();
         private readonly List<TweenEventBase> eventsToClear = new();
         private readonly List<TweenStopEvent> stopEvents = new();
         private readonly List<TweenStopEvent> disposeEvents = new();
         private readonly List<Coroutine> coroutines = new();
+        private Guid id;
+        private Coroutine playCoroutine;
+        private bool isInvokingEvents = false;
+        private bool disposeAfterEvents = false;
 
         [field: ReadOnly, SerializeField] internal bool IsActive { get; set; }
         internal Action<TweenInstance> Release { get; set; }
@@ -86,7 +87,8 @@ namespace Shears.Tweens
             StopAllCoroutines();
 
             progress = 0;
-            coroutines.Add(StartCoroutine(IEPlay()));
+            playCoroutine = StartCoroutine(IEPlay());
+            coroutines.Add(playCoroutine);
         }
 
         public void PlayAfter(float seconds)
@@ -351,9 +353,11 @@ namespace Shears.Tweens
         }
 
         #region Utility
+        public Coroutine GetCoroutineHandle() => playCoroutine;
         private void StopAllCoroutines()
         {
             int count = coroutines.Count;
+            playCoroutine = null;
 
             for (int i = 0; i < count; i++)
             {
