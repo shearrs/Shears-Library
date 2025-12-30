@@ -1,6 +1,7 @@
 using Shears.Input;
 using Shears.Logging;
 using System.Collections.Generic;
+using UnityEditor.Graphs;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -156,18 +157,19 @@ namespace Shears.UI
                 }
             }
             
-            int greatestDepth = int.MinValue;
+            Graphic targetGraphic = null;
             UIElement element = null;
 
             foreach (var graphic in hitGraphics)
             {
-                if (graphic.depth > greatestDepth)
-                {
-                    greatestDepth = graphic.depth;
-
-                    TryGetUIElement(graphic.gameObject, out element);
-                }
+                if (targetGraphic == null 
+                    || graphic.canvas.renderOrder > targetGraphic.canvas.renderOrder
+                    || graphic.canvas.renderOrder == targetGraphic.canvas.renderOrder && graphic.depth > targetGraphic.depth)
+                    targetGraphic = graphic;
             }
+
+            if (targetGraphic != null)
+                TryGetUIElement(targetGraphic.gameObject, out element);
 
             return element;
         }
