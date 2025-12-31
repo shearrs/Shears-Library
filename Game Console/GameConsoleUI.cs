@@ -12,6 +12,8 @@ namespace Shears.GameConsole
         [SerializeField] private TextMeshProUGUI consoleText;
         [SerializeField] private ResizableScrollRect scrollRect;
 
+        public Canvas Canvas => canvas;
+
         private void OnEnable()
         {
             GameConsole.Enabled += Enable;

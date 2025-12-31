@@ -27,8 +27,10 @@ namespace Shears.GameConsole
         private IManagedInput toggleInput;
         private IManagedInput previousCommandInput;
         private IManagedInput nextCommandInput;
+        private GameConsoleUI consoleUI;
 
-        internal static IReadOnlyCollection<IConsoleCommand> Commands => commands;
+        public static IReadOnlyCollection<IConsoleCommand> Commands => commands;
+        public static GameConsoleUI UI => Instance.consoleUI;
 
         public static event Action Enabled;
         public static event Action Disabled;
@@ -56,8 +58,8 @@ namespace Shears.GameConsole
             inputMap = Resources.Load<ManagedInputMap>(INPUT_MAP_PATH);
 
             var uiPrefab = Resources.Load<GameConsoleUI>(UI_PATH);
-            var ui = Instantiate(uiPrefab);
-            ui.transform.SetParent(transform);
+            consoleUI = Instantiate(uiPrefab);
+            consoleUI.transform.SetParent(transform);
 
             toggleInput = inputMap.GetInput("Toggle");
             previousCommandInput = inputMap.GetInput("Previous Command");
@@ -135,12 +137,6 @@ namespace Shears.GameConsole
         private void InstStoreSingleton<T>(T instance)
         {
             var type = typeof(T);
-
-            if (storedSingletons.TryGetValue(type, out var singleton) && singleton != null)
-            {
-                SHLogger.Log($"GameConsole already contains a singleton of type {type.Name}!", SHLogLevels.Error);
-                return;
-            }
 
             storedSingletons[type] = instance;
         }
