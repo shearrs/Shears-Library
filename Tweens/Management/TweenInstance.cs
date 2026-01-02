@@ -17,7 +17,10 @@ namespace Shears.Tweens
     [Serializable]
     public class TweenInstance
     {
+        [ReadOnly, SerializeField] private bool isActive;
+
         [Header("Duration")]
+        [ReadOnly, SerializeField] private float duration = 1.0f;
         [ReadOnly, SerializeField] private float progress = 0;
         [ReadOnly, SerializeField] private bool forceFinalValue;
         [ReadOnly, SerializeField] private Tween.UpdateMode updateMode;
@@ -42,16 +45,16 @@ namespace Shears.Tweens
         private readonly List<TweenStopEvent> disposeEvents = new();
         private readonly List<Coroutine> coroutines = new();
         private Guid id;
+        private TweenUpdate update;
         private Coroutine playCoroutine;
         private bool isInvokingEvents = false;
         private bool disposeAfterEvents = false;
 
-        [field: ReadOnly, SerializeField] internal bool IsActive { get; set; }
+        internal bool IsActive { get => isActive; set => isActive = value; }
         internal Action<TweenInstance> Release { get; set; }
-        internal Action<float> Update { get; set; }
         internal Guid ID => id;
         public bool IsValid => IsActive;
-        public float Duration { get; private set; }
+        public float Duration => duration;
         public Tween.UpdateMode UpdateMode => updateMode;
         public bool UnscaledTime => unscaledTime;
         public float Progress => Mathf.Abs(progress / Duration);
@@ -153,7 +156,7 @@ namespace Shears.Tweens
                     {
                         progress = GetEndValue();
 
-                        Update?.Invoke(progress);
+                        CallTweenUpdate(progress);
                         UpdateEvents(progress);
                     }
 
@@ -214,7 +217,7 @@ namespace Shears.Tweens
                     t = easingFunction(s, e, t);
                 }
 
-                Update?.Invoke(t);
+                CallTweenUpdate(t);
                 UpdateEvents(t);
 
                 float time = unscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
@@ -302,10 +305,11 @@ namespace Shears.Tweens
         }
         #endregion
 
-        internal void SetData(ITweenData data)
+        internal void SetData(TweenUpdate update, ITweenData data)
         {
             id = Guid.NewGuid();
-            Duration = data.Duration;
+            this.update = update;
+            duration = data.Duration;
             forceFinalValue = data.ForceFinalValue;
             updateMode = data.UpdateMode;
             unscaledTime = data.UnscaledTime;
@@ -370,6 +374,10 @@ namespace Shears.Tweens
         private Coroutine StartCoroutine(IEnumerator routine) => CoroutineRunner.Start(routine);
         private float GetStartValue() => reversed ? 1 : 0;
         private float GetEndValue() => reversed ? 0 : 1;
+        private void CallTweenUpdate(float t)
+        {
+            update.Invoke(t);
+        }
         #endregion
     }
 }

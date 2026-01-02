@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +11,7 @@ namespace Shears.Tweens
         private static readonly int EMISSION_ID = Shader.PropertyToID("_EmissionColor");
 
         private static Tween CreateTween(Action<float> update, ITweenData data) => TweenManager.CreateTween(update, data);
+
         private static Tween Do(Tween tween)
         {
             tween.Play();
@@ -115,7 +117,7 @@ namespace Shears.Tweens
         }
         #endregion
 
-        #region Shake
+        #region Shake Tween
         public static Tween DoShakeTween(this Transform transform, float strength, float shakeDelay = 0, ITweenData data = null) => Do(GetShakeTween(transform, strength, shakeDelay, data));
         public static Tween GetShakeTween(this Transform transform, float strength, float shakeDelay = 0, ITweenData data = null)
         {
@@ -195,6 +197,29 @@ namespace Shears.Tweens
             return CreateAutoDisposeTween(transform, update, data);
         }
         #endregion
+        #endregion
+
+        #region Vector3 Tweens
+        public static Tween DoTween(
+            this Vector3 vector, Action<Vector3> setter, Vector3 targetValue, 
+            UnityEngine.Object lifetime, ITweenData data = null) 
+                => Do(GetTween(vector, setter, targetValue, lifetime, data));
+        public static Tween GetTween(
+            this Vector3 vector, Action<Vector3> setter, Vector3 targetValue, 
+            UnityEngine.Object lifeTime, ITweenData data = null)
+        {
+            Vector3 start = vector;
+
+            void update(float t) => setter(Vector3.LerpUnclamped(vector, targetValue, t));
+
+            if (lifeTime == null)
+            {
+                Debug.LogError("Vector3 Tween requires lifetime object!");
+                return default;
+            }
+
+            return CreateAutoDisposeTween(lifeTime, update, data);
+        }
         #endregion
 
         #region Image Tweens
