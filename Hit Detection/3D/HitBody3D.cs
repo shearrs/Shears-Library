@@ -65,6 +65,9 @@ namespace Shears.HitDetection
             foundHurtbodies = ListPool<HurtBody3D>.Get();
             finalHits = DictionaryPool<HurtBody3D, RaycastHit>.Get();
             sortedHits = ListPool<int>.Get();
+
+            for (int i = 0; i < shapes.Count; i++)
+                shapes[i].Body = this;
         }
 
         private void Start()
@@ -136,7 +139,10 @@ namespace Shears.HitDetection
             finalHits.Clear();
 
             foreach (var shape in shapes)
+            {
+                shape.Body = this;
                 shape.Sweep(new(collisionMask, ValidateHits));
+            }
 
             DeliverHits();
         }

@@ -1,6 +1,4 @@
 using Shears.Logging;
-using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -10,6 +8,8 @@ namespace Shears.HitDetection
     {
         [field: Header("Logging")]
         [field: SerializeField] public SHLogLevels LogLevels { get; set; } = SHLogLevels.Log | SHLogUtil.Issues;
+
+        public HitBody3D Body { get; internal set; }
 
         internal abstract void Sweep(DetectionHandle handle);
 
