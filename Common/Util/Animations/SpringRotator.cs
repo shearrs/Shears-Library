@@ -20,10 +20,12 @@ namespace Shears
         private Vector3 angularVelocity;
 
         internal Quaternion Rotation => rotation;
+        public float Strength { get => strength; set => strength = value; }
+        public float Damping { get => damping; set => damping = value; }
 
         public event Action Updated;
 
-        private void Awake()
+        private void Start()
         {
             rotation = transform.rotation;
 
@@ -48,11 +50,6 @@ namespace Shears
             if (waitTarget == null)
                 TestRotate();
         }
-        
-        //private void LateUpdate()
-        //{
-        //    transform.rotation = rotation;
-        //}
 
         private void TestRotate()
         {
