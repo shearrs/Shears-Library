@@ -1,3 +1,4 @@
+using Codice.CM.Common;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -31,6 +32,13 @@ namespace Shears.Tweens
 
         #region Wrapped Tween Functions
         public readonly void Play() => DoIfValid(tween != null ? tween.Play : null);
+        public readonly void PlayAfter(float seconds)
+        {
+            if (IsTweenValid())
+                tween.PlayAfter(seconds);
+            else
+                ErrorMessage();
+        }
         public readonly void Stop() => DoIfValid(tween != null ? tween.Stop : null);
         public readonly void Pause() => DoIfValid(tween != null ? tween.Pause : null);
         public readonly void Dispose() => DoIfValid(tween != null ? tween.Dispose : null, false);
