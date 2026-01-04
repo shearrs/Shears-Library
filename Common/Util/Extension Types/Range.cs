@@ -13,8 +13,8 @@ namespace Shears
         [SerializeField, Delayed] private T min;
         [SerializeField, Delayed] private T max;
 
-        public readonly T Min => min;
-        public readonly T Max => max;
+        public T Min { readonly get => min; set => min = value; }
+        public T Max { readonly get => max; set => max = value; }
 
         public Range(T min, T max)
         {
@@ -90,6 +90,17 @@ namespace Shears
         public static float Clamp(this Range<float> range, float value)
         {
             return Mathf.Clamp(value, range.Min, range.Max);
+        }
+
+        public static Range<T> With<T>(this Range<T> range, T? min = null, T? max = null) where T : struct, IComparable
+        {
+            T finalMin = min == null ? range.Min : min.Value;
+            T finalMax = max == null ? range.Max : max.Value;
+
+            if (finalMax.CompareTo(finalMin) < 0)
+                finalMax = finalMin;
+
+            return new(finalMin, finalMax);
         }
     }
 }
