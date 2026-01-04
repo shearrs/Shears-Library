@@ -25,6 +25,9 @@ namespace Shears
         internal Quaternion Rotation => rotation;
         public float Strength { get => strength; set => strength = value; }
         public float Damping { get => damping; set => damping = value; }
+        public Range<float> XRange { get => xRange; set => xRange = value; }
+        public Range<float> YRange { get => yRange; set => yRange = value; }
+        public Range<float> ZRange { get => zRange; set => zRange = value; }
 
         public event Action Updated;
 
