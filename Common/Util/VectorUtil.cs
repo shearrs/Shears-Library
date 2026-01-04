@@ -160,5 +160,18 @@ namespace Shears
             return new(x == null ? v.x : x.Value, y == null ? v.y : y.Value, z == null ? v.z : z.Value);
         }
    
+        public static Vector3 EulerMap(this Vector3 v)
+        {
+            if (v.x > 180f)
+                v.x -= 360f;
+
+            if (v.y > 180f)
+                v.y -= 360f;
+
+            if (v.z > 180f)
+                v.z -= 360f;
+
+            return v;
+        }
     }
 }

@@ -8,12 +8,15 @@ namespace Shears
     {
         [Header("Settings")]
         [SerializeField] private Transform targetTransform;
+        [SerializeField] private Vector3 offset = Vector3.zero;
         [SerializeField] private bool fixedUpdate = true;
         [SerializeField] private float strength = 5000.0f;
         [SerializeField] private float damping = 10.0f;
 
         [Header("Constraints")]
-        [SerializeField] private bool clampZToZero = false;
+        [SerializeField] private Range<float> xRange = new(-180f, 180f);
+        [SerializeField] private Range<float> yRange = new(-180f, 180f);
+        [SerializeField] private Range<float> zRange = new(-180f, 180f);
 
         private SpringRotator waitTarget;
         private Quaternion rotation;
@@ -60,6 +63,8 @@ namespace Shears
             else
                 targetRotation = targetTransform.rotation;
 
+            targetRotation = Quaternion.Euler(targetTransform.TransformDirection(offset)) * targetRotation;
+
             Quaternion deltaRotation = ShortestRotation(rotation, targetRotation);
 
             Vector3 angularDisplacement = Vector3.ClampMagnitude(AngularError(deltaRotation), 45f * Mathf.Deg2Rad);
@@ -77,15 +82,13 @@ namespace Shears
 
             transform.rotation = rotation;
 
-            float zAngle = transform.localEulerAngles.z;
-            if (zAngle > 180f)
-                zAngle -= 360f;
+            Vector3 eulerAngles = transform.localEulerAngles.EulerMap();
+            eulerAngles.x = xRange.Clamp(eulerAngles.x);
+            eulerAngles.y = yRange.Clamp(eulerAngles.y);
+            eulerAngles.z = zRange.Clamp(eulerAngles.z);
 
-            if (clampZToZero && zAngle > 0.0f)
-            {
-                transform.localEulerAngles = transform.localEulerAngles.With(z: 0.0f);
-                rotation = transform.rotation;
-            }
+            transform.localEulerAngles = eulerAngles;
+            rotation = transform.rotation;
 
             Updated?.Invoke();
         }
