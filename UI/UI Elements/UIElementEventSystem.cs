@@ -18,6 +18,7 @@ namespace Shears.UI
         [SerializeField] private DetectionType detectionType = DetectionType.Canvas;
 
         private readonly RaycastHit[] results3D = new RaycastHit[10];
+        private readonly List<RaycastHit> sortedResults = new(10);
         private readonly HashSet<UIElementCanvas> registeredCanvases = new();
         private readonly List<Graphic> hitGraphics = new();
         private LayerMask detectionMask;
@@ -189,9 +190,16 @@ namespace Shears.UI
 
             int hits = Physics.RaycastNonAlloc(ray, results3D, 1000, detectionMask, QueryTriggerInteraction.Collide);
 
+            sortedResults.Clear();
+
+            for (int i = 0; i < hits; i++)
+                sortedResults.Add(results3D[i]);
+
+            sortedResults.Sort((r1, r2) => r1.distance.CompareTo(r2.distance));
+
             for (int i = 0; i < hits; i++)
             {
-                var hit = results3D[i];
+                var hit = sortedResults[i];
 
                 if (TryGetUIElement(hit.collider.gameObject, out var element))
                     return element;
