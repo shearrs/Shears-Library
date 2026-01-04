@@ -54,6 +54,21 @@ namespace Shears
                 TestRotate();
         }
 
+        public void SyncRotation()
+        {
+            Quaternion targetRotation;
+
+            if (waitTarget != null)
+                targetRotation = waitTarget.Rotation;
+            else
+                targetRotation = targetTransform.rotation;
+
+            targetRotation = Quaternion.Euler(targetTransform.TransformDirection(offset)) * targetRotation;
+
+            rotation = targetRotation;
+            transform.rotation = rotation;
+        }
+
         private void TestRotate()
         {
             Quaternion targetRotation;
@@ -93,29 +108,7 @@ namespace Shears
             Updated?.Invoke();
         }
 
-        //private void UpdateRotationQuaternion()
-        //{
-        //    Quaternion targetRotation = targetTransform.rotation;
-        //    Quaternion diff = GetDifference(targetRotation, rotation);
-
-        //    diff.Normalize();
-        //    diff.ToAngleAxis(out float angle, out Vector3 axis);
-
-        //    float strength = angle * springStrength;
-        //    Vector3 force = (strength * axis) - (damping * angularVelocity);
-
-        //    angularVelocity += Time.deltaTime * force;
-
-        //    float magnitude = Time.deltaTime * angularVelocity.magnitude;
-        //    Quaternion velocityQuat = Quaternion.AngleAxis(magnitude, angularVelocity.normalized);
-
-        //    rotation = velocityQuat * rotation;
-        //    transform.rotation = rotation;
-
-        //    Updated?.Invoke();
-        //}
-
-        public static Vector3 AngularError(Quaternion q)
+        private Vector3 AngularError(Quaternion q)
         {
             if (q.w < 0)
                 q = Multiply(q, -1);
@@ -124,7 +117,7 @@ namespace Shears
             return 2f * v;
         }
 
-        public static Quaternion ShortestRotation(Quaternion a, Quaternion b)
+        private Quaternion ShortestRotation(Quaternion a, Quaternion b)
         {
             if (Quaternion.Dot(a, b) < 0)
             {
@@ -134,7 +127,7 @@ namespace Shears
             else return a * Quaternion.Inverse(b);
         }
 
-        public static Quaternion Multiply(Quaternion input, float scalar)
+        private Quaternion Multiply(Quaternion input, float scalar)
         {
             return new Quaternion(input.x * scalar, input.y * scalar, input.z * scalar, input.w * scalar);
         }

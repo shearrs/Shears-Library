@@ -176,8 +176,15 @@ namespace Shears.UI
 
         private UIElement Raycast3D()
         {
-            Vector2 pointerPos = ManagedPointer.Current.Position;
             var camera = Camera.main;
+
+            if (camera == null)
+            {
+                SHLogger.Log($"{nameof(UIElementEventSystem)} requires a MainCamera in the scene to raycast!", SHLogLevels.Error);
+                return null;
+            }
+
+            Vector2 pointerPos = ManagedPointer.Current.Position;
             var ray = camera.ScreenPointToRay(pointerPos);
 
             int hits = Physics.RaycastNonAlloc(ray, results3D, 1000, detectionMask, QueryTriggerInteraction.Collide);

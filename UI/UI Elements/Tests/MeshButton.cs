@@ -10,7 +10,7 @@ namespace Shears.UI
         [Header("Mesh Button")]
         [SerializeField] private bool selectable = true;
         [SerializeField] private bool clickOnMouseDown = false;
-        [SerializeField] private MeshRenderer meshRenderer;
+        [SerializeField] private Renderer meshRenderer;
         [SerializeField] private Color hoverColor = new(0.6f, 0.6f, 0.6f);
         [SerializeField] private Color pressedColor = new(0.4f, 0.4f, 0.4f);
         [SerializeField] private Color notSelectableColor = new(0.15f, 0.15f, 0.15f);
