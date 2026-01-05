@@ -23,6 +23,7 @@ namespace Shears
         private Vector3 angularVelocity;
 
         internal Quaternion Rotation => rotation;
+        public Vector3 Offset { get => offset; set => offset = value; }
         public float Strength { get => strength; set => strength = value; }
         public float Damping { get => damping; set => damping = value; }
         public Range<float> XRange { get => xRange; set => xRange = value; }
