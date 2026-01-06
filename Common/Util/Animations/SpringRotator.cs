@@ -37,7 +37,7 @@ namespace Shears
             rotation = transform.rotation;
 
             if (targetTransform.TryGetComponent(out waitTarget))
-                waitTarget.Updated += TestRotate;
+                waitTarget.Updated += SpringToTarget;
         }
 
         private void LateUpdate()
@@ -46,7 +46,7 @@ namespace Shears
                 return;
 
             if (waitTarget == null)
-                TestRotate();
+                SpringToTarget();
         }
 
         private void FixedUpdate()
@@ -55,7 +55,7 @@ namespace Shears
                 return;
 
             if (waitTarget == null)
-                TestRotate();
+                SpringToTarget();
         }
 
         public void SyncRotation()
@@ -73,7 +73,7 @@ namespace Shears
             transform.rotation = rotation;
         }
 
-        private void TestRotate()
+        private void SpringToTarget()
         {
             Quaternion targetRotation;
 
