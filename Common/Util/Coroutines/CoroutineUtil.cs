@@ -15,6 +15,9 @@ namespace Shears
         public static WaitForEndOfFrame WaitForEndOfFrame => waitForEndOfFrame;
         public static WaitForFixedUpdate WaitForFixedUpdate => waitForFixedUpdate;
 
+        public static Coroutine Start(IEnumerator routine) => CoroutineRunner.Start(routine);
+        public static void Stop(Coroutine coroutine) => CoroutineRunner.Stop(coroutine);
+
         public static WaitForSeconds WaitForSeconds(float seconds)
         {
             if (waitForSeconds.TryGetValue(seconds, out WaitForSeconds wait))
