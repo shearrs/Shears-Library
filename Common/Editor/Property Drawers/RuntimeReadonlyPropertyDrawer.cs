@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 namespace Shears.Editor
 {
-    [CustomPropertyDrawer(typeof(RuntimeReadonlyAttribute))]
+    [CustomPropertyDrawer(typeof(RuntimeReadOnlyAttribute))]
     public class RuntimeReadonlyPropertyDrawer : PropertyDrawer
     {
         public override VisualElement CreatePropertyGUI(SerializedProperty property)

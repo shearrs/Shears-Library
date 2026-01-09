@@ -102,7 +102,7 @@ namespace Shears.Tweens
             var tween = type switch
             {
                 TweenType.Override => Target.GetColorTween(to, tweenData),
-                TweenType.Multiply => Target.GetColorMultTween(to, tweenData),
+                TweenType.Multiply => Target.GetModulateTween(to, tweenData),
                 _ => Target.GetColorTween(to, tweenData),
             };
 

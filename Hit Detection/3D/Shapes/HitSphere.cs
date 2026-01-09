@@ -81,13 +81,13 @@ namespace Shears.HitDetection
         private GizmoSettings gizmoSettings;
 
         [Header("Collision Settings")]
-        [SerializeField, RuntimeReadonly]
+        [SerializeField, RuntimeReadOnly]
         private bool castFromCenter = false;
 
-        [SerializeField, Range(0, 500), RuntimeReadonly]
+        [SerializeField, Range(0, 500), RuntimeReadOnly]
         private int maxHits = 10;
 
-        [SerializeField, Range(2, 32), RuntimeReadonly]
+        [SerializeField, Range(2, 32), RuntimeReadOnly]
         private int raysPerSide = 5;
 
         [SerializeField, ShowIf("!castFromCenter")]

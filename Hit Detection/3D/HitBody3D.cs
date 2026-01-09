@@ -22,7 +22,7 @@ namespace Shears.HitDetection
         private List<HitShape3D> shapes;
 
         [Header("Hit Settings")]
-        [SerializeField, RuntimeReadonly, Tooltip("Whether or not this HitBody3D enables itself on Start.")]
+        [SerializeField, RuntimeReadOnly, Tooltip("Whether or not this HitBody3D enables itself on Start.")]
         private bool enableOnStart = false;
 
         [SerializeField, Tooltip("Whether or not this HitBody3D updates in FixedUpdate.")]

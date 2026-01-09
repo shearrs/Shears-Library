@@ -367,8 +367,8 @@ namespace Shears.Tweens
                 return CreateTween(update, data);
         }
 
-        public static Tween DoColorMultTween(this IColorTweenable colorTweenable, Color targetColor, ITweenData data = null) => Do(GetColorMultTween(colorTweenable, targetColor, data));
-        public static Tween GetColorMultTween(this IColorTweenable colorTweenable, Color targetColor, ITweenData data = null)
+        public static Tween DoModulateTween(this IColorTweenable colorTweenable, Color targetColor, ITweenData data = null) => Do(GetModulateTween(colorTweenable, targetColor, data));
+        public static Tween GetModulateTween(this IColorTweenable colorTweenable, Color targetColor, ITweenData data = null)
         {
             var startColor = colorTweenable.Modulate;
 

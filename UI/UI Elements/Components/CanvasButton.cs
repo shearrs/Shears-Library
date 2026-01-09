@@ -3,7 +3,6 @@ using Shears.Tweens;
 using System;
 using System.Collections.Generic;
 using TMPro;
-using TreeEditor;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -197,14 +196,7 @@ namespace Shears.UI
         private void TweenToColor(Color color, ITweenData tweenData)
         {
             tween.Dispose();
-            tween = TweenManager
-                .DoTween((t) => UpdateColor(image.Modulate, color, t), tweenData)
-                .WithLifetime(this);
-        }
-
-        private void UpdateColor(Color start, Color end, float t)
-        {
-            image.Modulate = Color.LerpUnclamped(start, end, t);
+            tween = image.DoModulateTween(color, tweenData);
         }
 
         private void SetSelectable(bool value)
