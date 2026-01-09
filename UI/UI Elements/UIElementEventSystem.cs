@@ -1,15 +1,19 @@
 using Shears.Input;
 using Shears.Logging;
 using System.Collections.Generic;
-using UnityEditor.Graphs;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Shears.UI
 {
     [DefaultExecutionOrder(-1000)]
-    public class UIElementEventSystem : MonoBehaviour
+    public partial class UIElementEventSystem : MonoBehaviour
     {
+        #region Variables
+        const float DRAG_BEGIN_TIME = 0.1f;
+        const float DRAG_BEGIN_SQR_DISTANCE = 0.25f * 0.25f;
+
         public enum DetectionType { Canvas, World3D }
 
         private static bool applicationIsQuitting = false;
@@ -21,14 +25,24 @@ namespace Shears.UI
         private readonly List<RaycastHit> sortedResults = new(10);
         private readonly HashSet<UIElementCanvas> registeredCanvases = new();
         private readonly List<Graphic> hitGraphics = new();
-        private LayerMask detectionMask;
+
         private ManagedInputMap inputMap;
+
+        [AutoEvent(nameof(IManagedInput.Started), nameof(OnPointerDown))]
+        [AutoEvent(nameof(IManagedInput.Canceled), nameof(OnPointerUp))]
         private IManagedInput clickInput;
+
+        private LayerMask detectionMask;
         private UIElement hoveredElement;
+        private UIElement draggedElement;
         private UIElement pointerDownElement;
+        private float pointerDownTime;
+        private Vector2 pointerDownPosition;
 
-        public DetectionType SystemType => detectionType; 
+        public DetectionType SystemType => detectionType;
+        #endregion
 
+        #region Static Initialization
         [RuntimeInitializeOnLoadMethod()]
         private static void ApplicationRegistration()
         {
@@ -40,7 +54,9 @@ namespace Shears.UI
         {
             applicationIsQuitting = true;
         }
+        #endregion
 
+        #region Unity Methods
         private void Awake()
         {
             detectionMask = LayerMask.GetMask("UI");
@@ -54,23 +70,14 @@ namespace Shears.UI
                 canvasSystem = this;
         }
 
-        private void OnEnable()
-        {
-            clickInput.StartedWithInfo += OnPointerDown;
-            clickInput.CanceledWithInfo += OnPointerUp;
-        }
-
-        private void OnDisable()
-        {
-            clickInput.StartedWithInfo -= OnPointerDown;
-            clickInput.CanceledWithInfo -= OnPointerUp;
-        }
-
         private void Update()
         {
             UpdateHoveredElement();
+            UpdateDraggedElement();
         }
+        #endregion
 
+        #region Registration
         public static void RegisterCanvas(UIElementCanvas canvas)
         {
             if (canvasSystem == null)
@@ -98,6 +105,7 @@ namespace Shears.UI
         {
             registeredCanvases.Remove(canvas);
         }
+        #endregion
 
         private void UpdateHoveredElement()
         {
@@ -125,6 +133,51 @@ namespace Shears.UI
                 hoveredElement.InvokeEvent(new HoverEnterEvent());
         }
 
+        private void UpdateDraggedElement()
+        {
+            var camera = Camera.main;
+            Vector2 pointerPos = ManagedPointer.Current.Position;
+
+            if (draggedElement == null)
+            {
+                if (pointerDownElement == null)
+                    return;
+                else if (Time.time - pointerDownTime < DRAG_BEGIN_TIME)
+                    return;
+
+                float sqrDistance = (pointerDownPosition - pointerPos).sqrMagnitude;
+
+                if (sqrDistance < DRAG_BEGIN_SQR_DISTANCE)
+                    return;
+            }
+
+            var targetElement = (pointerDownElement != null) ? pointerDownElement : draggedElement;
+
+            Vector3 direction = (camera.transform.position - transform.position);
+            var planePosition = camera.ScreenPointToPlanePosition(
+                ManagedPointer.Current.Position, direction,
+                targetElement.transform.position
+            );
+
+            Vector3 offset = targetElement.transform.position - planePosition;
+
+            if (draggedElement == null)
+            {
+                draggedElement = pointerDownElement;
+                draggedElement.InvokeEvent(new DragBeginEvent(camera, pointerPos, offset));
+            }
+            else if (pointerDownElement == null)
+            {
+                draggedElement.InvokeEvent(new DragEndEvent(camera, pointerPos, planePosition));
+                draggedElement = null;
+
+                return;
+            }
+
+            draggedElement.InvokeEvent(new DragEvent(camera, pointerPos, planePosition));
+        }
+
+        #region Raycasts
         private UIElement RaycastCanvas()
         {
             Vector2 pointerPos = ManagedPointer.Current.Position;
@@ -217,17 +270,21 @@ namespace Shears.UI
 
             return element != null;
         }
+        #endregion
 
-        private void OnPointerDown(ManagedInputInfo info)
+        private void OnPointerDown()
         {
             if (hoveredElement == null)
                 return;
 
             pointerDownElement = hoveredElement;
             pointerDownElement.InvokeEvent(new PointerDownEvent());
+
+            pointerDownTime = Time.time;
+            pointerDownPosition = ManagedPointer.Current.Position;
         }
 
-        private void OnPointerUp(ManagedInputInfo info)
+        private void OnPointerUp()
         {
             if (hoveredElement != null)
             {

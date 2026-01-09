@@ -7,7 +7,7 @@ namespace Shears.UI
 {
     public class UIElement : SHMonoBehaviourLogger
     {
-        private readonly List<IEventRegistration> registrations = new();
+        private readonly Dictionary<Type, object> registrations = new();
 
         private bool isEnabled = false;
 
@@ -45,20 +45,39 @@ namespace Shears.UI
             Invoke(nameof(SetLayer), 0f);
         }
 
-        public void RegisterEvent<EventType>(Action<EventType> callback) where EventType : IUIEvent
+        public void RegisterEvent<EventType>(Action<EventType> callback)
+            where EventType : struct, IUIEvent
         {
-            registrations.Add(new EventRegistration<EventType>(callback));
+            var eventType = typeof(EventType);
+
+            if (!registrations.TryGetValue(eventType, out var list))
+            {
+                list = new List<IEventRegistration<EventType>>();
+                registrations[eventType] = list;
+            }
+
+            ((List<IEventRegistration<EventType>>)list).Add(new EventRegistration<EventType>(callback));
         }
 
-        public void DeregisterEvent<EventType>(Action<EventType> callback) where EventType: IUIEvent
+        public void DeregisterEvent<EventType>(Action<EventType> callback)
+            where EventType: struct, IUIEvent
         {
-            registrations.Remove(new EventRegistration<EventType>(callback));
+            var eventType = typeof(EventType);
+
+            if (!registrations.TryGetValue(eventType, out var list))
+                return;
+
+            ((List<IEventRegistration<EventType>>)list).Remove(new EventRegistration<EventType>(callback));
         }
 
-        internal void InvokeEvent<EventType>(EventType evt) where EventType : IUIEvent
+        internal void InvokeEvent<EventType>(EventType evt)
+            where EventType : struct, IUIEvent
         {
-            foreach (var registration in registrations)
-                registration.TryInvoke(evt);
+            if (!registrations.TryGetValue(typeof(EventType), out var list))
+                return;
+
+            foreach (var registration in (List<IEventRegistration<EventType>>)list)
+                registration.Invoke(evt);
         }
 
         protected virtual void RegisterEvents() { }

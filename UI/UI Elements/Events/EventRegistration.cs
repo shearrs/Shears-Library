@@ -3,35 +3,32 @@ using System.Collections.Generic;
 
 namespace Shears.UI
 {
-    public interface IEventRegistration
+    public interface IEventRegistration<T> where T : struct, IUIEvent
     {
-        public void TryInvoke(IUIEvent evt);
+        public void Invoke(in T evt);
     }
 
-    public readonly struct EventRegistration<E> : IEventRegistration where E : IUIEvent
+    public readonly struct EventRegistration<T> : IEventRegistration<T> where T : struct, IUIEvent
     {
-        private readonly Action<E> callback;
+        private readonly Action<T> callback;
 
-        public readonly Action<E> Callback => callback;
+        public readonly Action<T> Callback => callback;
 
-        public EventRegistration(Action<E> callback)
+        public EventRegistration(Action<T> callback)
         {
             this.callback = callback;
         }
 
-        void IEventRegistration.TryInvoke(IUIEvent evt)
+        void IEventRegistration<T>.Invoke(in T evt)
         {
-            if (evt is E typedEvent)
-                Invoke(typedEvent);
+            callback(evt);
         }
-
-        public void Invoke(E evt) => callback(evt);
 
         #region Operator Overrides
         public override bool Equals(object obj)
         {
-            return obj is EventRegistration<E> registration &&
-                   EqualityComparer<Action<E>>.Default.Equals(callback, registration.callback);
+            return obj is EventRegistration<T> registration &&
+                   EqualityComparer<Action<T>>.Default.Equals(callback, registration.callback);
         }
 
         public override int GetHashCode()
@@ -39,10 +36,10 @@ namespace Shears.UI
             return HashCode.Combine(callback);
         }
 
-        public static bool operator==(EventRegistration<E> e1, EventRegistration<E> e2)
+        public static bool operator==(EventRegistration<T> e1, EventRegistration<T> e2)
             => e1.callback == e2.callback;
 
-        public static bool operator!=(EventRegistration<E> e1, EventRegistration<E> e2)
+        public static bool operator!=(EventRegistration<T> e1, EventRegistration<T> e2)
             => !(e1 == e2);
         #endregion
     }

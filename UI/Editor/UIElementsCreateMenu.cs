@@ -19,6 +19,8 @@ namespace Shears.UI.Editor
 
             gameObject.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             gameObject.transform.localScale = Vector3.one;
+
+            Selection.activeGameObject = gameObject;
         }
 
         [MenuItem(CreateMenuUtility.LIBRARY_PATH + "/UI Elements/Button", priority = CreateMenuUtility.LIBRARY_PRIORITY, secondaryPriority = 1)]
@@ -38,19 +40,24 @@ namespace Shears.UI.Editor
 
             gameObject.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             gameObject.transform.localScale = Vector3.one;
+
+            Selection.activeGameObject = gameObject;
         }
 
         [MenuItem(CreateMenuUtility.LIBRARY_PATH + "/UI Elements/Canvas", priority = CreateMenuUtility.LIBRARY_PRIORITY, secondaryPriority = 10)]
         private static void MenuCreateUIElementCanvas()
         {
-            CreateUICanvas();
+            var canvas = CreateUICanvas();
+
+            Selection.activeGameObject = canvas.gameObject;
         }
 
         [MenuItem(CreateMenuUtility.LIBRARY_PATH + "/UI Elements/Event System", priority = CreateMenuUtility.LIBRARY_PRIORITY, secondaryPriority = 100)]
         private static void MenuCreateUIElementEventSystem()
         {
-            var gameObject = new GameObject("UI Element Event System");
-            gameObject.AddComponent<UIElementEventSystem>();
+            var eventSystem = CreateEventSystem();
+
+            Selection.activeGameObject = eventSystem.gameObject;
         }
 
         private static void CreateEventSystemIfNecessary(UIElementEventSystem.DetectionType type)
@@ -68,7 +75,7 @@ namespace Shears.UI.Editor
             }
 
             if (!targetSystem)
-                MenuCreateUIElementEventSystem();
+                CreateEventSystem();
         }
 
         private static GameObject GetOrCreateParent()
@@ -94,6 +101,14 @@ namespace Shears.UI.Editor
             }
 
             return CreateUICanvas().gameObject;
+        }
+
+        private static UIElementEventSystem CreateEventSystem()
+        {
+            var gameObject = new GameObject("UI Element Event System");
+            var eventSystem = gameObject.AddComponent<UIElementEventSystem>();
+
+            return eventSystem;
         }
 
         private static UIElementCanvas CreateUICanvas()
