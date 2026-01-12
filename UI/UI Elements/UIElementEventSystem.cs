@@ -1,7 +1,6 @@
 using Shears.Input;
 using Shears.Logging;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,18 +10,22 @@ namespace Shears.UI
     public partial class UIElementEventSystem : MonoBehaviour
     {
         #region Variables
+        public enum DetectionType { Canvas, World3D }
+
+        const int MAX_RAYCAST_HITS = 10;
         const float DRAG_BEGIN_TIME = 0.1f;
         const float DRAG_BEGIN_SQR_DISTANCE = 0.25f * 0.25f;
 
-        public enum DetectionType { Canvas, World3D }
-
+        private static readonly RaycastHit[] s_results3D = new RaycastHit[MAX_RAYCAST_HITS];
+        private static readonly List<RaycastHit> s_sortedHits = new(MAX_RAYCAST_HITS);
+        private static readonly List<UIElement> s_sortedResults = new(MAX_RAYCAST_HITS);
         private static bool applicationIsQuitting = false;
         private static UIElementEventSystem canvasSystem;
 
         [SerializeField] private DetectionType detectionType = DetectionType.Canvas;
 
-        private readonly RaycastHit[] results3D = new RaycastHit[10];
-        private readonly List<RaycastHit> sortedResults = new(10);
+        private readonly RaycastHit[] results3D = new RaycastHit[MAX_RAYCAST_HITS];
+        private readonly List<RaycastHit> sortedHits = new(MAX_RAYCAST_HITS);
         private readonly HashSet<UIElementCanvas> registeredCanvases = new();
         private readonly List<Graphic> hitGraphics = new();
 
@@ -32,7 +35,7 @@ namespace Shears.UI
         [AutoEvent(nameof(IManagedInput.Canceled), nameof(OnPointerUp))]
         private IManagedInput clickInput;
 
-        private LayerMask detectionMask;
+        private static LayerMask detectionMask;
         private UIElement hoveredElement;
         private UIElement draggedElement;
         private UIElement pointerDownElement;
@@ -118,7 +121,10 @@ namespace Shears.UI
                 if (canvasSystem != null && canvasSystem.hoveredElement != null) // world raycasts are blocked by canvas elements
                     newHoverTarget = null;
                 else
-                    newHoverTarget = Raycast3D();
+                {
+                    Raycast3DInternal(results3D, sortedHits);
+                    newHoverTarget = FindFirstUIElement(sortedHits);
+                }
             }
 
             if (newHoverTarget == hoveredElement)
@@ -149,13 +155,15 @@ namespace Shears.UI
 
                 if (sqrDistance < DRAG_BEGIN_SQR_DISTANCE)
                     return;
+
+                pointerPos = pointerDownPosition;
             }
 
             var targetElement = (pointerDownElement != null) ? pointerDownElement : draggedElement;
 
             Vector3 direction = (camera.transform.position - transform.position);
             var planePosition = camera.ScreenPointToPlanePosition(
-                ManagedPointer.Current.Position, direction,
+                pointerPos, direction,
                 targetElement.transform.position
             );
 
@@ -178,6 +186,40 @@ namespace Shears.UI
         }
 
         #region Raycasts
+        public static void Raycast3D(List<RaycastHit> sortedHits, List<UIElement> hitElements)
+        {
+            hitElements.Clear();
+
+            Raycast3DInternal(s_results3D, sortedHits);
+
+            for (int i = 0; i < sortedHits.Count; i++)
+            {
+                var hit = sortedHits[i];
+
+                if (TryGetUIElement(hit.collider.gameObject, out var element))
+                    hitElements.Add(element);
+            }
+        }
+
+        public static bool TryRaycastElement<T>(out T element) where T : UIElement
+        {
+            Raycast3D(s_sortedHits, s_sortedResults);
+
+            for (int i = 0; i < s_sortedResults.Count; i++)
+            {
+                var result = s_sortedResults[i];
+
+                if (result is T typedElement)
+                {
+                    element = typedElement;
+                    return true;
+                }
+            }
+
+            element = null;
+            return false;
+        }
+
         private UIElement RaycastCanvas()
         {
             Vector2 pointerPos = ManagedPointer.Current.Position;
@@ -228,31 +270,34 @@ namespace Shears.UI
             return element;
         }
 
-        private UIElement Raycast3D()
+        private static void Raycast3DInternal(RaycastHit[] raycastHits, List<RaycastHit> sortedHits)
         {
             var camera = Camera.main;
 
             if (camera == null)
             {
                 SHLogger.Log($"{nameof(UIElementEventSystem)} requires a MainCamera in the scene to raycast!", SHLogLevels.Error);
-                return null;
+                return;
             }
 
             Vector2 pointerPos = ManagedPointer.Current.Position;
             var ray = camera.ScreenPointToRay(pointerPos);
 
-            int hits = Physics.RaycastNonAlloc(ray, results3D, 1000, detectionMask, QueryTriggerInteraction.Collide);
+            int hits = Physics.RaycastNonAlloc(ray, raycastHits, 1000, detectionMask, QueryTriggerInteraction.Collide);
 
-            sortedResults.Clear();
-
-            for (int i = 0; i < hits; i++)
-                sortedResults.Add(results3D[i]);
-
-            sortedResults.Sort((r1, r2) => r1.distance.CompareTo(r2.distance));
+            sortedHits.Clear();
 
             for (int i = 0; i < hits; i++)
+                sortedHits.Add(raycastHits[i]);
+
+            sortedHits.Sort((r1, r2) => r1.distance.CompareTo(r2.distance));
+        }
+
+        private UIElement FindFirstUIElement(List<RaycastHit> hits)
+        {
+            for (int i = 0; i < hits.Count; i++)
             {
-                var hit = sortedResults[i];
+                var hit = hits[i];
 
                 if (TryGetUIElement(hit.collider.gameObject, out var element))
                     return element;
@@ -261,7 +306,7 @@ namespace Shears.UI
             return null;
         }
 
-        private bool TryGetUIElement(GameObject gameObject, out UIElement element)
+        private static bool TryGetUIElement(GameObject gameObject, out UIElement element)
         {
             if (gameObject.TryGetComponent(out element))
                 return true;

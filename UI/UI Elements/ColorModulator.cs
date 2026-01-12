@@ -1,7 +1,6 @@
 using Shears.Tweens;
 using System;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Shears.UI
 {
@@ -10,26 +9,28 @@ namespace Shears.UI
     {
         [SerializeField, RuntimeReadOnly] private readonly UIElement element;
         [SerializeField, RuntimeReadOnly] private readonly Material material;
+        [SerializeField] private bool canChangeColor = true;        
         [SerializeField] private Color hoverColor = new(0.6f, 0.6f, 0.6f);
         [SerializeField] private Color pressedColor = new(0.4f, 0.4f, 0.4f);
-        [SerializeField] private Color originalColor;
-        private readonly Func<bool> canChangeColor;
+        private Color originalColor;
         private Tween tween;
         private bool isHovered;
 
-        private readonly StructTweenData hoverTweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
+        private readonly TweenData hoverTweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
 
         public bool IsHovered => isHovered;
+        public Color HoverColor { get => hoverColor; set => hoverColor = value; }
+        public Color PressedColor { get => pressedColor; set => pressedColor = value; }
+        public bool CanChangeColor { get => canChangeColor; set => canChangeColor = value; }
 
         public ColorModulator(
-            UIElement element, Func<bool> canChangeColor, Material material,
+            UIElement element, Material material,
             Color? hoverColor = null, Color? pressedColor = null
         )
         {
             originalColor = material.color;
 
             this.element = element;
-            this.canChangeColor = canChangeColor;
             this.material = material;
             this.hoverColor = hoverColor != null ? hoverColor.Value : new(0.6f, 0.6f, 0.6f);
             this.pressedColor = pressedColor != null ? pressedColor.Value : new(0.4f, 0.4f, 0.4f);
@@ -52,7 +53,7 @@ namespace Shears.UI
         {
             isHovered = true;
 
-            TweenToColor(hoverColor, hoverTweenData);
+            TweenToHover();
         }
 
         private void OnHoverExit(HoverExitEvent evt)
@@ -64,7 +65,7 @@ namespace Shears.UI
 
         private void OnPointerDown(PointerDownEvent evt)
         {
-            TweenToColor(pressedColor, hoverTweenData);
+            TweenToPressed();
         }
 
         private void OnPointerUp(PointerUpEvent evt)
@@ -74,9 +75,15 @@ namespace Shears.UI
             TweenToColor(targetColor, hoverTweenData);
         }
 
+        public void ClearModulation() => TweenToColor(originalColor, hoverTweenData);
+
+        public void TweenToHover() => TweenToColor(HoverColor, hoverTweenData);
+
+        public void TweenToPressed() => TweenToColor(PressedColor, hoverTweenData);
+
         public void TweenToColor(Color color, ITweenData tweenData)
         {
-            if (!canChangeColor())
+            if (!canChangeColor)
                 return;
 
             if (color != originalColor)

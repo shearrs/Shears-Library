@@ -49,7 +49,7 @@ namespace Shears.UI
 
             var material = Material;
 
-            colorModulator = new(this, () => selectable, material, hoverColor, pressedColor);
+            colorModulator = new(this, material, hoverColor, pressedColor);
 
             if (!selectable)
                 material.color = originalColor * notSelectableColor;
