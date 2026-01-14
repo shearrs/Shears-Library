@@ -8,10 +8,11 @@ namespace Shears.UI
     public class UIElement : SHMonoBehaviourLogger
     {
         private readonly Dictionary<Type, object> registrations = new();
-
         private bool isEnabled = false;
+        private float dragBeginTime = 0.1f;
 
         public bool IsEnabled => isEnabled;
+        public float DragBeginTime { get => dragBeginTime; set => dragBeginTime = value; }
 
         protected virtual void Awake()
         {

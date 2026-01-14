@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace Shears
 {
-    [AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
-    public class RuntimeReadOnlyAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+    public class RuntimeReadOnlyAttribute : PropertyAttribute
     {
     }
 }

@@ -13,7 +13,6 @@ namespace Shears.UI
         public enum DetectionType { Canvas, World3D }
 
         const int MAX_RAYCAST_HITS = 10;
-        const float DRAG_BEGIN_TIME = 0.1f;
         const float DRAG_BEGIN_SQR_DISTANCE = 0.25f * 0.25f;
 
         private static readonly RaycastHit[] s_results3D = new RaycastHit[MAX_RAYCAST_HITS];
@@ -148,7 +147,7 @@ namespace Shears.UI
             {
                 if (pointerDownElement == null)
                     return;
-                else if (Time.time - pointerDownTime < DRAG_BEGIN_TIME)
+                else if (Time.time - pointerDownTime < pointerDownElement.DragBeginTime)
                     return;
 
                 float sqrDistance = (pointerDownPosition - pointerPos).sqrMagnitude;

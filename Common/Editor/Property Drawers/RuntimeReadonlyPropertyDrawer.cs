@@ -21,5 +21,17 @@ namespace Shears.Editor
 
             return root;
         }
+
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            bool previousGUIState = GUI.enabled;
+
+            if (Application.isPlaying)
+                GUI.enabled = false;
+
+            EditorGUI.PropertyField(position, property, label);
+
+            GUI.enabled = previousGUIState;
+        }
     }
 }

@@ -9,19 +9,26 @@ namespace Shears.UI
         [SerializeField]
         private new Renderer renderer;
 
-        [SerializeField]
-        private ColorModulator colorModulator;
-
         [SerializeField, RuntimeReadOnly]
         private bool isDraggable = true;
 
-        private readonly List<RaycastHit> sortedHits = new();
-        private readonly List<UIElement> raycastResults = new();
+        [SerializeField, RuntimeReadOnly, Min(0.0f)]
+        private float dragBeginTime = 0.1f;
+
+        [SerializeField]
+        private ColorModulator colorModulator;
 
         [Auto]
         private UIElement element;
         private Vector3 offset;
         private bool initialized = false;
+
+        private void Awake()
+        {
+            __AutoAwake();
+
+            element.DragBeginTime = dragBeginTime;
+        }
 
         private void Start()
         {
