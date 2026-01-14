@@ -14,6 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <Duration>k__BackingField: 0.1
   <ForceFinalValue>k__BackingField: 1
+  <UpdateMode>k__BackingField: 0
+  <UnscaledTime>k__BackingField: 0
   <Loops>k__BackingField: 0
   <LoopMode>k__BackingField: 0
+  usesCurve: 0
   <EasingFunction>k__BackingField: 0
+  <Curve>k__BackingField:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  unityEvents: []

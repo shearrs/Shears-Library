@@ -6,14 +6,20 @@ namespace Shears.UI
     [RequireComponent(typeof(UIElement))]
     public partial class CellContent : MonoBehaviour
     {
-        [SerializeField] private new Renderer renderer;
-        [SerializeField] private ColorModulator colorModulator;
-        [SerializeField, RuntimeReadOnly] private bool isDraggable = true;
+        [SerializeField]
+        private new Renderer renderer;
+
+        [SerializeField]
+        private ColorModulator colorModulator;
+
+        [SerializeField, RuntimeReadOnly]
+        private bool isDraggable = true;
 
         private readonly List<RaycastHit> sortedHits = new();
         private readonly List<UIElement> raycastResults = new();
 
-        [Auto] private UIElement element;
+        [Auto]
+        private UIElement element;
         private Vector3 offset;
         private bool initialized = false;
 

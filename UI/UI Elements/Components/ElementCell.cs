@@ -8,7 +8,8 @@ namespace Shears.UI
     public class ElementCell : UIElement
     {
         [Header("Element Cell")]
-        [SerializeField, ReadOnly] private CellContent content;
+        [SerializeField, ReadOnly]
+        private CellContent content;
 
         public CellContent Content => content;
 

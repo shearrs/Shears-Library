@@ -8,11 +8,11 @@ namespace Shears.UI
     public class VolumeSlider : MonoBehaviour
     {
         [Header("System Reference")]
-        [SerializeField, RequiredField] private Slider slider;
+        [SerializeField] private Slider slider;
 
         [Header("Audio")]
         [SerializeField] private string prefKey = "Volume";
-        [SerializeField, RequiredField] private AudioMixerGroup mixerGroup;
+        [SerializeField] private AudioMixerGroup mixerGroup;
 
         [Header("Events")]
         [SerializeField] private UnityEvent onVolumeChanged;

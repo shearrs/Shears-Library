@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 namespace Shears
 {
-    public static class VisualElementExtensions
+    public static class VisualElementUtil
     {
         public static void AddStyleSheet(this VisualElement element, StyleSheet styleSheet)
         {

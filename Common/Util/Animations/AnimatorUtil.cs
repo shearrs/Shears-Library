@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Shears
 {
-    public static class AnimatorExtensions
+    public static class AnimatorUtil
     {
         public static bool IsPlaying(this Animator animator, string animationName)
         {

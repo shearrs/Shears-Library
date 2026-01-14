@@ -18,13 +18,14 @@ namespace Shears.Tweens
         [field: SerializeField] public LoopMode LoopMode { get; private set; }
 
         [field: Header("Ease Settings")]
-        [field: SerializeField] public bool UsesCurve { get; private set; } = false;
-        [field: SerializeField, ShowIf("!UsesCurve")] public TweenEase EasingFunction { get; private set; } = TweenEase.Linear;
-        [field: SerializeField, ShowIf("UsesCurve")] public AnimationCurve Curve { get; private set; }
+        [SerializeField] private bool usesCurve = false;
+        [field: SerializeField, ShowIf("!usesCurve")] public TweenEase EasingFunction { get; private set; } = TweenEase.Linear;
+        [field: SerializeField, ShowIf("usesCurve")] public AnimationCurve Curve { get; private set; }
 
         [Header("Events")]
         [SerializeField] private List<TweenUnityEvent> unityEvents = new();
 
+        public bool UsesCurve => usesCurve;
         public IReadOnlyList<TweenEventBase> Events => unityEvents;
     }
 }
