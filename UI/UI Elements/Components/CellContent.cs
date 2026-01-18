@@ -9,6 +9,9 @@ namespace Shears.UI
         [SerializeField]
         private new Renderer renderer;
 
+        [SerializeField]
+        private ElementCell cell;
+
         [SerializeField, RuntimeReadOnly]
         private bool isDraggable = true;
 
@@ -28,6 +31,9 @@ namespace Shears.UI
             __AutoAwake();
 
             element.DragBeginTime = dragBeginTime;
+
+            if (cell != null)
+                cell.SetContent(this);
         }
 
         private void Start()
@@ -70,6 +76,8 @@ namespace Shears.UI
             colorModulator.CanChangeColor = false;
 
             offset = evt.PointerWorldOffset;
+
+            transform.SetParent(null);
         }
 
         private void OnDrag(DragEvent evt)
@@ -89,8 +97,17 @@ namespace Shears.UI
             else
                 colorModulator.ClearModulation();
 
-            if (UIElementEventSystem.TryRaycastElement(out ElementCell cell))
-                cell.SetContent(this);
+            if (UIElementEventSystem.TryRaycastElement(out ElementCell newCell))
+            {
+                if (cell != null)
+                    cell.SetContent(null);
+
+                newCell.SetContent(this);
+
+                cell = newCell;
+            }
+            else if (cell != null)
+                cell.SetContent(this); // reset us back to our original cell
         }
     }
 }
