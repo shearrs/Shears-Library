@@ -102,6 +102,7 @@ namespace Shears.UI
                 Material.color = originalColor * notSelectableColor;
 
             selectable = value;
+            colorModulator.CanChangeColor = selectable;
         }
     }
 }
