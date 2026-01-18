@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 namespace Shears
@@ -6,12 +7,16 @@ namespace Shears
     [DefaultExecutionOrder(1000)]
     public class SpringRotator : MonoBehaviour
     {
-        [Header("Settings")]
+        [Header("Spring Settings")]
         [SerializeField] private Transform targetTransform;
         [SerializeField] private Vector3 offset = Vector3.zero;
-        [SerializeField] private bool fixedUpdate = true;
         [SerializeField] private float strength = 5000.0f;
         [SerializeField] private float damping = 10.0f;
+
+        [Header("Update Settings")]
+        [SerializeField] private bool usesFixedUpdate = true;
+        [SerializeField, ShowIf(nameof(usesFixedUpdate)), RuntimeReadOnly] private bool usesCustomFixedTimestep = false;
+        [SerializeField, ShowIf(nameof(usesCustomFixedTimestep)), Min(0.001f)] private float timestep = 0.01f;
 
         [Header("Constraints")]
         [SerializeField] private Range<float> xRange = new(-180f, 180f);
@@ -40,9 +45,15 @@ namespace Shears
                 waitTarget.Updated += SpringToTarget;
         }
 
+        private void OnEnable()
+        {
+            if (usesCustomFixedTimestep && waitTarget == null)
+                StartCoroutine(IECustomFixedUpdate());
+        }
+
         private void LateUpdate()
         {
-            if (fixedUpdate)
+            if (usesFixedUpdate || usesCustomFixedTimestep)
                 return;
 
             if (waitTarget == null)
@@ -51,11 +62,21 @@ namespace Shears
 
         private void FixedUpdate()
         {
-            if (!fixedUpdate)
+            if (!usesFixedUpdate || usesCustomFixedTimestep)
                 return;
 
             if (waitTarget == null)
                 SpringToTarget();
+        }
+
+        private IEnumerator IECustomFixedUpdate()
+        {
+            while (true)
+            {
+                yield return CoroutineUtil.WaitForSeconds(timestep);
+
+                SpringToTarget();
+            }
         }
 
         public void SyncRotation()
@@ -76,6 +97,7 @@ namespace Shears
         private void SpringToTarget()
         {
             Quaternion targetRotation;
+            float deltaTime = usesCustomFixedTimestep ? timestep : Time.deltaTime;
 
             if (waitTarget != null)
                 targetRotation = waitTarget.Rotation;
@@ -89,14 +111,14 @@ namespace Shears
             Vector3 angularDisplacement = Vector3.ClampMagnitude(AngularError(deltaRotation), 45f * Mathf.Deg2Rad);
             Vector3 torque = -((strength * angularDisplacement) + (damping * angularVelocity));
 
-            angularVelocity += torque * Time.deltaTime;
+            angularVelocity += torque * deltaTime;
 
             float magnitude = angularVelocity.magnitude;
 
             if (Mathf.Approximately(magnitude, 0.0f))
                 return;
 
-            Quaternion angularVelocityQuat = Quaternion.AngleAxis(Time.deltaTime * magnitude, angularVelocity / magnitude);
+            Quaternion angularVelocityQuat = Quaternion.AngleAxis(deltaTime * magnitude, angularVelocity / magnitude);
             rotation = angularVelocityQuat * rotation;
 
             transform.rotation = rotation;
