@@ -7,6 +7,8 @@ namespace Shears
     [DefaultExecutionOrder(1000)]
     public class SpringRotator : MonoBehaviour
     {
+        private const float PRECISION_CUTOFF = 0.005f;
+
         [Header("Spring Settings")]
         [SerializeField] private Transform targetTransform;
         [SerializeField] private Vector3 offset = Vector3.zero;
@@ -26,6 +28,8 @@ namespace Shears
         private SpringRotator waitTarget;
         private Quaternion rotation;
         private Vector3 angularVelocity;
+        private float velocityMagnitude;
+        private float angularErrorSqrMagnitude;
 
         internal Quaternion Rotation => rotation;
         public Vector3 Offset { get => offset; set => offset = value; }
@@ -34,6 +38,9 @@ namespace Shears
         public Range<float> XRange { get => xRange; set => xRange = value; }
         public Range<float> YRange { get => yRange; set => yRange = value; }
         public Range<float> ZRange { get => zRange; set => zRange = value; }
+        public float VelocityMagnitude => velocityMagnitude;
+        public float AngularErrorSqrMagnitude => angularErrorSqrMagnitude;
+        public bool IsAtTarget => velocityMagnitude < PRECISION_CUTOFF && angularErrorSqrMagnitude < PRECISION_CUTOFF * PRECISION_CUTOFF;
 
         public event Action Updated;
 
@@ -94,6 +101,8 @@ namespace Shears
             transform.rotation = rotation;
         }
 
+        public bool IsWithinPrecision(float velocityPrecision, float anglePrecision) => velocityMagnitude < velocityPrecision && angularErrorSqrMagnitude < anglePrecision * anglePrecision;
+
         private void SpringToTarget()
         {
             Quaternion targetRotation;
@@ -107,18 +116,26 @@ namespace Shears
             targetRotation = Quaternion.Euler(targetTransform.TransformDirection(offset)) * targetRotation;
 
             Quaternion deltaRotation = ShortestRotation(rotation, targetRotation);
-
-            Vector3 angularDisplacement = Vector3.ClampMagnitude(AngularError(deltaRotation), 45f * Mathf.Deg2Rad);
+            Vector3 angularError = AngularError(deltaRotation);
+            Vector3 angularDisplacement = Vector3.ClampMagnitude(angularError, 45f * Mathf.Deg2Rad);
             Vector3 torque = -((strength * angularDisplacement) + (damping * angularVelocity));
 
             angularVelocity += torque * deltaTime;
+            velocityMagnitude = angularVelocity.magnitude;
+            angularErrorSqrMagnitude = angularError.sqrMagnitude;
 
-            float magnitude = angularVelocity.magnitude;
+            if (velocityMagnitude < PRECISION_CUTOFF && angularErrorSqrMagnitude < PRECISION_CUTOFF * PRECISION_CUTOFF)
+            {
+                rotation = targetRotation;
+                transform.rotation = rotation;
+                angularVelocity = Vector3.zero;
 
-            if (Mathf.Approximately(magnitude, 0.0f))
+                Updated?.Invoke();
+                
                 return;
+            }
 
-            Quaternion angularVelocityQuat = Quaternion.AngleAxis(deltaTime * magnitude, angularVelocity / magnitude);
+            Quaternion angularVelocityQuat = Quaternion.AngleAxis(deltaTime * velocityMagnitude, angularVelocity / velocityMagnitude);
             rotation = angularVelocityQuat * rotation;
 
             transform.rotation = rotation;
