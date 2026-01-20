@@ -237,6 +237,22 @@ namespace Shears.Tweens
         }
         #endregion
 
+        #region Renderer Tweens
+        public static Tween DoColorTween(this Renderer renderer, Color targetColor, ITweenData data = null) => Do(GetColorTween(renderer, targetColor, data));
+        public static Tween GetColorTween(this Renderer renderer, Color targetColor, ITweenData data = null)
+        {
+            var mat = renderer.material;
+            Color start = mat.color;
+
+            void update(float t)
+            {
+                mat.color = Color.LerpUnclamped(start, targetColor, t);
+            }
+
+            return CreateAutoDisposeTween(renderer, update, data);
+        }
+        #endregion
+
         #region SpriteRenderer Tweens
         public static Tween DoColorTween(this SpriteRenderer spriteRenderer, Color targetColor, ITweenData data = null) => Do(GetColorTween(spriteRenderer, targetColor, data));
         public static Tween GetColorTween(this SpriteRenderer spriteRenderer, Color targetColor, ITweenData data = null)

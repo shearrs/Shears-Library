@@ -26,6 +26,10 @@ namespace Shears.UI
         private Vector3 offset;
         private bool initialized = false;
 
+        public Renderer Renderer => renderer;
+        public ElementCell Cell => cell;
+        public ColorModulator ColorModulator => colorModulator;
+
         private void Awake()
         {
             __AutoAwake();
@@ -70,6 +74,12 @@ namespace Shears.UI
             isDraggable = false;
         }
 
+        public void ResetToCell()
+        {
+            if (cell != null)
+                cell.SetContent(this);
+        }
+
         private void OnDragBegin(DragBeginEvent evt)
         {
             colorModulator.TweenToPressed();
@@ -107,7 +117,7 @@ namespace Shears.UI
                 cell = newCell;
             }
             else if (cell != null)
-                cell.SetContent(this); // reset us back to our original cell
+                ResetToCell();
         }
     }
 }
