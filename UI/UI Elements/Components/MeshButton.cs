@@ -55,6 +55,12 @@ namespace Shears.UI
                 material.color = originalColor * notSelectableColor;
         }
 
+        [ContextMenu("Click")]
+        public void Click()
+        {
+            OnClickedImplementation();
+        }
+
         protected override void RegisterEvents()
         {
             RegisterEvent<PointerDownEvent>(OnPointerDown);
@@ -67,21 +73,23 @@ namespace Shears.UI
                 return;
 
             if (clickOnMouseDown)
-            {
-                Clicked?.Invoke();
-                clicked.Invoke();
-            }
+                OnClickedImplementation();
         }
 
         private void OnClicked(ClickEvent evt)
         {
-            if (!selectable || clickOnMouseDown)
+            if (!selectable)
                 return;
 
+            OnClickedImplementation();
+        }
+    
+        private void OnClickedImplementation()
+        {
             Clicked?.Invoke();
             clicked.Invoke();
         }
-    
+
         private void SetSelectable(bool value)
         {
             if (value == selectable)
