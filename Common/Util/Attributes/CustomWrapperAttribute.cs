@@ -7,6 +7,7 @@ namespace Shears
     {
         public string[] DisplayFields { get; set; } = null;
         public bool ShowAllFields { get; set; } = false;
+        public bool HideFoldout { get; set; } = false;
 
         public CustomWrapperAttribute()
         {
