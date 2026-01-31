@@ -52,6 +52,12 @@ namespace Shears.StateMachineGraphs
             state.ParentState = this;
         }
 
+        public void AddSubStates(params State[] states)
+        {
+            foreach (var state in states)
+                AddSubState(state);
+        }
+
         public void AddTransition(Func<bool> manualTransition, State returnState)
         {
             manualTransitions.Add(() =>
