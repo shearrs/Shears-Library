@@ -218,7 +218,7 @@ namespace Shears.HitDetection
                 hurtBody.OnHitReceived(hitData);
                 OnHitDelivered(hitData);
 
-                if (!multiHits && hitData.Blocked) // we don't store blocking as they can continue blocking
+                if (!multiHits && !hitData.Blocked) // we don't store blocking as they can continue blocking
                     unclearedHits.Add(hurtBody);
             }
         }
