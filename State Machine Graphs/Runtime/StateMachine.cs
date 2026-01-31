@@ -37,6 +37,7 @@ namespace Shears.StateMachineGraphs
         public IReadOnlyCollection<State> States => states.Values;
 
         public event Action<State> EnteredState;
+        public event Action<State> ExitedState;
 
         private void Awake()
         {
@@ -274,6 +275,8 @@ namespace Shears.StateMachineGraphs
             {
                 currentState.Exit();
                 stateTree.RemoveAt(stateTree.Count - 1);
+
+                ExitedState?.Invoke(currentState);
 
                 currentState = currentState.ParentState;
             }
