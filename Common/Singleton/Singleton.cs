@@ -26,6 +26,7 @@ namespace Shears
                 instance = value;
             }
         }
+
         protected static bool CanCreateInstance => Application.isPlaying;
 
         protected virtual void Awake()
