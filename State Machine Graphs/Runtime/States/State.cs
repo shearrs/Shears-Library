@@ -14,6 +14,7 @@ namespace Shears.StateMachineGraphs
         [SerializeReference] private State parentState;
         [SerializeReference] private State defaultSubState;
 
+        private readonly List<Func<State>> manualTransitions = new();
         private IParameterProvider parameterProvider;
         private State subState;
         private bool isActive;
@@ -51,6 +52,17 @@ namespace Shears.StateMachineGraphs
             state.ParentState = this;
         }
 
+        public void AddTransition(Func<bool> manualTransition, State returnState)
+        {
+            manualTransitions.Add(() =>
+            {
+                if (manualTransition())
+                    return returnState;
+
+                return null;
+            });
+        }
+
         internal void AddTransition(Transition transition) => transitions.Add(transition);
 
         internal bool EvaluateTransitions(out State newState)
@@ -64,6 +76,17 @@ namespace Shears.StateMachineGraphs
                 }
             }
             
+            foreach (var transition in manualTransitions)
+            {
+                var state = transition();
+
+                if (state != null)
+                {
+                    newState = state;
+                    return true;
+                }
+            }
+
             newState = null;
             return false;
         }
