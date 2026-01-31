@@ -24,6 +24,7 @@ namespace Shears.Cameras
 
         [Header("Occlusion Settings")]
         [SerializeField] private bool occlusionEnabled = true;
+        [SerializeField] private float occlusionMoveSpeed = 1.0f;
         [SerializeField, ShowIf("occlusionEnabled")] private LayerMask occlusionLayers = 1;
         [SerializeField, ShowIf("occlusionEnabled"), Min(0)] private float occlusionRadius = 0.5f;
         [SerializeField, ShowIf("occlusionEnabled"), Min(0)] private float occlusionPadding = 0.1f;
@@ -98,13 +99,13 @@ namespace Shears.Cameras
 
         private void UpdateOcclusion()
         {
-            Vector3 direction = (transform.position - FocusPosition).normalized;
+            Vector3 direction = (targetPosition - FocusPosition).normalized;
 
             if (Physics.SphereCast(FocusPosition, occlusionRadius, direction, out var hit, zoom, occlusionLayers))
             {
                 float distance = (hit.distance - occlusionPadding >= 0) ? hit.distance - occlusionPadding : 0.1f;
 
-                targetDistance = distance;
+                targetDistance = Mathf.MoveTowards(targetDistance, distance, occlusionMoveSpeed * Time.fixedDeltaTime);
             }
             else
                 targetDistance = zoom;
