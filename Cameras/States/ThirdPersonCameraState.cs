@@ -11,7 +11,7 @@ namespace Shears.Cameras
         [SerializeField] private Vector3 lookAtOffset;
 
         [Header("Movement Settings")]
-        [SerializeField] private float sensitivity = 1f;
+        [SerializeField] private float sensitivity = 0.2f;
         [SerializeField, Min(0)] private float smoothing = 25f;
         [SerializeField, Range(-89f, 89f)] private float minXRotation = -89f;
         [SerializeField, Range(-89f, 89f)] private float maxXRotation = 89f;

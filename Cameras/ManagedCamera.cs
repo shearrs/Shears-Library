@@ -7,27 +7,21 @@ namespace Shears.Cameras
     [RequireComponent(typeof(Camera))]
     public class ManagedCamera : MonoBehaviour
     {
-        [SerializeField] private ManagedInputMap inputMap;
+        [SerializeField] private bool initializeOnAwake = true;
+        [SerializeField] private ManagedInputProvider inputMap;
         [SerializeField] private List<CameraState> states = new();
 
         private Camera rawCamera;
         private CameraState currentState;
 
-        public ManagedInputMap InputMap { get => inputMap; set => inputMap = value; }
+        public bool InitializeOnAwake { get => initializeOnAwake; set => initializeOnAwake = value; }
+        public ManagedInputProvider Input { get => inputMap; set => inputMap = value; }
         public Camera RawCamera => rawCamera;
 
         private void Awake()
         {
-            rawCamera = GetComponent<Camera>();
-
-            foreach (var state in states)
-            {
-                state.SetGlobalValues(transform, inputMap);
-                state.Initialize();
-            }
-
-            if (states.Count > 0)
-                SetState(states[0]);
+            if (initializeOnAwake)
+                Initialize();
         }
 
         private void OnDisable()
@@ -46,6 +40,20 @@ namespace Shears.Cameras
         {
             if (currentState != null)
                 currentState.FixedUpdateState();
+        }
+
+        public void Initialize()
+        {
+            rawCamera = GetComponent<Camera>();
+
+            foreach (var state in states)
+            {
+                state.SetGlobalValues(transform, inputMap);
+                state.Initialize();
+            }
+
+            if (states.Count > 0)
+                SetState(states[0]);
         }
 
         public void SetState(CameraState state)
