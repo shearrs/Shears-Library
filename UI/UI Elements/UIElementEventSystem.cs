@@ -160,7 +160,7 @@ namespace Shears.UI
 
         private void ClearFocus()
         {
-            if (focusedElement == null)
+            if (applicationIsQuitting || focusedElement == null)
                 return;
 
             focusedElement.InvokeEvent(new FocusExitEvent());
