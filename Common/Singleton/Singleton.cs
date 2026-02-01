@@ -60,6 +60,8 @@ namespace Shears
             GameObject obj = new(typeof(T).Name, typeof(T));
             T component = obj.GetComponent<T>();
 
+            Debug.Log($"Created singleton: {typeof(T).Name}.");
+
             return component;
         }
 
