@@ -41,6 +41,7 @@ namespace Shears.Cameras
 
         private Vector3 FocusPosition => target.TransformPoint(lookAtOffset);
 
+        public Transform Target { get => target; set => target = value; }
         public float Smoothing { get => smoothing; set => smoothing = value; } 
         public float Zoom { get => zoom; set => zoom = value; }
         public float MinZoom { get => minZoom; set => minZoom = value; }
@@ -86,6 +87,9 @@ namespace Shears.Cameras
 
         protected override void OnLateUpdate()
         {
+            if (target == null)
+                return;
+
             UpdateZoom();
             UpdateTargetPosition();
             UpdatePosition();
@@ -94,6 +98,9 @@ namespace Shears.Cameras
 
         protected override void OnFixedUpdate()
         {
+            if (target == null)
+                return;
+
             if (occlusionEnabled)
                 UpdateOcclusion();
             else
