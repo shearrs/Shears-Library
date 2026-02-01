@@ -13,6 +13,7 @@ namespace Shears.UI
         [Header("Mesh Button")]
         [SerializeField] private bool selectable = true;
         [SerializeField] private bool clickOnMouseDown = false;
+        [SerializeField] private bool usesUnscaledTime = false;
         [SerializeField] private ManagedImage image;
         [SerializeField] private Color hoverColor = new(0.6f, 0.6f, 0.6f);
         [SerializeField] private Color pressedColor = new(0.4f, 0.4f, 0.4f);
@@ -21,8 +22,8 @@ namespace Shears.UI
         [Header("Events")]
         [SerializeField] private UnityEvent clicked;
 
-        private readonly StructTweenData hoverTweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
-        private readonly StructTweenData notSelectableTweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
+        private readonly TweenData hoverTweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
+        private readonly TweenData notSelectableTweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
         private readonly List<TextMeshProUGUI> textChildren = new();
         private Tween tween;
         private bool isHovered = false;
@@ -195,6 +196,9 @@ namespace Shears.UI
 
         private void TweenToColor(Color color, ITweenData tweenData)
         {
+            hoverTweenData.UnscaledTime = usesUnscaledTime;
+            notSelectableTweenData.UnscaledTime = usesUnscaledTime;
+
             tween.Dispose();
             tween = image.DoModulateTween(color, tweenData);
         }

@@ -19,8 +19,8 @@ namespace Shears.Cameras
         [Header("Zoom Settings")]
         [SerializeField] private float zoomSensitivity = 1f;
         [SerializeField, Min(0)] private float zoomTime = 0.1f;
-        [SerializeField, Min(0)] private float minZoom = 4f;
-        [SerializeField, Min(0)] private float maxZoom = 16f;
+        [SerializeField, Delayed, Min(0)] private float minZoom = 4f;
+        [SerializeField, Delayed, Min(0)] private float maxZoom = 16f;
 
         [Header("Occlusion Settings")]
         [SerializeField] private bool occlusionEnabled = true;
