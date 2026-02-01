@@ -12,6 +12,7 @@ namespace Shears.UI
     {
         [Header("Mesh Button")]
         [SerializeField] private bool selectable = true;
+        [SerializeField] private bool focusable = false;
         [SerializeField] private bool clickOnMouseDown = false;
         [SerializeField] private bool usesUnscaledTime = false;
         [SerializeField] private ManagedImage image;
@@ -26,9 +27,11 @@ namespace Shears.UI
         private readonly TweenData notSelectableTweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
         private readonly List<TextMeshProUGUI> textChildren = new();
         private Tween tween;
+        private bool isFocused = false;
         private bool isHovered = false;
         private bool isFading = false;
 
+        public bool IsFocused => isFocused;
         public bool IsHovered => isHovered;
         public ManagedImage Image { get => image; set => image = value; }
         public bool Selectable { get => selectable; set => SetSelectable(value); }
@@ -36,8 +39,12 @@ namespace Shears.UI
         public event Action Clicked;
         public event Action PointerDown;
         public event Action PointerUp;
+        public event Action Focused;
+        public event Action Unfocused;
         public event Action HoverEntered;
         public event Action HoverExited;
+        public event Action FadeInCompleted;
+        public event Action FadeOutCompleted;
 
         protected override void Awake()
         {
@@ -49,6 +56,8 @@ namespace Shears.UI
 
         protected override void RegisterEvents()
         {
+            RegisterEvent<FocusEnterEvent>(OnFocusEnter);
+            RegisterEvent<FocusExitEvent>(OnFocusExit);
             RegisterEvent<HoverEnterEvent>(OnHoverEnter);
             RegisterEvent<HoverExitEvent>(OnHoverExit);
             RegisterEvent<PointerDownEvent>(OnPointerDown);
@@ -56,7 +65,7 @@ namespace Shears.UI
             RegisterEvent<ClickEvent>(OnClicked);
         }
 
-        public void FadeIn(float duration = 0.5f, Color? modulateColor = null)
+        public void FadeIn(float duration = 0.5f, Color? modulateColor = null, bool unscaledTime = false)
         {
             if (isFading)
             {
@@ -65,7 +74,7 @@ namespace Shears.UI
             }
 
             isFading = true;
-            var tweenData = new StructTweenData(duration, easingFunction: TweenEase.InOutQuad);
+            var tweenData = new StructTweenData(duration, easingFunction: TweenEase.InOutQuad, unscaledTime: unscaledTime);
 
             Enable();
             bool wasSelectable = selectable;
@@ -90,10 +99,11 @@ namespace Shears.UI
             {
                 selectable = wasSelectable;
                 isFading = false;
+                FadeInCompleted?.Invoke();
             };
         }
 
-        public void FadeOut(float duration = 0.5f)
+        public void FadeOut(float duration = 0.5f, bool unscaledTime = false)
         {
             if (isFading)
             {
@@ -102,7 +112,7 @@ namespace Shears.UI
             }
 
             isFading = true;
-            var tweenData = new StructTweenData(duration, easingFunction: TweenEase.InOutQuad);
+            var tweenData = new StructTweenData(duration, easingFunction: TweenEase.InOutQuad, unscaledTime: unscaledTime);
 
             bool wasSelectable = selectable;
             selectable = false;
@@ -131,7 +141,30 @@ namespace Shears.UI
                 Disable();
 
                 isFading = false;
+                FadeOutCompleted?.Invoke();
             };
+        }
+
+        private void OnFocusEnter(FocusEnterEvent evt)
+        {
+            isFocused = true;
+
+            if (!selectable)
+                return;
+
+            Focused?.Invoke();
+            TweenToColor(hoverColor, hoverTweenData);
+        }
+
+        private void OnFocusExit(FocusExitEvent evt)
+        {
+            isFocused = false;
+
+            if (!selectable)
+                return;
+
+            Unfocused?.Invoke();
+            TweenToColor(Color.white, hoverTweenData);
         }
 
         private void OnHoverEnter(HoverEnterEvent evt)
@@ -165,6 +198,9 @@ namespace Shears.UI
             {
                 Clicked?.Invoke();
                 clicked.Invoke();
+
+                if (focusable)
+                    Focus();
             }
 
             PointerDown?.Invoke();
@@ -192,6 +228,9 @@ namespace Shears.UI
 
             Clicked?.Invoke();
             clicked.Invoke();
+
+            if (focusable)
+                Focus();
         }
 
         private void TweenToColor(Color color, ITweenData tweenData)

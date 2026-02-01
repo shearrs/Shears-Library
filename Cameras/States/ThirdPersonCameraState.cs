@@ -42,6 +42,9 @@ namespace Shears.Cameras
         private Vector3 FocusPosition => target.TransformPoint(lookAtOffset);
 
         public float Smoothing { get => smoothing; set => smoothing = value; } 
+        public float Zoom { get => zoom; set => zoom = value; }
+        public float MinZoom { get => minZoom; set => minZoom = value; }
+        public float MaxZoom { get => maxZoom; set => maxZoom = value; }
 
         private void OnValidate()
         {

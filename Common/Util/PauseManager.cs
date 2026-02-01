@@ -5,8 +5,8 @@ namespace Shears
 {
     public static class PauseManager
     {
-        public static event Action OnPause;
-        public static event Action OnUnpause;
+        public static event Action Paused;
+        public static event Action Unpaused;
 
         public static bool IsPaused { get; private set; }
 
@@ -22,7 +22,7 @@ namespace Shears
 
             IsPaused = true;
 
-            OnPause?.Invoke();
+            Paused?.Invoke();
         }
 
         public static void Unpause()
@@ -31,7 +31,7 @@ namespace Shears
 
             IsPaused = false;
 
-            OnUnpause?.Invoke();
+            Unpaused?.Invoke();
         }
 
         public static void TogglePause()

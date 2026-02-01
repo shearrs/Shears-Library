@@ -46,5 +46,13 @@ namespace Shears.Input
 
             return runtimeMap;
         }
+
+        public override ManagedInputType GetMostRecentInputType()
+        {
+            if (ManagedGamepad.Current.WasUpdatedThisFrame)
+                return ManagedGamepad.Current;
+            else
+                return ManagedPointer.Current;
+        }
     }
 }

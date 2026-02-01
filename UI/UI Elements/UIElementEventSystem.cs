@@ -27,6 +27,7 @@ namespace Shears.UI
         private readonly List<RaycastHit> sortedHits = new(MAX_RAYCAST_HITS);
         private readonly HashSet<UIElementCanvas> registeredCanvases = new();
         private readonly List<Graphic> hitGraphics = new();
+        private readonly HashSet<UIElement> registeredElements = new();
 
         private ManagedInputMap inputMap;
 
@@ -34,10 +35,15 @@ namespace Shears.UI
         [AutoEvent(nameof(IManagedInput.Canceled), nameof(OnPointerUp))]
         private IManagedInput clickInput;
 
+        [AutoEvent(nameof(IManagedInput.Started), nameof(OnSelectDown))]
+        [AutoEvent(nameof(IManagedInput.Canceled), nameof(OnSelectUp))]
+        private IManagedInput selectInput;
+
         private static LayerMask detectionMask;
         private UIElement hoveredElement;
         private UIElement draggedElement;
         private UIElement pointerDownElement;
+        private UIElement focusedElement;
         private float pointerDownTime;
         private Vector2 pointerDownPosition;
 
@@ -67,6 +73,7 @@ namespace Shears.UI
                 inputMap = Resources.Load<ManagedInputMap>("ManagedElements/Shears_DefaultEventSystemInputMap");
 
             clickInput = inputMap.GetInput("Click");
+            selectInput = inputMap.GetInput("Select");
 
             if (detectionType == DetectionType.Canvas)
                 canvasSystem = this;
@@ -103,11 +110,63 @@ namespace Shears.UI
 
             canvasSystem.InstDeregisterCanvas(canvas);
         }
-        private void InstDeregisterCanvas(UIElementCanvas canvas)
+        private void InstDeregisterCanvas(UIElementCanvas canvas) => registeredCanvases.Remove(canvas);
+
+        public static void RegisterElement(UIElement element)
         {
-            registeredCanvases.Remove(canvas);
+            if (canvasSystem == null)
+            {
+                SHLogger.Log($"No canvas system was set! You need to have a {nameof(UIElementEventSystem)} with {nameof(detectionType)} set to {nameof(DetectionType.Canvas)}!", SHLogLevels.Error);
+                return;
+            }
+
+            canvasSystem.InstRegisterElement(element);
         }
+        private void InstRegisterElement(UIElement element)
+        {
+            if (!registeredElements.Contains(element))
+                registeredElements.Add(element);
+        }
+
+        public static void DeregisterElement(UIElement element) => canvasSystem.InstDeregisterElement(element);
+        private void InstDeregisterElement(UIElement element) => registeredElements.Remove(element);
         #endregion
+
+        public static void Focus(UIElement element)
+        {
+            if (canvasSystem == null)
+            {
+                SHLogger.Log($"No canvas system was set! You need to have a {nameof(UIElementEventSystem)} with {nameof(detectionType)} set to {nameof(DetectionType.Canvas)}!", SHLogLevels.Error);
+                return;
+            }
+
+            canvasSystem.InstFocus(element);
+        }
+        private void InstFocus(UIElement element)
+        {
+            if (applicationIsQuitting)
+                return;
+
+            ClearFocus();
+
+            focusedElement = element;
+
+            if (focusedElement != null)
+            {
+                focusedElement.InvokeEvent(new FocusEnterEvent());
+                focusedElement.Disabled += ClearFocus;
+            }
+        }
+
+        private void ClearFocus()
+        {
+            if (focusedElement == null)
+                return;
+
+            focusedElement.InvokeEvent(new FocusExitEvent());
+            focusedElement.Disabled -= ClearFocus;
+            focusedElement = null;
+        }
 
         private void UpdateHoveredElement()
         {
@@ -339,6 +398,21 @@ namespace Shears.UI
             }
 
             pointerDownElement = null;
+        }
+
+        private void OnSelectDown()
+        {
+            if (focusedElement != null)
+                focusedElement.InvokeEvent(new PointerDownEvent());
+        }
+
+        private void OnSelectUp()
+        {
+            if (focusedElement != null)
+            {
+                focusedElement.InvokeEvent(new PointerUpEvent());
+                focusedElement.InvokeEvent(new ClickEvent());
+            }
         }
     }
 }

@@ -14,11 +14,18 @@ namespace Shears.UI
         public bool IsEnabled => isEnabled;
         public float DragBeginTime { get => dragBeginTime; set => dragBeginTime = value; }
 
+        public event Action Disabled;
+
         protected virtual void Awake()
         {
             Enable();
 
             RegisterEvents();
+        }
+
+        private void OnDisable()
+        {
+            Disabled?.Invoke();
         }
 
         public void Enable()
@@ -80,6 +87,10 @@ namespace Shears.UI
             foreach (var registration in (List<IEventRegistration<EventType>>)list)
                 registration.Invoke(evt);
         }
+
+        public void Focus() => UIElementEventSystem.Focus(this);
+
+        public void Blur() => UIElementEventSystem.Focus(null);
 
         protected virtual void RegisterEvents() { }
     
