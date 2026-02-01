@@ -56,21 +56,22 @@ namespace Shears.Loading
 
             container.gameObject.SetActive(true);
 
-            coroutineChain
-                .Tween((t) =>
-                {
-                    loadingBar.value = t;
-                }, 3.0f)
-                .Then(() => IsDelaying = false);
+            float elapsedTime = 0.0f;
 
-            yield return coroutineChain.Start();
+            while (elapsedTime < 3.0f)
+            {
+                loadingBar.value = Mathf.Lerp(0, 1, elapsedTime / 3.0f);
+
+                elapsedTime += Time.unscaledDeltaTime;
+                yield return null;
+            }
 
             StartCoroutine(IEDelay());
         }
 
         private IEnumerator IEDelay()
         {
-            yield return CoroutineUtil.WaitForSecondsRealtime(2.0f);
+            yield return CoroutineUtil.WaitForSecondsRealtime(1.0f);
 
             IsDelaying = false;
         }
