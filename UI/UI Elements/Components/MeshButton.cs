@@ -69,6 +69,8 @@ namespace Shears.UI
 
         private void OnPointerDown(PointerDownEvent evt)
         {
+            evt.PreventTrickleDown();
+
             if (!selectable)
                 return;
 
@@ -78,6 +80,8 @@ namespace Shears.UI
 
         private void OnClicked(ClickEvent evt)
         {
+            evt.PreventTrickleDown();
+
             if (!selectable)
                 return;
 
@@ -95,22 +99,25 @@ namespace Shears.UI
             if (value == selectable)
                 return;
 
+            selectable = value;
+
             if (isActiveAndEnabled)
             {
-                if (selectable)
+                if (!selectable)
+                {
                     colorModulator.TweenToColor(notSelectableColor, notSelectableTweenData);
+                    colorModulator.CanChangeColor = false;
+                }
                 else
                 {
                     Color targetColor = IsHovered ? hoverColor : originalColor;
 
+                    colorModulator.CanChangeColor = true;
                     colorModulator.TweenToColor(targetColor, notSelectableTweenData);
                 }
             }
             else
                 Material.color = originalColor * notSelectableColor;
-
-            selectable = value;
-            colorModulator.CanChangeColor = selectable;
         }
     }
 }

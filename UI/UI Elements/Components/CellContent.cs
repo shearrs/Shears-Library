@@ -30,6 +30,7 @@ namespace Shears.UI
         public ElementCell Cell => cell;
         public ColorModulator ColorModulator => colorModulator;
 
+
         private void Awake()
         {
             __AutoAwake();

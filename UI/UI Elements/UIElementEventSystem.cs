@@ -21,7 +21,9 @@ namespace Shears.UI
         private static bool applicationIsQuitting = false;
         private static UIElementEventSystem canvasSystem;
 
-        [SerializeField] private DetectionType detectionType = DetectionType.Canvas;
+        [SerializeField]
+        [AutoProperty("SystemType")]
+        private DetectionType detectionType = DetectionType.Canvas;
 
         private readonly RaycastHit[] results3D = new RaycastHit[MAX_RAYCAST_HITS];
         private readonly List<RaycastHit> sortedHits = new(MAX_RAYCAST_HITS);
@@ -46,8 +48,6 @@ namespace Shears.UI
         private UIElement focusedElement;
         private float pointerDownTime;
         private Vector2 pointerDownPosition;
-
-        public DetectionType SystemType => detectionType;
         #endregion
 
         #region Static Initialization
