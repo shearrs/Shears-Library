@@ -72,7 +72,7 @@ namespace Shears
             T component = obj.GetComponent<T>();
 
             // Use this for debugging singleton creation
-            Debug.Log($"Created singleton: {typeof(T).Name}.");
+            //Debug.Log($"Created singleton: {typeof(T).Name}.");
 
             return component;
         }
