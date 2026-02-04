@@ -69,6 +69,8 @@ namespace Shears.UI
 
         private void OnPointerDown(PointerDownEvent evt)
         {
+            evt.PreventTrickleDown();
+
             if (!selectable)
                 return;
 
@@ -78,6 +80,8 @@ namespace Shears.UI
 
         private void OnClicked(ClickEvent evt)
         {
+            evt.PreventTrickleDown();
+
             if (!selectable)
                 return;
 

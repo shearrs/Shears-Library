@@ -54,6 +54,8 @@ namespace Shears.UI
 
         private void OnHoverEnter(HoverEnterEvent evt)
         {
+            evt.PreventTrickleDown();
+
             isHovered = true;
 
             TweenToHover();
@@ -61,6 +63,8 @@ namespace Shears.UI
 
         private void OnHoverExit(HoverExitEvent evt)
         {
+            evt.PreventTrickleDown();
+
             isHovered = false;
 
             TweenToColor(originalColor, hoverTweenData);
@@ -68,11 +72,15 @@ namespace Shears.UI
 
         private void OnPointerDown(PointerDownEvent evt)
         {
+            evt.PreventTrickleDown();
+
             TweenToPressed();
         }
 
         private void OnPointerUp(PointerUpEvent evt)
         {
+            evt.PreventTrickleDown();
+
             Color targetColor = isHovered ? hoverColor : originalColor;
 
             TweenToColor(targetColor, hoverTweenData);
