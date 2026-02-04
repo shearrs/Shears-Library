@@ -58,6 +58,11 @@ namespace Shears
                 StartCoroutine(IECustomFixedUpdate());
         }
 
+        private void OnDisable()
+        {
+            StopAllCoroutines();
+        }
+
         private void LateUpdate()
         {
             if (usesFixedUpdate || usesCustomFixedTimestep)
