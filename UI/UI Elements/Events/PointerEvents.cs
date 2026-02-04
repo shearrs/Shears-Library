@@ -2,6 +2,6 @@ using UnityEngine;
 
 namespace Shears.UI
 {
-    public readonly struct PointerDownEvent : IUIEvent { }
-    public readonly struct PointerUpEvent : IUIEvent { }
+    public class PointerDownEvent : UIEvent { }
+    public class PointerUpEvent : UIEvent { }
 }

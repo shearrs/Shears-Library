@@ -2,5 +2,5 @@ using UnityEngine;
 
 namespace Shears.UI
 {
-    public readonly struct ClickEvent : IUIEvent { }
+    public class ClickEvent : UIEvent { }
 }

@@ -2,6 +2,6 @@ using UnityEngine;
 
 namespace Shears.UI
 {
-    public readonly struct FocusEnterEvent : IUIEvent { }
-    public readonly struct FocusExitEvent : IUIEvent { }
+    public class FocusEnterEvent : UIEvent { }
+    public class FocusExitEvent : UIEvent { }
 }

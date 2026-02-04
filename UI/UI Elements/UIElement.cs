@@ -8,6 +8,7 @@ namespace Shears.UI
     public class UIElement : SHMonoBehaviourLogger
     {
         private readonly Dictionary<Type, object> registrations = new();
+        private readonly List<UIElement> childElements = new();
         private bool isEnabled = false;
         private float dragBeginTime = 0.1f;
 
@@ -54,7 +55,7 @@ namespace Shears.UI
         }
 
         public void RegisterEvent<EventType>(Action<EventType> callback)
-            where EventType : struct, IUIEvent
+            where EventType : UIEvent
         {
             var eventType = typeof(EventType);
 
@@ -68,7 +69,7 @@ namespace Shears.UI
         }
 
         public void DeregisterEvent<EventType>(Action<EventType> callback)
-            where EventType: struct, IUIEvent
+            where EventType: UIEvent
         {
             var eventType = typeof(EventType);
 
@@ -79,13 +80,26 @@ namespace Shears.UI
         }
 
         internal void InvokeEvent<EventType>(EventType evt)
-            where EventType : struct, IUIEvent
+            where EventType : UIEvent
         {
-            if (!registrations.TryGetValue(typeof(EventType), out var list))
+            if (registrations.TryGetValue(typeof(EventType), out var list))
+            {
+                foreach (var registration in (List<IEventRegistration<EventType>>)list)
+                    registration.Invoke(evt);
+            }
+
+            if (!evt.WillTrickleDown)
                 return;
 
-            foreach (var registration in (List<IEventRegistration<EventType>>)list)
-                registration.Invoke(evt);
+            GetComponentsInChildren(childElements);
+
+            foreach (var child in childElements)
+            {
+                if (child == this)
+                    continue;
+
+                child.InvokeEvent(evt);
+            }
         }
 
         public void Focus() => UIElementEventSystem.Focus(this);
