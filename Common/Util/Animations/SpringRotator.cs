@@ -47,13 +47,13 @@ namespace Shears
         private void Start()
         {
             rotation = transform.rotation;
-
-            if (targetTransform.TryGetComponent(out waitTarget))
-                waitTarget.Updated += SpringToTarget;
         }
 
         private void OnEnable()
         {
+            if (waitTarget != null || targetTransform.TryGetComponent(out waitTarget))
+                waitTarget.Updated += SpringToTarget;
+
             if (usesCustomFixedTimestep && waitTarget == null)
                 StartCoroutine(IECustomFixedUpdate());
         }
@@ -61,6 +61,9 @@ namespace Shears
         private void OnDisable()
         {
             StopAllCoroutines();
+
+            if (waitTarget != null)
+                waitTarget.Updated -= SpringToTarget;
         }
 
         private void LateUpdate()
