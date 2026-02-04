@@ -13,6 +13,7 @@ namespace Shears.Loading
         [SerializeField] private RectTransform container;
         [SerializeField] private Slider loadingBar;
 
+        private readonly TweenData tweenData = new(unscaledTime: true);
         private CoroutineChain coroutineChain;
 
         public Canvas Canvas => canvas;
@@ -48,28 +49,29 @@ namespace Shears.Loading
 
             backgroundImage.color = transparentColor;
 
-            var tween = backgroundImage.DoColorTween(color);
+            var tween = backgroundImage.DoColorTween(color, tweenData);
 
             while (tween.IsPlaying)
                 yield return null;
 
             container.gameObject.SetActive(true);
 
-            coroutineChain
-                .Tween((t) =>
-                {
-                    loadingBar.value = t;
-                }, 3.0f)
-                .Then(() => IsDelaying = false);
+            float elapsedTime = 0.0f;
 
-            yield return coroutineChain.Start();
+            while (elapsedTime < 3.0f)
+            {
+                loadingBar.value = Mathf.Lerp(0, 1, elapsedTime / 3.0f);
+
+                elapsedTime += Time.unscaledDeltaTime;
+                yield return null;
+            }
 
             StartCoroutine(IEDelay());
         }
 
         private IEnumerator IEDelay()
         {
-            yield return CoroutineUtil.WaitForSeconds(2.0f);
+            yield return CoroutineUtil.WaitForSecondsRealtime(1.0f);
 
             IsDelaying = false;
         }
@@ -80,7 +82,7 @@ namespace Shears.Loading
             container.gameObject.SetActive(false);
 
             var transparentColor = backgroundImage.color.With(a:0.0f);
-            var tween = backgroundImage.DoColorTween(transparentColor);
+            var tween = backgroundImage.DoColorTween(transparentColor, tweenData);
 
             while (tween.IsPlaying)
                 yield return null;

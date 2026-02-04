@@ -11,7 +11,7 @@ namespace Shears.Cameras
         [SerializeField] private Vector3 lookAtOffset;
 
         [Header("Movement Settings")]
-        [SerializeField] private float sensitivity = 1f;
+        [SerializeField] private float sensitivity = 0.2f;
         [SerializeField, Min(0)] private float smoothing = 25f;
         [SerializeField, Range(-89f, 89f)] private float minXRotation = -89f;
         [SerializeField, Range(-89f, 89f)] private float maxXRotation = 89f;
@@ -19,11 +19,12 @@ namespace Shears.Cameras
         [Header("Zoom Settings")]
         [SerializeField] private float zoomSensitivity = 1f;
         [SerializeField, Min(0)] private float zoomTime = 0.1f;
-        [SerializeField, Min(0)] private float minZoom = 4f;
-        [SerializeField, Min(0)] private float maxZoom = 16f;
+        [SerializeField, Delayed, Min(0)] private float minZoom = 4f;
+        [SerializeField, Delayed, Min(0)] private float maxZoom = 16f;
 
         [Header("Occlusion Settings")]
         [SerializeField] private bool occlusionEnabled = true;
+        [SerializeField] private float occlusionMoveSpeed = 1.0f;
         [SerializeField, ShowIf("occlusionEnabled")] private LayerMask occlusionLayers = 1;
         [SerializeField, ShowIf("occlusionEnabled"), Min(0)] private float occlusionRadius = 0.5f;
         [SerializeField, ShowIf("occlusionEnabled"), Min(0)] private float occlusionPadding = 0.1f;
@@ -40,7 +41,11 @@ namespace Shears.Cameras
 
         private Vector3 FocusPosition => target.TransformPoint(lookAtOffset);
 
+        public Transform Target { get => target; set => target = value; }
         public float Smoothing { get => smoothing; set => smoothing = value; } 
+        public float Zoom { get => zoom; set => zoom = value; }
+        public float MinZoom { get => minZoom; set => minZoom = value; }
+        public float MaxZoom { get => maxZoom; set => maxZoom = value; }
 
         private void OnValidate()
         {
@@ -82,6 +87,9 @@ namespace Shears.Cameras
 
         protected override void OnLateUpdate()
         {
+            if (target == null)
+                return;
+
             UpdateZoom();
             UpdateTargetPosition();
             UpdatePosition();
@@ -90,6 +98,9 @@ namespace Shears.Cameras
 
         protected override void OnFixedUpdate()
         {
+            if (target == null)
+                return;
+
             if (occlusionEnabled)
                 UpdateOcclusion();
             else
@@ -98,13 +109,13 @@ namespace Shears.Cameras
 
         private void UpdateOcclusion()
         {
-            Vector3 direction = (transform.position - FocusPosition).normalized;
+            Vector3 direction = (targetPosition - FocusPosition).normalized;
 
             if (Physics.SphereCast(FocusPosition, occlusionRadius, direction, out var hit, zoom, occlusionLayers))
             {
                 float distance = (hit.distance - occlusionPadding >= 0) ? hit.distance - occlusionPadding : 0.1f;
 
-                targetDistance = distance;
+                targetDistance = Mathf.MoveTowards(targetDistance, distance, occlusionMoveSpeed * Time.fixedDeltaTime);
             }
             else
                 targetDistance = zoom;

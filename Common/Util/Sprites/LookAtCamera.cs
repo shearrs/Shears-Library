@@ -18,7 +18,7 @@ namespace Shears
         {
             Look();
         }
-
+        
         private void Look()
         {
             Vector3 direction = (invertRotation) ?

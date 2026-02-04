@@ -10,8 +10,9 @@ namespace Shears.UI
         [SerializeField, RuntimeReadOnly] private readonly UIElement element;
         [SerializeField, RuntimeReadOnly] private readonly Material material;
         [SerializeField] private bool canChangeColor = true;        
-        [SerializeField] private Color hoverColor = new(0.6f, 0.6f, 0.6f);
-        [SerializeField] private Color pressedColor = new(0.4f, 0.4f, 0.4f);
+        [SerializeField] private Color hoverColor = new(0.6f, 0.6f, 0.6f, 1.0f);
+        [SerializeField] private Color pressedColor = new(0.4f, 0.4f, 0.4f, 1.0f);
+
         private Color originalColor;
         private Tween tween;
         private bool isHovered;
@@ -28,12 +29,14 @@ namespace Shears.UI
             Color? hoverColor = null, Color? pressedColor = null
         )
         {
-            originalColor = material.color;
+            // I just hard coded this because SpriteRenderers handle color differently
+            // Obviously a smarter solution would be preferable
+            originalColor = material.color.With(a: 1.0f);
 
             this.element = element;
             this.material = material;
-            this.hoverColor = hoverColor != null ? hoverColor.Value : new(0.6f, 0.6f, 0.6f);
-            this.pressedColor = pressedColor != null ? pressedColor.Value : new(0.4f, 0.4f, 0.4f);
+            this.hoverColor = hoverColor != null ? hoverColor.Value : new(0.6f, 0.6f, 0.6f, 1.0f);
+            this.pressedColor = pressedColor != null ? pressedColor.Value : new(0.4f, 0.4f, 0.4f, 1.0f);
 
             element.RegisterEvent<HoverEnterEvent>(OnHoverEnter);
             element.RegisterEvent<HoverExitEvent>(OnHoverExit);
@@ -51,6 +54,8 @@ namespace Shears.UI
 
         private void OnHoverEnter(HoverEnterEvent evt)
         {
+            evt.PreventTrickleDown();
+
             isHovered = true;
 
             TweenToHover();
@@ -58,6 +63,8 @@ namespace Shears.UI
 
         private void OnHoverExit(HoverExitEvent evt)
         {
+            evt.PreventTrickleDown();
+
             isHovered = false;
 
             TweenToColor(originalColor, hoverTweenData);
@@ -65,11 +72,15 @@ namespace Shears.UI
 
         private void OnPointerDown(PointerDownEvent evt)
         {
+            evt.PreventTrickleDown();
+
             TweenToPressed();
         }
 
         private void OnPointerUp(PointerUpEvent evt)
         {
+            evt.PreventTrickleDown();
+
             Color targetColor = isHovered ? hoverColor : originalColor;
 
             TweenToColor(targetColor, hoverTweenData);

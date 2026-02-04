@@ -2,6 +2,6 @@ using UnityEngine;
 
 namespace Shears.UI
 {
-    public readonly struct HoverEnterEvent : IUIEvent { }
-    public readonly struct HoverExitEvent : IUIEvent { }
+    public class HoverEnterEvent : UIEvent { }
+    public class HoverExitEvent : UIEvent { }
 }

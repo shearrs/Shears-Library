@@ -108,7 +108,7 @@ namespace Shears.Tweens
                     tween = target.GetMoveTween(toData.Position, data);
                     break;
                 case TweenType.LocalMove:
-                    target.position = fromData.Position;
+                    target.localPosition = fromData.Position;
                     tween = target.GetMoveLocalTween(toData.Position, data);
                     break;
                 case TweenType.Rotate:
@@ -116,7 +116,7 @@ namespace Shears.Tweens
                     tween = target.GetRotateTween(Quaternion.Euler(toData.Rotation), shortestPathRotation, data);
                     break;
                 case TweenType.LocalRotate:
-                    target.rotation = Quaternion.Euler(fromData.Rotation);
+                    target.localRotation = Quaternion.Euler(fromData.Rotation);
                     tween = target.GetRotateLocalTween(Quaternion.Euler(toData.Rotation), shortestPathRotation, data);
                     break;
                 case TweenType.LocalScale:

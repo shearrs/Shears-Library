@@ -74,7 +74,7 @@ namespace Shears.Tweens
             this.duration = duration;
             this.forceFinalValue = forceFinalValue;
             this.updateMode = updateMode;
-            this.unscaledTime = false;
+            this.unscaledTime = unscaledTime;
             this.loops = loops;
             this.loopMode = loopMode;
             this.easingFunction = easingFunction;

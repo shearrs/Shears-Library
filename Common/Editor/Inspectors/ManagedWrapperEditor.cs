@@ -101,12 +101,14 @@ namespace Shears.Editor
 
                     root.AddAll(defaultFields, displayFieldsContainer);
 
-                    if (wrappedFields.childCount > 0)
+                    if (wrappedFields.childCount > 0 && !attribute.HideFoldout)
                     {
                         var wrappedFoldout = createFoldout(wrappedFields);
                         root.Add(wrappedFoldout);
                     }
                 }
+                else if (attribute.HideFoldout)
+                    root.Add(defaultFields);
                 else
                 {
                     var wrappedFoldout = createFoldout(wrappedFields);
