@@ -26,7 +26,7 @@ namespace Shears.UI
         private ColorModulator colorModulator;
         private bool isFading = false;
 
-        private ColorModulator ColorModulator
+        public ColorModulator ColorModulator
         {
             get
             {
