@@ -7,11 +7,23 @@ namespace Shears.UI
     [Serializable]
     public class ColorModulator
     {
-        [SerializeField, RuntimeReadOnly] private readonly UIElement element;
-        [SerializeField, RuntimeReadOnly] private readonly Material material;
-        [SerializeField] private bool canChangeColor = true;        
-        [SerializeField] private Color hoverColor = new(0.6f, 0.6f, 0.6f, 1.0f);
-        [SerializeField] private Color pressedColor = new(0.4f, 0.4f, 0.4f, 1.0f);
+        [SerializeField, RuntimeReadOnly]
+        private readonly UIElement element;
+
+        [SerializeField, RuntimeReadOnly]
+        private readonly Renderer renderer;
+
+        [SerializeField, RuntimeReadOnly]
+        private readonly Material material;
+
+        [SerializeField]
+        private bool canChangeColor = true;        
+
+        [SerializeField]
+        private Color hoverColor = new(0.6f, 0.6f, 0.6f, 1.0f);
+
+        [SerializeField]
+        private Color pressedColor = new(0.4f, 0.4f, 0.4f, 1.0f);
 
         private Color originalColor;
         private Tween tween;
@@ -20,21 +32,28 @@ namespace Shears.UI
         private readonly TweenData hoverTweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
 
         public bool IsHovered => isHovered;
+        public Renderer Renderer => renderer;
+        public Color OriginalColor => originalColor;
         public Color HoverColor { get => hoverColor; set => hoverColor = value; }
         public Color PressedColor { get => pressedColor; set => pressedColor = value; }
         public bool CanChangeColor { get => canChangeColor; set => canChangeColor = value; }
 
         public ColorModulator(
-            UIElement element, Material material,
+            UIElement element, Renderer renderer,
             Color? hoverColor = null, Color? pressedColor = null
         )
         {
-            // I just hard coded this because SpriteRenderers handle color differently
-            // Obviously a smarter solution would be preferable
-            originalColor = material.color.With(a: 1.0f);
+            this.renderer = renderer;
+
+            if (renderer is SpriteRenderer spriteRenderer)
+                originalColor = spriteRenderer.color.With(a: 1.0f);
+            else
+            {
+                material = renderer.material;
+                originalColor = material.color;
+            }
 
             this.element = element;
-            this.material = material;
             this.hoverColor = hoverColor != null ? hoverColor.Value : new(0.6f, 0.6f, 0.6f, 1.0f);
             this.pressedColor = pressedColor != null ? pressedColor.Value : new(0.4f, 0.4f, 0.4f, 1.0f);
 
@@ -101,7 +120,25 @@ namespace Shears.UI
                 color *= originalColor;
 
             tween.Dispose();
-            tween = material.DoColorTween(color, tweenData);
+
+            if (renderer is SpriteRenderer spriteRenderer)
+                tween = spriteRenderer.DoColorTween(color, tweenData);
+            else
+                tween = material.DoColorTween(color, tweenData);
+        }
+
+        public void AddOnComplete(Action action)
+        {
+            if (tween.IsValid)
+                tween.Completed += action;
+        }
+
+        public void SetColor(Color color)
+        {
+            if (renderer is SpriteRenderer spriteRenderer)
+                spriteRenderer.color = color;
+            else
+                material.color = color;
         }
     }
 }

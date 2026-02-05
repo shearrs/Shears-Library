@@ -43,7 +43,7 @@ namespace Shears.UI
 
         private void Start()
         {
-            colorModulator = new(element, renderer.material);
+            colorModulator = new(element, renderer);
 
             if (isDraggable)
                 EnableDrag();
