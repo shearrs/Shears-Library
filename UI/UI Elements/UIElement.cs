@@ -1,4 +1,5 @@
 using Shears.Logging;
+using Shears.Tweens;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,9 +10,11 @@ namespace Shears.UI
     {
         private readonly Dictionary<Type, object> registrations = new();
         private readonly List<UIElement> childElements = new();
+        private readonly List<Tween> tweens = new();
         private bool isEnabled = false;
         private float dragBeginTime = 0.1f;
 
+        protected IReadOnlyList<Tween> Tweens => tweens;
         public bool IsEnabled => isEnabled;
         public float DragBeginTime { get => dragBeginTime; set => dragBeginTime = value; }
 
@@ -105,6 +108,16 @@ namespace Shears.UI
         public void Focus() => UIElementEventSystem.Focus(this);
 
         public void Blur() => UIElementEventSystem.Focus(null);
+
+        protected void StoreTween(Tween tween) => tweens.Add(tween);
+
+        protected void DisposeTweens()
+        {
+            for (int i = 0; i < tweens.Count; i++)
+                tweens[i].Dispose();
+
+            tweens.Clear();
+        }
 
         protected virtual void RegisterEvents() { }
     

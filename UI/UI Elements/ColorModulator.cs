@@ -140,5 +140,19 @@ namespace Shears.UI
             else
                 material.color = color;
         }
+
+        public void SetColor(float? r = null, float? g = null, float? b = null, float? a = null)
+        {
+            Color newColor = OriginalColor;
+
+            if (r.HasValue)
+                newColor.r = r.Value;
+            if (g.HasValue)
+                newColor.g = g.Value;
+            if (b.HasValue)
+                newColor.b = b.Value;
+            if (a.HasValue)
+                newColor.a = a.Value;
+        }
     }
 }
