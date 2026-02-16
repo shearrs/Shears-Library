@@ -71,6 +71,13 @@ namespace Shears.UI
             element.DeregisterEvent<PointerUpEvent>(OnPointerUp);
         }
 
+        [ContextMenu("Reset Colors")]
+        private void ResetColors()
+        {
+            hoverColor = new(0.6f, 0.6f, 0.6f, 1.0f);
+            pressedColor = new(0.4f, 0.4f, 0.4f, 1.0f);
+        }
+
         private void OnHoverEnter(HoverEnterEvent evt)
         {
             evt.PreventTrickleDown();

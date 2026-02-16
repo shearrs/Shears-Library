@@ -11,6 +11,12 @@ namespace Shears
         [SerializeField]
         private List<ScriptableObject> storedData = new();
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetData()
+        {
+            typedData.Clear();
+        }
+
         protected override void Awake()
         {
             base.Awake();

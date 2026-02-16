@@ -48,6 +48,7 @@ namespace Shears.UI
         private UIElement focusedElement;
         private float pointerDownTime;
         private Vector2 pointerDownPosition;
+        private float dragInitialZ;
         #endregion
 
         #region Static Initialization
@@ -217,20 +218,25 @@ namespace Shears.UI
                 pointerPos = pointerDownPosition;
             }
 
-            var targetElement = (pointerDownElement != null) ? pointerDownElement : draggedElement;
+            var targetElement = (draggedElement != null) ? draggedElement : pointerDownElement;
+            Vector3 targetPosition = targetElement.transform.position;
+
+            if (draggedElement != null)
+                targetPosition.z = dragInitialZ;
 
             Vector3 direction = (camera.transform.position - transform.position);
             var planePosition = camera.ScreenPointToPlanePosition(
                 pointerPos, direction,
-                targetElement.transform.position
+                targetPosition
             );
 
             Vector3 offset = targetElement.transform.position - planePosition;
 
             if (draggedElement == null)
             {
-                draggedElement = pointerDownElement;
+                draggedElement = pointerDownElement.GetDeepestChild();
                 draggedElement.InvokeEvent(new DragBeginEvent(camera, pointerPos, offset));
+                dragInitialZ = targetElement.transform.position.z;
             }
             else if (pointerDownElement == null)
             {

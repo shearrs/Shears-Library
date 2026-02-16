@@ -1,3 +1,5 @@
+using Shears.Tweens;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -27,9 +29,11 @@ namespace Shears.UI
         private bool initialized = false;
 
         public Renderer Renderer => renderer;
-        public ElementCell Cell => cell;
+        public ElementCell Cell { get => cell; set => cell = value; }
         public ColorModulator ColorModulator => colorModulator;
 
+        public event Action DragBegan;
+        public event Action DragEnded;
 
         private void Awake()
         {
@@ -49,6 +53,27 @@ namespace Shears.UI
                 EnableDrag();
 
             initialized = true;
+        }
+
+        public void SetAlpha(float alpha)
+        {
+            var mat = renderer.material;
+
+            mat.color = mat.color.With(a: alpha);
+        }
+
+        public Tween FadeIn(ITweenData data)
+        {
+            var material = renderer.material;
+
+            return material.DoColorTween(material.color.With(a: 1.0f), data);
+        }
+
+        public Tween FadeOut(ITweenData data)
+        {
+            var material = renderer.material;
+
+            return material.DoColorTween(material.color.With(a: 0.0f), data);
         }
 
         public void EnableDrag()
@@ -83,24 +108,33 @@ namespace Shears.UI
 
         private void OnDragBegin(DragBeginEvent evt)
         {
+            evt.PreventTrickleDown();
+
             colorModulator.TweenToPressed();
             colorModulator.CanChangeColor = false;
 
             offset = evt.PointerWorldOffset;
 
             transform.SetParent(null);
+
+            DragBegan?.Invoke();
         }
 
         private void OnDrag(DragEvent evt)
         {
+            evt.PreventTrickleDown();
+
             const float MOVE_SPEED = 8.0f;
 
-            Vector3 targetPosition = evt.PointerWorldPosition + offset;
+            Vector3 pointerWorld = evt.PointerWorldPosition;
+            Vector3 targetPosition = pointerWorld + offset;
             element.transform.position = Vector3.MoveTowards(element.transform.position, targetPosition, MOVE_SPEED * Time.deltaTime);
         }
 
         private void OnDragEnd(DragEndEvent evt)
         {
+            evt.PreventTrickleDown();
+
             colorModulator.CanChangeColor = true;
 
             if (colorModulator.IsHovered)
@@ -114,11 +148,11 @@ namespace Shears.UI
                     cell.SetContent(null);
 
                 newCell.SetContent(this);
-
-                cell = newCell;
             }
             else if (cell != null)
                 ResetToCell();
+
+            DragEnded?.Invoke();
         }
     }
 }

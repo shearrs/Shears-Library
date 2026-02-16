@@ -4,8 +4,9 @@ namespace Shears.UI
 {
     public class UIEvent
     {
-        public bool WillTrickleDown { get; private set; } = true;
+        public bool TrickleDown { get; protected set; } = true;
+        public bool BubbleUp { get; protected set; } = false;
 
-        public void PreventTrickleDown() => WillTrickleDown = false;
+        public void PreventTrickleDown() => TrickleDown = false;
     }
 }
