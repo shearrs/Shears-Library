@@ -8,5 +8,6 @@ namespace Shears.UI
         public bool BubbleUp { get; protected set; } = false;
 
         public void PreventTrickleDown() => TrickleDown = false;
+        public void PreventBubbleUp() => BubbleUp = false;
     }
 }
