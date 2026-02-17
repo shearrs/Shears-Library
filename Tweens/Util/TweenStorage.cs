@@ -9,11 +9,13 @@ namespace Shears.Tweens
 
         public IReadOnlyList<Tween> Tweens => tweens;
 
-        public void Store(Tween tween)
+        public Tween Store(Tween tween)
         {
             tweens.Add(tween);
 
             tween.Completed += () => tweens.Remove(tween);
+
+            return tween;
         }
 
         public void Dispose()
