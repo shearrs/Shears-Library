@@ -14,6 +14,7 @@ namespace Shears.UI
         private bool isEnabled = false;
 
         protected UIElement Element => element;
+        public bool IsEnabled => isEnabled;
 
         protected virtual void Awake()
         {

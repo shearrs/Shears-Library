@@ -1,5 +1,6 @@
 using Shears.Tweens;
 using System;
+using TreeEditor;
 using UnityEngine;
 
 namespace Shears.UI
@@ -124,6 +125,26 @@ namespace Shears.UI
             Color targetColor = isHovered ? hoverColor : originalColor;
 
             TweenToColor(targetColor, hoverTweenData);
+        }
+
+        public Tween FadeIn(ITweenData data)
+        {
+            if (renderer is SpriteRenderer spriteRenderer)
+                tween = spriteRenderer.DoColorTween(spriteRenderer.color.With(a: 1.0f), data);
+            else
+                tween = material.DoColorTween(material.color.With(a: 1.0f), data);
+
+            return tween;
+        }
+
+        public Tween FadeOut(ITweenData data)
+        {
+            if (renderer is SpriteRenderer spriteRenderer)
+                tween = spriteRenderer.DoColorTween(spriteRenderer.color.With(a: 0.0f), data);
+            else
+                tween = material.DoColorTween(material.color.With(a: 0.0f), data);
+
+            return tween;
         }
 
         public void ClearModulation() => TweenToColor(originalColor, hoverTweenData);

@@ -3,8 +3,7 @@ using UnityEngine;
 
 namespace Shears.UI
 {
-    [RequireComponent(typeof(UIElement))]
-    public partial class Dragger : UIManipulator
+    public class DraggableElement : UIManipulator
     {
         [Header("Dragger")]
         [SerializeField, RuntimeReadOnly]
@@ -13,10 +12,26 @@ namespace Shears.UI
         [SerializeField, RuntimeReadOnly, Min(0.0f)]
         private float dragBeginTime = 0.05f;
 
+        [SerializeField]
+        private SpriteRenderer[] renderers;
+
+        [SerializeField]
+        private int dragSortOrder = 100;
+
+        private int[] originalSortOrders;
         private Vector3 offset;
 
         public event Action DragBegan;
         public event Action DragEnded;
+        public event Action<DragReceiver> DragReceiverDetected;
+
+        protected override void Awake()
+        {
+            base.Awake();
+
+            if (renderers != null)
+                originalSortOrders = new int[renderers.Length];
+        }
 
         protected override void RegisterEvents()
         {
@@ -38,6 +53,15 @@ namespace Shears.UI
 
             offset = evt.PointerWorldOffset;
 
+            if (renderers != null)
+            {
+                for (int i = 0; i < renderers.Length; i++)
+                {
+                    originalSortOrders[i] = renderers[i].sortingOrder;
+                    renderers[i].sortingOrder = dragSortOrder + i;
+                }
+            }
+
             DragBegan?.Invoke();
         }
 
@@ -55,6 +79,18 @@ namespace Shears.UI
         private void OnDragEnd(DragEndEvent evt)
         {
             evt.PreventBubbleUp();
+
+            if (UIElementEventSystem.TryRaycastElement(out DragReceiver receiver))
+            {
+                receiver.ReceiveDrag(this);
+                DragReceiverDetected?.Invoke(receiver);
+            }
+
+            if (renderers != null)
+            {
+                for (int i = 0; i < renderers.Length; i++)
+                    renderers[i].sortingOrder = originalSortOrders[i];
+            }
 
             DragEnded?.Invoke();
         }

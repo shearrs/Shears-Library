@@ -265,7 +265,7 @@ namespace Shears.UI
             }
         }
 
-        public static bool TryRaycastElement<T>(out T element) where T : UIElement
+        public static bool TryRaycastElement<T>(out T component) where T : Component
         {
             Raycast3D(s_sortedHits, s_sortedResults);
 
@@ -273,14 +273,14 @@ namespace Shears.UI
             {
                 var result = s_sortedResults[i];
 
-                if (result is T typedElement)
+                if (result.TryGetComponent(out T typedComponent))
                 {
-                    element = typedElement;
+                    component = typedComponent;
                     return true;
                 }
             }
 
-            element = null;
+            component = null;
             return false;
         }
 
