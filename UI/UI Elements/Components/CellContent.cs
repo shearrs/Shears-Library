@@ -1,6 +1,5 @@
 using Shears.Tweens;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Shears.UI
@@ -18,7 +17,7 @@ namespace Shears.UI
         private bool isDraggable = true;
 
         [SerializeField, RuntimeReadOnly, Min(0.0f)]
-        private float dragBeginTime = 0.1f;
+        private float dragBeginTime = 0.05f;
 
         [SerializeField]
         private ColorModulator colorModulator;
@@ -47,7 +46,7 @@ namespace Shears.UI
 
         private void Start()
         {
-            colorModulator = new(element, renderer);
+            //colorModulator = new(element, renderer);
 
             if (isDraggable)
                 EnableDrag();

@@ -8,18 +8,22 @@ using UnityEngine.Events;
 
 namespace Shears.UI
 {
+    [RequireComponent(typeof(ColorModulator))]
     public class MeshButton : UIElement
     {
         [Header("Mesh Button")]
-        [SerializeField] private bool selectable = true;
-        [SerializeField] private bool clickOnMouseDown = false;
-        [SerializeField] private Renderer meshRenderer;
-        [SerializeField] private Color hoverColor = new(0.6f, 0.6f, 0.6f);
-        [SerializeField] private Color pressedColor = new(0.4f, 0.4f, 0.4f);
-        [SerializeField] private Color notSelectableColor = new(0.15f, 0.15f, 0.15f);
+        [SerializeField]
+        private bool selectable = true;
+
+        [SerializeField]
+        private bool clickOnMouseDown = false;
+
+        [SerializeField]
+        private Color notSelectableColor = new(0.15f, 0.15f, 0.15f);
 
         [Header("Events")]
-        [SerializeField] private UnityEvent clicked;
+        [SerializeField]
+        private UnityEvent clicked;
 
         private readonly StructTweenData notSelectableTweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
         private readonly List<TextMeshPro> textChildren = new();
@@ -30,13 +34,12 @@ namespace Shears.UI
         {
             get
             {
-                if (colorModulator == null || colorModulator.Renderer == null)
-                    colorModulator = new(this, meshRenderer, hoverColor, pressedColor);
+                if (colorModulator == null)
+                    colorModulator = GetComponent<ColorModulator>();
 
                 return colorModulator;
             }
         }
-
         public bool IsHovered => colorModulator != null && colorModulator.IsHovered;
         public bool Selectable { get => selectable; set => SetSelectable(value); }
 
@@ -47,9 +50,6 @@ namespace Shears.UI
         protected override void Awake()
         {
             base.Awake();
-
-            if (colorModulator == null || colorModulator.Renderer == null)
-                colorModulator = new(this, meshRenderer, hoverColor, pressedColor);
 
             if (!selectable)
             {
@@ -199,7 +199,7 @@ namespace Shears.UI
                 }
                 else
                 {
-                    Color targetColor = IsHovered ? hoverColor : ColorModulator.OriginalColor;
+                    Color targetColor = IsHovered ? ColorModulator.HoverColor : ColorModulator.OriginalColor;
 
                     ColorModulator.CanChangeColor = true;
                     ColorModulator.TweenToColor(targetColor, notSelectableTweenData);

@@ -4,20 +4,18 @@ using UnityEngine;
 
 namespace Shears.UI
 {
-    [Serializable]
-    public class ColorModulator
+    public class ColorModulator : UIManipulator
     {
+        #region Variables
+        [Header("Color Modulator")]
         [SerializeField, RuntimeReadOnly]
-        private readonly UIElement element;
-
-        [SerializeField, RuntimeReadOnly]
-        private readonly Renderer renderer;
-
-        [SerializeField, RuntimeReadOnly]
-        private readonly Material material;
+        new private Renderer renderer;
 
         [SerializeField]
-        private bool canChangeColor = true;        
+        private bool canChangeColor = true;
+
+        [SerializeField, ReadOnly]
+        private Color originalColor;
 
         [SerializeField]
         private Color hoverColor = new(0.6f, 0.6f, 0.6f, 1.0f);
@@ -25,25 +23,40 @@ namespace Shears.UI
         [SerializeField]
         private Color pressedColor = new(0.4f, 0.4f, 0.4f, 1.0f);
 
-        private Color originalColor;
-        private Tween tween;
-        private bool isHovered;
-
         private readonly TweenData hoverTweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
+        private Tween tween;
+        private Material material;
+        private bool isHovered;
+        private bool originalColorInitialized = false;
 
         public bool IsHovered => isHovered;
         public Renderer Renderer => renderer;
-        public Color OriginalColor => originalColor;
+        public Color OriginalColor
+        {
+            get
+            {
+                if (!originalColorInitialized)
+                    InitializeOriginalColor();
+
+                return originalColor;
+            }
+        }
         public Color HoverColor { get => hoverColor; set => hoverColor = value; }
         public Color PressedColor { get => pressedColor; set => pressedColor = value; }
         public bool CanChangeColor { get => canChangeColor; set => canChangeColor = value; }
+        #endregion
 
-        public ColorModulator(
-            UIElement element, Renderer renderer,
-            Color? hoverColor = null, Color? pressedColor = null
-        )
+        protected override void Awake()
         {
-            this.renderer = renderer;
+            base.Awake();
+
+            InitializeOriginalColor();
+        }
+
+        private void InitializeOriginalColor()
+        {
+            if (originalColorInitialized)
+                return;
 
             if (renderer is SpriteRenderer spriteRenderer)
                 originalColor = spriteRenderer.color.With(a: 1.0f);
@@ -53,22 +66,23 @@ namespace Shears.UI
                 originalColor = material.color;
             }
 
-            this.element = element;
-            this.hoverColor = hoverColor != null ? hoverColor.Value : new(0.6f, 0.6f, 0.6f, 1.0f);
-            this.pressedColor = pressedColor != null ? pressedColor.Value : new(0.4f, 0.4f, 0.4f, 1.0f);
-
-            element.RegisterEvent<HoverEnterEvent>(OnHoverEnter);
-            element.RegisterEvent<HoverExitEvent>(OnHoverExit);
-            element.RegisterEvent<PointerDownEvent>(OnPointerDown);
-            element.RegisterEvent<PointerUpEvent>(OnPointerUp);
+            originalColorInitialized = true;
         }
 
-        ~ColorModulator()
+        protected override void RegisterEvents()
         {
-            element.DeregisterEvent<HoverEnterEvent>(OnHoverEnter);
-            element.DeregisterEvent<HoverExitEvent>(OnHoverExit);
-            element.DeregisterEvent<PointerDownEvent>(OnPointerDown);
-            element.DeregisterEvent<PointerUpEvent>(OnPointerUp);
+            Element.RegisterEvent<HoverEnterEvent>(OnHoverEnter);
+            Element.RegisterEvent<HoverExitEvent>(OnHoverExit);
+            Element.RegisterEvent<PointerDownEvent>(OnPointerDown);
+            Element.RegisterEvent<PointerUpEvent>(OnPointerUp);
+        }
+
+        protected override void DeregisterEvents()
+        {
+            Element.DeregisterEvent<HoverEnterEvent>(OnHoverEnter);
+            Element.DeregisterEvent<HoverExitEvent>(OnHoverExit);
+            Element.DeregisterEvent<PointerDownEvent>(OnPointerDown);
+            Element.DeregisterEvent<PointerUpEvent>(OnPointerUp);
         }
 
         [ContextMenu("Reset Colors")]
