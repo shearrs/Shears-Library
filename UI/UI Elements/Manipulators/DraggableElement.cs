@@ -20,6 +20,9 @@ namespace Shears.UI
 
         private int[] originalSortOrders;
         private Vector3 offset;
+        private DragReceiver detectedReceiver;
+
+        public DragReceiver DetectedReceiver => detectedReceiver;
 
         public event Action DragBegan;
         public event Action DragEnded;
@@ -82,6 +85,7 @@ namespace Shears.UI
 
             if (UIElementEventSystem.TryRaycastElement(out DragReceiver receiver))
             {
+                detectedReceiver = receiver;
                 receiver.ReceiveDrag(this);
                 DragReceiverDetected?.Invoke(receiver);
             }

@@ -13,7 +13,7 @@ namespace Shears.UI
         public enum DetectionType { Canvas, World3D }
 
         const int MAX_RAYCAST_HITS = 10;
-        const float DRAG_BEGIN_SQR_DISTANCE = 0.25f * 0.25f;
+        const float DRAG_BEGIN_SQR_DISTANCE = 0.01f * 0.01f;
 
         private static readonly RaycastHit[] s_results3D = new RaycastHit[MAX_RAYCAST_HITS];
         private static readonly List<RaycastHit> s_sortedHits = new(MAX_RAYCAST_HITS);
