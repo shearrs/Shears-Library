@@ -171,6 +171,12 @@ namespace Shears.UI
 
         private void UpdateHoveredElement()
         {
+            if (draggedElement != null)
+            {
+                hoveredElement = draggedElement;
+                return;
+            }
+
             UIElement newHoverTarget = null;
 
             if (detectionType == DetectionType.Canvas)
