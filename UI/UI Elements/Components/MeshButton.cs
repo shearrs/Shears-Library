@@ -53,7 +53,7 @@ namespace Shears.UI
 
             if (!selectable)
             {
-                ColorModulator.SetColor(ColorModulator.OriginalColor * notSelectableColor);
+                ColorModulator.ModulateColor(notSelectableColor);
                 ColorModulator.CanChangeColor = false;
             }
         }
@@ -64,7 +64,7 @@ namespace Shears.UI
             OnClickedImplementation();
         }
 
-        public void FadeIn(float duration = 0.5f, Color? targetColor = null, bool unscaledTime = false)
+        public void FadeIn(float duration = 0.5f, bool unscaledTime = false)
         {
             if (isFading)
             {
@@ -79,11 +79,9 @@ namespace Shears.UI
             bool wasSelectable = selectable;
             selectable = false;
 
-            Color resolvedColor = targetColor == null ? ColorModulator.OriginalColor : targetColor.Value;
-
             ColorModulator.CanChangeColor = true;
-            ColorModulator.SetColor(ColorModulator.OriginalColor.With(a: 0.0f));
-            ColorModulator.TweenToColor(resolvedColor, tweenData);
+            ColorModulator.ModulateColor(Color.white.With(a: 0.0f));
+            ColorModulator.FadeIn(tweenData);
             ColorModulator.CanChangeColor = false;
 
             GetComponentsInChildren(true, textChildren);
@@ -121,7 +119,7 @@ namespace Shears.UI
             bool wasSelectable = selectable;
             selectable = false;
 
-            ColorModulator.TweenToColor(ColorModulator.OriginalColor.With(a: 0.0f), tweenData);
+            ColorModulator.FadeOut(tweenData);
             ColorModulator.CanChangeColor = false;
 
             GetComponentsInChildren(true, textChildren);
@@ -199,14 +197,16 @@ namespace Shears.UI
                 }
                 else
                 {
-                    Color targetColor = IsHovered ? ColorModulator.HoverColor : ColorModulator.OriginalColor;
-
                     ColorModulator.CanChangeColor = true;
-                    ColorModulator.TweenToColor(targetColor, notSelectableTweenData);
+
+                    if (IsHovered)
+                        ColorModulator.TweenToHover();
+                    else
+                        ColorModulator.ClearModulation();
                 }
             }
             else
-                ColorModulator.SetColor(ColorModulator.OriginalColor * notSelectableColor);
+                ColorModulator.ModulateColor(notSelectableColor);
         }
     }
 }
