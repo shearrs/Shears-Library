@@ -173,6 +173,9 @@ namespace Shears.UI
         {
             if (draggedElement != null)
             {
+                if (hoveredElement != draggedElement && hoveredElement != null)
+                    hoveredElement.InvokeEvent(new HoverExitEvent());
+
                 hoveredElement = draggedElement;
                 return;
             }
