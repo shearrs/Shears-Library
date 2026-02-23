@@ -10,7 +10,7 @@ namespace Shears.UI
         private bool isDraggable = true;
 
         [SerializeField, RuntimeReadOnly, Min(0.0f)]
-        private float dragBeginTime = 0.05f;
+        private float dragBeginTime = 0.05f;    
 
         [SerializeField]
         private SpriteRenderer[] renderers;
@@ -61,7 +61,7 @@ namespace Shears.UI
                 for (int i = 0; i < renderers.Length; i++)
                 {
                     originalSortOrders[i] = renderers[i].sortingOrder;
-                    renderers[i].sortingOrder = dragSortOrder + i;
+                    renderers[i].sortingOrder = originalSortOrders[i] + dragSortOrder + i;
                 }
             }
 
@@ -89,6 +89,8 @@ namespace Shears.UI
                 receiver.ReceiveDrag(this);
                 DragReceiverDetected?.Invoke(receiver);
             }
+            else
+                detectedReceiver = null;
 
             if (renderers != null)
             {
