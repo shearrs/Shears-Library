@@ -8,6 +8,8 @@ namespace Shears.Tweens
     {
         public enum UpdateMode { Update, LateUpdate, FixedUpdate }
 
+        public static readonly Tween Empty = new();
+
         private readonly TweenInstance tween;
         private readonly Guid id;
 
