@@ -147,6 +147,7 @@ namespace Shears.UI
 
         private void OnFocusEnter(FocusEnterEvent evt)
         {
+            evt.PreventTrickleDown();
             isFocused = true;
 
             if (!selectable)
@@ -158,6 +159,7 @@ namespace Shears.UI
 
         private void OnFocusExit(FocusExitEvent evt)
         {
+            evt.PreventTrickleDown();
             isFocused = false;
 
             if (!selectable)
@@ -169,6 +171,7 @@ namespace Shears.UI
 
         private void OnHoverEnter(HoverEnterEvent evt)
         {
+            evt.PreventTrickleDown();
             isHovered = true;
 
             if (!selectable)
@@ -180,6 +183,7 @@ namespace Shears.UI
 
         private void OnHoverExit(HoverExitEvent evt)
         {
+            evt.PreventTrickleDown();
             isHovered = false;
 
             if (!selectable)
@@ -191,6 +195,8 @@ namespace Shears.UI
 
         private void OnPointerDown(PointerDownEvent evt)
         {
+            evt.PreventTrickleDown();
+
             if (!selectable)
                 return;
 
@@ -211,6 +217,8 @@ namespace Shears.UI
 
         private void OnPointerUp(PointerUpEvent evt)
         {
+            evt.PreventTrickleDown();
+
             if (!selectable)
                 return;
 
@@ -223,6 +231,8 @@ namespace Shears.UI
 
         private void OnClicked(ClickEvent evt)
         {
+            evt.PreventTrickleDown();
+
             if (!selectable || clickOnMouseDown)
                 return;
 

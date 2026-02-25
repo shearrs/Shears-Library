@@ -82,6 +82,7 @@ namespace Shears.Tweens
         private void ResetTween(TweenInstance tween)
         {
             tween.ClearOnCompletes();
+            tween.ClearOnStops();
             tween.ClearStopEvents();
             tween.ClearDisposeEvents();
             tween.ClearEvents();

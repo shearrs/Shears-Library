@@ -17,6 +17,9 @@ namespace Shears.UI
             this.camera = camera;
             this.pointerPosition = pointerPosition;
             this.worldPointerOffset = worldPointerOffset;
+
+            TrickleDown = false;
+            BubbleUp = true;
         }
     }
 
@@ -35,6 +38,9 @@ namespace Shears.UI
             this.camera = camera;
             this.pointerPosition = pointerPosition;
             this.pointerWorldPosition = pointerWorldPosition;
+
+            TrickleDown = false;
+            BubbleUp = true;
         }
     }
 
@@ -53,6 +59,9 @@ namespace Shears.UI
             this.camera = camera;
             this.pointerPosition = pointerPosition;
             this.pointerWorldPosition = pointerWorldPosition;
+
+            TrickleDown = false;
+            BubbleUp = true;
         }
     }
 }

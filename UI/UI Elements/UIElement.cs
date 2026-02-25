@@ -1,4 +1,5 @@
 using Shears.Logging;
+using Shears.Tweens;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,9 +10,11 @@ namespace Shears.UI
     {
         private readonly Dictionary<Type, object> registrations = new();
         private readonly List<UIElement> childElements = new();
+        private readonly TweenStorage tweenStorage = new();
         private bool isEnabled = false;
         private float dragBeginTime = 0.1f;
 
+        protected IReadOnlyList<Tween> Tweens => tweenStorage.Tweens;
         public bool IsEnabled => isEnabled;
         public float DragBeginTime { get => dragBeginTime; set => dragBeginTime = value; }
 
@@ -88,23 +91,66 @@ namespace Shears.UI
                     registration.Invoke(evt);
             }
 
-            if (!evt.WillTrickleDown)
-                return;
-
-            GetComponentsInChildren(childElements);
-
-            foreach (var child in childElements)
+            if (evt.TrickleDown)
             {
-                if (child == this)
+                GetComponentsInChildren(childElements);
+
+                foreach (var child in childElements)
+                {
+                    if (child == this)
+                        continue;
+
+                    child.InvokeEvent(evt);
+                }
+            }
+
+            if (evt.BubbleUp)
+            {
+                if (transform.parent == null)
+                    return;
+
+                var parentElement = transform.parent.GetComponentInParent<UIElement>();
+
+                if (parentElement != null)
+                    parentElement.InvokeEvent(evt);
+            }
+        }
+
+        internal UIElement GetDeepestChild()
+        {
+            GetDeepestChildRecursive(0, out var child);
+
+            return child;
+        }
+
+        private int GetDeepestChildRecursive(int depth, out UIElement deepestChild)
+        {
+            int deepestDepth = depth;
+            deepestChild = this;
+
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                var child = transform.GetChild(i);
+
+                if (!child.TryGetComponent(out UIElement element))
                     continue;
 
-                child.InvokeEvent(evt);
+                int currentDepth = element.GetDeepestChildRecursive(depth + 1, out var currentChild);
+
+                if (currentDepth > deepestDepth)
+                    deepestChild = currentChild;
             }
+
+            return deepestDepth;
         }
 
         public void Focus() => UIElementEventSystem.Focus(this);
 
         public void Blur() => UIElementEventSystem.Focus(null);
+
+        protected void StoreTween(Tween tween) => tweenStorage.Store(tween);
+
+        protected void DisposeTweens() => tweenStorage.Dispose();
 
         protected virtual void RegisterEvents() { }
     
