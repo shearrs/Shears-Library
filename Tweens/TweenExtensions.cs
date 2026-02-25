@@ -266,6 +266,12 @@ namespace Shears.Tweens
 
             return CreateAutoDisposeTween(spriteRenderer, update, data);
         }
+
+        public static Tween DoFadeTween(this SpriteRenderer spriteRenderer, float alpha, ITweenData data = null) => Do(GetFadeTween(spriteRenderer, alpha, data));
+        public static Tween GetFadeTween(this SpriteRenderer spriteRenderer, float alpha, ITweenData data = null)
+        {
+            return GetColorTween(spriteRenderer, spriteRenderer.color.With(a: alpha), data);
+        }
         #endregion
 
         #region TextMesh Tweens
@@ -294,6 +300,12 @@ namespace Shears.Tweens
             }
 
             return CreateAutoDisposeTween(textMesh, update, data);
+        }
+
+        public static Tween DoFadeTween(this TextMeshPro textMesh, float alpha, ITweenData data = null) => Do(GetFadeTween(textMesh, alpha, data));
+        public static Tween GetFadeTween(this TextMeshPro textMesh, float alpha, ITweenData data = null)
+        {
+            return GetColorTween(textMesh, textMesh.color.With(a: alpha), data);
         }
         #endregion
 

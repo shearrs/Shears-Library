@@ -22,7 +22,7 @@ namespace Shears.Editor
             if (wrapper == null)
                 return;
 
-            wrappedValue = wrapper.WrappedValue;
+            wrappedValue = wrapper.GetComponent(wrapper.GetWrappedType());
 
             EditorApplication.delayCall += SetHideFlags;
         }

@@ -13,7 +13,7 @@ namespace Shears.UI
         public enum DetectionType { Canvas, World3D }
 
         const int MAX_RAYCAST_HITS = 10;
-        const float DRAG_BEGIN_SQR_DISTANCE = 0.25f * 0.25f;
+        const float DRAG_BEGIN_SQR_DISTANCE = 0.01f * 0.01f;
 
         private static readonly RaycastHit[] s_results3D = new RaycastHit[MAX_RAYCAST_HITS];
         private static readonly List<RaycastHit> s_sortedHits = new(MAX_RAYCAST_HITS);
@@ -21,7 +21,9 @@ namespace Shears.UI
         private static bool applicationIsQuitting = false;
         private static UIElementEventSystem canvasSystem;
 
-        [SerializeField] private DetectionType detectionType = DetectionType.Canvas;
+        [SerializeField]
+        [AutoProperty("SystemType")]
+        private DetectionType detectionType = DetectionType.Canvas;
 
         private readonly RaycastHit[] results3D = new RaycastHit[MAX_RAYCAST_HITS];
         private readonly List<RaycastHit> sortedHits = new(MAX_RAYCAST_HITS);
@@ -46,8 +48,7 @@ namespace Shears.UI
         private UIElement focusedElement;
         private float pointerDownTime;
         private Vector2 pointerDownPosition;
-
-        public DetectionType SystemType => detectionType;
+        private float dragInitialZ;
         #endregion
 
         #region Static Initialization
@@ -170,6 +171,15 @@ namespace Shears.UI
 
         private void UpdateHoveredElement()
         {
+            if (draggedElement != null)
+            {
+                if (hoveredElement != draggedElement && hoveredElement != null)
+                    hoveredElement.InvokeEvent(new HoverExitEvent());
+
+                hoveredElement = draggedElement;
+                return;
+            }
+
             UIElement newHoverTarget = null;
 
             if (detectionType == DetectionType.Canvas)
@@ -217,20 +227,25 @@ namespace Shears.UI
                 pointerPos = pointerDownPosition;
             }
 
-            var targetElement = (pointerDownElement != null) ? pointerDownElement : draggedElement;
+            var targetElement = (draggedElement != null) ? draggedElement : pointerDownElement;
+            Vector3 targetPosition = targetElement.transform.position;
+
+            if (draggedElement != null)
+                targetPosition.z = dragInitialZ;
 
             Vector3 direction = (camera.transform.position - transform.position);
             var planePosition = camera.ScreenPointToPlanePosition(
                 pointerPos, direction,
-                targetElement.transform.position
+                targetPosition
             );
 
             Vector3 offset = targetElement.transform.position - planePosition;
 
             if (draggedElement == null)
             {
-                draggedElement = pointerDownElement;
+                draggedElement = pointerDownElement.GetDeepestChild();
                 draggedElement.InvokeEvent(new DragBeginEvent(camera, pointerPos, offset));
+                dragInitialZ = targetElement.transform.position.z;
             }
             else if (pointerDownElement == null)
             {
@@ -259,7 +274,7 @@ namespace Shears.UI
             }
         }
 
-        public static bool TryRaycastElement<T>(out T element) where T : UIElement
+        public static bool TryRaycastElement<T>(out T component) where T : Component
         {
             Raycast3D(s_sortedHits, s_sortedResults);
 
@@ -267,14 +282,14 @@ namespace Shears.UI
             {
                 var result = s_sortedResults[i];
 
-                if (result is T typedElement)
+                if (result.TryGetComponent(out T typedComponent))
                 {
-                    element = typedElement;
+                    component = typedComponent;
                     return true;
                 }
             }
 
-            element = null;
+            component = null;
             return false;
         }
 

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace Shears.UI
 {
-    public interface IEventRegistration<T> where T : struct, IUIEvent
+    public interface IEventRegistration<T> where T : UIEvent
     {
         public void Invoke(in T evt);
     }
 
-    public readonly struct EventRegistration<T> : IEventRegistration<T> where T : struct, IUIEvent
+    public readonly struct EventRegistration<T> : IEventRegistration<T> where T : UIEvent
     {
         private readonly Action<T> callback;
 
