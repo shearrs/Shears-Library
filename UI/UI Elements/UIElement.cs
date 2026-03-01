@@ -89,30 +89,30 @@ namespace Shears.UI
             {
                 foreach (var registration in (List<IEventRegistration<EventType>>)list)
                     registration.Invoke(evt);
-            }
 
-            if (evt.TrickleDown)
-            {
-                GetComponentsInChildren(childElements);
-
-                foreach (var child in childElements)
+                if (evt.TrickleDown)
                 {
-                    if (child == this)
-                        continue;
+                    GetComponentsInChildren(childElements);
 
-                    child.InvokeEvent(evt);
+                    foreach (var child in childElements)
+                    {
+                        if (child == this)
+                            continue;
+
+                        child.InvokeEvent(evt);
+                    }
                 }
-            }
 
-            if (evt.BubbleUp)
-            {
-                if (transform.parent == null)
-                    return;
+                if (evt.BubbleUp)
+                {
+                    if (transform.parent == null)
+                        return;
 
-                var parentElement = transform.parent.GetComponentInParent<UIElement>();
+                    var parentElement = transform.parent.GetComponentInParent<UIElement>();
 
-                if (parentElement != null)
-                    parentElement.InvokeEvent(evt);
+                    if (parentElement != null)
+                        parentElement.InvokeEvent(evt);
+                }
             }
         }
 
