@@ -130,6 +130,7 @@ namespace Shears.StateMachineGraphs
         protected SMID GetParameterID(string name) => parameterProvider.GetParameterID(name);
         protected T GetParameter<T>(string name) => parameterProvider.GetParameter<T>(name);
         protected T GetParameter<T>(SMID id) => parameterProvider.GetParameter<T>(id);
+        protected void SetParameter(string name) => parameterProvider.SetParameter(name, true);
         protected void SetParameter<T>(string name, T value) => parameterProvider.SetParameter(name, value);
         protected void SetParameter<T>(SMID id, T value)
         {
