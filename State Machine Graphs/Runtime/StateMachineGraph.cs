@@ -58,8 +58,6 @@ namespace Shears.StateMachineGraphs
 
             if (string.IsNullOrEmpty(rootDefaultStateID) && rootNodes.Count > 0)
                 rootDefaultStateID = rootNodes[0];
-
-            needsCompilation = true;
         }
 
         #region Compilation
@@ -216,6 +214,8 @@ namespace Shears.StateMachineGraphs
         {
             GraphLayer layer = GetLayer(layerNode);
 
+            needsCompilation = true;
+
             if (layer.IsRoot())
             {
                 if (layerNode == null)
@@ -256,6 +256,8 @@ namespace Shears.StateMachineGraphs
 
         private void ClearLayerDefault(GraphLayer layer)
         {
+            needsCompilation = true;
+
             if (layer.IsRoot())
             {
                 if (!string.IsNullOrEmpty(rootDefaultStateID))
@@ -294,6 +296,8 @@ namespace Shears.StateMachineGraphs
 
         public StateNodeData CreateStateNodeData(Vector2 position)
         {
+            needsCompilation = true;
+
             var nodeData = new StateNodeData(typeof(EmptyState))
             {
                 Position = position,
@@ -311,6 +315,8 @@ namespace Shears.StateMachineGraphs
 
         public StateMachineNodeData CreateStateMachineNodeData(Vector2 position)
         {
+            needsCompilation = true;
+
             var nodeData = new StateMachineNodeData(typeof(EmptyState))
             {
                 Position = position,
@@ -328,6 +334,8 @@ namespace Shears.StateMachineGraphs
 
         public ExternalStateMachineNodeData CreateExternalStateMachineNode(Vector2 position)
         {
+            needsCompilation = true;
+
             var nodeData = new ExternalStateMachineNodeData
             {
                 Position = position,
@@ -391,6 +399,8 @@ namespace Shears.StateMachineGraphs
         #region Transitions
         public TransitionEdgeData CreateTransitionData(ITransitionable from, ITransitionable to)
         {
+            needsCompilation = true;
+
             var transitionData = new TransitionEdgeData(from, to);
 
             AddEdgeData(transitionData);
@@ -415,6 +425,8 @@ namespace Shears.StateMachineGraphs
 
         public void AddParameter(ParameterData parameter)
         {
+            needsCompilation = true;
+
             parameters.Add(parameter.ID);
             AddGraphElementData(parameter);
             ParameterDataAdded?.Invoke(parameter);
@@ -422,6 +434,8 @@ namespace Shears.StateMachineGraphs
 
         public void RemoveParameter(ParameterData parameter)
         {
+            needsCompilation = true;
+
             if (!parameters.Contains(parameter.ID))
             {
                 Debug.LogError("Could not find parameter with ID: " + parameter.ID);
@@ -435,6 +449,8 @@ namespace Shears.StateMachineGraphs
 
         public void MoveParameterUp(ParameterData parameter)
         {
+            needsCompilation = true;
+
             var index = parameters.IndexOf(parameter.ID);
             var upIndex = index - 1;
 
@@ -443,6 +459,8 @@ namespace Shears.StateMachineGraphs
 
         public void MoveParameterDown(ParameterData parameter)
         {
+            needsCompilation = true;
+
             var index = parameters.IndexOf(parameter.ID);
             var downIndex = index + 1;
 
@@ -464,11 +482,15 @@ namespace Shears.StateMachineGraphs
 
         public void SetParameterName(ParameterData parameter, string name)
         {
+            needsCompilation = true;
+
             parameter.Name = name;
         }
 
         public void SetParameterValue<T>(ParameterData<T> parameterData, T value)
         {
+            needsCompilation = true;
+
             parameterData.Value = value;
         }
         #endregion
