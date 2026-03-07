@@ -24,11 +24,17 @@ namespace Shears.Tweens
 
         #region Custom Tween
         public static Tween DoTween(Action<float> update, ITweenData data = null) => Do(CreateTween(update, data));
-        public static Tween CreateTween(Action<float> update, ITweenData data = null) => Instance.InstCreateTween(new(update), data);
+        public static Tween CreateTween(Action<float> update, ITweenData data = null)
+        {
+            if (CanCreateInstance)
+                return Instance.InstCreateTween(new(update), data); 
+            else
+                return Tween.Empty;
+        }
         private Tween InstCreateTween(TweenUpdate update, ITweenData data)
         {
             var tween = tweenPool.Get();
-
+            
             tween.Release = Release;
             tween.IsActive = true;
 
