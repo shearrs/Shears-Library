@@ -42,6 +42,8 @@ namespace Shears.Detection
         public Vector3 Direction { get => direction; set => direction = value; }
         public float Distance { get => distance; set => distance = value; }
 
+        public Func<RaycastHit, bool> ValidationCallback { get; set; }
+
         protected override void Awake()
         {
             base.Awake();
@@ -162,10 +164,20 @@ namespace Shears.Detection
             if (hits > MaxDetections)
                 hits = MaxDetections;
 
-            for (int i = 0; i < hits; i++)
-                detections[i] = raycastHits[i].collider;
+            int invalidOffset = 0;
 
-            return hits;
+            for (int i = 0; i < hits; i++)
+            {
+                if (ValidationCallback != null && !ValidationCallback(raycastHits[i]))
+                {
+                    invalidOffset++;
+                    continue;
+                }
+
+                detections[i - invalidOffset] = raycastHits[i].collider;
+            }
+
+            return hits - invalidOffset;
         }
 
         public RaycastHit GetHit(int index) => raycastHits[index];

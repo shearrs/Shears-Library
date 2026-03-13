@@ -49,6 +49,8 @@ namespace Shears.UI
         private float pointerDownTime;
         private Vector2 pointerDownPosition;
         private float dragInitialZ;
+
+        public static bool IsHovering => canvasSystem != null &&  canvasSystem.hoveredElement != null;
         #endregion
 
         #region Static Initialization
