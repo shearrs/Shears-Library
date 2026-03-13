@@ -20,6 +20,7 @@ namespace Shears.UI
         private static readonly List<UIElement> s_sortedResults = new(MAX_RAYCAST_HITS);
         private static bool applicationIsQuitting = false;
         private static UIElementEventSystem canvasSystem;
+        private static UIElementEventSystem world3DSystem;
 
         [SerializeField]
         [AutoProperty("SystemType")]
@@ -50,7 +51,10 @@ namespace Shears.UI
         private Vector2 pointerDownPosition;
         private float dragInitialZ;
 
-        public static bool IsHovering => canvasSystem != null &&  canvasSystem.hoveredElement != null;
+        public static UIElementEventSystem CanvasSystem => canvasSystem;
+        public static UIElementEventSystem World3DSystem => world3DSystem;
+
+        public bool IsHovering => canvasSystem != null &&  canvasSystem.hoveredElement != null;
         #endregion
 
         #region Static Initialization
@@ -80,6 +84,8 @@ namespace Shears.UI
 
             if (detectionType == DetectionType.Canvas)
                 canvasSystem = this;
+            else
+                world3DSystem = this;
         }
 
         private void Update()
