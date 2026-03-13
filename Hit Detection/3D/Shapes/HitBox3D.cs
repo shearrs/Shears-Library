@@ -299,7 +299,7 @@ namespace Shears.HitDetection
 
                     if (hits > 0)
                     {
-                        handle.ValidateCallback(results, hits, null, out bool blocked);
+                        handle.ValidateCallback(this, results, hits, null, out bool blocked);
 
                         if (blocked)
                             blockedRays.Add(ray);

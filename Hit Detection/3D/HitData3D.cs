@@ -5,6 +5,7 @@ namespace Shears.HitDetection
 {
     public readonly struct HitData3D
     {
+        private readonly HitShape3D hitShape;
         private readonly HitBody3D hitBody;
         private readonly HurtBody3D hurtBody;
         private readonly HitResult3D result;
@@ -12,16 +13,18 @@ namespace Shears.HitDetection
         private readonly int dataCount;
         private readonly bool blocked;
 
+        public readonly HitShape3D HitShape => hitShape;
         public readonly HitBody3D HitBody => hitBody;
         public readonly HurtBody3D HurtBody => hurtBody;
         public readonly HitResult3D Result => result;
         public readonly int DataCount => dataCount;
         public readonly bool Blocked => blocked;
 
-        internal HitData3D(HitBody3D hitBody, HurtBody3D hurtBody,
+        internal HitData3D(HitShape3D hitShape, HitBody3D hitBody, HurtBody3D hurtBody,
             HitResult3D result, IReadOnlyCollection<IHitSubdata> data,
             bool blocked)
         {
+            this.hitShape = hitShape;
             this.hitBody = hitBody;
             this.hurtBody = hurtBody;
             this.result = result;

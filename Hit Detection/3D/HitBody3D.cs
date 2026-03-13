@@ -43,7 +43,7 @@ namespace Shears.HitDetection
         private bool isEnabled = false;
         private List<HurtBody3D> unclearedHits;
         private List<HurtBody3D> foundHurtbodies;
-        private Dictionary<HurtBody3D, RaycastHit> finalHits;
+        private Dictionary<HurtBody3D, MappedHit> finalHits;
         private List<int> sortedHits = new();
 
         public List<HitShape3D> Shapes { get => shapes; set => shapes = value; }
@@ -58,12 +58,24 @@ namespace Shears.HitDetection
         public event Action<HitData3D> HitDelivered;
         #endregion
 
+        private readonly struct MappedHit
+        {
+            public readonly HitShape3D shape;
+            public readonly RaycastHit hit;
+
+            public MappedHit(HitShape3D shape, RaycastHit hit)
+            {
+                this.shape = shape;
+                this.hit = hit;
+            }
+        }
+
         #region Initialization
         private void Awake()
         {
             unclearedHits = ListPool<HurtBody3D>.Get();
             foundHurtbodies = ListPool<HurtBody3D>.Get();
-            finalHits = DictionaryPool<HurtBody3D, RaycastHit>.Get();
+            finalHits = DictionaryPool<HurtBody3D, MappedHit>.Get();
             sortedHits = ListPool<int>.Get();
 
             for (int i = 0; i < shapes.Count; i++)
@@ -80,7 +92,7 @@ namespace Shears.HitDetection
         {
             ListPool<HurtBody3D>.Release(unclearedHits);
             ListPool<HurtBody3D>.Release(foundHurtbodies);
-            DictionaryPool<HurtBody3D, RaycastHit>.Release(finalHits);
+            DictionaryPool<HurtBody3D, MappedHit>.Release(finalHits);
             ListPool<int>.Release(sortedHits);
         }
 
@@ -147,7 +159,7 @@ namespace Shears.HitDetection
             DeliverHits();
         }
 
-        private void ValidateHits(RaycastHit[] results, int hits, Comparison<int> sortFunc, out bool blocked)
+        private void ValidateHits(HitShape3D shape, RaycastHit[] results, int hits, Comparison<int> sortFunc, out bool blocked)
         {
             sortedHits.Clear();
 
@@ -184,15 +196,15 @@ namespace Shears.HitDetection
 
                 if (finalHits.TryGetValue(hurtBody, out var oldHit))
                 {
-                    if (oldHit.distance < hit.distance)
-                        finalHits[hurtBody] = hit;
+                    if (oldHit.hit.distance < hit.distance)
+                        finalHits[hurtBody] = new(shape, hit);
                 }
                 else
-                    finalHits[hurtBody] = hit;
+                    finalHits[hurtBody] = new(shape, hit);
 
                 if (!unblockable && hurtBody.IsBlocking)
                 {
-                    var blockHitData = new HitData3D(this, hurtBody, new(hit), dataProvider.Value?.GetData(), false);
+                    var blockHitData = new HitData3D(shape, this, hurtBody, new(hit), dataProvider.Value?.GetData(), false);
 
                     if (hurtBody.CanBlock(blockHitData))
                     {
@@ -207,19 +219,22 @@ namespace Shears.HitDetection
 
         private void DeliverHits()
         {
-            foreach (var (hurtBody, hit) in finalHits)
+            foreach (var (hurtBody, hitMap) in finalHits)
             {
                 var subData = dataProvider.Value?.GetData();
-                var hitData = new HitData3D(this, hurtBody, new(hit), subData, false);
+                var hitData = new HitData3D(hitMap.shape, this, hurtBody, new(hitMap.hit), subData, false);
 
                 if (!unblockable && hurtBody.IsBlocking)
-                    hitData = new HitData3D(this, hurtBody, new(hit), subData, hurtBody.CanBlock(hitData));
+                    hitData = new HitData3D(hitMap.shape, this, hurtBody, new(hitMap.hit), subData, hurtBody.CanBlock(hitData));
 
                 hurtBody.OnHitReceived(hitData);
                 OnHitDelivered(hitData);
 
                 if (!multiHits && !hitData.Blocked) // we don't store blocking as they can continue blocking
                     unclearedHits.Add(hurtBody);
+
+                if (!isEnabled)
+                    break;
             }
         }
 
