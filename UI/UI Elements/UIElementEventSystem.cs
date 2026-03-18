@@ -55,6 +55,7 @@ namespace Shears.UI
         public static UIElementEventSystem World3DSystem => world3DSystem;
 
         public bool IsHovering => canvasSystem != null &&  canvasSystem.hoveredElement != null;
+        public IReadOnlyList<Graphic> HitGraphics => hitGraphics;
         #endregion
 
         #region Static Initialization
@@ -194,7 +195,7 @@ namespace Shears.UI
                 newHoverTarget = RaycastCanvas();
             else if (detectionType == DetectionType.World3D)
             {
-                if (canvasSystem != null && canvasSystem.hoveredElement != null) // world raycasts are blocked by canvas elements
+                if (canvasSystem != null && canvasSystem.IsHovering) // world raycasts are blocked by canvas elements
                     newHoverTarget = null;
                 else
                 {

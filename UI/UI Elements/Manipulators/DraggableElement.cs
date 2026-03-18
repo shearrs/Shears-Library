@@ -6,12 +6,6 @@ namespace Shears.UI
     public class DraggableElement : UIManipulator
     {
         [Header("Dragger")]
-        [SerializeField, RuntimeReadOnly]
-        private bool isDraggable = true;
-
-        [SerializeField, RuntimeReadOnly, Min(0.0f)]
-        private float dragBeginTime = 0.05f;    
-
         [SerializeField]
         private SpriteRenderer[] renderers;
 

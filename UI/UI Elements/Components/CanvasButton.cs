@@ -68,10 +68,7 @@ namespace Shears.UI
         public void FadeIn(float duration = 0.5f, Color? modulateColor = null, bool unscaledTime = false)
         {
             if (isFading)
-            {
-                Log("Already fading!", SHLogLevels.Error);
-                return;
-            }
+                tween.Dispose();
 
             isFading = true;
             var tweenData = new StructTweenData(duration, easingFunction: TweenEase.InOutQuad, unscaledTime: unscaledTime);
@@ -106,10 +103,7 @@ namespace Shears.UI
         public void FadeOut(float duration = 0.5f, bool unscaledTime = false)
         {
             if (isFading)
-            {
-                Log("Already fading!", SHLogLevels.Error);
-                return;
-            }
+                tween.Dispose();
 
             isFading = true;
             var tweenData = new StructTweenData(duration, easingFunction: TweenEase.InOutQuad, unscaledTime: unscaledTime);
