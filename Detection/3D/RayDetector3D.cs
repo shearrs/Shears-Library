@@ -7,6 +7,26 @@ namespace Shears.Detection
 {
     public class RayDetector3D : AreaDetector3D
     {
+        private static readonly Comparer<RaycastHit> HIT_COMPARER = Comparer<RaycastHit>.Create((h1, h2) =>
+        {
+            if (h1.collider == null)
+            {
+                if (h2.collider == null)
+                    return 0;
+                else
+                    return 1;
+            }
+            else if (h2.collider == null)
+            {
+                if (h1.collider == null)
+                    return 0;
+                else
+                    return -1;
+            }
+            else
+                return h1.distance.CompareTo(h2.distance);
+        });
+
         [SerializeField, Tooltip("Continous detection can solve missing detections at lower framerates or higher speeds.")]
         private bool continuousDetection = false;
 
@@ -141,25 +161,7 @@ namespace Shears.Detection
         {
             int hits = Physics.RaycastNonAlloc(origin, direction, raycastHits, distance, DetectionMask, TriggerInteraction);
 
-            Array.Sort(raycastHits, (h1, h2) =>
-            {
-                if (h1.collider == null)
-                {
-                    if (h2.collider == null)
-                        return 0;
-                    else
-                        return 1;
-                }
-                else if (h2.collider == null)
-                {
-                    if (h1.collider == null)
-                        return 0;
-                    else
-                        return -1;
-                }
-                else
-                    return h1.distance.CompareTo(h2.distance);
-            });
+            Array.Sort(raycastHits, 0, hits, HIT_COMPARER);
 
             if (hits > MaxDetections)
                 hits = MaxDetections;
