@@ -1,4 +1,3 @@
-using Shears.Logging;
 using Shears.Tweens;
 using System;
 using System.Collections.Generic;
@@ -11,22 +10,38 @@ namespace Shears.UI
     public class CanvasButton : UIElement
     {
         [Header("Mesh Button")]
-        [SerializeField] private bool selectable = true;
-        [SerializeField] private bool focusable = false;
-        [SerializeField] private bool clickOnMouseDown = false;
-        [SerializeField] private bool usesUnscaledTime = false;
-        [SerializeField] private ManagedImage image;
-        [SerializeField] private Color hoverColor = new(0.6f, 0.6f, 0.6f);
-        [SerializeField] private Color pressedColor = new(0.4f, 0.4f, 0.4f);
-        [SerializeField] private Color notSelectableColor = new(0.15f, 0.15f, 0.15f);
+        [SerializeField]
+        private bool selectable = true;
+
+        [SerializeField]
+        private bool focusable = false;
+
+        [SerializeField]
+        private bool clickOnMouseDown = false;
+
+        [SerializeField]
+        private bool usesUnscaledTime = false;
+
+        [SerializeField]
+        private ManagedImage image;
+
+        [SerializeField]
+        private Color hoverColor = new(0.6f, 0.6f, 0.6f);
+
+        [SerializeField]
+        private Color pressedColor = new(0.4f, 0.4f, 0.4f);
+
+        [SerializeField]
+        private Color notSelectableColor = new(0.15f, 0.15f, 0.15f);
 
         [Header("Events")]
-        [SerializeField] private UnityEvent clicked;
+        [SerializeField]
+        private UnityEvent clicked;
 
         private readonly TweenData hoverTweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
         private readonly TweenData notSelectableTweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
         private readonly List<TextMeshProUGUI> textChildren = new();
-        private Tween tween;
+        private readonly TweenStorage tweenStorage = new();
         private bool isFocused = false;
         private bool isHovered = false;
         private bool isFading = false;
@@ -68,7 +83,7 @@ namespace Shears.UI
         public void FadeIn(float duration = 0.5f, Color? modulateColor = null, bool unscaledTime = false)
         {
             if (isFading)
-                tween.Dispose();
+                tweenStorage.Dispose();
 
             isFading = true;
             var tweenData = new StructTweenData(duration, easingFunction: TweenEase.InOutQuad, unscaledTime: unscaledTime);
@@ -83,16 +98,17 @@ namespace Shears.UI
             TweenToColor(targetColor, tweenData);
 
             GetComponentsInChildren(true, textChildren);
+            
             for (int i = 0; i < textChildren.Count; i++)
             {
                 var child = textChildren[i];
                 var childColor = child.color;
 
                 child.color = childColor.With(a: 0.0f);
-                child.DoColorTween(childColor, tweenData);
+                tweenStorage.Store(child.DoColorTween(childColor.With(a: 1.0f), tweenData));
             }
 
-            tween.Completed += () =>
+            tweenStorage[0].Completed += () =>
             {
                 selectable = wasSelectable;
                 isFading = false;
@@ -103,7 +119,7 @@ namespace Shears.UI
         public void FadeOut(float duration = 0.5f, bool unscaledTime = false)
         {
             if (isFading)
-                tween.Dispose();
+                tweenStorage.Dispose();
 
             isFading = true;
             var tweenData = new StructTweenData(duration, easingFunction: TweenEase.InOutQuad, unscaledTime: unscaledTime);
@@ -121,15 +137,15 @@ namespace Shears.UI
                 var childColor = child.color;
                 var targetColor = childColor.With(a: 0.0f);
 
-                var childTween = child.DoColorTween(targetColor, tweenData);
-                tween.Completed += () =>
+                var childTween = tweenStorage.Store(child.DoColorTween(targetColor, tweenData));
+                tweenStorage[0].Completed += () =>
                 {
                     childTween.Dispose();
-                    child.color = childColor;
+                    child.color = targetColor;
                 };
             }
 
-            tween.Completed += () =>
+            tweenStorage[0].Completed += () =>
             {
                 selectable = wasSelectable;
                 Disable();
@@ -242,8 +258,8 @@ namespace Shears.UI
             hoverTweenData.UnscaledTime = usesUnscaledTime;
             notSelectableTweenData.UnscaledTime = usesUnscaledTime;
 
-            tween.Dispose();
-            tween = image.DoModulateTween(color, tweenData);
+            tweenStorage.Dispose();
+            tweenStorage.Store(image.DoModulateTween(color, tweenData));
         }
 
         private void SetSelectable(bool value)
