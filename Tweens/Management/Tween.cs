@@ -177,7 +177,8 @@ namespace Shears.Tweens
 
         private readonly void ErrorMessage()
         {
-            Debug.LogError($"Invalid tween handle: {id}");
+            if (!ApplicationUtil.IsQuitting)
+                Debug.LogError($"Invalid tween handle: {id}");
         }
         #endregion
 
