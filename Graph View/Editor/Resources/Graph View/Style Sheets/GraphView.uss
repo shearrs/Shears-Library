@@ -131,3 +131,17 @@
 {
 	-unity-background-image-tint-color: rgba(0, 110, 180, 1);
 }
+
+.emptyTag
+{
+	position: absolute;
+	top: -15%;
+	border-radius: 8px;
+	border-width: 2px;
+	border-color: rgba(65, 65, 65, 1);
+	background-color: white;
+	align-self: center;
+	color: rgba(50, 50, 50, 1);
+	height: 32px;
+	font-size: 24px;
+}

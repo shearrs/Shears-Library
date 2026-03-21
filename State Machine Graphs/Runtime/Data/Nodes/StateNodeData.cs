@@ -15,6 +15,8 @@ namespace Shears.StateMachineGraphs
 
         public SerializableSystemType StateType => stateType;
 
+        public event Action StateTypeChanged;
+
         public StateNodeData(SerializableSystemType stateType)
         {
             this.stateType = stateType;
@@ -55,5 +57,7 @@ namespace Shears.StateMachineGraphs
         {
             return CopyToClipboard(data);
         }
+
+        public void SignalStateChanged() => StateTypeChanged?.Invoke();
     }
 }

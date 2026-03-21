@@ -2,6 +2,7 @@ using Shears.GraphViews.Editor;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Shears.StateMachineGraphs.Editor
@@ -11,20 +12,34 @@ namespace Shears.StateMachineGraphs.Editor
     {
         private readonly List<SerializedProperty> instanceComparisonProps = new();
 
-        public override VisualElement CreatePropertyGUI(SerializedProperty transitionProp)
+        public override VisualElement CreatePropertyGUI(SerializedProperty transitionEdgeProp)
         {
             var root = new VisualElement();
             root.AddStyleSheet(SMEditorUtil.SMGraphInspectorStyleSheet);
             root.AddToClassList(SMEditorUtil.TransitionClassName);
+            root.Add(CreateTitle(transitionEdgeProp));
 
-            root.Add(CreateTitle(transitionProp));
+            var transitionDataProp = transitionEdgeProp.FindPropertyRelative("transitionData");
+            var transitionsContainer = CreateTransitionsContainer();
 
-            var comparisonsContainer = CreateComparisonsContainer();
-            var comparisonList = CreateComparisonList(transitionProp);
-            root.Add(CreateAddComparisonButton(comparisonList, transitionProp));
-            comparisonsContainer.Add(comparisonList);
+            if (transitionDataProp.arraySize == 0)
+            {
+                transitionDataProp.InsertArrayElementAtIndex(0);
+                transitionDataProp.GetArrayElementAtIndex(0).boxedValue = new TransitionData();
+            }
 
-            root.Add(comparisonsContainer);
+            for (int i = 0; i < transitionDataProp.arraySize; i++)
+            {
+                var transitionDataElement = transitionDataProp.GetArrayElementAtIndex(i);
+                var comparisonsContainer = CreateComparisonsContainer(i);
+                var comparisonList = CreateComparisonList(transitionDataElement);
+
+                comparisonsContainer.Add(CreateAddComparisonButton(transitionDataElement));
+                comparisonsContainer.Add(comparisonList);
+                transitionsContainer.Add(comparisonsContainer);
+            }
+
+            root.Add(transitionsContainer);
 
             return root;
         }
@@ -55,16 +70,52 @@ namespace Shears.StateMachineGraphs.Editor
             return title;
         }
 
-        private VisualElement CreateComparisonsContainer()
+        private VisualElement CreateTransitionsContainer()
+        {
+            var container = new VisualElement();
+
+            container.AddToClassList(SMEditorUtil.TransitionsContainerClassName);
+
+            return container;
+        }
+
+        private VisualElement CreateComparisonsContainer(int index)
         {
             var container = new VisualElement();
 
             container.AddToClassList(SMEditorUtil.ComparisonsContainerClassName);
 
+            var label = new Label($"Transition {index}");
+            label.style.marginLeft = 4;
+
+            container.Add(label);
+
             return container;
         }
 
-        private VisualElement CreateAddComparisonButton(VisualElement comparisonList, SerializedProperty transitionProp)
+        private VisualElement CreateDeleteTransitionButtom(SerializedProperty transitionEdgeProp, SerializedProperty transitionProp)
+        {
+            var deleteButton = new Button(() => DeleteTransition(transitionEdgeProp, transitionProp))
+            {
+                text = "X"
+            };
+
+            return deleteButton;
+        }
+
+        private void DeleteTransition(SerializedProperty transitionEdgeProp, SerializedProperty transitionProp)
+        {
+            var transitionDataProp = transitionEdgeProp.FindPropertyRelative("transitionData");
+            for (int i = 0; i < transitionDataProp.arraySize; i++)
+            {
+                var transitionData = transitionDataProp.GetArrayElementAtIndex(i);
+
+                if (transitionData == transitionProp)
+                    transitionDataProp.DeleteArrayElementAtIndex(i);
+            }
+        }
+
+        private VisualElement CreateAddComparisonButton(SerializedProperty transitionProp)
         {
             var addComparisonButton = new Button(() => AddComparison(transitionProp))
             {

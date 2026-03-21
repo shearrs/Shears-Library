@@ -7,17 +7,19 @@ namespace Shears.StateMachineGraphs
     [System.Serializable]
     public class TransitionEdgeData : GraphEdgeData
     {
-        [SerializeReference] private List<ParameterComparisonData> comparisonData = new();
+        [SerializeReference]
+        private List<TransitionData> transitionData = new();
 
-        public IReadOnlyList<ParameterComparisonData> ComparisonData => comparisonData;
+        public IReadOnlyList<TransitionData> TransitionData => transitionData;
 
         public TransitionEdgeData(ITransitionable from, ITransitionable to) : base(from.ID, to.ID)
         {
+            transitionData.Add(new TransitionData());
         }
 
-        public void AddComparisonData(ParameterComparisonData data)
+        public void AddTransitionData(TransitionData data)
         {
-            comparisonData.Add(data);
+            transitionData.Add(data);
         }
     }
 }

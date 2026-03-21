@@ -296,6 +296,32 @@ namespace Shears.GraphViews
 
             EdgeDataRemoved?.Invoke(data);
         }
+
+        protected GraphEdgeData GetEdgeData(string fromID, string toID)
+        {
+            if (!graphElements.TryGetValue(fromID, out var from) || from is not GraphNodeData fromNode)
+            {
+                LogError("Could not find 'from' node with ID: " + fromID);
+                return null;
+            }
+
+            if (!graphElements.TryGetValue(toID, out var to) || to is not GraphNodeData)
+            {
+                LogError("Could not find 'to' node with ID: " + toID);
+                return null;
+            }
+
+            foreach (var edgeID in fromNode.Edges)
+            {
+                if (graphElements.TryGetValue(edgeID, out var elementData) && elementData is GraphEdgeData edgeData)
+                {
+                    if (edgeData.FromID == fromID && edgeData.ToID == toID)
+                        return edgeData;
+                }
+            }
+
+            return null;
+        }
         #endregion
 
         #region Selection

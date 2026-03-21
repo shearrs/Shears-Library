@@ -102,9 +102,18 @@ namespace Shears.StateMachineGraphs.Editor
                 pickingMode = PickingMode.Ignore
             };
 
+            var scrollView = new ScrollView(ScrollViewMode.Vertical)
+            {
+                horizontalScrollerVisibility = ScrollerVisibility.Hidden,
+                verticalScrollerVisibility = ScrollerVisibility.Auto,
+            };
+
+            scrollView.AddToClassList(SMEditorUtil.ParameterBarScrollViewClassName);
             parametersPanel.AddToClassList(SMEditorUtil.ParameterBarParametersPanelClassName);
 
-            contentPanel.Add(parametersPanel);
+            scrollView.Add(parametersPanel);
+
+            contentPanel.Add(scrollView);
         }
         #endregion
 

@@ -10,8 +10,8 @@ namespace Shears.StateMachineGraphs.Editor
 {
     public class StateSelector : VisualElement
     {
+        public static readonly Type EMPTY_STATE_TYPE = typeof(EmptyState);
         private static readonly Type STATE_TYPE = typeof(State);
-        private static readonly Type EMPTY_STATE_TYPE = typeof(EmptyState);
         private static readonly Type EXTERNAL_STATE_TYPE = typeof(ExternalGraphState);
 
         private readonly SerializedProperty stateTypeProp;

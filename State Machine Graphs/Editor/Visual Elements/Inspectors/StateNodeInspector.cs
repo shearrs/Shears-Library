@@ -34,6 +34,7 @@ namespace Shears.StateMachineGraphs.Editor
         private void AddReferenceHints()
         {
             referenceHintContainer.Clear();
+            nodeData.SignalStateChanged();
 
             if (nodeData.StateType == SerializableSystemType.Empty)
                 return;

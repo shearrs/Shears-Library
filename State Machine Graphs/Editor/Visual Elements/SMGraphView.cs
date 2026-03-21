@@ -188,12 +188,22 @@ namespace Shears.StateMachineGraphs.Editor
             if (element1Data is not ITransitionable transitionable1 || element2Data is not ITransitionable transitionable2)
                 return;
 
-            if (anchor1.HasConnectionTo(anchor2))
-                return;
+            TransitionEdgeData transitionData;
 
-            Record("Add Transition");
-            var transitionData = graphData.CreateTransitionData(transitionable1, transitionable2);
-            Save();
+            if (anchor1.HasConnectionTo(anchor2))
+            {
+                transitionData = graphData.GetTransitionEdgeData(transitionable1.ID, transitionable2.ID);
+
+                Record("Add Transition");
+                transitionData.AddTransitionData(new TransitionData());
+                Save();
+            }
+            else
+            {
+                Record("Add Transition");
+                transitionData = graphData.CreateTransitionEdgeData(transitionable1, transitionable2);
+                Save();
+            }
 
             var edge = GetEdge(transitionData);
             Select(edge);

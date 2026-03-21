@@ -184,10 +184,13 @@ namespace Shears.StateMachineGraphs
 
                 var comparisons = new List<ParameterComparison>();
 
-                foreach (var comparisonData in transitionData.ComparisonData)
+                foreach (var tData in transitionData.TransitionData)
                 {
-                    var comparison = comparisonData.CreateComparison(parameterIDs[comparisonData.ParameterID]);
-                    comparisons.Add(comparison);
+                    foreach (var comparisonData in tData.ComparisonData)
+                    {
+                        var comparison = comparisonData.CreateComparison(parameterIDs[comparisonData.ParameterID]);
+                        comparisons.Add(comparison);
+                    }
                 }
 
                 var transition = new Transition(state, toState, comparisons);
@@ -397,7 +400,7 @@ namespace Shears.StateMachineGraphs
         #endregion
 
         #region Transitions
-        public TransitionEdgeData CreateTransitionData(ITransitionable from, ITransitionable to)
+        public TransitionEdgeData CreateTransitionEdgeData(ITransitionable from, ITransitionable to)
         {
             needsCompilation = true;
 
@@ -406,6 +409,16 @@ namespace Shears.StateMachineGraphs
             AddEdgeData(transitionData);
 
             return transitionData;
+        }
+
+        public TransitionEdgeData GetTransitionEdgeData(string fromID, string toID)
+        {
+            var edge = GetEdgeData(fromID, toID);
+
+            if (edge is TransitionEdgeData transitionEdgeData)
+                return transitionEdgeData;
+            else
+                return null;
         }
         #endregion
 
