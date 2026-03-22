@@ -9,6 +9,8 @@ namespace Shears.StateMachineGraphs.Editor
         private static StateMachineGraph selectedGraph;
         private static SMGraphView graph;
 
+        public static SMGraphView GraphView => graph;
+
         [UnityEditor.Callbacks.OnOpenAsset]
         public static bool OnOpenAsset(int instanceID, int _)
         {

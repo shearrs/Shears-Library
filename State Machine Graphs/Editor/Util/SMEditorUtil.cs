@@ -59,6 +59,7 @@ namespace Shears.StateMachineGraphs.Editor
         public static readonly string TransitionContainerTitleClassName = "transitionContainerTitle";
         public static readonly string TransitionClassName = "transition";
         public static readonly string TransitionTitleClassName = "transitionTitle";
+        public static readonly string AddTransitionClassName = "addTransitionButton";
         #endregion
 
         #region Comparison Class Names

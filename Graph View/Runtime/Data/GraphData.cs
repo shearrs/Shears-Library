@@ -297,6 +297,10 @@ namespace Shears.GraphViews
             EdgeDataRemoved?.Invoke(data);
         }
 
+#if UNITY_EDITOR
+        public void Editor__RemoveEdgeData(GraphEdgeData data) => RemoveEdgeData(data);
+#endif
+
         protected GraphEdgeData GetEdgeData(string fromID, string toID)
         {
             if (!graphElements.TryGetValue(fromID, out var from) || from is not GraphNodeData fromNode)

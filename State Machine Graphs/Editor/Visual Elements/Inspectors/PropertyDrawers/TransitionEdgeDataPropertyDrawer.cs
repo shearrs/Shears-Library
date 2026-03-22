@@ -1,3 +1,4 @@
+using Shears.GraphViews;
 using Shears.GraphViews.Editor;
 using System.Collections.Generic;
 using UnityEditor;
@@ -19,36 +20,21 @@ namespace Shears.StateMachineGraphs.Editor
             root.AddToClassList(SMEditorUtil.TransitionClassName);
             root.Add(CreateTitle(transitionEdgeProp));
 
-            var transitionDataProp = transitionEdgeProp.FindPropertyRelative("transitionData");
             var transitionsContainer = CreateTransitionsContainer();
+            var transitionsList = CreateTransitionsList(transitionEdgeProp);
 
-            if (transitionDataProp.arraySize == 0)
-            {
-                transitionDataProp.InsertArrayElementAtIndex(0);
-                transitionDataProp.GetArrayElementAtIndex(0).boxedValue = new TransitionData();
-            }
-
-            for (int i = 0; i < transitionDataProp.arraySize; i++)
-            {
-                var transitionDataElement = transitionDataProp.GetArrayElementAtIndex(i);
-                var comparisonsContainer = CreateComparisonsContainer(i);
-                var comparisonList = CreateComparisonList(transitionDataElement);
-
-                comparisonsContainer.Add(CreateAddComparisonButton(transitionDataElement));
-                comparisonsContainer.Add(comparisonList);
-                transitionsContainer.Add(comparisonsContainer);
-            }
+            transitionsContainer.Add(transitionsList);
 
             root.Add(transitionsContainer);
 
             return root;
         }
 
-        private VisualElement CreateTitle(SerializedProperty transitionProp)
+        private VisualElement CreateTitle(SerializedProperty transitionEdgeProp)
         {
-            var graphSO = transitionProp.serializedObject;
-            var fromID = transitionProp.FindPropertyRelative("fromID").stringValue;
-            var toID = transitionProp.FindPropertyRelative("toID").stringValue;
+            var graphSO = transitionEdgeProp.serializedObject;
+            var fromID = transitionEdgeProp.FindPropertyRelative("fromID").stringValue;
+            var toID = transitionEdgeProp.FindPropertyRelative("toID").stringValue;
 
             var fromProp = GraphViewEditorUtil.GetElementProp(graphSO, fromID);
             var toProp = GraphViewEditorUtil.GetElementProp(graphSO, toID);
@@ -58,14 +44,28 @@ namespace Shears.StateMachineGraphs.Editor
             var title = new VisualElement();
             title.AddToClassList(SMEditorUtil.TransitionTitleClassName);
 
+            var addTransitionButton = new Button(() => AddTransition(transitionEdgeProp))
+            {
+                text = "+"
+            };
+            addTransitionButton.AddToClassList(SMEditorUtil.AddTransitionClassName);
+
+            var labelContainer = new VisualElement();
             var fromLabel = new Label();
             var symbolLabel = new Label(" -> ");
             var toLabel = new Label();
 
+            labelContainer.style.flexDirection = FlexDirection.Row;
+            labelContainer.style.alignItems = Align.Center;
+            labelContainer.style.marginLeft = StyleKeyword.Auto;
+            labelContainer.style.marginRight = StyleKeyword.Auto;
+
+            labelContainer.AddAll(fromLabel, symbolLabel, toLabel);
+
             fromLabel.BindProperty(fromNameProp);
             toLabel.BindProperty(toNameProp);
 
-            title.AddAll(fromLabel, symbolLabel, toLabel);
+            title.AddAll(labelContainer, addTransitionButton);
 
             return title;
         }
@@ -79,23 +79,67 @@ namespace Shears.StateMachineGraphs.Editor
             return container;
         }
 
-        private VisualElement CreateComparisonsContainer(int index)
+        private VisualElement CreateComparisonsContainer(SerializedProperty transitionEdgeProp, SerializedProperty transitionDataProp, int index)
         {
             var container = new VisualElement();
+            var labelContainer = new VisualElement();
+            var comparisonButton = CreateAddComparisonButton(transitionDataProp);
+            var deleteButton = CreateDeleteTransitionButtom(transitionEdgeProp, transitionDataProp);
+
+            comparisonButton.style.marginLeft = StyleKeyword.Auto;
+            labelContainer.style.flexDirection = FlexDirection.Row;
 
             container.AddToClassList(SMEditorUtil.ComparisonsContainerClassName);
 
             var label = new Label($"Transition {index}");
             label.style.marginLeft = 4;
 
-            container.Add(label);
+            labelContainer.AddAll(label, comparisonButton, deleteButton);
+            container.Add(labelContainer);
 
             return container;
         }
 
-        private VisualElement CreateDeleteTransitionButtom(SerializedProperty transitionEdgeProp, SerializedProperty transitionProp)
+        private VisualElement CreateTransitionsList(SerializedProperty transitionEdgeProp)
         {
-            var deleteButton = new Button(() => DeleteTransition(transitionEdgeProp, transitionProp))
+            var transitionDataProp = transitionEdgeProp.FindPropertyRelative("transitionData");
+            var transitionsList = new VisualElement();
+
+            if (transitionDataProp.arraySize == 0)
+            {
+                transitionDataProp.InsertArrayElementAtIndex(0);
+                transitionDataProp.GetArrayElementAtIndex(0).boxedValue = new TransitionData();
+            }
+            else if (transitionDataProp.GetArrayElementAtIndex(0).boxedValue == null)
+                transitionDataProp.GetArrayElementAtIndex(0).boxedValue = new TransitionData();
+
+            transitionDataProp.serializedObject.ApplyModifiedPropertiesWithoutUndo();
+            transitionDataProp.serializedObject.Update();
+
+            void updateList(SerializedProperty comparisonsProp)
+            {
+                transitionsList.Clear();
+
+                for (int i = 0; i < transitionDataProp.arraySize; i++)
+                {
+                    var transitionDataElement = transitionDataProp.GetArrayElementAtIndex(i);
+                    var comparisonsContainer = CreateComparisonsContainer(transitionEdgeProp, transitionDataElement, i);
+                    var comparisonList = CreateComparisonList(transitionDataElement);
+
+                    comparisonsContainer.Add(comparisonList);
+                    transitionsList.Add(comparisonsContainer);
+                }
+            }
+
+            transitionsList.TrackPropertyValue(transitionDataProp, updateList);
+            updateList(transitionDataProp);
+
+            return transitionsList;
+        }
+
+        private VisualElement CreateDeleteTransitionButtom(SerializedProperty transitionEdgeProp, SerializedProperty transitionDataProp)
+        {
+            var deleteButton = new Button(() => DeleteTransition(transitionEdgeProp, transitionDataProp))
             {
                 text = "X"
             };
@@ -103,15 +147,44 @@ namespace Shears.StateMachineGraphs.Editor
             return deleteButton;
         }
 
-        private void DeleteTransition(SerializedProperty transitionEdgeProp, SerializedProperty transitionProp)
+        private void AddTransition(SerializedProperty transitionEdgeProp)
+        {
+            var transitionDataProp = transitionEdgeProp.FindPropertyRelative("transitionData");
+            var size = transitionDataProp.arraySize;
+            var transition = new TransitionData();
+
+            transitionDataProp.InsertArrayElementAtIndex(size);
+            transitionDataProp.GetArrayElementAtIndex(size).boxedValue = transition;
+
+            transitionDataProp.serializedObject.ApplyModifiedProperties();
+        }
+
+        private void DeleteTransition(SerializedProperty transitionEdgeProp, SerializedProperty targetTransitionProp)
         {
             var transitionDataProp = transitionEdgeProp.FindPropertyRelative("transitionData");
             for (int i = 0; i < transitionDataProp.arraySize; i++)
             {
                 var transitionData = transitionDataProp.GetArrayElementAtIndex(i);
 
-                if (transitionData == transitionProp)
+                if (SerializedProperty.DataEquals(transitionData, targetTransitionProp))
                     transitionDataProp.DeleteArrayElementAtIndex(i);
+            }
+
+            transitionDataProp.serializedObject.ApplyModifiedProperties();
+            transitionDataProp.serializedObject.Update();
+
+            if (transitionDataProp.arraySize == 0)
+            {
+                // get serializedObject then remove transition edge data
+                var edgeData = transitionEdgeProp.boxedValue as TransitionEdgeData;
+                var graphData = transitionEdgeProp.serializedObject.targetObject as GraphData;
+
+                // get the graph view so we can save
+                SMEditorWindow.GraphView.Record("Delete Transition");
+                graphData.Editor__RemoveEdgeData(edgeData);
+                SMEditorWindow.GraphView.Save();
+
+                SMEditorWindow.GraphView.Select(null);
             }
         }
 
@@ -151,37 +224,31 @@ namespace Shears.StateMachineGraphs.Editor
 
             void updateList(SerializedProperty comparisonsProp)
             {
-                UpdateComparisonProps(comparisonsProp);
-                BuildComparisonList(comparisonList);
+                instanceComparisonProps.Clear();
+
+                for (int i = 0; i < comparisonsProp.arraySize; ++i)
+                    instanceComparisonProps.Add(comparisonsProp.GetArrayElementAtIndex(i));
+
+                comparisonList.Clear();
+
+                var label = new Label("Comparisons");
+                label.style.alignSelf = Align.Center;
+
+                comparisonList.Add(label);
+
+                foreach (var comparison in instanceComparisonProps)
+                {
+                    var comparisonField = new PropertyField();
+                    comparisonField.BindProperty(comparison);
+
+                    comparisonList.Add(comparisonField);
+                }
             }
 
             comparisonList.TrackPropertyValue(comparisonsProp, updateList);
-
             updateList(comparisonsProp);
 
             return comparisonList;
-        }
-
-        private void UpdateComparisonProps(SerializedProperty comparisonsProp)
-        {
-            instanceComparisonProps.Clear();
-
-            for (int i = 0; i < comparisonsProp.arraySize; ++i)
-                instanceComparisonProps.Add(comparisonsProp.GetArrayElementAtIndex(i));
-        }
-
-        // TODO: i think if we cache these, the rebuild wont be noticeable
-        private void BuildComparisonList(VisualElement comparisonList)
-        {
-            comparisonList.Clear();
-
-            foreach (var comparison in instanceComparisonProps)
-            {
-                var comparisonField = new PropertyField();
-                comparisonField.BindProperty(comparison);
-
-                comparisonList.Add(comparisonField);
-            }
         }
     }
 }
