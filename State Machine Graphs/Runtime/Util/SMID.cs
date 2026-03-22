@@ -3,15 +3,17 @@ using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
-    public readonly struct SMID
+    [Serializable]
+    public struct SMID
     {
         public static readonly SMID Empty;
 
-        private readonly Guid id;
-
+        [SerializeField]
+        private string id;
+        
         private SMID(Guid id)
         {
-            this.id = id;
+            this.id = id.ToString();
         }
 
         public static SMID Create()
@@ -19,15 +21,20 @@ namespace Shears.StateMachineGraphs
             return new(Guid.NewGuid());
         }
 
-        public override bool Equals(object obj)
+        public readonly override bool Equals(object obj)
         {
             return obj is SMID sMID &&
                    id.Equals(sMID.id);
         }
 
-        public override int GetHashCode()
+        public readonly override int GetHashCode()
         {
             return id.GetHashCode();
+        }
+
+        public readonly override string ToString()
+        {
+            return id;
         }
 
         public static bool operator==(SMID a, SMID b)

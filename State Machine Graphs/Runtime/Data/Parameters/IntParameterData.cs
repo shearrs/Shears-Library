@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
+    [System.Serializable]
     public class IntParameterData : ParameterData<int>
     {
         protected override string DefaultName => "Int Parameter";

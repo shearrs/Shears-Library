@@ -9,6 +9,8 @@ namespace Shears.StateMachineGraphs
     [CreateAssetMenu(fileName = "New State Machine Graph", menuName = "Shears Library/State Machine Graph")]
     public class StateMachineGraph : GraphData
     {
+        private static bool smidsInitialized = false;
+
         [Header("State Machine Elements")]
         [SerializeField] private string rootDefaultStateID;
         [SerializeField] private List<string> parameters = new();
@@ -60,9 +62,21 @@ namespace Shears.StateMachineGraphs
                 rootDefaultStateID = rootNodes[0];
         }
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetSMIDs()
+        {
+            smidsInitialized = false;
+        }
+
         #region Compilation
         public GraphCompilationData GetData(bool getOriginal = false)
         {
+            if (!smidsInitialized)
+            {
+                compilationData.InitializeSMIDs();
+                smidsInitialized = true;
+            }
+
             if (getOriginal)
                 return compilationData;
             else

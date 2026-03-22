@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
+    [System.Serializable]
     public class IntComparisonData : ParameterComparisonData<int>
     {
         public enum CompareType { LessThan, EqualTo, GreaterThan }

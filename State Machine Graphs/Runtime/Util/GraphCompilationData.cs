@@ -50,5 +50,14 @@ namespace Shears.StateMachineGraphs
             this.parameterProviders = parameterProviders;
             this.defaultState = defaultState;
         }
+
+        internal void InitializeSMIDs()
+        {
+            foreach (var state in stateIDs.Values)
+                state.ID = SMID.Create();
+
+            foreach (var parameter in parameterIDs.Values)
+                parameter.ID = SMID.Create();
+        }
     }
 }

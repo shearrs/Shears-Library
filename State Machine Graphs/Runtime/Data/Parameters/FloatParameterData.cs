@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
+    [System.Serializable]
     public class FloatParameterData : ParameterData<float>
     {
         protected override string DefaultName => "Float Parameter";
