@@ -190,8 +190,6 @@ namespace Shears.StateMachineGraphs.Editor
 
         public void ClearGraphData()
         {
-            Debug.Log("graph data: " + graphData);
-
             if (graphData == null)
                 return;
 
