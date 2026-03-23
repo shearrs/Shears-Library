@@ -71,7 +71,7 @@ namespace Shears.StateMachineGraphs
         #region Compilation
         public GraphCompilationData GetData(bool getOriginal = false)
         {
-            if (!smidsInitialized)
+            if (!smidsInitialized && compilationData != null)
             {
                 compilationData.InitializeSMIDs();
                 smidsInitialized = true;

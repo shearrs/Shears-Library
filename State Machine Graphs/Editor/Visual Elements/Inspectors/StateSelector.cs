@@ -1,6 +1,5 @@
 using System;
 using System.Reflection;
-using System.Text;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -17,13 +16,11 @@ namespace Shears.StateMachineGraphs.Editor
         private readonly SerializedProperty stateTypeProp;
         private readonly SerializedProperty stateNameProp;
         private readonly Button button;
-        private readonly StringBuilder stringBuilder;
 
         public StateSelector(SerializedProperty stateTypeProp)
         {
             this.stateTypeProp = stateTypeProp;
             stateNameProp = stateTypeProp.FindPropertyRelative("prettyName");
-            stringBuilder = new(128);
 
             AddToClassList(SMEditorUtil.StateSelectorClassName);
 
