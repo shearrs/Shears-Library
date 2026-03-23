@@ -110,4 +110,58 @@ namespace Shears.StateMachineGraphs
 
         protected abstract void Inject(T1 dependency1, T2 dependency2, T3 dependency3);
     }
+
+    public abstract class State<T1, T2, T3, T4> : State, IStateInjectable
+    {
+        private T1 dependency1;
+        private T2 dependency2;
+        private T3 dependency3;
+        private T4 dependency4;
+
+        IReadOnlyCollection<Type> IStateInjectable.GetInjectableTypes()
+        {
+            return new[] { typeof(T1), typeof(T2), typeof(T3) };
+        }
+
+        bool IStateInjectable.CanInjectType(Type type)
+        {
+            return type == typeof(T1) || type == typeof(T2) || type == typeof(T3);
+        }
+
+        void IStateInjectable.InjectType(object dependency)
+        {
+            if (dependency is T1 dependency1)
+            {
+                this.dependency1 = dependency1;
+
+                if (dependency2 != null && dependency3 != null && dependency4 != null)
+                    Inject(this.dependency1, dependency2, dependency3, this.dependency4);
+            }
+            else if (dependency is T2 dependency2)
+            {
+                this.dependency2 = dependency2;
+
+                if (this.dependency1 != null && dependency3 != null && dependency4 != null)
+                    Inject(this.dependency1, this.dependency2, dependency3, this.dependency4);
+            }
+            else if (dependency is T3 dependency3)
+            {
+                this.dependency3 = dependency3;
+
+                if (this.dependency1 != null && this.dependency2 != null && dependency4 != null)
+                    Inject(this.dependency1, this.dependency2, this.dependency3, this.dependency4);
+            }
+            else if (dependency is T4 dependency4)
+            {
+                this.dependency4 = dependency4;
+
+                if (this.dependency1 != null && this.dependency2 != null && this.dependency3 != null)
+                    Inject(this.dependency1, this.dependency2, this.dependency3, this.dependency4);
+            }
+            else
+                Log($"Failed to inject dependency of type {dependency.GetType()} into state {GetType()}. Expected type: {typeof(T1)}, {typeof(T2)}, or {typeof(T3)}.", SHLogLevels.Error);
+        }
+
+        protected abstract void Inject(T1 dependency1, T2 dependency2, T3 dependency3, T4 dependency4);
+    }
 }
