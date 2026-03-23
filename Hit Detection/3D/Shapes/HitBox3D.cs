@@ -124,6 +124,22 @@ namespace Shears.HitDetection
 
         private void Update()
         {
+            if (Body != null && Body.UseFixedUpdate)
+                return;
+
+            if (isDetecting)
+                isDetecting = false;
+            else
+                isFirstFrame = true;
+
+            previousPosition = TCenter;
+        }
+
+        private void FixedUpdate()
+        {
+            if (Body != null && !Body.UseFixedUpdate)
+                return;
+
             if (isDetecting)
                 isDetecting = false;
             else
