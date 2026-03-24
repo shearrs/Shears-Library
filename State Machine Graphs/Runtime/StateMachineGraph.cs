@@ -181,34 +181,34 @@ namespace Shears.StateMachineGraphs
 
             foreach (var id in transitionIDs)
             {
-                if (!TryGetData(id, out TransitionEdgeData transitionData))
+                if (!TryGetData(id, out TransitionEdgeData transitionEdgeData))
                 {
                     SHLogger.Log("Could not find transition with id: " + id, SHLogLevels.Error);
                     continue;
                 }
 
-                if (transitionData.ToID == data.ID)
+                if (transitionEdgeData.ToID == data.ID)
                     continue;
 
-                if (!states.TryGetValue(transitionData.ToID, out var toState))
+                if (!states.TryGetValue(transitionEdgeData.ToID, out var toState))
                 {
-                    SHLogger.Log("Could not find target State with id: " + transitionData.ToID, SHLogLevels.Error);
+                    SHLogger.Log("Could not find target State with id: " + transitionEdgeData.ToID, SHLogLevels.Error);
                     continue;
                 }
 
-                var comparisons = new List<ParameterComparison>();
-
-                foreach (var tData in transitionData.TransitionData)
+                foreach (var transitionData in transitionEdgeData.TransitionData)
                 {
-                    foreach (var comparisonData in tData.ComparisonData)
+                    var comparisons = new List<ParameterComparison>();
+
+                    foreach (var comparisonData in transitionData.ComparisonData)
                     {
                         var comparison = comparisonData.CreateComparison(parameterIDs[comparisonData.ParameterID]);
                         comparisons.Add(comparison);
                     }
-                }
 
-                var transition = new Transition(state, toState, comparisons);
-                state.AddTransition(transition);
+                    var transition = new Transition(state, toState, comparisons);
+                    state.AddTransition(transition);
+                }
             }
         }
         #endregion
