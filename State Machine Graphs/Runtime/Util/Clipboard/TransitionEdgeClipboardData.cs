@@ -48,7 +48,7 @@ namespace Shears.StateMachineGraphs
                 return null;
             }
 
-            var transition = stateGraph.CreateTransitionEdgeData(transitionableFrom, transitionableTo);
+            var transition = stateGraph.CreateTransitionEdgeData(transitionableFrom, transitionableTo, false);
 
             foreach (var tData in transitionData)
                 transition.AddTransitionData(tData);

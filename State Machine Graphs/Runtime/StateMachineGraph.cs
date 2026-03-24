@@ -2,6 +2,7 @@ using Shears.GraphViews;
 using Shears.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Shears.StateMachineGraphs
@@ -9,7 +10,7 @@ namespace Shears.StateMachineGraphs
     [CreateAssetMenu(fileName = "New State Machine Graph", menuName = "Shears Library/State Machine Graph")]
     public class StateMachineGraph : GraphData
     {
-        private static bool smidsInitialized = false;
+        private static readonly HashSet<string> initializedGraphs = new();
 
         [Header("State Machine Elements")]
         [SerializeField] private string rootDefaultStateID;
@@ -65,16 +66,16 @@ namespace Shears.StateMachineGraphs
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetSMIDs()
         {
-            smidsInitialized = false;
+            initializedGraphs.Clear();
         }
 
         #region Compilation
         public GraphCompilationData GetData(bool getOriginal = false)
         {
-            if (!smidsInitialized && compilationData != null)
+            if (!initializedGraphs.Contains(ID) && compilationData != null)
             {
                 compilationData.InitializeSMIDs();
-                smidsInitialized = true;
+                initializedGraphs.Add(ID);
             }
 
             if (getOriginal)
@@ -414,11 +415,11 @@ namespace Shears.StateMachineGraphs
         #endregion
 
         #region Transitions
-        public TransitionEdgeData CreateTransitionEdgeData(ITransitionable from, ITransitionable to)
+        public TransitionEdgeData CreateTransitionEdgeData(ITransitionable from, ITransitionable to, bool addDefaultData = true)
         {
             needsCompilation = true;
 
-            var transitionData = new TransitionEdgeData(from, to);
+            var transitionData = new TransitionEdgeData(from, to, addDefaultData);
 
             AddEdgeData(transitionData);
 

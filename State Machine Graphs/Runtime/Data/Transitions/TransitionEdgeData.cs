@@ -12,9 +12,10 @@ namespace Shears.StateMachineGraphs
 
         public IReadOnlyList<TransitionData> TransitionData => transitionData;
 
-        public TransitionEdgeData(ITransitionable from, ITransitionable to) : base(from.ID, to.ID)
+        public TransitionEdgeData(ITransitionable from, ITransitionable to, bool addDefaultData = true) : base(from.ID, to.ID)
         {
-            transitionData.Add(new TransitionData());
+            if (addDefaultData)
+                transitionData.Add(new TransitionData());
         }
 
         public void AddTransitionData(TransitionData data)

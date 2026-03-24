@@ -89,8 +89,6 @@ namespace Shears.UI
             var tweenData = new StructTweenData(duration, easingFunction: TweenEase.InOutQuad, unscaledTime: unscaledTime);
 
             Enable();
-            bool wasSelectable = selectable;
-            selectable = false;
 
             Color targetColor = modulateColor == null ? Color.white : modulateColor.Value;
 
@@ -110,7 +108,6 @@ namespace Shears.UI
 
             tweenStorage[0].Completed += () =>
             {
-                selectable = wasSelectable;
                 isFading = false;
                 FadeInCompleted?.Invoke();
             };
@@ -123,9 +120,6 @@ namespace Shears.UI
 
             isFading = true;
             var tweenData = new StructTweenData(duration, easingFunction: TweenEase.InOutQuad, unscaledTime: unscaledTime);
-
-            bool wasSelectable = selectable;
-            selectable = false;
 
             TweenToColor(image.Modulate.With(a: 0.0f), tweenData);
 
@@ -147,7 +141,6 @@ namespace Shears.UI
 
             tweenStorage[0].Completed += () =>
             {
-                selectable = wasSelectable;
                 Disable();
 
                 isFading = false;
@@ -264,30 +257,22 @@ namespace Shears.UI
 
         private void SetSelectable(bool value)
         {
-            if (value == selectable)
-                return;
-
-            if (isActiveAndEnabled)
+            if (!value)
             {
-                if (selectable)
-                {
-                    TweenToColor(notSelectableColor, notSelectableTweenData);
+                TweenToColor(notSelectableColor, notSelectableTweenData);
 
-                    if (isHovered)
-                        HoverExited?.Invoke();
-                }
-                else
-                {
-                    Color targetColor = isHovered ? hoverColor : Color.white;
-
-                    TweenToColor(targetColor, notSelectableTweenData);
-
-                    if (isHovered)
-                        HoverEntered?.Invoke();
-                }
+                if (isHovered)
+                    HoverExited?.Invoke();
             }
             else
-                image.Modulate = notSelectableColor;
+            {
+                Color targetColor = isHovered ? hoverColor : Color.white;
+
+                TweenToColor(targetColor, notSelectableTweenData);
+
+                if (isHovered)
+                    HoverEntered?.Invoke();
+            }
 
             selectable = value;
         }
