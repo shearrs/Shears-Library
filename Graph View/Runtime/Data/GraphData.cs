@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace Shears.GraphViews
 {
     public abstract class GraphData : ScriptableObject
@@ -146,6 +150,29 @@ namespace Shears.GraphViews
             
             if (string.IsNullOrEmpty(id))
                 id = Guid.NewGuid().ToString();
+
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+                return;
+
+            string path = AssetDatabase.GetAssetPath(this);
+            string[] guids = AssetDatabase.FindAssets($"t:{nameof(GraphData)}");
+
+            foreach (string guid in guids)
+            {
+                string otherPath = AssetDatabase.GUIDToAssetPath(guid);
+
+                if (otherPath == path) continue;
+
+                var other = AssetDatabase.LoadAssetAtPath<GraphData>(otherPath);
+                if (other != null && other.id == id)
+                {
+                    id = Guid.NewGuid().ToString();
+                    EditorUtility.SetDirty(this);
+                    break;
+                }
+            }
+#endif
         }
         #endregion
 
