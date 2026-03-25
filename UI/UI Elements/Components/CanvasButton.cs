@@ -177,7 +177,7 @@ namespace Shears.UI
             evt.PreventTrickleDown();
             isHovered = true;
 
-            if (!selectable)
+            if (!selectable || isFading)
                 return;
 
             HoverEntered?.Invoke();
@@ -189,7 +189,7 @@ namespace Shears.UI
             evt.PreventTrickleDown();
             isHovered = false;
 
-            if (!selectable)
+            if (!selectable || isFading)
                 return;
 
             HoverExited?.Invoke();
@@ -214,7 +214,7 @@ namespace Shears.UI
 
             PointerDown?.Invoke();
 
-            if (selectable)
+            if (selectable && !isFading)
                 TweenToColor(pressedColor, hoverTweenData);
         }
 
@@ -229,7 +229,8 @@ namespace Shears.UI
 
             PointerUp?.Invoke();
 
-            TweenToColor(targetColor, hoverTweenData);
+            if (!isFading)
+                TweenToColor(targetColor, hoverTweenData);
         }
 
         private void OnClicked(ClickEvent evt)
