@@ -8,8 +8,6 @@ namespace Shears.HitDetection
     public class HitSphere : HitShape3D
     {
         private const float EDGE_OFFSET = 0.1f;
-        const float RIGHT_DEGREE_STEP = 15.0f;
-        const float UP_DEGREE_STEP = 15.0f;
 
         #region Nested Types
         [Flags]
@@ -83,6 +81,9 @@ namespace Shears.HitDetection
         [Header("Collision Settings")]
         [SerializeField, RuntimeReadOnly]
         private bool castFromCenter = false;
+
+        [SerializeField, RuntimeReadOnly]
+        private bool halfSphere = false;
 
         [SerializeField, Range(0, 500), RuntimeReadOnly]
         private int maxHits = 10;
@@ -213,14 +214,15 @@ namespace Shears.HitDetection
 
         private void CenterCast(DetectionHandle handle)
         {
-            float xStep = 360.0f / raysPerSide;
+            float sphereAngles = halfSphere ? 180.0f : 360.0f;
+            float xStep = sphereAngles / raysPerSide;
             float yStep = 360.0f / raysPerSide;
             float xDegrees = 0.0f;
             float yDegrees = 0.0f;
             Quaternion orientation = Quaternion.Euler(this.orientation);
             Vector3 forward = orientation * transform.forward; 
 
-            while (xDegrees < 360.0f)
+            while (xDegrees < sphereAngles)
             {
                 while (yDegrees < 360.0f)
                 {
@@ -339,12 +341,13 @@ namespace Shears.HitDetection
 
         private void DrawCenterCast()
         {
-            float xStep = 360.0f / raysPerSide;
+            float sphereAngles = halfSphere ? 180.0f : 360.0f;
+            float xStep = sphereAngles / raysPerSide;
             float yStep = 360.0f / raysPerSide;
             float xDegrees = 0.0f;
             float yDegrees = 0.0f;
 
-            while (xDegrees < 360.0f)
+            while (xDegrees < sphereAngles)
             {
                 while (yDegrees < 360.0f)
                 {
