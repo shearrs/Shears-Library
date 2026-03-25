@@ -46,6 +46,7 @@ namespace Shears.HitDetection
         private Dictionary<HurtBody3D, MappedHit> finalHits;
         private List<int> sortedHits = new();
 
+        public bool IsEnabled => isEnabled;
         public List<HitShape3D> Shapes { get => shapes; set => shapes = value; }
         public bool UseFixedUpdate { get => fixedUpdate; set => fixedUpdate = value; }
         public bool MultiHits { get => multiHits; set => multiHits = value; }
@@ -194,12 +195,7 @@ namespace Shears.HitDetection
                     continue;
                 }
 
-                if (finalHits.TryGetValue(hurtBody, out var oldHit))
-                {
-                    if (oldHit.hit.distance < hit.distance)
-                        finalHits[hurtBody] = new(shape, hit);
-                }
-                else
+                if (!finalHits.TryGetValue(hurtBody, out var oldHit))
                     finalHits[hurtBody] = new(shape, hit);
 
                 if (!unblockable && hurtBody.IsBlocking)
@@ -208,6 +204,7 @@ namespace Shears.HitDetection
 
                     if (hurtBody.CanBlock(blockHitData))
                     {
+                        this.Log($"Hit was blocked: {shape.name}.", SHLogLevels.Verbose, context: shape);
                         blocked = true;
                         return;
                     }
