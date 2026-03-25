@@ -9,11 +9,23 @@ namespace Shears.StateMachineGraphs
     public class StateMachine : SHMonoBehaviourLogger, IParameterProvider
     {
         [Header("State Machine")]
-        [SerializeField] private bool useGraphData = true;
-        [SerializeField] private StateMachineGraph graphData;
-        [SerializeField] private bool pollTransitions = true;
-        [SerializeReference] private List<State> stateTree = new();
-        [SerializeField] private StateInjectReferenceDictionary injectedReferences = new();
+        [SerializeField]
+        private bool useGraphData = true;
+
+        [SerializeField]
+        private StateMachineGraph graphData;
+
+        [SerializeField]
+        private bool pollTransitions = true;
+
+        [SerializeField]
+        private bool manualUpdate = false;
+
+        [SerializeReference]
+        private List<State> stateTree = new();
+
+        [SerializeField]
+        private StateInjectReferenceDictionary injectedReferences = new();
 
 #if UNITY_EDITOR
 #pragma warning disable 0414
@@ -34,6 +46,7 @@ namespace Shears.StateMachineGraphs
 
         public bool UseGraphData { get => useGraphData; set => useGraphData = value; }
         public bool PollTransitions { get => pollTransitions; set => pollTransitions = value; }
+        public bool UseManualUpdate { get => manualUpdate; set => manualUpdate = value; }
         public IReadOnlyCollection<State> States => states.Values;
         public IReadOnlyCollection<Parameter> Parameters => parameters.Values;
         public string DataID => graphData.ID;
@@ -75,6 +88,14 @@ namespace Shears.StateMachineGraphs
         }
 
         private void Update()
+        {
+            if (manualUpdate)
+                return;
+        }
+
+        public void ManualUpdate() => UpdateStates();
+
+        private void UpdateStates()
         {
             if (stateTree.Count == 0)
                 return;
