@@ -48,6 +48,7 @@ namespace Shears.GraphViews
 
         public event Action LayersChanged;
         public event Action SelectionChanged;
+        public event Action GraphElementsChanged;
         public event Action<GraphNodeData> NodeDataAddedToLayer;
         public event Action<GraphNodeData> NodeDataRemoved;
         public event Action<GraphEdgeData> EdgeDataAdded;
@@ -111,11 +112,15 @@ namespace Shears.GraphViews
         protected void AddGraphElementData(GraphElementData data)
         {
             graphElements.Add(data.ID, data);
+
+            GraphElementsChanged?.Invoke();
         }
 
         protected void RemoveGraphElementData(GraphElementData data)
         {
             graphElements.Remove(data.ID);
+
+            GraphElementsChanged?.Invoke();
         }
 
         public bool TryGetData<GraphElementType>(string id, out GraphElementType data) where GraphElementType : GraphElementData
