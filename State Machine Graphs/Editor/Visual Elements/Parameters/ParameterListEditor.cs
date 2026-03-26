@@ -1,4 +1,5 @@
 using Shears.Editor;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -9,8 +10,6 @@ namespace Shears.StateMachineGraphs.Editor
     [CustomEditor(typeof(ParameterList))]
     public class ParameterListEditor : UnityEditor.Editor
     {
-        private VisualElement parameterList;
-
         public override VisualElement CreateInspectorGUI()
         {
             var root = new VisualElement();
@@ -19,11 +18,7 @@ namespace Shears.StateMachineGraphs.Editor
 
             script.style.marginBottom = 4;
 
-            var parametersProp = serializedObject.FindProperty("parameters");
-
-            parameterList = new ScrollView(ScrollViewMode.Vertical);
-            CreateParameterList();
-            parameterList.TrackPropertyValue(parametersProp, _ => CreateParameterList());
+            var parameterList = CreateParameterList();
 
             root.AddAll(script, addButton, parameterList);
 
@@ -52,46 +47,49 @@ namespace Shears.StateMachineGraphs.Editor
             return addButton;
         }
 
-        private void CreateParameterList()
+        private VisualElement CreateParameterList()
         {
-            parameterList.Clear();
-            parameterList.AddStyleSheet(ShearsStyles.InspectorStyles);
             var parametersProp = serializedObject.FindProperty("parameters");
 
-            for (int i = 0; i < parametersProp.arraySize; i++)
+            VisualElement createElement()
             {
-                var parameterProp = parametersProp.GetArrayElementAtIndex(i);
-
                 var parameterUI = new VisualElement();
-                parameterUI.style.marginTop = 2;
-                parameterUI.AddToClassList(ShearsStyles.DarkContainerClass);
+                var nameField = new PropertyField();
+                var valueField = new PropertyField();
 
-                var nameProp = parameterProp.FindPropertyRelative("name");
-                var valueProp = parameterProp.FindPropertyRelative("value");
+                parameterUI.style.paddingTop = 4;
+                parameterUI.style.paddingBottom = 4;
 
-                var nameContainer = new VisualElement();
-                nameContainer.style.flexDirection = FlexDirection.Row;
+                parameterUI.AddAll(nameField, valueField);
 
-                var deleteButton = new Button(() => DeleteParameter(parameterProp))
-                {
-                    text = "X"
-                };
-                deleteButton.style.position = Position.Absolute;
-                deleteButton.style.width = 24;
-                deleteButton.style.right = 0;
-
-                var nameField = new PropertyField(nameProp);
-                nameContainer.AddAll(nameField, deleteButton);
-
-                var valueField = new PropertyField(valueProp);
-
-                nameField.BindProperty(nameProp);
-                valueField.BindProperty(valueProp);
-
-                parameterUI.AddAll(nameContainer, valueField);
-
-                parameterList.Add(parameterUI);
+                return parameterUI;
             }
+
+            void bindElement(VisualElement element, int index)
+            {
+                var nameField = element.hierarchy[0] as PropertyField;
+                var valueField = element.hierarchy[1] as PropertyField;
+
+                nameField.BindProperty(parametersProp.GetArrayElementAtIndex(index).FindPropertyRelative("name"));
+                valueField.BindProperty(parametersProp.GetArrayElementAtIndex(index).FindPropertyRelative("value"));
+            }
+
+            var view = new ListView()
+            {
+                showAddRemoveFooter = true,
+                allowAdd = false,
+                showBorder = true,
+                reorderable = true,
+                showAlternatingRowBackgrounds = AlternatingRowBackground.ContentOnly,
+                fixedItemHeight = 40,
+                showBoundCollectionSize = false,
+            };
+
+            view.BindProperty(parametersProp);
+            view.makeItem = createElement;
+            view.bindItem = bindElement;
+
+            return view;
         }
 
         private void AddParameter(object parameterObj)
