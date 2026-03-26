@@ -9,6 +9,8 @@ namespace Shears.StateMachineGraphs.Editor
     [CustomEditor(typeof(ParameterList))]
     public class ParameterListEditor : UnityEditor.Editor
     {
+        private VisualElement parameterList;
+
         public override VisualElement CreateInspectorGUI()
         {
             var root = new VisualElement();
@@ -18,9 +20,12 @@ namespace Shears.StateMachineGraphs.Editor
             script.style.marginBottom = 4;
 
             var parametersProp = serializedObject.FindProperty("parameters");
-            var parametersField = new PropertyField(parametersProp);
 
-            root.AddAll(script, addButton, parametersField);
+            parameterList = new ScrollView(ScrollViewMode.Vertical);
+            CreateParameterList();
+            parameterList.TrackPropertyValue(parametersProp, _ => CreateParameterList());
+
+            root.AddAll(script, addButton, parameterList);
 
             return root;
         }
@@ -47,6 +52,48 @@ namespace Shears.StateMachineGraphs.Editor
             return addButton;
         }
 
+        private void CreateParameterList()
+        {
+            parameterList.Clear();
+            parameterList.AddStyleSheet(ShearsStyles.InspectorStyles);
+            var parametersProp = serializedObject.FindProperty("parameters");
+
+            for (int i = 0; i < parametersProp.arraySize; i++)
+            {
+                var parameterProp = parametersProp.GetArrayElementAtIndex(i);
+
+                var parameterUI = new VisualElement();
+                parameterUI.style.marginTop = 2;
+                parameterUI.AddToClassList(ShearsStyles.DarkContainerClass);
+
+                var nameProp = parameterProp.FindPropertyRelative("name");
+                var valueProp = parameterProp.FindPropertyRelative("value");
+
+                var nameContainer = new VisualElement();
+                nameContainer.style.flexDirection = FlexDirection.Row;
+
+                var deleteButton = new Button(() => DeleteParameter(parameterProp))
+                {
+                    text = "X"
+                };
+                deleteButton.style.position = Position.Absolute;
+                deleteButton.style.width = 24;
+                deleteButton.style.right = 0;
+
+                var nameField = new PropertyField(nameProp);
+                nameContainer.AddAll(nameField, deleteButton);
+
+                var valueField = new PropertyField(valueProp);
+
+                nameField.BindProperty(nameProp);
+                valueField.BindProperty(valueProp);
+
+                parameterUI.AddAll(nameContainer, valueField);
+
+                parameterList.Add(parameterUI);
+            }
+        }
+
         private void AddParameter(object parameterObj)
         {
             var parametersProp = serializedObject.FindProperty("parameters");
@@ -56,6 +103,23 @@ namespace Shears.StateMachineGraphs.Editor
             parametersProp.GetArrayElementAtIndex(arraySize).boxedValue = parameterObj;
 
             serializedObject.ApplyModifiedProperties();
+        }
+
+        private void DeleteParameter(SerializedProperty parameter)
+        {
+            var parametersProp = serializedObject.FindProperty("parameters");
+
+            for (int i = 0; i < parametersProp.arraySize; i++)
+            {
+                var currentProp = parametersProp.GetArrayElementAtIndex(i);
+
+                if (SerializedProperty.DataEquals(currentProp, parameter))
+                {
+                    parametersProp.DeleteArrayElementAtIndex(i);
+                    serializedObject.ApplyModifiedProperties();
+                    break;
+                }
+            }
         }
     }
 }
