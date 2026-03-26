@@ -180,8 +180,6 @@ namespace Shears.StateMachineGraphs.Editor
             this.graphData = graphData;
 
             addButton.enabledSelf = true;
-            this.graphData.ParameterDataAdded += AddParameterUI;
-            this.graphData.ParameterDataRemoved += RemoveParameterUI;
             this.graphData.GraphElementsChanged += Reload;
 
             this.AddManipulator(contentSelector);
@@ -194,8 +192,6 @@ namespace Shears.StateMachineGraphs.Editor
             if (graphData == null)
                 return;
 
-            graphData.ParameterDataAdded -= AddParameterUI;
-            graphData.ParameterDataRemoved -= RemoveParameterUI;
             graphData.GraphElementsChanged -= Reload;
 
             parameterUIs.Clear();
@@ -214,6 +210,7 @@ namespace Shears.StateMachineGraphs.Editor
             menu.AddItem(new GUIContent("Int Parameter"), false, AddParameter, new IntParameterData());
             menu.AddItem(new GUIContent("Float Parameter"), false, AddParameter, new FloatParameterData());
             menu.AddItem(new GUIContent("Trigger Parameter"), false, AddParameter, new TriggerParameterData());
+            menu.AddItem(new GUIContent("Parameter List"), false, AddParameter, new ParameterListParameterData());
 
             menu.ShowAsContext();
         }
@@ -241,7 +238,6 @@ namespace Shears.StateMachineGraphs.Editor
             GraphViewEditorUtil.Save(graphData);
         }
 
-        private void AddParameterUI(ParameterData parameterData) => AddParameterUI(parameterData, true);
         private void AddParameterUI(ParameterData parameterData, bool renameByDefault)
         {
             var parameterUI = new ParameterUI(parameterData, graphData, Reload);

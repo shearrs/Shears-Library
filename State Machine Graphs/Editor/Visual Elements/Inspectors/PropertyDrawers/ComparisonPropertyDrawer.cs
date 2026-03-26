@@ -15,9 +15,9 @@ namespace Shears.StateMachineGraphs.Editor
         {
             var graphSO = comparisonProp.serializedObject;
             var graphData = graphSO.targetObject as StateMachineGraph;
-            var parameters = graphData.GetParameters();
+            var parameters = graphData.GetParameters(true);
             var parameterIDProp = comparisonProp.FindPropertyRelative("parameterID");
-            var parameterIndex = -1;
+            int parameterIndex = -1;
 
             instanceParameterNames.Clear();
 
@@ -72,7 +72,7 @@ namespace Shears.StateMachineGraphs.Editor
         {
             var graphSO = comparisonProp.serializedObject;
             var graphData = graphSO.targetObject as StateMachineGraph;
-            var parameters = graphData.GetParameters();
+            var parameters = graphData.GetParameters(true);
             ParameterData selectedParameter = null;
 
             foreach (var parameter in parameters)

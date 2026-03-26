@@ -2,12 +2,13 @@ using Shears.GraphViews;
 using Shears.Logging;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
-    [CreateAssetMenu(fileName = "New State Machine Graph", menuName = "Shears Library/State Machine Graph")]
+    [CreateAssetMenu(fileName = "New State Machine Graph", menuName = "Shears Library/State Machine Graph/New Graph", order = 0)]
     public class StateMachineGraph : GraphData
     {
         private static readonly HashSet<string> initializedGraphs = new();
@@ -94,10 +95,23 @@ namespace Shears.StateMachineGraphs
 
             foreach (var parameterData in GetParameters())
             {
-                var parameter = CreateParameter(parameterData);
+                if (parameterData is ParameterListParameterData listData)
+                {
+                    foreach (var subParameter in listData.Value.Parameters)
+                    {
+                        var parameter = CreateParameter(subParameter);
 
-                parameterNames.Add(parameter.Name, parameter);
-                parameterIDs.Add(parameterData.ID, parameter);
+                        parameterNames.Add(parameter.Name, parameter);
+                        parameterIDs.Add(subParameter.ID, parameter);
+                    }
+                }
+                else
+                {
+                    var parameter = CreateParameter(parameterData);
+
+                    parameterNames.Add(parameter.Name, parameter);
+                    parameterIDs.Add(parameterData.ID, parameter);
+                }
             }
 
             var stateNodes = GetStateNodes();
@@ -438,14 +452,25 @@ namespace Shears.StateMachineGraphs
         #endregion
 
         #region Parameters
-        public IReadOnlyList<ParameterData> GetParameters()
+        public IReadOnlyList<ParameterData> GetParameters(bool unwrapLists = false)
         {
             instanceParameters.Clear();
 
             foreach (var parameterID in parameters)
             {
                 if (TryGetData<ParameterData>(parameterID, out var parameter))
-                    instanceParameters.Add(parameter);
+                {
+                    if (unwrapLists && parameter is ParameterListParameterData listData)
+                    {
+                        if (listData.Value == null)
+                            continue;
+
+                        foreach (var subParameter in listData.Value.Parameters)
+                            instanceParameters.Add(subParameter);
+                    }
+                    else
+                        instanceParameters.Add(parameter);
+                }
             }
 
             return instanceParameters;
