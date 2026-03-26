@@ -347,12 +347,15 @@ namespace Shears.HitDetection
             float xDegrees = 0.0f;
             float yDegrees = 0.0f;
 
+            Quaternion orientation = Quaternion.Euler(this.orientation);
+            Vector3 forward = orientation * transform.forward;
+
             while (xDegrees < sphereAngles)
             {
                 while (yDegrees < 360.0f)
                 {
                     Quaternion rotation = Quaternion.Euler(new(xDegrees, yDegrees, 0.0f));
-                    Vector3 direction = rotation * Vector3.forward;
+                    Vector3 direction = rotation * forward;
 
                     Gizmos.DrawRay(center, direction * radius);
 
