@@ -29,8 +29,11 @@ namespace Shears.UI
         private readonly List<TextMeshPro> textChildren = new();
         private readonly TweenStorage tweenStorage = new();
         private ColorModulator colorModulator;
-        private bool isFading = false;
+        private bool isFadingIn = false;
+        private bool isFadingOut = false;
+        private bool initializeColor = true;
 
+        public bool InitializeColor { get => initializeColor; set => initializeColor = value; }
         public ColorModulator ColorModulator
         {
             get
@@ -52,11 +55,18 @@ namespace Shears.UI
         {
             base.Awake();
 
-            if (!selectable)
+            if (!selectable && initializeColor)
             {
                 ColorModulator.ModulateColor(notSelectableColor);
                 ColorModulator.CanChangeColor = false;
             }
+        }
+
+        private void OnDisable()
+        {
+            tweenStorage.Dispose();
+            isFadingIn = false;
+            isFadingOut = false;
         }
 
         [ContextMenu("Click")]
@@ -67,10 +77,16 @@ namespace Shears.UI
 
         public void FadeIn(float duration = 0.5f, bool unscaledTime = false)
         {
-            if (isFading)
-                tweenStorage.Dispose();
+            if (isFadingIn)
+                return;
 
-            isFading = true;
+            if (isFadingOut)
+            {
+                tweenStorage.Dispose();
+                isFadingOut = false;
+            }
+
+            isFadingIn = true;
             var tweenData = new StructTweenData(duration, easingFunction: TweenEase.InOutQuad, unscaledTime: unscaledTime);
 
             Enable();
@@ -96,7 +112,7 @@ namespace Shears.UI
             ColorModulator.AddOnComplete(() =>
             {
                 selectable = wasSelectable;
-                isFading = false;
+                isFadingIn = false;
                 FadeInCompleted?.Invoke();
 
                 ColorModulator.CanChangeColor = true;
@@ -105,10 +121,16 @@ namespace Shears.UI
 
         public void FadeOut(float duration = 0.5f, bool unscaledTime = false)
         {
-            if (isFading)
-                tweenStorage.Dispose();
+            if (isFadingOut)
+                return;
 
-            isFading = true;
+            if (isFadingIn)
+            {
+                tweenStorage.Dispose();
+                isFadingIn = false;
+            }
+
+            isFadingOut = true;
             var tweenData = new StructTweenData(duration, easingFunction: TweenEase.InOutQuad, unscaledTime: unscaledTime);
 
             bool wasSelectable = selectable;
@@ -139,9 +161,18 @@ namespace Shears.UI
                 selectable = wasSelectable;
                 Disable();
 
-                isFading = false;
+                isFadingOut = false;
                 FadeOutCompleted?.Invoke();
             });
+        }
+
+        public void SetAlpha(float alpha)
+        {
+            ColorModulator.SetColor(a: alpha);
+            GetComponentsInChildren(true, textChildren);
+
+            foreach (var child in textChildren)
+                child.color = child.color.With(a: alpha);
         }
 
         protected override void RegisterEvents()

@@ -183,6 +183,8 @@ namespace Shears.UI
             if (renderTargets.Count == 0)
                 return Tween.Empty;
 
+            tweenStorage.Dispose();
+
             foreach (var target in renderTargets)
             {
                 if (target.renderer is SpriteRenderer spriteRenderer)
@@ -191,13 +193,15 @@ namespace Shears.UI
                     tweenStorage.Store(target.renderer.material.DoColorTween(target.renderer.material.color.With(a: 1.0f), data));
             }
 
-            return tweenStorage.Tweens[0];
+            return tweenStorage.GetFirstValid();
         }
 
         public Tween FadeOut(ITweenData data)
         {
             if (renderTargets.Count == 0)
                 return Tween.Empty;
+
+            tweenStorage.Dispose();
 
             foreach (var target in renderTargets)
             {
@@ -207,7 +211,7 @@ namespace Shears.UI
                     tweenStorage.Store(target.renderer.material.DoColorTween(target.renderer.material.color.With(a: 0.0f), data));
             }
 
-            return tweenStorage.Tweens[0];
+            return tweenStorage.GetFirstValid();
         }
 
         public void ClearModulation()
@@ -263,8 +267,8 @@ namespace Shears.UI
 
         public void AddOnComplete(Action action)
         {
-            if (tweenStorage.Tweens.Count > 0)
-                tweenStorage.Tweens[0].Completed += action;
+            if (tweenStorage.HasValidTween())
+                tweenStorage.GetFirstValid().Completed += action;
         }
 
         public void SetColor(Color color)
@@ -275,6 +279,8 @@ namespace Shears.UI
 
         public void SetColor(float? r = null, float? g = null, float? b = null, float? a = null)
         {
+            tweenStorage.Dispose();
+
             foreach (var renderer in renderTargets)
             {
                 Color newColor = OriginalColors[renderer];

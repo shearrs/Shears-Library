@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,6 +9,22 @@ namespace Shears.Tweens
         private readonly List<Tween> tweens = new();
 
         public IReadOnlyList<Tween> Tweens => tweens;
+
+        public bool HasValidTween()
+        {
+            return GetFirstValid() != Tween.Empty;
+        }
+
+        public Tween GetFirstValid()
+        {
+            foreach (var tween in tweens)
+            {
+                if (tween.IsValid)
+                    return tween;
+            }
+
+            return Tween.Empty;
+        }
 
         public Tween Store(Tween tween)
         {
