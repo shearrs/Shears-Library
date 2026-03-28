@@ -116,6 +116,8 @@ namespace Shears.UI
             }
         }
 
+        protected Tween GetFirstValidTween() => tweenStorage.GetFirstValid();
+
         internal UIElement GetDeepestChild()
         {
             GetDeepestChildRecursive(0, out var child);
