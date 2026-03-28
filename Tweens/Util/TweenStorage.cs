@@ -42,7 +42,7 @@ namespace Shears.Tweens
 
             tweens.Clear();
         }
-        
+
         public Tween this[int index] => tweens[index];
     }
 }
