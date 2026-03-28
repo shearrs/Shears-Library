@@ -289,6 +289,12 @@ namespace Shears.Tweens
             return CreateAutoDisposeTween(textMesh, update, data);
         }
 
+        public static Tween DoFadeTween(this TextMeshProUGUI textMesh, float alpha, ITweenData data = null) => Do(GetFadeTween(textMesh, alpha, data));
+        public static Tween GetFadeTween(this TextMeshProUGUI textMesh, float alpha, ITweenData data = null)
+        {
+            return GetColorTween(textMesh, textMesh.color.With(a: alpha), data);
+        }
+
         public static Tween DoColorTween(this TextMeshPro textMesh, Color targetColor, ITweenData data = null) => Do(GetColorTween(textMesh, targetColor, data));
         public static Tween GetColorTween(this TextMeshPro textMesh, Color targetColor, ITweenData data = null)
         {
