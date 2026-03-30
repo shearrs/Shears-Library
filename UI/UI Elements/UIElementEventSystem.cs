@@ -306,7 +306,7 @@ namespace Shears.UI
         {
             Vector2 pointerPos = ManagedPointer.Current.Position;
 
-            if (pointerPos == Vector2.zero)
+            if (pointerPos == Vector2.zero || float.IsNaN(pointerPos.x) || float.IsNaN(pointerPos.y))
                 return null;
 
             hitGraphics.Clear();
