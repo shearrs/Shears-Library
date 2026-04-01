@@ -7,6 +7,11 @@ namespace Shears.Tweens
     [Serializable]
     public class TweenData : ITweenData
     {
+        #region Static Instances
+        public static readonly TweenData Duration01 = new(0.1f);
+        public static readonly TweenData Duration015 = new(0.15f);
+        #endregion
+
         #region Variables
         [Header("Tween Data Settings")]
         [SerializeField] private bool usesDataObject;

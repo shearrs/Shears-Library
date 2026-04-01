@@ -2,13 +2,17 @@ using Shears.GraphViews;
 using Shears.Logging;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
+using System.Linq;
 using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
-    [CreateAssetMenu(fileName = "New State Machine Graph", menuName = "Shears Library/State Machine Graph")]
+    [CreateAssetMenu(fileName = "New State Machine Graph", menuName = "Shears Library/State Machine Graph/New Graph", order = 0)]
     public class StateMachineGraph : GraphData
     {
+        private static readonly HashSet<string> initializedGraphs = new();
+
         [Header("State Machine Elements")]
         [SerializeField] private string rootDefaultStateID;
         [SerializeField] private List<string> parameters = new();
@@ -58,13 +62,23 @@ namespace Shears.StateMachineGraphs
 
             if (string.IsNullOrEmpty(rootDefaultStateID) && rootNodes.Count > 0)
                 rootDefaultStateID = rootNodes[0];
+        }
 
-            needsCompilation = true;
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetSMIDs()
+        {
+            initializedGraphs.Clear();
         }
 
         #region Compilation
         public GraphCompilationData GetData(bool getOriginal = false)
         {
+            if (!initializedGraphs.Contains(ID) && compilationData != null)
+            {
+                compilationData.InitializeSMIDs();
+                initializedGraphs.Add(ID);
+            }
+
             if (getOriginal)
                 return compilationData;
             else
@@ -81,10 +95,23 @@ namespace Shears.StateMachineGraphs
 
             foreach (var parameterData in GetParameters())
             {
-                var parameter = CreateParameter(parameterData);
+                if (parameterData is ParameterListParameterData listData)
+                {
+                    foreach (var subParameter in listData.Value.Parameters)
+                    {
+                        var parameter = CreateParameter(subParameter);
 
-                parameterNames.Add(parameter.Name, parameter);
-                parameterIDs.Add(parameterData.ID, parameter);
+                        parameterNames.Add(parameter.Name, parameter);
+                        parameterIDs.Add(subParameter.ID, parameter);
+                    }
+                }
+                else
+                {
+                    var parameter = CreateParameter(parameterData);
+
+                    parameterNames.Add(parameter.Name, parameter);
+                    parameterIDs.Add(parameterData.ID, parameter);
+                }
             }
 
             var stateNodes = GetStateNodes();
@@ -169,31 +196,34 @@ namespace Shears.StateMachineGraphs
 
             foreach (var id in transitionIDs)
             {
-                if (!TryGetData(id, out TransitionEdgeData transitionData))
+                if (!TryGetData(id, out TransitionEdgeData transitionEdgeData))
                 {
                     SHLogger.Log("Could not find transition with id: " + id, SHLogLevels.Error);
                     continue;
                 }
 
-                if (transitionData.ToID == data.ID)
+                if (transitionEdgeData.ToID == data.ID)
                     continue;
 
-                if (!states.TryGetValue(transitionData.ToID, out var toState))
+                if (!states.TryGetValue(transitionEdgeData.ToID, out var toState))
                 {
-                    SHLogger.Log("Could not find target State with id: " + transitionData.ToID, SHLogLevels.Error);
+                    SHLogger.Log("Could not find target State with id: " + transitionEdgeData.ToID, SHLogLevels.Error);
                     continue;
                 }
 
-                var comparisons = new List<ParameterComparison>();
-
-                foreach (var comparisonData in transitionData.ComparisonData)
+                foreach (var transitionData in transitionEdgeData.TransitionData)
                 {
-                    var comparison = comparisonData.CreateComparison(parameterIDs[comparisonData.ParameterID]);
-                    comparisons.Add(comparison);
-                }
+                    var comparisons = new List<ParameterComparison>();
 
-                var transition = new Transition(state, toState, comparisons);
-                state.AddTransition(transition);
+                    foreach (var comparisonData in transitionData.ComparisonData)
+                    {
+                        var comparison = comparisonData.CreateComparison(parameterIDs[comparisonData.ParameterID]);
+                        comparisons.Add(comparison);
+                    }
+
+                    var transition = new Transition(state, toState, comparisons);
+                    state.AddTransition(transition);
+                }
             }
         }
         #endregion
@@ -215,6 +245,8 @@ namespace Shears.StateMachineGraphs
         public void SetLayerDefault(ILayerElement layerNode)
         {
             GraphLayer layer = GetLayer(layerNode);
+
+            needsCompilation = true;
 
             if (layer.IsRoot())
             {
@@ -256,6 +288,8 @@ namespace Shears.StateMachineGraphs
 
         private void ClearLayerDefault(GraphLayer layer)
         {
+            needsCompilation = true;
+
             if (layer.IsRoot())
             {
                 if (!string.IsNullOrEmpty(rootDefaultStateID))
@@ -294,6 +328,8 @@ namespace Shears.StateMachineGraphs
 
         public StateNodeData CreateStateNodeData(Vector2 position)
         {
+            needsCompilation = true;
+
             var nodeData = new StateNodeData(typeof(EmptyState))
             {
                 Position = position,
@@ -311,6 +347,8 @@ namespace Shears.StateMachineGraphs
 
         public StateMachineNodeData CreateStateMachineNodeData(Vector2 position)
         {
+            needsCompilation = true;
+
             var nodeData = new StateMachineNodeData(typeof(EmptyState))
             {
                 Position = position,
@@ -328,6 +366,8 @@ namespace Shears.StateMachineGraphs
 
         public ExternalStateMachineNodeData CreateExternalStateMachineNode(Vector2 position)
         {
+            needsCompilation = true;
+
             var nodeData = new ExternalStateMachineNodeData
             {
                 Position = position,
@@ -389,25 +429,48 @@ namespace Shears.StateMachineGraphs
         #endregion
 
         #region Transitions
-        public TransitionEdgeData CreateTransitionData(ITransitionable from, ITransitionable to)
+        public TransitionEdgeData CreateTransitionEdgeData(ITransitionable from, ITransitionable to, bool addDefaultData = true)
         {
-            var transitionData = new TransitionEdgeData(from, to);
+            needsCompilation = true;
+
+            var transitionData = new TransitionEdgeData(from, to, addDefaultData);
 
             AddEdgeData(transitionData);
 
             return transitionData;
         }
+
+        public TransitionEdgeData GetTransitionEdgeData(string fromID, string toID)
+        {
+            var edge = GetEdgeData(fromID, toID);
+
+            if (edge is TransitionEdgeData transitionEdgeData)
+                return transitionEdgeData;
+            else
+                return null;
+        }
         #endregion
 
         #region Parameters
-        public IReadOnlyList<ParameterData> GetParameters()
+        public IReadOnlyList<ParameterData> GetParameters(bool unwrapLists = false)
         {
             instanceParameters.Clear();
 
             foreach (var parameterID in parameters)
             {
                 if (TryGetData<ParameterData>(parameterID, out var parameter))
-                    instanceParameters.Add(parameter);
+                {
+                    if (unwrapLists && parameter is ParameterListParameterData listData)
+                    {
+                        if (listData.Value == null)
+                            continue;
+
+                        foreach (var subParameter in listData.Value.Parameters)
+                            instanceParameters.Add(subParameter);
+                    }
+                    else
+                        instanceParameters.Add(parameter);
+                }
             }
 
             return instanceParameters;
@@ -415,6 +478,8 @@ namespace Shears.StateMachineGraphs
 
         public void AddParameter(ParameterData parameter)
         {
+            needsCompilation = true;
+
             parameters.Add(parameter.ID);
             AddGraphElementData(parameter);
             ParameterDataAdded?.Invoke(parameter);
@@ -422,6 +487,8 @@ namespace Shears.StateMachineGraphs
 
         public void RemoveParameter(ParameterData parameter)
         {
+            needsCompilation = true;
+
             if (!parameters.Contains(parameter.ID))
             {
                 Debug.LogError("Could not find parameter with ID: " + parameter.ID);
@@ -435,6 +502,8 @@ namespace Shears.StateMachineGraphs
 
         public void MoveParameterUp(ParameterData parameter)
         {
+            needsCompilation = true;
+
             var index = parameters.IndexOf(parameter.ID);
             var upIndex = index - 1;
 
@@ -443,6 +512,8 @@ namespace Shears.StateMachineGraphs
 
         public void MoveParameterDown(ParameterData parameter)
         {
+            needsCompilation = true;
+
             var index = parameters.IndexOf(parameter.ID);
             var downIndex = index + 1;
 
@@ -464,11 +535,15 @@ namespace Shears.StateMachineGraphs
 
         public void SetParameterName(ParameterData parameter, string name)
         {
+            needsCompilation = true;
+
             parameter.Name = name;
         }
 
         public void SetParameterValue<T>(ParameterData<T> parameterData, T value)
         {
+            needsCompilation = true;
+
             parameterData.Value = value;
         }
         #endregion

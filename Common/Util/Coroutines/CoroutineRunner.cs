@@ -18,7 +18,7 @@ namespace Shears
 
         public static void Stop(Coroutine routine)
         {
-            if (!CanCreateInstance)
+            if (!CanCreateInstance || routine  == null)
                 return;
 
             Instance.StopCoroutine(routine);

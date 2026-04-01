@@ -34,6 +34,11 @@ namespace Shears.GameConsole
             inputField.onValidateInput -= OnValidateInput;
         }
 
+        private void Update()
+        {
+            Canvas.worldCamera = Camera.main;
+        }
+
         private void Enable()
         {
             canvas.enabled = true;

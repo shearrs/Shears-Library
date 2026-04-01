@@ -10,6 +10,7 @@ namespace Shears.StateMachineGraphs
     public abstract class State : ISHLoggable
     {
         [SerializeField, ReadOnly] private string name;
+        [SerializeField, ReadOnly] private SMID id;
         [SerializeField] private List<Transition> transitions = new();
         [SerializeReference] private State parentState;
         [SerializeReference] private State defaultSubState;
@@ -18,7 +19,6 @@ namespace Shears.StateMachineGraphs
         private IParameterProvider parameterProvider;
         private State subState;
         private bool isActive;
-        private SMID id;
 
         internal SMID ID { get => id; set => id = value; }
         internal IParameterProvider ParameterProvider { get => parameterProvider; set => parameterProvider = value; }
@@ -130,6 +130,7 @@ namespace Shears.StateMachineGraphs
         protected SMID GetParameterID(string name) => parameterProvider.GetParameterID(name);
         protected T GetParameter<T>(string name) => parameterProvider.GetParameter<T>(name);
         protected T GetParameter<T>(SMID id) => parameterProvider.GetParameter<T>(id);
+        protected void SetParameter(string name) => parameterProvider.SetParameter(name, true);
         protected void SetParameter<T>(string name, T value) => parameterProvider.SetParameter(name, value);
         protected void SetParameter<T>(SMID id, T value)
         {

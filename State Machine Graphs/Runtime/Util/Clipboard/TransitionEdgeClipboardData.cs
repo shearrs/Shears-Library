@@ -8,15 +8,20 @@ namespace Shears.StateMachineGraphs
     [System.Serializable]
     public class TransitionEdgeClipboardData : GraphElementClipboardData
     {
-        [SerializeField] private string fromID;
-        [SerializeField] private string toID;
-        [SerializeReference] private List<ParameterComparisonData> comparisonData = new();
+        [SerializeField]
+        private string fromID;
+
+        [SerializeField]
+        private string toID;
+
+        [SerializeReference]
+        private List<TransitionData> transitionData = new();
 
         public TransitionEdgeClipboardData(TransitionEdgeData transition) : base(transition.ID)
         {
             fromID = transition.FromID;
             toID = transition.ToID;
-            comparisonData.AddRange(transition.ComparisonData);
+            transitionData.AddRange(transition.TransitionData);
         }
 
         public override GraphElementData Paste(PasteData data)
@@ -43,10 +48,10 @@ namespace Shears.StateMachineGraphs
                 return null;
             }
 
-            var transition = stateGraph.CreateTransitionData(transitionableFrom, transitionableTo);
+            var transition = stateGraph.CreateTransitionEdgeData(transitionableFrom, transitionableTo, false);
 
-            foreach (var comparison in comparisonData)
-                transition.AddComparisonData(comparison);
+            foreach (var tData in transitionData)
+                transition.AddTransitionData(tData);
 
             data.Mapping.Add(OriginalID, transition);
 

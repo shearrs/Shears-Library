@@ -1,9 +1,6 @@
-using Shears.Editor;
-using Shears.GraphViews;
 using Shears.GraphViews.Editor;
 using UnityEditor;
 using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Shears.StateMachineGraphs.Editor
@@ -33,6 +30,9 @@ namespace Shears.StateMachineGraphs.Editor
             var nameField = CreateNameField();
 
             this.AddAll(typeField, nameField);
+
+            if (parameterData is ParameterListParameterData)
+                Add(CreateValueField());
         }
 
         private VisualElement CreateTypeField()
@@ -49,13 +49,22 @@ namespace Shears.StateMachineGraphs.Editor
         private VisualElement CreateNameField()
         {
             var nameProp = parameterProp.FindPropertyRelative("name");
-
             var nameField = new TextField("Name");
 
             nameField.BindProperty(nameProp);
             nameField.AddToClassList(SMEditorUtil.NodeTitleInspectorClassName);
 
             return nameField;
+        }
+
+        private VisualElement CreateValueField()
+        {
+            var valueProp = parameterProp.FindPropertyRelative("value");
+            var valueField = new PropertyField(valueProp);
+
+            valueField.BindProperty(valueProp);
+
+            return valueField;
         }
     }
 }

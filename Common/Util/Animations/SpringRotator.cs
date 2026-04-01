@@ -109,7 +109,10 @@ namespace Shears
             transform.rotation = rotation;
         }
 
-        public bool IsWithinPrecision(float velocityPrecision, float anglePrecision) => velocityMagnitude < velocityPrecision && angularErrorSqrMagnitude < anglePrecision * anglePrecision;
+        public bool IsWithinPrecision(float velocityPrecision, float anglePrecision)
+        {
+            return velocityMagnitude <= velocityPrecision && angularErrorSqrMagnitude <= anglePrecision * anglePrecision;
+        }
 
         private void SpringToTarget()
         {

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Shears
@@ -5,6 +6,8 @@ namespace Shears
     public abstract class ManagedWrapper : MonoBehaviour
     {
         public abstract Component WrappedValue { get; }
+
+        public abstract Type GetWrappedType();
 
         protected virtual void OnDestroy()
         {
@@ -31,5 +34,7 @@ namespace Shears
                 return typedWrappedValue;
             }
         }
+
+        public override Type GetWrappedType() => typeof(T);
     }
 }

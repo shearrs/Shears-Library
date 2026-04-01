@@ -1,6 +1,5 @@
 using System;
 using System.Reflection;
-using System.Text;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -10,20 +9,18 @@ namespace Shears.StateMachineGraphs.Editor
 {
     public class StateSelector : VisualElement
     {
+        public static readonly Type EMPTY_STATE_TYPE = typeof(EmptyState);
         private static readonly Type STATE_TYPE = typeof(State);
-        private static readonly Type EMPTY_STATE_TYPE = typeof(EmptyState);
         private static readonly Type EXTERNAL_STATE_TYPE = typeof(ExternalGraphState);
 
         private readonly SerializedProperty stateTypeProp;
         private readonly SerializedProperty stateNameProp;
         private readonly Button button;
-        private readonly StringBuilder stringBuilder;
 
         public StateSelector(SerializedProperty stateTypeProp)
         {
             this.stateTypeProp = stateTypeProp;
             stateNameProp = stateTypeProp.FindPropertyRelative("prettyName");
-            stringBuilder = new(128);
 
             AddToClassList(SMEditorUtil.StateSelectorClassName);
 

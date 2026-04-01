@@ -9,11 +9,23 @@ namespace Shears.StateMachineGraphs
     public class StateMachine : SHMonoBehaviourLogger, IParameterProvider
     {
         [Header("State Machine")]
-        [SerializeField] private bool useGraphData = true;
-        [SerializeField] private StateMachineGraph graphData;
-        [SerializeField] private bool pollTransitions = true;
-        [SerializeReference] private List<State> stateTree = new();
-        [SerializeField] private StateInjectReferenceDictionary injectedReferences = new();
+        [SerializeField]
+        private bool useGraphData = true;
+
+        [SerializeField]
+        private StateMachineGraph graphData;
+
+        [SerializeField]
+        private bool pollTransitions = true;
+
+        [SerializeField]
+        private bool manualUpdate = false;
+
+        [SerializeReference]
+        private List<State> stateTree = new();
+
+        [SerializeField]
+        private StateInjectReferenceDictionary injectedReferences = new();
 
 #if UNITY_EDITOR
 #pragma warning disable 0414
@@ -34,7 +46,10 @@ namespace Shears.StateMachineGraphs
 
         public bool UseGraphData { get => useGraphData; set => useGraphData = value; }
         public bool PollTransitions { get => pollTransitions; set => pollTransitions = value; }
+        public bool UseManualUpdate { get => manualUpdate; set => manualUpdate = value; }
         public IReadOnlyCollection<State> States => states.Values;
+        public IReadOnlyCollection<Parameter> Parameters => parameters.Values;
+        public string DataID => graphData.ID;
 
         public event Action<State> EnteredState;
         public event Action<State> ExitedState;
@@ -74,6 +89,14 @@ namespace Shears.StateMachineGraphs
 
         private void Update()
         {
+            if (manualUpdate)
+                return;
+        }
+
+        public void ManualUpdate() => UpdateStates();
+
+        private void UpdateStates()
+        {
             if (stateTree.Count == 0)
                 return;
 
@@ -88,14 +111,8 @@ namespace Shears.StateMachineGraphs
         {
             var compiledData = graphData.GetData();
 
-            foreach (var stringID in compiledData.StateIDs.Keys)
-            {
-                var state = compiledData.StateIDs[stringID];
-                var id = SMID.Create();
-                state.ID = id;
-
-                states.Add(id, state);
-            }
+            foreach (var state in compiledData.StateIDs.Values)
+                states.Add(state.ID, state);
 
             foreach (var state in states.Values)
             {
@@ -109,14 +126,10 @@ namespace Shears.StateMachineGraphs
 
             defaultState = compiledData.DefaultState;
 
-            foreach (var parameterName in compiledData.ParameterNames.Keys)
+            foreach (var (parameterName, parameter) in compiledData.ParameterNames)
             {
-                var parameter = compiledData.ParameterNames[parameterName];
-                var id = SMID.Create();
-                parameter.ID = id;
-
-                parameterNameCache.Add(parameterName, id);
-                parameters.Add(id, parameter);
+                parameterNameCache.Add(parameterName, parameter.ID);
+                parameters.Add(parameter.ID, parameter);
             }
 
 #if UNITY_EDITOR
@@ -334,6 +347,18 @@ namespace Shears.StateMachineGraphs
                 Log($"Could not find parameter with name '{name}'.", SHLogLevels.Error);
                 return SMID.Empty;
             }
+        }
+
+        public Parameter GetParameter(string name) => GetParameter(GetParameterID(name));
+
+        public Parameter GetParameter(SMID id)
+        {
+            if (parameters.TryGetValue(id, out var parameter))
+                return parameter;
+            else
+                Log($"Could not find parameter with id '{id}' in the state machine.", SHLogLevels.Error);
+
+            return default;
         }
 
         public T GetParameter<T>(string name) => GetParameter<T>(GetParameterID(name));

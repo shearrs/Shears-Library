@@ -1,6 +1,7 @@
 using Shears.GraphViews;
 using System;
 using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Shears.StateMachineGraphs.Editor
@@ -34,6 +35,7 @@ namespace Shears.StateMachineGraphs.Editor
         private void AddReferenceHints()
         {
             referenceHintContainer.Clear();
+            nodeData.SignalStateChanged();
 
             if (nodeData.StateType == SerializableSystemType.Empty)
                 return;

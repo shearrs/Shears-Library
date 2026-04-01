@@ -2,12 +2,11 @@ using Shears.Logging;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
-using UnityEngine;
 
 namespace Shears.StateMachineGraphs.Editor
 {
     [InitializeOnLoad]
-    public class StateMachineGraphCompiler : IPreprocessBuildWithReport
+    public class StateMachineGraphCompiler : AssetModificationProcessor, IPreprocessBuildWithReport
     {
         private const bool LOGGING_ENABLED = false;
 
@@ -15,7 +14,21 @@ namespace Shears.StateMachineGraphs.Editor
         
         static StateMachineGraphCompiler()
         {
+        }
 
+        public static string[] OnWillSaveAssets(string[] paths)
+        {
+            foreach (var path in paths)
+            {
+                var graph = AssetDatabase.LoadAssetAtPath<StateMachineGraph>(path);
+
+                if (graph == null)
+                    continue;
+
+                Compile(graph, path);
+            }
+
+            return paths;
         }
 
         public void OnPreprocessBuild(BuildReport report)
@@ -42,27 +55,33 @@ namespace Shears.StateMachineGraphs.Editor
 
                 if (graph == null)
                 {
-                    LogError($"Failed to load StateMachineGraph at path: {path}");
+                    InternalLogError($"Failed to load StateMachineGraph at path: {path}");
                     continue;
                 }
 
                 if (!graph.NeedsCompilation)
                     continue;
 
-                Log($"Compiling StateMachineGraph at path: {path}");
+                Compile(graph, path);
 
-                var oldData = graph.GetData(true);
-
-                if (oldData != null)
-                    AssetDatabase.RemoveObjectFromAsset(oldData);
-                
-                graph.Compile();
-                var data = graph.GetData(true);
-
-                AssetDatabase.AddObjectToAsset(data, path);
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
             }
+        }
+
+        private static void Compile(StateMachineGraph graph, string path)
+        {
+            Log($"Compiling StateMachineGraph at path: {path}");
+
+            var oldData = graph.GetData(true);
+
+            if (oldData != null)
+                AssetDatabase.RemoveObjectFromAsset(oldData);
+
+            graph.Compile();
+            var data = graph.GetData(true);
+
+            AssetDatabase.AddObjectToAsset(data, path);
         }
 
         private static void Log(string message)
@@ -73,7 +92,7 @@ namespace Shears.StateMachineGraphs.Editor
 #pragma warning restore CS0162 // Unreachable code detected
         }
 
-        private static void LogError(string message)
+        private static void InternalLogError(string message)
         {
 #pragma warning disable CS0162 // Unreachable code detected
             if (LOGGING_ENABLED)

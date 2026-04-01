@@ -10,39 +10,41 @@ namespace Shears.StateMachineGraphs.Editor
         #region Node Class Names
         public static readonly string LayerDefaultNodeClassName = "layerDefault";
         public static readonly string ExternalStateMachineNodeClassName = "externalStateMachineNode";
+        public static readonly string EmptyTagClassName = "emptyTag";
         #endregion
 
         #region Toolbar Class Names
-        public static string ToolbarClassName => "toolBar";
-        public static string ToolbarDataFieldClassName => "dataField";
-        public static string ToolbarDataFieldLabelClassName => "dataFieldLabel";
+        public static readonly string ToolbarClassName = "toolBar";
+        public static readonly string ToolbarDataFieldClassName = "dataField";
+        public static readonly string ToolbarDataFieldLabelClassName = "dataFieldLabel";
         #endregion
 
         #region Layer Class Names
-        public static string LayerDisplayClassName => "layerDisplay";
-        public static string LayerDisplayTagClassName => "layerDisplayTag";
+        public static readonly string LayerDisplayClassName = "layerDisplay";
+        public static readonly string LayerDisplayTagClassName = "layerDisplayTag";
         #endregion
 
         #region Parameter Bar Class Names
-        public static string ParameterBarClassName => "parameterBar";
-        public static string ParameterBarTitlePanelClassName => "titlePanel";
-        public static string ParameterBarTitleClassName => "title";
-        public static string ParameterBarAddButtonClassName => "addButton";
-        public static string ResizeBarClassName => "resizeBar";
-        public static string ResizeBarVisualClassName => "resizeBarVisual";
-        public static string ParameterBarContentPanelClassName => "contentPanel";
-        public static string ParameterBarParametersPanelClassName => "parametersPanel";
+        public static readonly string ParameterBarClassName = "parameterBar";
+        public static readonly string ParameterBarTitlePanelClassName = "titlePanel";
+        public static readonly string ParameterBarTitleClassName = "title";
+        public static readonly string ParameterBarAddButtonClassName = "addButton";
+        public static readonly string ResizeBarClassName = "resizeBar";
+        public static readonly string ResizeBarVisualClassName = "resizeBarVisual";
+        public static readonly string ParameterBarContentPanelClassName = "contentPanel";
+        public static readonly string ParameterBarParametersPanelClassName = "parametersPanel";
+        public static readonly string ParameterBarScrollViewClassName = "parametersScrollView";
         #endregion
 
         #region ParameterUI Class Names
-        public static string ParameterUIClassName => "parameterUI";
-        public static string ParameterUIToggleClassName => "toggle";
-        public static string ParameterUIIntFieldClassName => "intField";
-        public static string ParameterUISelectedClassName => "parameterUISelected";
-        public static string ParameterUIMovementButtonsClassName => "movementButtons";
-        public static string EditableLabelClassName => "editableLabel";
-        public static string EditableLabelLabelClassName => "elLabel";
-        public static string EditableLabelTextFieldClassName => "elTextField";
+        public static readonly string ParameterUIClassName = "parameterUI";
+        public static readonly string ParameterUIToggleClassName = "toggle";
+        public static readonly string ParameterUIIntFieldClassName = "intField";
+        public static readonly string ParameterUISelectedClassName = "parameterUISelected";
+        public static readonly string ParameterUIMovementButtonsClassName = "movementButtons";
+        public static readonly string EditableLabelClassName = "editableLabel";
+        public static readonly string EditableLabelLabelClassName = "elLabel";
+        public static readonly string EditableLabelTextFieldClassName = "elTextField";
         #endregion
 
         #region Inspector Class Names
@@ -57,9 +59,11 @@ namespace Shears.StateMachineGraphs.Editor
         public static readonly string TransitionContainerTitleClassName = "transitionContainerTitle";
         public static readonly string TransitionClassName = "transition";
         public static readonly string TransitionTitleClassName = "transitionTitle";
+        public static readonly string AddTransitionClassName = "addTransitionButton";
         #endregion
 
         #region Comparison Class Names
+        public static readonly string TransitionsContainerClassName = "transitionsContainer";
         public static readonly string ComparisonsContainerClassName = "comparisonsContainer";
         public static readonly string AddComparisonButtonClassName = "addComparisonButton";
         public static readonly string RemoveComparisonButtonClassName = "removeComparisonButton";

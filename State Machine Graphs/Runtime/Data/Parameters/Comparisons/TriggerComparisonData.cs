@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
+    [System.Serializable]
     public class TriggerComparisonData : ParameterComparisonData<bool>
     {
         public TriggerComparisonData(ParameterData<bool> parameter) : base(parameter)

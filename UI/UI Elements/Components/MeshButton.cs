@@ -1,64 +1,178 @@
+using Shears.Logging;
 using Shears.Tweens;
 using System;
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace Shears.UI
 {
+    [RequireComponent(typeof(ColorModulator))]
     public class MeshButton : UIElement
     {
         [Header("Mesh Button")]
-        [SerializeField] private bool selectable = true;
-        [SerializeField] private bool clickOnMouseDown = false;
-        [SerializeField] private Renderer meshRenderer;
-        [SerializeField] private Color hoverColor = new(0.6f, 0.6f, 0.6f);
-        [SerializeField] private Color pressedColor = new(0.4f, 0.4f, 0.4f);
-        [SerializeField] private Color notSelectableColor = new(0.15f, 0.15f, 0.15f);
+        [SerializeField]
+        private bool selectable = true;
+
+        [SerializeField]
+        private bool clickOnMouseDown = false;
+
+        [SerializeField]
+        private Color notSelectableColor = new(0.15f, 0.15f, 0.15f);
 
         [Header("Events")]
-        [SerializeField] private UnityEvent clicked;
+        [SerializeField]
+        private UnityEvent clicked;
 
         private readonly StructTweenData notSelectableTweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
+        private readonly List<TextMeshPro> textChildren = new();
+        private readonly TweenStorage tweenStorage = new();
         private ColorModulator colorModulator;
-        private Material material;
-        private Color originalColor;
+        private bool isFadingIn = false;
+        private bool isFadingOut = false;
+        private bool initializeColor = true;
 
-        private Material Material
+        public bool InitializeColor { get => initializeColor; set => initializeColor = value; }
+        public ColorModulator ColorModulator
         {
             get
             {
-                if (material == null)
-                {
-                    material = Instantiate(meshRenderer.material);
-                    originalColor = material.color;
-                    meshRenderer.material = material;
-                }
-                
-                return material;
+                if (colorModulator == null)
+                    colorModulator = GetComponent<ColorModulator>();
+
+                return colorModulator;
             }
         }
-
         public bool IsHovered => colorModulator != null && colorModulator.IsHovered;
         public bool Selectable { get => selectable; set => SetSelectable(value); }
 
         public event Action Clicked;
+        public event Action FadeInCompleted;
+        public event Action FadeOutCompleted;
 
         protected override void Awake()
         {
             base.Awake();
 
-            var material = Material;
+            if (!selectable && initializeColor)
+            {
+                ColorModulator.ModulateColor(notSelectableColor);
+                ColorModulator.CanChangeColor = false;
+            }
+        }
 
-            colorModulator = new(this, material, hoverColor, pressedColor);
-
-            if (!selectable)
-                material.color = originalColor * notSelectableColor;
+        private void OnDisable()
+        {
+            tweenStorage.Dispose();
+            isFadingIn = false;
+            isFadingOut = false;
         }
 
         [ContextMenu("Click")]
         public void Click()
         {
             OnClickedImplementation();
+        }
+
+        public void FadeIn(float duration = 0.5f, bool unscaledTime = false)
+        {
+            if (isFadingIn)
+                return;
+
+            if (isFadingOut)
+            {
+                tweenStorage.Dispose();
+                isFadingOut = false;
+            }
+
+            isFadingIn = true;
+            var tweenData = new StructTweenData(duration, easingFunction: TweenEase.InOutQuad, unscaledTime: unscaledTime);
+
+            Enable();
+            bool wasSelectable = selectable;
+            selectable = false;
+
+            ColorModulator.CanChangeColor = true;
+            ColorModulator.ModulateColor(Color.white.With(a: 0.0f));
+            tweenStorage.Store(ColorModulator.FadeIn(tweenData));
+            ColorModulator.CanChangeColor = false;
+
+            GetComponentsInChildren(true, textChildren);
+
+            for (int i = 0; i < textChildren.Count; i++)
+            {
+                var child = textChildren[i];
+                var childColor = child.color;
+
+                child.color = childColor.With(a: 0.0f);
+                tweenStorage.Store(child.DoColorTween(childColor.With(a: 1.0f), tweenData));
+            }
+
+            ColorModulator.AddOnComplete(() =>
+            {
+                selectable = wasSelectable;
+                isFadingIn = false;
+                FadeInCompleted?.Invoke();
+
+                ColorModulator.CanChangeColor = true;
+            });
+        }
+
+        public void FadeOut(float duration = 0.5f, bool unscaledTime = false)
+        {
+            if (isFadingOut)
+                return;
+
+            if (isFadingIn)
+            {
+                tweenStorage.Dispose();
+                isFadingIn = false;
+            }
+
+            isFadingOut = true;
+            var tweenData = new StructTweenData(duration, easingFunction: TweenEase.InOutQuad, unscaledTime: unscaledTime);
+
+            bool wasSelectable = selectable;
+            selectable = false;
+
+            tweenStorage.Store(ColorModulator.FadeOut(tweenData));
+            ColorModulator.CanChangeColor = false;
+
+            GetComponentsInChildren(true, textChildren);
+
+            for (int i = 0; i < textChildren.Count; i++)
+            {
+                var child = textChildren[i];
+                var childColor = child.color;
+                var targetColor = childColor.With(a: 0.0f);
+
+                var childTween = child.DoColorTween(targetColor, tweenData);
+                tweenStorage.Store(childTween);
+                ColorModulator.AddOnComplete(() =>
+                {
+                    childTween.Dispose();
+                    child.color = targetColor;
+                });
+            }
+
+            ColorModulator.AddOnComplete(() =>
+            {
+                selectable = wasSelectable;
+                Disable();
+
+                isFadingOut = false;
+                FadeOutCompleted?.Invoke();
+            });
+        }
+
+        public void SetAlpha(float alpha)
+        {
+            ColorModulator.SetColor(a: alpha);
+            GetComponentsInChildren(true, textChildren);
+
+            foreach (var child in textChildren)
+                child.color = child.color.With(a: alpha);
         }
 
         protected override void RegisterEvents()
@@ -105,19 +219,21 @@ namespace Shears.UI
             {
                 if (!selectable)
                 {
-                    colorModulator.TweenToColor(notSelectableColor, notSelectableTweenData);
-                    colorModulator.CanChangeColor = false;
+                    ColorModulator.TweenToColor(notSelectableColor, notSelectableTweenData);
+                    ColorModulator.CanChangeColor = false;
                 }
                 else
                 {
-                    Color targetColor = IsHovered ? hoverColor : originalColor;
+                    ColorModulator.CanChangeColor = true;
 
-                    colorModulator.CanChangeColor = true;
-                    colorModulator.TweenToColor(targetColor, notSelectableTweenData);
+                    if (IsHovered)
+                        ColorModulator.TweenToHover();
+                    else
+                        ColorModulator.ClearModulation();
                 }
             }
             else
-                Material.color = originalColor * notSelectableColor;
+                ColorModulator.ModulateColor(notSelectableColor);
         }
     }
 }

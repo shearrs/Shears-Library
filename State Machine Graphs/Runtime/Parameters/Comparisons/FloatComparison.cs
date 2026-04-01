@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
+    [System.Serializable]
     public class FloatComparison : ParameterComparison<float>
     {
         [SerializeField] private FloatComparisonData.CompareType compareType;

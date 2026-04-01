@@ -28,7 +28,7 @@ namespace Shears
         {
             get
             {
-                if (systemType == null)
+                if (systemType == null || systemType.AssemblyQualifiedName != assemblyQualifiedName)
                     GetSystemType();
 
                 return systemType;

@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
+    [System.Serializable]
     public class TriggerParameterData : ParameterData<bool>
     {
         protected override string DefaultName => "Trigger Parameter";

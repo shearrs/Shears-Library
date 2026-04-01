@@ -42,7 +42,9 @@ namespace Shears
         {
             if (instance == null)
             {
+#pragma warning disable UNT0039 // Use RequireComponent attribute when self-invoking GetComponent
                 instance = GetComponent<T>();
+#pragma warning restore UNT0039 // Use RequireComponent attribute when self-invoking GetComponent
 
                 GameObject parent = GameObject.Find("Managers");
 
@@ -112,7 +114,9 @@ namespace Shears
         {
             if (instance == null)
             {
+#pragma warning disable UNT0039 // Use RequireComponent attribute when self-invoking GetComponent
                 instance = GetComponent<T>();
+#pragma warning restore UNT0039 // Use RequireComponent attribute when self-invoking GetComponent
 
                 DontDestroyOnLoad(gameObject);
             }

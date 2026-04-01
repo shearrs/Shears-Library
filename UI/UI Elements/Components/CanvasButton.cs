@@ -1,4 +1,3 @@
-using Shears.Logging;
 using Shears.Tweens;
 using System;
 using System.Collections.Generic;
@@ -11,22 +10,38 @@ namespace Shears.UI
     public class CanvasButton : UIElement
     {
         [Header("Mesh Button")]
-        [SerializeField] private bool selectable = true;
-        [SerializeField] private bool focusable = false;
-        [SerializeField] private bool clickOnMouseDown = false;
-        [SerializeField] private bool usesUnscaledTime = false;
-        [SerializeField] private ManagedImage image;
-        [SerializeField] private Color hoverColor = new(0.6f, 0.6f, 0.6f);
-        [SerializeField] private Color pressedColor = new(0.4f, 0.4f, 0.4f);
-        [SerializeField] private Color notSelectableColor = new(0.15f, 0.15f, 0.15f);
+        [SerializeField]
+        private bool selectable = true;
+
+        [SerializeField]
+        private bool focusable = false;
+
+        [SerializeField]
+        private bool clickOnMouseDown = false;
+
+        [SerializeField]
+        private bool usesUnscaledTime = false;
+
+        [SerializeField]
+        private ManagedImage image;
+
+        [SerializeField]
+        private Color hoverColor = new(0.6f, 0.6f, 0.6f);
+
+        [SerializeField]
+        private Color pressedColor = new(0.4f, 0.4f, 0.4f);
+
+        [SerializeField]
+        private Color notSelectableColor = new(0.15f, 0.15f, 0.15f);
 
         [Header("Events")]
-        [SerializeField] private UnityEvent clicked;
+        [SerializeField]
+        private UnityEvent clicked;
 
         private readonly TweenData hoverTweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
         private readonly TweenData notSelectableTweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
         private readonly List<TextMeshProUGUI> textChildren = new();
-        private Tween tween;
+        private readonly TweenStorage tweenStorage = new();
         private bool isFocused = false;
         private bool isHovered = false;
         private bool isFading = false;
@@ -68,17 +83,12 @@ namespace Shears.UI
         public void FadeIn(float duration = 0.5f, Color? modulateColor = null, bool unscaledTime = false)
         {
             if (isFading)
-            {
-                Log("Already fading!", SHLogLevels.Error);
-                return;
-            }
+                tweenStorage.Dispose();
 
             isFading = true;
             var tweenData = new StructTweenData(duration, easingFunction: TweenEase.InOutQuad, unscaledTime: unscaledTime);
 
             Enable();
-            bool wasSelectable = selectable;
-            selectable = false;
 
             Color targetColor = modulateColor == null ? Color.white : modulateColor.Value;
 
@@ -86,18 +96,18 @@ namespace Shears.UI
             TweenToColor(targetColor, tweenData);
 
             GetComponentsInChildren(true, textChildren);
+            
             for (int i = 0; i < textChildren.Count; i++)
             {
                 var child = textChildren[i];
                 var childColor = child.color;
 
                 child.color = childColor.With(a: 0.0f);
-                child.DoColorTween(childColor, tweenData);
+                tweenStorage.Store(child.DoColorTween(childColor.With(a: 1.0f), tweenData));
             }
 
-            tween.Completed += () =>
+            tweenStorage[0].Completed += () =>
             {
-                selectable = wasSelectable;
                 isFading = false;
                 FadeInCompleted?.Invoke();
             };
@@ -106,16 +116,10 @@ namespace Shears.UI
         public void FadeOut(float duration = 0.5f, bool unscaledTime = false)
         {
             if (isFading)
-            {
-                Log("Already fading!", SHLogLevels.Error);
-                return;
-            }
+                tweenStorage.Dispose();
 
             isFading = true;
             var tweenData = new StructTweenData(duration, easingFunction: TweenEase.InOutQuad, unscaledTime: unscaledTime);
-
-            bool wasSelectable = selectable;
-            selectable = false;
 
             TweenToColor(image.Modulate.With(a: 0.0f), tweenData);
 
@@ -127,17 +131,16 @@ namespace Shears.UI
                 var childColor = child.color;
                 var targetColor = childColor.With(a: 0.0f);
 
-                var childTween = child.DoColorTween(targetColor, tweenData);
-                tween.Completed += () =>
+                var childTween = tweenStorage.Store(child.DoColorTween(targetColor, tweenData));
+                tweenStorage[0].Completed += () =>
                 {
                     childTween.Dispose();
-                    child.color = childColor;
+                    child.color = targetColor;
                 };
             }
 
-            tween.Completed += () =>
+            tweenStorage[0].Completed += () =>
             {
-                selectable = wasSelectable;
                 Disable();
 
                 isFading = false;
@@ -147,6 +150,7 @@ namespace Shears.UI
 
         private void OnFocusEnter(FocusEnterEvent evt)
         {
+            evt.PreventTrickleDown();
             isFocused = true;
 
             if (!selectable)
@@ -158,6 +162,7 @@ namespace Shears.UI
 
         private void OnFocusExit(FocusExitEvent evt)
         {
+            evt.PreventTrickleDown();
             isFocused = false;
 
             if (!selectable)
@@ -169,9 +174,10 @@ namespace Shears.UI
 
         private void OnHoverEnter(HoverEnterEvent evt)
         {
+            evt.PreventTrickleDown();
             isHovered = true;
 
-            if (!selectable)
+            if (!selectable || isFading)
                 return;
 
             HoverEntered?.Invoke();
@@ -180,9 +186,10 @@ namespace Shears.UI
 
         private void OnHoverExit(HoverExitEvent evt)
         {
+            evt.PreventTrickleDown();
             isHovered = false;
 
-            if (!selectable)
+            if (!selectable || isFading)
                 return;
 
             HoverExited?.Invoke();
@@ -191,6 +198,8 @@ namespace Shears.UI
 
         private void OnPointerDown(PointerDownEvent evt)
         {
+            evt.PreventTrickleDown();
+
             if (!selectable)
                 return;
 
@@ -205,12 +214,14 @@ namespace Shears.UI
 
             PointerDown?.Invoke();
 
-            if (selectable)
+            if (selectable && !isFading)
                 TweenToColor(pressedColor, hoverTweenData);
         }
 
         private void OnPointerUp(PointerUpEvent evt)
         {
+            evt.PreventTrickleDown();
+
             if (!selectable)
                 return;
 
@@ -218,11 +229,14 @@ namespace Shears.UI
 
             PointerUp?.Invoke();
 
-            TweenToColor(targetColor, hoverTweenData);
+            if (!isFading)
+                TweenToColor(targetColor, hoverTweenData);
         }
 
         private void OnClicked(ClickEvent evt)
         {
+            evt.PreventTrickleDown();
+
             if (!selectable || clickOnMouseDown)
                 return;
 
@@ -238,36 +252,28 @@ namespace Shears.UI
             hoverTweenData.UnscaledTime = usesUnscaledTime;
             notSelectableTweenData.UnscaledTime = usesUnscaledTime;
 
-            tween.Dispose();
-            tween = image.DoModulateTween(color, tweenData);
+            tweenStorage.Dispose();
+            tweenStorage.Store(image.DoModulateTween(color, tweenData));
         }
 
         private void SetSelectable(bool value)
         {
-            if (value == selectable)
-                return;
-
-            if (isActiveAndEnabled)
+            if (!value)
             {
-                if (selectable)
-                {
-                    TweenToColor(notSelectableColor, notSelectableTweenData);
+                TweenToColor(notSelectableColor, notSelectableTweenData);
 
-                    if (isHovered)
-                        HoverExited?.Invoke();
-                }
-                else
-                {
-                    Color targetColor = isHovered ? hoverColor : Color.white;
-
-                    TweenToColor(targetColor, notSelectableTweenData);
-
-                    if (isHovered)
-                        HoverEntered?.Invoke();
-                }
+                if (isHovered)
+                    HoverExited?.Invoke();
             }
             else
-                image.Modulate = notSelectableColor;
+            {
+                Color targetColor = isHovered ? hoverColor : Color.white;
+
+                TweenToColor(targetColor, notSelectableTweenData);
+
+                if (isHovered)
+                    HoverEntered?.Invoke();
+            }
 
             selectable = value;
         }

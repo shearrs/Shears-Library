@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace Shears.GraphViews
 {
     public abstract class GraphData : ScriptableObject
@@ -44,6 +48,7 @@ namespace Shears.GraphViews
 
         public event Action LayersChanged;
         public event Action SelectionChanged;
+        public event Action GraphElementsChanged;
         public event Action<GraphNodeData> NodeDataAddedToLayer;
         public event Action<GraphNodeData> NodeDataRemoved;
         public event Action<GraphEdgeData> EdgeDataAdded;
@@ -107,11 +112,15 @@ namespace Shears.GraphViews
         protected void AddGraphElementData(GraphElementData data)
         {
             graphElements.Add(data.ID, data);
+
+            GraphElementsChanged?.Invoke();
         }
 
         protected void RemoveGraphElementData(GraphElementData data)
         {
             graphElements.Remove(data.ID);
+
+            GraphElementsChanged?.Invoke();
         }
 
         public bool TryGetData<GraphElementType>(string id, out GraphElementType data) where GraphElementType : GraphElementData
@@ -146,6 +155,29 @@ namespace Shears.GraphViews
             
             if (string.IsNullOrEmpty(id))
                 id = Guid.NewGuid().ToString();
+
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+                return;
+
+            string path = AssetDatabase.GetAssetPath(this);
+            string[] guids = AssetDatabase.FindAssets($"t:{nameof(GraphData)}");
+
+            foreach (string guid in guids)
+            {
+                string otherPath = AssetDatabase.GUIDToAssetPath(guid);
+
+                if (otherPath == path) continue;
+
+                var other = AssetDatabase.LoadAssetAtPath<GraphData>(otherPath);
+                if (other != null && other.id == id)
+                {
+                    id = Guid.NewGuid().ToString();
+                    EditorUtility.SetDirty(this);
+                    break;
+                }
+            }
+#endif
         }
         #endregion
 
@@ -295,6 +327,36 @@ namespace Shears.GraphViews
                 toNode.RemoveEdge(data);
 
             EdgeDataRemoved?.Invoke(data);
+        }
+
+#if UNITY_EDITOR
+        public void Editor__RemoveEdgeData(GraphEdgeData data) => RemoveEdgeData(data);
+#endif
+
+        protected GraphEdgeData GetEdgeData(string fromID, string toID)
+        {
+            if (!graphElements.TryGetValue(fromID, out var from) || from is not GraphNodeData fromNode)
+            {
+                LogError("Could not find 'from' node with ID: " + fromID);
+                return null;
+            }
+
+            if (!graphElements.TryGetValue(toID, out var to) || to is not GraphNodeData)
+            {
+                LogError("Could not find 'to' node with ID: " + toID);
+                return null;
+            }
+
+            foreach (var edgeID in fromNode.Edges)
+            {
+                if (graphElements.TryGetValue(edgeID, out var elementData) && elementData is GraphEdgeData edgeData)
+                {
+                    if (edgeData.FromID == fromID && edgeData.ToID == toID)
+                        return edgeData;
+                }
+            }
+
+            return null;
         }
         #endregion
 

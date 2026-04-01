@@ -50,6 +50,7 @@ namespace Shears.StateMachineGraphs.Editor
             var logField = new PropertyField(serializedObject.FindProperty("logLevels"));
             var useGraphDataField = new PropertyField(useGraphDataProp);
             var pollField = new PropertyField(serializedObject.FindProperty("pollTransitions"));
+            var manualUpdateField = new PropertyField(serializedObject.FindProperty("manualUpdate"));
             CreateInjectionContainer();
             CreateRuntimeContainer();
 
@@ -61,7 +62,7 @@ namespace Shears.StateMachineGraphs.Editor
             useGraphDataField.RegisterValueChangeCallback(OnUseGraphDataChanged);
 
             root.TrackPropertyValue(graphDataProp, (prop) => UpdateGraphFields());
-            root.AddAll(logField, useGraphDataField, pollField, graphDataField, injectedEntryContainer, runtimeContainer);
+            root.AddAll(logField, useGraphDataField, pollField, manualUpdateField, graphDataField, injectedEntryContainer, runtimeContainer);
 
             return root;
         }

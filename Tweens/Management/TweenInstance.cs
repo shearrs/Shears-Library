@@ -71,6 +71,7 @@ namespace Shears.Tweens
             }
         }
         public event Action Completed;
+        public event Action Stopped;
 
         internal TweenInstance()
         {
@@ -110,6 +111,7 @@ namespace Shears.Tweens
 
             IsPlaying = false;
             StopAllCoroutines();
+            Stopped?.Invoke();
         }
 
         public void Pause()
@@ -238,6 +240,8 @@ namespace Shears.Tweens
         public void AddOnComplete(Action onComplete) => Completed += onComplete;
         public void RemoveOnComplete(Action onComplete) => Completed -= onComplete;
         public void ClearOnCompletes() => Completed = null;
+
+        public void ClearOnStops() => Stopped = null;
 
         public void AddEvent(TweenEventBase tweenEvent) => events.Add(tweenEvent);
         public void AddEvent(float progress, Action callback)

@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
+    [System.Serializable]
     public class BoolParameterData : ParameterData<bool>
     {
         protected override string DefaultName => "Bool Parameter";

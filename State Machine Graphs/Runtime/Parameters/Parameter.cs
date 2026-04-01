@@ -7,10 +7,10 @@ namespace Shears.StateMachineGraphs
     public abstract class Parameter
     {
         [SerializeField] private string name;
-        private SMID id;
+        [SerializeField, ReadOnly] private SMID id;
 
         public string Name { get => name; set => name = value; }
-        internal SMID ID { get => id; set => id = value; }
+        public SMID ID { get => id; set => id = value; }
 
         public Parameter(ParameterData data)
         {
