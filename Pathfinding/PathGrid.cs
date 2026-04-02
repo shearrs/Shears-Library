@@ -3,6 +3,10 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace Shears.Pathfinding
 {
     public class PathGrid : MonoBehaviour
@@ -46,6 +50,15 @@ namespace Shears.Pathfinding
                 node.NodeObject.Node = node;
             }
         }
+
+#if UNITY_EDITOR
+        [ContextMenu("Fix Serialized References")]
+        private void FixSerializedReferences()
+        {
+            SerializationUtility.ClearAllManagedReferencesWithMissingTypes(this);
+            EditorUtility.SetDirty(this);
+        }
+#endif
 
         public void UpdateWorldPositions()
         {
