@@ -21,7 +21,10 @@ namespace Shears.Pathfinding.Editor
             grid = serializedObject.targetObject as PathGrid;
 
             if (SerializationUtility.HasManagedReferencesWithMissingTypes(grid))
+            {
                 SerializationUtility.ClearAllManagedReferencesWithMissingTypes(grid);
+                EditorUtility.SetDirty(grid);
+            }
         }
 
         public override VisualElement CreateInspectorGUI()
