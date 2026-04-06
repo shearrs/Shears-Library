@@ -13,7 +13,7 @@ namespace Shears.StateMachineGraphs.Editor
         public override VisualElement CreateInspectorGUI()
         {
             var root = new VisualElement();
-            var script = Shears.Editor.VisualElementUtil.CreateScriptField(serializedObject);
+            var script = Shears.Editor.VisualElementEditorUtil.CreateScriptField(serializedObject);
             var addButton = CreateAddButton();
 
             script.style.marginBottom = 4;

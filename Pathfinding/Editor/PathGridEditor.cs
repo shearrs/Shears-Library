@@ -38,7 +38,7 @@ namespace Shears.Pathfinding.Editor
 
             previousGridSize = gridSizeProp.vector3IntValue;
 
-            var scriptField = Shears.Editor.VisualElementUtil.CreateScriptField(serializedObject);
+            var scriptField = Shears.Editor.VisualElementEditorUtil.CreateScriptField(serializedObject);
             var gridSizeField = new PropertyField(gridSizeProp);
             var nodeSizeField = new PropertyField(nodeSizeProp);
 

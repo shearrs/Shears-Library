@@ -38,7 +38,7 @@ namespace Shears.StateMachineGraphs.Editor
         private VisualElement CreateTypeField()
         {
             var typeName = StringUtil.PascalSpace(parameterData.GetType().Name);
-            var typeField = Shears.Editor.VisualElementUtil.CreateHeader(typeName);
+            var typeField = Shears.Editor.VisualElementEditorUtil.CreateHeader(typeName);
 
             typeField.style.marginTop = 2;
             typeField.style.marginBottom = 4;

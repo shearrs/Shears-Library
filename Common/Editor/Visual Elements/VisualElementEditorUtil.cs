@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -8,7 +9,7 @@ namespace Shears.Editor
     /// <summary>
     /// Utility class for creating and manipulating VisualElements in the Unity Editor.
     /// </summary>
-    public static class VisualElementUtil
+    public static class VisualElementEditorUtil
     {
         /// <summary>
         /// Creates a simple element for testing layout and styling.
@@ -75,6 +76,32 @@ namespace Shears.Editor
         }
 
         /// <summary>
+        /// Shorthand function for setting all margin values on a <see cref="VisualElement"/>.
+        /// </summary>
+        /// <param name="element">The element to set margins for.</param>
+        /// <param name="margin">The size of margins in pixels.</param>
+        public static void SetAllMargins(this VisualElement element, int margin)
+        {
+            element.style.marginTop = margin;
+            element.style.marginBottom = margin;
+            element.style.marginLeft = margin;
+            element.style.marginRight = margin;
+        }
+
+        /// <summary>
+        /// Shorthand function for setting all margin values on a <see cref="VisualElement"/>.
+        /// </summary>
+        /// <param name="element">The element to set margins for.</param>
+        /// <param name="margin">The size of margins in pixels.</param>
+        public static void SetAllMargins(this VisualElement element, int marginTop, int marginRight, int marginBottom, int marginLeft)
+        {
+            element.style.marginTop = marginTop;
+            element.style.marginRight = marginRight;
+            element.style.marginBottom = marginBottom;
+            element.style.marginLeft = marginLeft;
+        }
+
+        /// <summary>
         /// Shorthand function for setting all border colors on a <see cref="VisualElement"/>.
         /// </summary>
         /// <param name="element">The element to set border colors for.</param>
@@ -92,7 +119,7 @@ namespace Shears.Editor
         /// </summary>
         /// <param name="serializedObject">The <see cref="SerializedObject"/> to create fields for.</param>
         /// <returns>A <see cref="VisualElement"/> with all default <see cref="PropertyField"/>s for the passed <see cref="SerializedObject"/>.</returns>
-        public static VisualElement CreateDefaultFields(SerializedObject serializedObject, bool includeScript = true)
+        public static VisualElement CreateDefaultFields(SerializedObject serializedObject, bool includeScript = true, params string[] excludedFields)
         {
             var container = new VisualElement
             {
@@ -108,6 +135,9 @@ namespace Shears.Editor
             while (iterator.NextVisible(false))
             {
                 var prop = iterator.Copy();
+
+                if (excludedFields.Contains(prop.name))
+                    continue;
 
                 if (prop.name == "m_Script" && !includeScript)
                     continue;

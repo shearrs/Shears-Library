@@ -22,7 +22,7 @@ namespace Shears.Editor
 
             string title = property.displayName;
 
-            var header = VisualElementUtil.CreateHeader(title);
+            var header = VisualElementEditorUtil.CreateHeader(title);
 
             var minField = new PropertyField(minProp);
             var maxField = new PropertyField(maxProp);

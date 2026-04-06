@@ -45,6 +45,17 @@ namespace Shears
 
         public SerializableSystemType(Type type)
         {
+            if (type == null)
+            {
+                systemType = null;
+                name = string.Empty;
+                assemblyQualifiedName = string.Empty;
+                assemblyName = string.Empty;
+                prettyName = string.Empty;
+
+                return;
+            }
+
             systemType = type;
             name = type.Name;
             assemblyQualifiedName = type.AssemblyQualifiedName;

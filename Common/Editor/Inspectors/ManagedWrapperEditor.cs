@@ -65,8 +65,8 @@ namespace Shears.Editor
             var wrappedValueSO = new SerializedObject(wrappedValue);
             var wrapperType = target.GetType();
 
-            var defaultFields = VisualElementUtil.CreateDefaultFields(serializedObject);
-            var wrappedFields = VisualElementUtil.CreateDefaultFields(wrappedValueSO);
+            var defaultFields = VisualElementEditorUtil.CreateDefaultFields(serializedObject);
+            var wrappedFields = VisualElementEditorUtil.CreateDefaultFields(wrappedValueSO);
 
             if (TryGetAttribute(wrapperType, out var attribute))
             {
@@ -143,7 +143,7 @@ namespace Shears.Editor
 
         public override void OnInspectorGUI()
         {
-            VisualElementUtil.CreateDefaultFieldsIMGUI(serializedObject);
+            VisualElementEditorUtil.CreateDefaultFieldsIMGUI(serializedObject);
         }
 
         private bool TryGetAttribute(Type type, out CustomWrapperAttribute attribute)
