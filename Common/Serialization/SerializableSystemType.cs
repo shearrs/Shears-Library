@@ -14,10 +14,18 @@ namespace Shears
         /// </summary>
         public static readonly SerializableSystemType Empty = new();
         
-        [SerializeField] private string name;
-        [SerializeField] private string assemblyQualifiedName;
-        [SerializeField] private string assemblyName;
-        [SerializeField] private string prettyName;
+        [SerializeField]
+        private string name;
+
+        [SerializeField]
+        private string assemblyQualifiedName;
+
+        [SerializeField]
+        private string assemblyName;
+
+        [SerializeField]
+        private string prettyName;
+
         private Type systemType;
 
         public readonly string Name => name;
