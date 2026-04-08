@@ -9,6 +9,7 @@ namespace Shears.UI
     public class UIElement : SHMonoBehaviourLogger
     {
         private readonly Dictionary<Type, object> registrations = new();
+        private readonly Dictionary<IRef, object> refBindings = new();
         private readonly List<UIElement> childElements = new();
         private readonly TweenStorage tweenStorage = new();
         private bool isEnabled = false;
@@ -25,12 +26,21 @@ namespace Shears.UI
             Enable();
 
             RegisterEvents();
+
+            BindRefs();
         }
 
-        private void OnDisable()
+        protected virtual void OnDisable()
         {
             Disabled?.Invoke();
         }
+
+        protected virtual void OnDestroy()
+        {
+            Unbind();
+        }
+
+        protected virtual void BindRefs() { }
 
         public void Enable()
         {
@@ -149,6 +159,32 @@ namespace Shears.UI
         public void Focus() => UIElementEventSystem.Focus(this);
 
         public void Blur() => UIElementEventSystem.Focus(null);
+
+        protected void Bind<T>(IReadOnlyRef<T> refVar, Action<RefChangeEvent<T>> action)
+        {
+            if (refBindings.ContainsKey(refVar))
+            {
+                Log($"{nameof(UIElement)} already has binding for ${refVar}!", SHLogLevels.Warning);
+                return;
+            }
+
+            refVar.Bind(action);
+        }
+
+        protected void Unbind<T>(IReadOnlyRef<T> refVar, Action<RefChangeEvent<T>> action)
+        {
+            refVar.Changed -= action;
+
+            refBindings.Remove(refVar);
+        }
+
+        protected void Unbind()
+        {
+            foreach (var (refVar, action) in refBindings)
+                refVar.Unbind(action);
+
+            refBindings.Clear();
+        }
 
         protected void StoreTween(Tween tween) => tweenStorage.Store(tween);
 
