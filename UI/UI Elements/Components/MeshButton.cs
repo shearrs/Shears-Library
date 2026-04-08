@@ -62,11 +62,13 @@ namespace Shears.UI
             }
         }
 
-        private void OnDisable()
+        protected override void OnDisable()
         {
             tweenStorage.Dispose();
             isFadingIn = false;
             isFadingOut = false;
+
+            base.OnDisable();
         }
 
         [ContextMenu("Click")]
