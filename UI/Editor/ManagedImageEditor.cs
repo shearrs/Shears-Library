@@ -67,7 +67,7 @@ namespace Shears.UI.Editor
             imageContainer.AddStyleSheet(ShearsStyles.InspectorStyles);
             imageContainer.AddToClassList(ShearsStyles.DarkFoldoutClass);
 
-            imageContainer.Add(Shears.Editor.VisualElementUtil.CreateDefaultFields(imageSO));
+            imageContainer.Add(Shears.Editor.VisualElementEditorUtil.CreateDefaultFields(imageSO));
 
             root.AddAll(spriteField, colorField, modulateField, imageContainer);
 

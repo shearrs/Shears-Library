@@ -26,7 +26,7 @@ namespace Shears.Pathfinding
         public int HCost { get => hCost; set => hCost = value; }
         public int FCost => gCost + hCost;
 
-        int IHeapItem<PathNode>.HeapIndex { get; set; }
+        public int HeapIndex { get; set; }
 
         public PathNode(Vector3Int gridPosition, Vector3 worldPosition)
         {
@@ -50,7 +50,7 @@ namespace Shears.Pathfinding
             return false;
         }
 
-        int IComparable<PathNode>.CompareTo(PathNode other)
+        public int CompareTo(PathNode other)
         {
             int compare = FCost.CompareTo(other.FCost);
 

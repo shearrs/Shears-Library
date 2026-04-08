@@ -50,7 +50,7 @@ namespace Shears.Editor
 
         public override VisualElement CreateInspectorGUI()
         {
-            var defaultFieldsContainer = VisualElementUtil.CreateDefaultFields(serializedObject);
+            var defaultFieldsContainer = VisualElementEditorUtil.CreateDefaultFields(serializedObject);
 
             var targetObject = serializedObject.targetObject;
 
