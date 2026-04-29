@@ -43,6 +43,12 @@ namespace Shears
             action(new(value, value));
         }
 
+        public void BindRaw(Action<T> action)
+        {
+            ChangedRaw += action;
+            action(value);
+        }
+
         public void Unbind(Action<RefChangeEvent<T>> action)
         {
             Changed -= action;
@@ -55,6 +61,32 @@ namespace Shears
 
             Changed -= typedEvent;
         }
+
+        public void UnbindRaw(object changeEvent)
+        {
+            if (changeEvent is not Action<T> typedEvent)
+                return;
+
+            ChangedRaw -= typedEvent;
+        }
+
+        #region Operators
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public static bool operator==(Ref<T> a, T b) => a.value == null ? b == null : a.value.Equals(b);
+
+        public static bool operator!=(Ref<T> a, T b) => !(a == b);
+
+        public static implicit operator T(Ref<T> reference) => reference.value;
+        #endregion
     }
 
     public interface IReadOnlyRef<T> : IRef
@@ -65,10 +97,12 @@ namespace Shears
         public event Action<T> ChangedRaw;
 
         public void Bind(Action<RefChangeEvent<T>> action);
+        public void BindRaw(Action<T> action);
     }
 
     public interface IRef
     {
         public void Unbind(object changeEvent);
+        public void UnbindRaw(object changeEvent);
     }
 }

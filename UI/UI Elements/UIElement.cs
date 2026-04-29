@@ -10,6 +10,7 @@ namespace Shears.UI
     {
         private readonly Dictionary<Type, object> registrations = new();
         private readonly Dictionary<IRef, object> refBindings = new();
+        private readonly Dictionary<IRef, object> rawRefBindings = new();
         private readonly List<UIElement> childElements = new();
         private readonly TweenStorage tweenStorage = new();
         private bool isEnabled = false;
@@ -171,11 +172,15 @@ namespace Shears.UI
             refVar.Bind(action);
         }
 
-        protected void Unbind<T>(IReadOnlyRef<T> refVar, Action<RefChangeEvent<T>> action)
+        protected void BindRaw<T>(IReadOnlyRef<T> refVar, Action<T> action)
         {
-            refVar.Changed -= action;
+            if (rawRefBindings.ContainsKey(refVar))
+            {
+                Log($"{nameof(UIElement)} already has raw binding for ${refVar}!", SHLogLevels.Warning);
+                return;
+            }
 
-            refBindings.Remove(refVar);
+            refVar.BindRaw(action);
         }
 
         protected void Unbind()
@@ -183,7 +188,24 @@ namespace Shears.UI
             foreach (var (refVar, action) in refBindings)
                 refVar.Unbind(action);
 
+            foreach (var (refVar, action) in rawRefBindings)
+                refVar.Unbind(action);
+
             refBindings.Clear();
+        }
+
+        protected void Unbind<T>(IReadOnlyRef<T> refVar, Action<RefChangeEvent<T>> action)
+        {
+            refVar.Changed -= action;
+
+            refBindings.Remove(refVar);
+        }
+
+        protected void UnbindRaw<T>(IReadOnlyRef<T> refVar, Action<T> action)
+        {
+            refVar.ChangedRaw -= action;
+
+            rawRefBindings.Remove(refVar);
         }
 
         protected void StoreTween(Tween tween) => tweenStorage.Store(tween);
