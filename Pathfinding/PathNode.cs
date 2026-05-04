@@ -6,27 +6,66 @@ namespace Shears.Pathfinding
     [Serializable]
     public class PathNode : IHeapItem<PathNode>
     {
-        [SerializeField] private Vector3Int gridPosition;
-        [SerializeField] private Vector3 worldPosition;
-        [SerializeField] private float size;
-        [SerializeReference] private PathNodeData data;
-        [SerializeField] private PathNodeObject nodeObject;
+        [SerializeField]
+        private Vector3Int gridPosition;
+
+        [SerializeField]
+        private Vector3 worldPosition;
+
+        [SerializeField]
+        private float size;
+
+        [SerializeReference]
+        private PathNodeData data;
+
+        [SerializeField]
+        private PathNodeObject nodeObject;
 
         private PathNode parent;
         private int gCost; // distance from starting node
         private int hCost; // distance from end node
 
         public PathNodeObject NodeObject => nodeObject;
-        public Vector3Int GridPosition => gridPosition;
-        public Vector3 WorldPosition { get => worldPosition; internal set => worldPosition = value; }
-        public float Size { get => size; internal set => size = value; }
-        public PathNodeData Data { get => data; set => data = value; }
-        public PathNode Parent { get => parent; set => parent = value; }
-        public int GCost { get => gCost; set => gCost = value; }
-        public int HCost { get => hCost; set => hCost = value; }
+        public Vector3Int GridPosition
+        {
+            get => gridPosition;
+            internal set => gridPosition = value;
+        }
+        public Vector3 WorldPosition
+        {
+            get => worldPosition;
+            internal set => worldPosition = value;
+        }
+        public float Size
+        {
+            get => size;
+            internal set => size = value;
+        }
+        public PathNodeData Data
+        {
+            get => data;
+            set => data = value;
+        }
+        public PathNode Parent
+        {
+            get => parent;
+            set => parent = value;
+        }
+        public int GCost
+        {
+            get => gCost;
+            set => gCost = value;
+        }
+        public int HCost
+        {
+            get => hCost;
+            set => hCost = value;
+        }
         public int FCost => gCost + hCost;
 
         public int HeapIndex { get; set; }
+
+        public PathNode() { }
 
         public PathNode(Vector3Int gridPosition, Vector3 worldPosition)
         {
@@ -34,7 +73,8 @@ namespace Shears.Pathfinding
             this.worldPosition = worldPosition;
         }
 
-        public bool TryGetData<T>(out T nodeData) where T : PathNodeData
+        public bool TryGetData<T>(out T nodeData)
+            where T : PathNodeData
         {
             nodeData = null;
 
@@ -58,6 +98,30 @@ namespace Shears.Pathfinding
                 compare = HCost.CompareTo(other.HCost);
 
             return -compare;
+        }
+
+        public PathNode Clone(PathGrid grid, bool reuseObjects = true)
+        {
+            PathNodeObject obj = null;
+
+            if (reuseObjects)
+                obj = nodeObject;
+            else if (nodeObject != null)
+            {
+                obj = UnityEngine.Object.Instantiate(nodeObject);
+                obj.Grid = grid;
+            }
+
+            var clone = new PathNode(gridPosition, worldPosition)
+            {
+                size = grid.NodeSize,
+                data = (PathNodeData)data?.Clone(),
+                nodeObject = obj,
+                gCost = gCost,
+                hCost = hCost,
+            };
+
+            return clone;
         }
     }
 }
