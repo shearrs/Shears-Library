@@ -32,22 +32,20 @@ namespace Shears.Pathfinding.Editor
             var root = new VisualElement();
 
             grid = serializedObject.targetObject as PathGrid;
-            gridSizeProp = serializedObject.FindProperty("baseGridSize");
+            gridSizeProp = serializedObject.FindProperty("gridSize");
             nodeSizeProp = serializedObject.FindProperty("nodeSize");
-            nodesProp = serializedObject.FindProperty("baseNodes");
-            var containerProp = serializedObject.FindProperty("container");
+            nodesProp = serializedObject.FindProperty("nodes");
 
             previousGridSize = gridSizeProp.vector3IntValue;
 
             var scriptField = VisualElementEditorUtil.CreateScriptField(serializedObject);
             var gridSizeField = new PropertyField(gridSizeProp);
             var nodeSizeField = new PropertyField(nodeSizeProp);
-            var containerField = new PropertyField(containerProp);
 
             gridSizeField.RegisterValueChangeCallback((evt) => OnGridChanged());
             nodeSizeField.RegisterValueChangeCallback((evt) => OnGridChanged());
 
-            root.AddAll(scriptField, gridSizeField, nodeSizeField, containerField);
+            root.AddAll(scriptField, gridSizeField, nodeSizeField);
 
             return root;
         }

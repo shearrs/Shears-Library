@@ -233,7 +233,8 @@ namespace Shears.Pathfinding.Editor
 
                 foreach (var node in Grid.Nodes)
                 {
-                    var worldPosition = PathGridEditorTool.GetWorldPosition(Grid, node);
+                    var grid = Grid.Parent ?? Grid;
+                    var worldPosition = PathGridEditorTool.GetWorldPosition(grid, node);
 
                     Handles.DrawWireCube(worldPosition, Grid.NodeSize * Vector3.one);
                 }
@@ -254,7 +255,8 @@ namespace Shears.Pathfinding.Editor
         private void CreateNodeHandle(PathNode node)
         {
             int controlID = GUIUtility.GetControlID(FocusType.Passive);
-            Vector3 handlePosition = PathGridEditorTool.GetWorldPosition(Grid, node);
+            var grid = Grid.Parent ?? Grid;
+            Vector3 handlePosition = PathGridEditorTool.GetWorldPosition(grid, node);
             Vector3 handleSize = Grid.NodeSize * 0.98f * Vector3.one;
             Vector3 screenPosition = Handles.matrix.MultiplyPoint(handlePosition);
 
@@ -346,7 +348,7 @@ namespace Shears.Pathfinding.Editor
 
                 foreach (var rowNode in row)
                 {
-                    var grid = Grid.Parent != null ? Grid.Parent : Grid;
+                    var grid = Grid.Parent ?? Grid;
                     var gridSO = settings.ParentSO ?? settings.GridSO;
                     Vector3Int pos = rowNode.GridPosition;
                     int index =
@@ -355,9 +357,6 @@ namespace Shears.Pathfinding.Editor
                         + pos.x;
 
                     var nodesProp = gridSO.FindProperty("nodes");
-                    if (nodesProp.arraySize == 0)
-                        nodesProp = gridSO.FindProperty("baseNodes");
-
                     var nodeProp = nodesProp.GetArrayElementAtIndex(index);
 
                     PaintRequested?.Invoke(rowNode, nodeProp);
@@ -374,9 +373,6 @@ namespace Shears.Pathfinding.Editor
                     (pos.z * grid.GridSize.y * grid.GridSize.x) + (pos.y * grid.GridSize.x) + pos.x;
 
                 var nodesProp = gridSO.FindProperty("nodes");
-                if (nodesProp.arraySize == 0)
-                    nodesProp = gridSO.FindProperty("baseNodes");
-
                 var nodeProp = nodesProp.GetArrayElementAtIndex(index);
 
                 PaintRequested?.Invoke(node, nodeProp);

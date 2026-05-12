@@ -63,7 +63,7 @@ namespace Shears.Pathfinding.Editor
             this.gridSO = gridSO;
 
             if (grid.Parent != null)
-                parentSO = new SerializedObject(grid.Parent);
+                parentSO = new SerializedObject(grid.Parent as PathGridGroup);
 
             var settingsProp = editorSO.FindProperty("settings");
             nodeDataProp = settingsProp.FindPropertyRelative("nodeData");

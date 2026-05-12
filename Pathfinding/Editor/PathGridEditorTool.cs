@@ -117,11 +117,8 @@ namespace Shears.Pathfinding.Editor
                 settings.GridSO.ApplyModifiedProperties();
         }
 
-        public static Vector3 GetWorldPosition(PathGrid grid, PathNode node)
+        public static Vector3 GetWorldPosition(IPathGrid grid, PathNode node)
         {
-            if (grid.Parent != null)
-                grid = grid.Parent;
-
             return grid.GetPositionForNode(node);
         }
     }
