@@ -1,7 +1,7 @@
-using Shears.Editor;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Shears.Editor;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -65,7 +65,7 @@ namespace Shears.Pathfinding.Editor
 
             var depthSlider = new SliderInt("Z Depth", 0, Grid.GridSize.z - 1)
             {
-                showInputField = true
+                showInputField = true,
             };
             depthSlider.BindProperty(settings.ZDepthProp);
             depthSlider.style.marginBottom = 8;
@@ -78,10 +78,7 @@ namespace Shears.Pathfinding.Editor
             var typeLabel = new Label("Data Type");
 
             string typeName = settings.NodeData == null ? "None" : settings.NodeData.GetType().Name;
-            typeButton = new Button(typeMenu.ShowAsContext)
-            {
-                text = typeName
-            };
+            typeButton = new Button(typeMenu.ShowAsContext) { text = typeName };
             typeButton.style.marginLeft = 4;
             typeButton.style.flexGrow = 1;
 
@@ -100,7 +97,15 @@ namespace Shears.Pathfinding.Editor
             nodeDataContainer = new VisualElement();
             nodeDataContainer.style.display = DisplayStyle.None;
 
-            root.AddAll(nodeDataContainer, drawNodeDataField, drawPrefabField, drawAllDepthsField, depthSlider, prefabField, typeContainer);
+            root.AddAll(
+                nodeDataContainer,
+                drawNodeDataField,
+                drawPrefabField,
+                drawAllDepthsField,
+                depthSlider,
+                prefabField,
+                typeContainer
+            );
             Add(root);
 
             CreateNodeRows();
@@ -157,16 +162,23 @@ namespace Shears.Pathfinding.Editor
 
         private VisualElement CreateNodePrefabField()
         {
-            var searchContext = UnityEditor.Search.SearchService.CreateContext("asset", $"p: t:{nameof(PathNodeObject)} -name:_Base_");
-            var searchViewFlags = SearchViewFlags.Borderless | SearchViewFlags.DisableInspectorPreview;
-            var searchState = new UnityEditor.Search.SearchViewState(searchContext, searchViewFlags);
+            var searchContext = UnityEditor.Search.SearchService.CreateContext(
+                "asset",
+                $"p: t:{nameof(PathNodeObject)} -name:_Base_"
+            );
+            var searchViewFlags =
+                SearchViewFlags.Borderless | SearchViewFlags.DisableInspectorPreview;
+            var searchState = new UnityEditor.Search.SearchViewState(
+                searchContext,
+                searchViewFlags
+            );
 
             var prefabField = new UnityEditor.Search.ObjectField("Node Prefab")
             {
                 objectType = typeof(GameObject),
                 searchContext = searchContext,
                 searchViewFlags = searchViewFlags,
-                searchViewState = searchState
+                searchViewState = searchState,
             };
 
             prefabField.BindProperty(settings.NodePrefabProp);
@@ -204,10 +216,7 @@ namespace Shears.Pathfinding.Editor
                 }
                 else
                 {
-                    var list = new List<PathNode>
-                    {
-                        node
-                    };
+                    var list = new List<PathNode> { node };
 
                     nodeHandleRows[flatPosition] = list;
                 }
@@ -262,7 +271,14 @@ namespace Shears.Pathfinding.Editor
             switch (Event.current.GetTypeForControl(controlID))
             {
                 case EventType.Layout:
-                    HandleUtility.AddControl(controlID, HandleUtility.DistanceToCube(screenPosition, Quaternion.identity, Grid.NodeSize));
+                    HandleUtility.AddControl(
+                        controlID,
+                        HandleUtility.DistanceToCube(
+                            screenPosition,
+                            Quaternion.identity,
+                            Grid.NodeSize
+                        )
+                    );
 
                     break;
                 case EventType.MouseDown:
@@ -330,10 +346,18 @@ namespace Shears.Pathfinding.Editor
 
                 foreach (var rowNode in row)
                 {
+                    var grid = Grid.Parent != null ? Grid.Parent : Grid;
+                    var gridSO = settings.ParentSO ?? settings.GridSO;
                     Vector3Int pos = rowNode.GridPosition;
-                    int index = (pos.z * Grid.GridSize.y * Grid.GridSize.x) + (pos.y * Grid.GridSize.x) + pos.x;
+                    int index =
+                        (pos.z * grid.GridSize.y * grid.GridSize.x)
+                        + (pos.y * grid.GridSize.x)
+                        + pos.x;
 
-                    var nodesProp = settings.GridSO.FindProperty("nodes");
+                    var nodesProp = gridSO.FindProperty("nodes");
+                    if (nodesProp.arraySize == 0)
+                        nodesProp = gridSO.FindProperty("baseNodes");
+
                     var nodeProp = nodesProp.GetArrayElementAtIndex(index);
 
                     PaintRequested?.Invoke(rowNode, nodeProp);
@@ -343,10 +367,16 @@ namespace Shears.Pathfinding.Editor
             }
             else
             {
+                var grid = Grid.Parent != null ? Grid.Parent : Grid;
+                var gridSO = settings.ParentSO ?? settings.GridSO;
                 Vector3Int pos = node.GridPosition;
-                int index = (pos.z * Grid.GridSize.y * Grid.GridSize.x) + (pos.y * Grid.GridSize.x) + pos.x;
+                int index =
+                    (pos.z * grid.GridSize.y * grid.GridSize.x) + (pos.y * grid.GridSize.x) + pos.x;
 
-                var nodesProp = settings.GridSO.FindProperty("nodes");
+                var nodesProp = gridSO.FindProperty("nodes");
+                if (nodesProp.arraySize == 0)
+                    nodesProp = gridSO.FindProperty("baseNodes");
+
                 var nodeProp = nodesProp.GetArrayElementAtIndex(index);
 
                 PaintRequested?.Invoke(node, nodeProp);

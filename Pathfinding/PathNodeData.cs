@@ -8,7 +8,7 @@ namespace Shears.Pathfinding
     {
         public abstract Color EditorColor { get; }
 
-        public object Clone()
+        public virtual object Clone()
         {
             return MemberwiseClone();
         }

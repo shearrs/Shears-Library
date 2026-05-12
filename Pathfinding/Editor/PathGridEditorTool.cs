@@ -10,7 +10,8 @@ namespace Shears.Pathfinding.Editor
     public class PathGridEditorTool : EditorTool, IDrawSelectedHandles
     {
         #region Variables
-        [SerializeField] private PGETSettings settings;
+        [SerializeField]
+        private PGETSettings settings;
         private PGETUI ui;
         private PGETPainter painter;
 
@@ -63,7 +64,10 @@ namespace Shears.Pathfinding.Editor
                 }
                 else if (Event.current.keyCode == KeyCode.Alpha2)
                 {
-                    settings.ZDepthProp.intValue = Mathf.Min(grid.GridSize.z - 1, settings.ZDepth + 1);
+                    settings.ZDepthProp.intValue = Mathf.Min(
+                        grid.GridSize.z - 1,
+                        settings.ZDepth + 1
+                    );
                     editorSO.ApplyModifiedProperties();
                 }
             }
@@ -103,14 +107,22 @@ namespace Shears.Pathfinding.Editor
 
         private void OnPaintRequested(PathNode node, SerializedProperty nodeProp)
         {
-            settings.GridSO.Update();
+            var gridSO = settings.ParentSO ?? settings.GridSO;
+
+            gridSO.Update();
             painter.PaintNode(node, nodeProp);
-            settings.GridSO.ApplyModifiedProperties();
+            gridSO.ApplyModifiedProperties();
+
+            if (settings.ParentSO != null)
+                settings.GridSO.ApplyModifiedProperties();
         }
 
         public static Vector3 GetWorldPosition(PathGrid grid, PathNode node)
         {
-            return grid.transform.TransformPoint(grid.NodeSize * (Vector3)node.GridPosition);
+            if (grid.Parent != null)
+                grid = grid.Parent;
+
+            return grid.GetPositionForNode(node);
         }
     }
 }

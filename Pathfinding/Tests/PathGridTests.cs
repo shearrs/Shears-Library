@@ -6,15 +6,16 @@ namespace Shears.Pathfinding
     public class PathGridTests : MonoBehaviour
     {
         [SerializeField]
-        private List<PathGrid> grids;
+        private PathGrid baseGrid;
 
-        [SerializeField, ReadOnly]
-        private PathGrid combination;
+        [SerializeField]
+        private List<PathGrid> gridsToAdd;
 
         [ContextMenu("Combine Grids")]
         private void Combine()
         {
-            combination = PathGrid.Combine(grids.ToArray());
+            foreach (var grid in gridsToAdd)
+                baseGrid.Add(grid);
         }
     }
 }

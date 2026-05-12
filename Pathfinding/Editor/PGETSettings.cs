@@ -7,16 +7,28 @@ namespace Shears.Pathfinding.Editor
     [Serializable]
     public class PGETSettings
     {
-        [SerializeField] private bool drawNodeData = true;
-        [SerializeField] private bool drawPrefab = true;
-        [SerializeField] private bool drawAllDepths = true;
-        [SerializeField] private int zDepth;
-        [SerializeReference] private PathNodeData nodeData;
-        [SerializeField] private PathNodeObject nodePrefab;
+        [SerializeField]
+        private bool drawNodeData = true;
+
+        [SerializeField]
+        private bool drawPrefab = true;
+
+        [SerializeField]
+        private bool drawAllDepths = true;
+
+        [SerializeField]
+        private int zDepth;
+
+        [SerializeReference]
+        private PathNodeData nodeData;
+
+        [SerializeField]
+        private PathNodeObject nodePrefab;
 
         private bool isActivated = false;
 
         private readonly PathGrid grid;
+        private readonly SerializedObject parentSO;
         private readonly SerializedObject gridSO;
         private readonly SerializedObject editorSO;
         private readonly SerializedProperty nodeDataProp;
@@ -34,6 +46,7 @@ namespace Shears.Pathfinding.Editor
         public PathNodeObject NodePrefab => nodePrefab;
         public bool IsActivated => isActivated;
         public PathGrid Grid => grid;
+        public SerializedObject ParentSO => parentSO;
         public SerializedObject GridSO => gridSO;
         public SerializedObject EditorSO => editorSO;
         public SerializedProperty NodeDataProp => nodeDataProp;
@@ -48,6 +61,9 @@ namespace Shears.Pathfinding.Editor
             this.editorSO = editorSO;
             this.grid = grid;
             this.gridSO = gridSO;
+
+            if (grid.Parent != null)
+                parentSO = new SerializedObject(grid.Parent);
 
             var settingsProp = editorSO.FindProperty("settings");
             nodeDataProp = settingsProp.FindPropertyRelative("nodeData");

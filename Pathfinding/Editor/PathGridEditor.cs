@@ -1,5 +1,5 @@
-using Shears.Editor;
 using System.Collections.Generic;
+using Shears.Editor;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -32,20 +32,22 @@ namespace Shears.Pathfinding.Editor
             var root = new VisualElement();
 
             grid = serializedObject.targetObject as PathGrid;
-            gridSizeProp = serializedObject.FindProperty("gridSize");
+            gridSizeProp = serializedObject.FindProperty("baseGridSize");
             nodeSizeProp = serializedObject.FindProperty("nodeSize");
-            nodesProp = serializedObject.FindProperty("nodes");
+            nodesProp = serializedObject.FindProperty("baseNodes");
+            var containerProp = serializedObject.FindProperty("container");
 
             previousGridSize = gridSizeProp.vector3IntValue;
 
-            var scriptField = Shears.Editor.VisualElementEditorUtil.CreateScriptField(serializedObject);
+            var scriptField = VisualElementEditorUtil.CreateScriptField(serializedObject);
             var gridSizeField = new PropertyField(gridSizeProp);
             var nodeSizeField = new PropertyField(nodeSizeProp);
+            var containerField = new PropertyField(containerProp);
 
             gridSizeField.RegisterValueChangeCallback((evt) => OnGridChanged());
             nodeSizeField.RegisterValueChangeCallback((evt) => OnGridChanged());
 
-            root.AddAll(scriptField, gridSizeField, nodeSizeField);
+            root.AddAll(scriptField, gridSizeField, nodeSizeField, containerField);
 
             return root;
         }
@@ -86,9 +88,17 @@ namespace Shears.Pathfinding.Editor
                     for (int x = 0; x < newGridSize.x; x++)
                     {
                         // check if this node existed in the previous grid
-                        if (isInitialized && x < previousGridSize.x && y < previousGridSize.y && z < previousGridSize.z)
+                        if (
+                            isInitialized
+                            && x < previousGridSize.x
+                            && y < previousGridSize.y
+                            && z < previousGridSize.z
+                        )
                         {
-                            int oldIndex = (z * previousGridSize.y * previousGridSize.x) + (y * previousGridSize.x) + x;
+                            int oldIndex =
+                                (z * previousGridSize.y * previousGridSize.x)
+                                + (y * previousGridSize.x)
+                                + x;
                             var existingNodeProp = nodesProp.GetArrayElementAtIndex(oldIndex);
                             var existingNode = existingNodeProp.boxedValue as PathNode;
 
@@ -99,13 +109,12 @@ namespace Shears.Pathfinding.Editor
                         }
                         else // create new node
                         {
-                            Vector3 localPosition = new(
-                                x * nodeSize,
-                                y * nodeSize,
-                                z * nodeSize
-                            );
+                            Vector3 localPosition = new(x * nodeSize, y * nodeSize, z * nodeSize);
 
-                            var newNode = new PathNode(new(x, y, z), grid.transform.TransformPoint(localPosition));
+                            var newNode = new PathNode(
+                                new(x, y, z),
+                                grid.transform.TransformPoint(localPosition)
+                            );
                             newNodes.Add(newNode);
                         }
                     }

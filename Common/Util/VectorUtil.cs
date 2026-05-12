@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using Codice.Client.BaseCommands;
 using UnityEngine;
 
 namespace Shears
@@ -52,12 +55,7 @@ namespace Shears
 
         public static Vector3 MultiplyComponents(this Vector3 v0, Vector3 v1)
         {
-            return new
-            (
-                v0.x * v1.x,
-                v0.y * v1.y,
-                v0.z * v1.z
-            );
+            return new(v0.x * v1.x, v0.y * v1.y, v0.z * v1.z);
         }
 
         public static float GetAverage(this Vector3 v)
@@ -73,15 +71,19 @@ namespace Shears
 
         public static Vector3 Deg2Rad(this Vector3 self)
         {
-            return new Vector3(Mathf.Deg2Rad * self.x, Mathf.Deg2Rad * self.y, Mathf.Deg2Rad * self.z);
+            return new Vector3(
+                Mathf.Deg2Rad * self.x,
+                Mathf.Deg2Rad * self.y,
+                Mathf.Deg2Rad * self.z
+            );
         }
 
         public static Vector3 RandomRange(Vector3 min, Vector3 max)
         {
             return new(
-                Random.Range(min.x, max.x),
-                Random.Range(min.y, max.y),
-                Random.Range(min.z, max.z)
+                UnityEngine.Random.Range(min.x, max.x),
+                UnityEngine.Random.Range(min.y, max.y),
+                UnityEngine.Random.Range(min.z, max.z)
             );
         }
 
@@ -115,9 +117,18 @@ namespace Shears
             return new(0.0f, v.y, v.z);
         }
 
-        public static Vector3 With(this Vector3 v, float? x = null, float? y = null, float? z = null)
+        public static Vector3 With(
+            this Vector3 v,
+            float? x = null,
+            float? y = null,
+            float? z = null
+        )
         {
-            return new(x == null ? v.x : x.Value, y == null ? v.y : y.Value, z == null ? v.z : z.Value);
+            return new(
+                x == null ? v.x : x.Value,
+                y == null ? v.y : y.Value,
+                z == null ? v.z : z.Value
+            );
         }
 
         public static Vector3Int RoundToInt(this Vector3 v)
@@ -155,11 +166,20 @@ namespace Shears
             return new(0, v.y, v.z);
         }
 
-        public static Vector3Int With(this Vector3Int v, int? x = null, int? y = null, int? z = null)
+        public static Vector3Int With(
+            this Vector3Int v,
+            int? x = null,
+            int? y = null,
+            int? z = null
+        )
         {
-            return new(x == null ? v.x : x.Value, y == null ? v.y : y.Value, z == null ? v.z : z.Value);
+            return new(
+                x == null ? v.x : x.Value,
+                y == null ? v.y : y.Value,
+                z == null ? v.z : z.Value
+            );
         }
-   
+
         public static Vector3 EulerMap(this Vector3 v)
         {
             if (v.x > 180f)
@@ -172,6 +192,88 @@ namespace Shears
                 v.z -= 360f;
 
             return v;
+        }
+
+        public static void MinMax(
+            out float xMin,
+            out float xMax,
+            out float yMin,
+            out float yMax,
+            out float zMin,
+            out float zMax,
+            params Vector3[] vectors
+        )
+        {
+            MathUtil.MinMax(out xMin, out xMax, vectors, v => v.x, v => v.x);
+            MathUtil.MinMax(out yMin, out yMax, vectors, v => v.y, v => v.y);
+            MathUtil.MinMax(out zMin, out zMax, vectors, v => v.z, v => v.z);
+        }
+
+        public static void MinMax(
+            out float xMin,
+            out float xMax,
+            out float yMin,
+            out float yMax,
+            out float zMin,
+            out float zMax,
+            IReadOnlyList<Vector3> vectors
+        )
+        {
+            MathUtil.MinMax(out xMin, out xMax, vectors, v => v.x, v => v.x);
+            MathUtil.MinMax(out yMin, out yMax, vectors, v => v.y, v => v.y);
+            MathUtil.MinMax(out zMin, out zMax, vectors, v => v.z, v => v.z);
+        }
+
+        public static void MinMax<T>(
+            out float xMin,
+            out float xMax,
+            out float yMin,
+            out float yMax,
+            out float zMin,
+            out float zMax,
+            IReadOnlyList<T> list,
+            Func<T, Vector3> minSelector,
+            Func<T, Vector3> maxSelector
+        )
+        {
+            if (list.Count == 0)
+            {
+                xMin = xMax = yMin = yMax = zMin = zMax = -1;
+
+                return;
+            }
+
+            xMin = minSelector(list[0]).x;
+            xMax = maxSelector(list[0]).x;
+            yMin = minSelector(list[0]).y;
+            yMax = maxSelector(list[0]).y;
+            zMin = minSelector(list[0]).z;
+            zMax = maxSelector(list[0]).z;
+
+            for (int i = 1; i < list.Count; i++)
+            {
+                float xMinCandidate = minSelector(list[i]).x;
+                float xMaxCandidate = maxSelector(list[i]).x;
+                float yMinCandidate = minSelector(list[i]).y;
+                float yMaxCandidate = maxSelector(list[i]).y;
+                float zMinCandidate = minSelector(list[i]).z;
+                float zMaxCandidate = maxSelector(list[i]).z;
+
+                if (xMinCandidate < xMin)
+                    xMin = xMinCandidate;
+                if (xMaxCandidate > xMax)
+                    xMax = xMaxCandidate;
+
+                if (yMinCandidate < yMin)
+                    yMin = yMinCandidate;
+                if (yMaxCandidate > yMax)
+                    yMax = yMaxCandidate;
+
+                if (zMinCandidate < zMin)
+                    zMin = zMinCandidate;
+                if (zMaxCandidate > zMax)
+                    zMax = zMaxCandidate;
+            }
         }
     }
 }

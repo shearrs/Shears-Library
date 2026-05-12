@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Shears.Logging;
 using UnityEngine;
+using UnityEngine.Serialization;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -20,26 +22,67 @@ namespace Shears.Pathfinding
             Backward,
         }
 
-        [SerializeField, Delayed]
-        private Vector3Int gridSize = Vector3Int.one;
+        [SerializeField, Delayed, FormerlySerializedAs("gridSize")]
+        private Vector3Int baseGridSize = Vector3Int.one;
 
         [SerializeField, Delayed]
         private float nodeSize = 1.0f;
 
         [SerializeField]
+        private bool container = false;
+
+        [SerializeField]
+        private List<PathGrid> subGrids = new();
+
+        [SerializeReference]
+        private List<PathNode> baseNodes = new();
+
+        [SerializeReference]
         private List<PathNode> nodes = new();
 
-        private readonly List<PathNode> boundsNodes = new();
+        [SerializeField]
+        private PathGrid parent;
 
-        public Vector3Int GridSize => gridSize;
+        private readonly List<PathNode> boundsNodes = new();
+        private Vector3Int gridSize;
+
+        public Vector3Int GridSize
+        {
+            get
+            {
+                if (gridSize == Vector3.zero)
+                    return baseGridSize;
+                else
+                    return gridSize;
+            }
+        }
+
         public float NodeSize => nodeSize;
-        public IReadOnlyList<PathNode> Nodes => nodes;
+
+        public IReadOnlyList<PathNode> Nodes
+        {
+            get
+            {
+                if (nodes.Count == 0)
+                    return baseNodes;
+                else
+                    return nodes;
+            }
+        }
+
+        public PathGrid Parent
+        {
+            get => parent;
+            internal set => parent = value;
+        }
 
         public event Action GridChanged;
 
         private void OnValidate()
         {
-            gridSize = gridSize.ClampMax(1);
+            baseGridSize = baseGridSize.ClampMax(1);
+
+            RefreshSerialization();
         }
 
         private void Awake()
@@ -51,7 +94,7 @@ namespace Shears.Pathfinding
         [ContextMenu("Update Node Objects")]
         private void UpdateNodeObjects()
         {
-            foreach (var node in nodes)
+            foreach (var node in Nodes)
             {
                 if (node.NodeObject == null)
                     continue;
@@ -71,13 +114,13 @@ namespace Shears.Pathfinding
 
         public void UpdateWorldPositions()
         {
-            if (nodes.Count == 0)
+            if (Nodes.Count == 0)
                 return;
 
-            if (nodes[0].WorldPosition == transform.position)
+            if (Nodes[0].WorldPosition == transform.position)
                 return;
 
-            foreach (var node in nodes)
+            foreach (var node in Nodes)
             {
                 Vector3 localPosition = new(
                     nodeSize * node.GridPosition.x,
@@ -87,6 +130,9 @@ namespace Shears.Pathfinding
 
                 node.Size = nodeSize;
                 node.WorldPosition = transform.TransformPoint(localPosition);
+
+                if (node.NodeObject != null)
+                    node.NodeObject.transform.position = node.WorldPosition;
             }
 
             GridChanged?.Invoke();
@@ -105,7 +151,7 @@ namespace Shears.Pathfinding
 
         public PathNode GetNodeForPosition(Vector3 worldPosition)
         {
-            Vector3 gridWorldSize = nodeSize * ((Vector3)gridSize - Vector3.one);
+            Vector3 gridWorldSize = nodeSize * ((Vector3)GridSize - Vector3.one);
             Vector3 center = GetCenter();
             worldPosition -= center;
 
@@ -117,9 +163,9 @@ namespace Shears.Pathfinding
             yPercent = Mathf.Clamp01(yPercent);
             zPercent = Mathf.Clamp01(zPercent);
 
-            int x = Mathf.RoundToInt((gridSize.x - 1) * xPercent);
-            int y = Mathf.RoundToInt((gridSize.y - 1) * yPercent);
-            int z = Mathf.RoundToInt((gridSize.z - 1) * zPercent);
+            int x = Mathf.RoundToInt((GridSize.x - 1) * xPercent);
+            int y = Mathf.RoundToInt((GridSize.y - 1) * yPercent);
+            int z = Mathf.RoundToInt((GridSize.z - 1) * zPercent);
 
             return GetNode(x, y, z);
         }
@@ -142,21 +188,21 @@ namespace Shears.Pathfinding
             {
                 if (x < 0)
                     continue;
-                else if (x >= gridSize.x)
+                else if (x >= GridSize.x)
                     break;
 
                 for (int y = localMin.y; y <= localMax.y; y++)
                 {
                     if (y < 0)
                         continue;
-                    else if (y >= gridSize.y)
+                    else if (y >= GridSize.y)
                         break;
 
                     for (int z = localMin.z; z <= localMax.z; z++)
                     {
                         if (z < 0)
                             continue;
-                        else if (z >= gridSize.z)
+                        else if (z >= GridSize.z)
                             break;
 
                         boundsNodes.Add(GetNode(x, y, z));
@@ -186,9 +232,9 @@ namespace Shears.Pathfinding
                         int gridZ = gridPosition.z + z;
 
                         if (
-                            (gridX < 0 || gridX > gridSize.x - 1)
-                            || (gridY < 0 || gridY > gridSize.y - 1)
-                            || (gridZ < 0 || gridZ > gridSize.z - 1)
+                            (gridX < 0 || gridX > GridSize.x - 1)
+                            || (gridY < 0 || gridY > GridSize.y - 1)
+                            || (gridZ < 0 || gridZ > GridSize.z - 1)
                         )
                             continue;
 
@@ -203,21 +249,21 @@ namespace Shears.Pathfinding
 
         public PathNode GetNode(int x, int y, int z)
         {
-            if (x >= gridSize.x || y >= gridSize.y || z >= gridSize.z || x < 0 || y < 0 || z < 0)
+            if (x >= GridSize.x || y >= GridSize.y || z >= GridSize.z || x < 0 || y < 0 || z < 0)
             {
                 SHLogger.Log($"Invalid coordinates for node: ({x}, {y}, {z})", SHLogLevels.Error);
                 return null;
             }
 
-            int index = (z * gridSize.y * gridSize.x) + (y * gridSize.x) + x;
+            int index = (z * GridSize.y * GridSize.x) + (y * GridSize.x) + x;
 
-            return nodes[index];
+            return Nodes[index];
         }
 
         public PathNode GetNodeWithData<T>()
             where T : PathNodeData
         {
-            foreach (var node in nodes)
+            foreach (var node in Nodes)
             {
                 if (node.TryGetData(out T _))
                     return node;
@@ -228,72 +274,73 @@ namespace Shears.Pathfinding
 
         public Vector3 GetCenter()
         {
-            return transform.position + (0.5f * nodeSize * ((Vector3)gridSize - Vector3.one));
+            return transform.position + (0.5f * nodeSize * ((Vector3)GridSize - Vector3.one));
         }
 
-        public static PathGrid Combine(params PathGrid[] grids)
+        public void Add(PathGrid grid)
         {
-            var newGrid = new GameObject("Combined PathGrid").AddComponent<PathGrid>();
+            if (subGrids.Contains(grid))
+            {
+                SHLogger.Log(
+                    $"Grid {grid.name} is already a sub-grid of {name}.",
+                    SHLogLevels.Warning
+                );
+                return;
+            }
 
-            if (grids.Length == 0)
-                return newGrid;
+            subGrids.Add(grid);
+            grid.Parent = this;
 
-            newGrid.Copy(grids[0], true);
-
-            if (grids.Length == 1)
-                return newGrid;
-
-            for (int i = 1; i < grids.Length; i++)
-                newGrid.Add(grids[i]);
-
-            return newGrid;
+            RecalculateNodes();
         }
 
-        public void Copy(PathGrid other, bool reuseObjects = true)
+        [ContextMenu("Recalculate Nodes")]
+        private void RecalculateNodes()
         {
+            foreach (var subgrid in subGrids)
+                subgrid.RecalculateNodes();
+
             nodes.Clear();
-            gridSize = other.gridSize;
-            nodeSize = other.nodeSize;
-            transform.position = other.transform.position;
 
-            foreach (var node in other.nodes)
-                nodes.Add(node.Clone(this, reuseObjects));
-        }
+            if (!container)
+            {
+                UpdateWorldPositions();
 
-        public void Add(PathGrid other)
-        {
-            var minPosition = transform.position;
-            var maxPosition = GetPositionForNode(nodes[^1]);
-            var otherMinPosition = other.transform.position;
-            var otherMaxPosition = other.GetPositionForNode(other.nodes[^1]);
+                gridSize = baseGridSize;
 
-            MathUtil.MinMax(
+                for (int z = 0; z < gridSize.z; z++)
+                {
+                    for (int y = 0; y < gridSize.y; y++)
+                    {
+                        for (int x = 0; x < gridSize.x; x++)
+                        {
+                            var node = GetNode(x, y, z);
+                            node.GridPosition = new Vector3Int(x, y, z);
+                        }
+                    }
+                }
+
+                subGrids.Add(this);
+            }
+
+            VectorUtil.MinMax(
                 out var xMin,
                 out var xMax,
-                minPosition.x,
-                otherMinPosition.x,
-                maxPosition.x,
-                otherMaxPosition.x
-            );
-            MathUtil.MinMax(
                 out var yMin,
                 out var yMax,
-                minPosition.y,
-                otherMinPosition.y,
-                maxPosition.y,
-                otherMaxPosition.y
-            );
-            MathUtil.MinMax(
                 out var zMin,
                 out var zMax,
-                minPosition.z,
-                otherMinPosition.z,
-                maxPosition.z,
-                otherMaxPosition.z
+                subGrids,
+                s => s.transform.position,
+                s => s.GetPositionForNode(s.Nodes[^1])
             );
+
+            if (!container)
+                subGrids.Remove(this);
+
             var newGridSize =
                 new Vector3(xMax - xMin, yMax - yMin, zMax - zMin).RoundToInt() + Vector3Int.one;
-            var newNodes = new List<PathNode>();
+            var previousPosition = transform.position;
 
             transform.position = new Vector3(xMin, yMin, zMin);
 
@@ -304,59 +351,167 @@ namespace Shears.Pathfinding
                     for (int x = 0; x < newGridSize.x; x++)
                     {
                         var worldPosition = new Vector3(xMin + x, yMin + y, zMin + z);
-                        var firstNode = GetNodeForPosition(worldPosition);
-                        var secondNode = other.GetNodeForPosition(worldPosition);
-                        var firstDist = (
-                            worldPosition - GetPositionForNode(firstNode)
-                        ).sqrMagnitude;
-                        var secondDist = (
-                            worldPosition - other.GetPositionForNode(secondNode)
-                        ).sqrMagnitude;
+                        var validNode = GetFirstValidNode(worldPosition);
 
-                        PathNode node = null;
-                        PathNode newNode;
-                        bool firstValid = firstDist < NodeSize * NodeSize;
-                        bool secondValid = secondDist < NodeSize * NodeSize;
-
-                        if (firstValid)
+                        if (validNode == null)
                         {
-                            if (secondValid)
+                            validNode = new PathNode
                             {
-                                if (firstNode.Data != null)
-                                    node = firstNode;
-                                else
-                                    node = secondNode;
-                            }
-                            else
-                                node = firstNode;
-                        }
-                        else if (secondValid)
-                            node = secondNode;
-
-                        if (node == null)
-                        {
-                            newNode = new(new Vector3Int(x, y, z), worldPosition)
-                            {
+                                GridPosition = new Vector3Int(x, y, z),
+                                WorldPosition = worldPosition,
                                 Size = nodeSize,
                             };
                         }
                         else
                         {
-                            newNode = node.Clone(this);
-                            newNode.GridPosition = new Vector3Int(x, y, z);
-                            newNode.WorldPosition = worldPosition;
+                            validNode.GridPosition = new Vector3Int(x, y, z);
+                            validNode.WorldPosition = worldPosition;
+                            validNode.Size = nodeSize;
                         }
 
-                        newNodes.Add(newNode);
+                        nodes.Add(validNode);
                     }
                 }
             }
 
-            if (Application.isPlaying)
-                Destroy(other.gameObject);
-
             gridSize = newGridSize;
-            nodes = newNodes;
+        }
+
+        private PathNode GetFirstValidNode(Vector3 worldPosition)
+        {
+            bool isValid(PathGrid grid, PathNode node) =>
+                (worldPosition - grid.GetPositionForNode(node)).sqrMagnitude < NodeSize * NodeSize;
+
+            if (!container)
+            {
+                var baseNode = GetBaseNodeForPosition(worldPosition);
+
+                if (isValid(this, baseNode))
+                    return baseNode;
+            }
+
+            foreach (var subGrid in subGrids)
+            {
+                var node = subGrid.GetNodeForPosition(worldPosition);
+
+                if (node != null && isValid(subGrid, node))
+                    return node;
+            }
+
+            return null;
+        }
+
+        public PathNode GetBaseNodeForPosition(Vector3 worldPosition)
+        {
+            Vector3 gridWorldSize = nodeSize * ((Vector3)baseGridSize - Vector3.one);
+            Vector3 center = GetBaseCenter();
+            worldPosition -= center;
+
+            float xPercent = (worldPosition.x + (0.5f * gridWorldSize.x)) / gridWorldSize.x;
+            float yPercent = (worldPosition.y + (0.5f * gridWorldSize.y)) / gridWorldSize.y;
+            float zPercent = (worldPosition.z + (0.5f * gridWorldSize.z)) / gridWorldSize.z;
+
+            xPercent = Mathf.Clamp01(xPercent);
+            yPercent = Mathf.Clamp01(yPercent);
+            zPercent = Mathf.Clamp01(zPercent);
+
+            int x = Mathf.RoundToInt((baseGridSize.x - 1) * xPercent);
+            int y = Mathf.RoundToInt((baseGridSize.y - 1) * yPercent);
+            int z = Mathf.RoundToInt((baseGridSize.z - 1) * zPercent);
+
+            return GetBaseNode(x, y, z);
+        }
+
+        private Vector3 GetBaseCenter()
+        {
+            return transform.position + (0.5f * nodeSize * ((Vector3)baseGridSize - Vector3.one));
+        }
+
+        private PathNode GetBaseNode(int x, int y, int z)
+        {
+            if (
+                x >= baseGridSize.x
+                || y >= baseGridSize.y
+                || z >= baseGridSize.z
+                || x < 0
+                || y < 0
+                || z < 0
+            )
+            {
+                SHLogger.Log($"Invalid coordinates for node: ({x}, {y}, {z})", SHLogLevels.Error);
+                return null;
+            }
+
+            int index = (z * baseGridSize.y * baseGridSize.x) + (y * baseGridSize.x) + x;
+
+            return baseNodes[index];
+        }
+
+        private void RefreshSerialization()
+        {
+            if (Nodes.Count == 0)
+                return;
+
+            if (subGrids.Count > 0 && !nodes.Contains(subGrids[0].Nodes[0]))
+                RecalculateNodes();
+
+            if (parent != null && !parent.nodes.Contains(Nodes[0]))
+                parent.RecalculateNodes();
+        }
+
+        [ContextMenu("Fix Missing Objects")]
+        private void FixMissingObjects()
+        {
+            var results = new Collider[GridSize.x * GridSize.y * GridSize.z];
+            var nodeObjects = new List<PathNodeObject>();
+
+            foreach (var node in Nodes)
+            {
+                var position = GetPositionForNode(node);
+
+                int hits = Physics.OverlapBoxNonAlloc(
+                    position,
+                    (0.1f * nodeSize) * Vector3.one,
+                    results,
+                    Quaternion.identity,
+                    -1,
+                    QueryTriggerInteraction.Ignore
+                );
+
+                if (hits == 0)
+                {
+                    node.NodeObject = null;
+
+                    continue;
+                }
+
+                nodeObjects.Clear();
+
+                for (int i = 0; i < hits; i++)
+                {
+                    var hit = results[i];
+
+                    var nodeObject = hit.GetComponentInParent<PathNodeObject>();
+
+                    if (nodeObject != null)
+                        nodeObjects.Add(nodeObject);
+                }
+
+                if (nodeObjects.Count == 0)
+                {
+                    node.NodeObject = null;
+
+                    continue;
+                }
+
+                var closestObj = nodeObjects
+                    .OrderBy((obj) => (obj.transform.position - position).sqrMagnitude)
+                    .FirstOrDefault();
+
+                node.NodeObject = closestObj;
+                closestObj.Grid = this;
+                closestObj.Node = node;
+            }
         }
     }
 }
