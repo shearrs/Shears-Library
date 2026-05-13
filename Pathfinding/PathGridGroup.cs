@@ -10,10 +10,10 @@ namespace Shears.Pathfinding
     public class PathGridGroup : MonoBehaviour, IPathGrid
     {
         [SerializeField]
-        private List<PathGrid> subGrids;
+        private List<PathGrid> subGrids = new();
 
         [SerializeField]
-        private List<PathNode> nodes;
+        private List<PathNode> nodes = new();
 
         [SerializeField, Delayed]
         private float nodeSize = 1.0f;

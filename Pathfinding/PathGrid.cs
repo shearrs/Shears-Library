@@ -84,9 +84,6 @@ namespace Shears.Pathfinding
             if (Nodes.Count == 0)
                 return;
 
-            if (Nodes[0].WorldPosition == transform.position)
-                return;
-
             foreach (var node in Nodes)
             {
                 Vector3 localPosition = new(
