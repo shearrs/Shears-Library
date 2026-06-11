@@ -30,20 +30,18 @@ namespace Shears.Pathfinding
         [SerializeReference]
         private List<PathNode> nodes = new();
 
-        [SerializeField]
+        [SerializeReference]
         private IPathGrid parent;
 
         public Vector3Int GridSize => gridSize;
-
         public float NodeSize => nodeSize;
-
         public IReadOnlyList<PathNode> Nodes => nodes;
-
         public IPathGrid Parent
         {
             get => parent;
             internal set => parent = value;
         }
+        public Transform Transform => transform;
 
         public event Action GridChanged;
 

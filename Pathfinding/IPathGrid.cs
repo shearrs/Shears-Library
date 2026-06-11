@@ -10,6 +10,7 @@ namespace Shears.Pathfinding
         public IReadOnlyList<PathNode> Nodes { get; }
         public Vector3Int GridSize { get; }
         public float NodeSize { get; }
+        public Transform Transform { get; }
 
         public event Action GridChanged;
 

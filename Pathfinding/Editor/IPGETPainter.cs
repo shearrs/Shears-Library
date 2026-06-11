@@ -3,11 +3,11 @@ using UnityEngine;
 
 namespace Shears.Pathfinding.Editor
 {
-    public class PGETPainter
+    public class IPGETPainter
     {
-        private readonly PGETSettings settings;
+        private readonly IPGETSettings settings;
 
-        public PGETPainter(PGETSettings settings)
+        public IPGETPainter(IPGETSettings settings)
         {
             this.settings = settings;
         }
@@ -47,19 +47,19 @@ namespace Shears.Pathfinding.Editor
             }
 
             var newInstance =
-                PrefabUtility.InstantiatePrefab(settings.NodePrefab, settings.Grid.transform)
+                PrefabUtility.InstantiatePrefab(settings.NodePrefab, settings.Grid.Transform)
                 as PathNodeObject;
 
-            var grid = settings.Grid.Parent ?? settings.Grid;
+            var grid = settings.GetTopLevelGrid();
 
-            newInstance.transform.position = PathGridEditorTool.GetWorldPosition(grid, node);
+            newInstance.transform.position = grid.GetPositionForNode(node);
             Undo.RegisterCreatedObjectUndo(newInstance.gameObject, "Instantiate Node Prefab");
 
             var objSO = new SerializedObject(newInstance);
             var gridProp = objSO.FindProperty("grid");
             var objNodeProp = objSO.FindProperty("node");
 
-            gridProp.objectReferenceValue = settings.Grid;
+            gridProp.objectReferenceValue = settings.Grid as Object;
             objNodeProp.boxedValue = node;
             objSO.ApplyModifiedProperties();
 

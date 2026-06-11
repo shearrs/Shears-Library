@@ -1,11 +1,12 @@
 using System;
+using Shears.Logging;
 using UnityEditor;
 using UnityEngine;
 
 namespace Shears.Pathfinding.Editor
 {
     [Serializable]
-    public class PGETSettings
+    public class IPGETSettings
     {
         [SerializeField]
         private bool drawNodeData = true;
@@ -25,10 +26,7 @@ namespace Shears.Pathfinding.Editor
         [SerializeField]
         private PathNodeObject nodePrefab;
 
-        private bool isActivated = false;
-
-        private readonly PathGrid grid;
-        private readonly SerializedObject parentSO;
+        private readonly IPathGrid grid;
         private readonly SerializedObject gridSO;
         private readonly SerializedObject editorSO;
         private readonly SerializedProperty nodeDataProp;
@@ -38,32 +36,35 @@ namespace Shears.Pathfinding.Editor
         private readonly SerializedProperty drawPrefabProp;
         private readonly SerializedProperty drawAllDepthsProp;
 
+        public IPathGrid Grid => grid;
         public bool DrawNodeData => drawNodeData;
         public bool DrawPrefab => drawPrefab;
         public bool DrawAllDepths => drawAllDepths;
         public int ZDepth => zDepth;
         public PathNodeData NodeData => nodeData;
         public PathNodeObject NodePrefab => nodePrefab;
-        public bool IsActivated => isActivated;
-        public PathGrid Grid => grid;
-        public SerializedObject ParentSO => parentSO;
-        public SerializedObject GridSO => gridSO;
+        public bool IsActivated { get; set; }
+
         public SerializedObject EditorSO => editorSO;
-        public SerializedProperty NodeDataProp => nodeDataProp;
-        public SerializedProperty ZDepthProp => zDepthProp;
-        public SerializedProperty NodePrefabProp => nodePrefabProp;
+        public SerializedObject GridSO => gridSO;
         public SerializedProperty DrawNodeDataProp => drawNodeDataProp;
         public SerializedProperty DrawPrefabProp => drawPrefabProp;
         public SerializedProperty DrawAllDepthsProp => drawAllDepthsProp;
+        public SerializedProperty ZDepthProp => zDepthProp;
+        public SerializedProperty NodeDataProp => nodeDataProp;
+        public SerializedProperty NodePrefabProp => nodePrefabProp;
 
-        public PGETSettings(SerializedObject editorSO, PathGrid grid, SerializedObject gridSO)
+        public IPGETSettings(PathGridGroupEditorTool editor, IPathGrid grid)
         {
-            this.editorSO = editorSO;
+            editorSO = new SerializedObject(editor);
             this.grid = grid;
-            this.gridSO = gridSO;
 
-            if (grid.Parent != null)
-                parentSO = new SerializedObject(grid.Parent as PathGridGroup);
+            if (grid is PathGrid pGrid)
+                gridSO = new SerializedObject(pGrid);
+            else if (grid is PathGridGroup pGridGroup)
+                gridSO = new SerializedObject(pGridGroup);
+            else
+                SHLogger.Log($"Failed to resolve {nameof(PathGrid)} type!", SHLogLevels.Error);
 
             var settingsProp = editorSO.FindProperty("settings");
             nodeDataProp = settingsProp.FindPropertyRelative("nodeData");
@@ -74,9 +75,33 @@ namespace Shears.Pathfinding.Editor
             drawAllDepthsProp = settingsProp.FindPropertyRelative("drawAllDepths");
         }
 
-        public void SetActivated(bool activated)
+        public void ApplyModifiedProperties()
         {
-            isActivated = activated;
+            editorSO.ApplyModifiedProperties();
+        }
+
+        public IPathGrid GetTopLevelGrid()
+        {
+            if (Grid is PathGrid pGrid && pGrid.Parent != null)
+                return pGrid.Parent;
+            else
+                return Grid;
+        }
+
+        public SerializedObject GetTopLevelGridSO()
+        {
+            if (Grid is PathGrid pGrid && pGrid.Parent != null)
+            {
+                if (pGrid.Parent is UnityEngine.Object oGrid)
+                    return new SerializedObject(oGrid);
+                else
+                {
+                    SHLogger.Log($"Failed to resolve {nameof(PathGrid)} type!", SHLogLevels.Error);
+                    return GridSO;
+                }
+            }
+            else
+                return GridSO;
         }
     }
 }

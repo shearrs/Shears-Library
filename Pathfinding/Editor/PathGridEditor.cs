@@ -73,9 +73,6 @@ namespace Shears.Pathfinding.Editor
             bool isInitialized = nodesProp.arraySize > 0;
 
             // destroy objects
-            // it would be nice if we didnt just clear this and instead we just removed things if they needed to be shrunk, or added things if they needed to be added
-            // decreasing => delete extras
-            // increasing => add new ones, we can only grow outwards to the right and up so it should be easy
             HashSet<PathNodeObject> reusedObjects = new();
             List<PathNode> newNodes = new();
 

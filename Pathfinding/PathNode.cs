@@ -103,29 +103,5 @@ namespace Shears.Pathfinding
 
             return -compare;
         }
-
-        public PathNode Clone(PathGrid grid, bool reuseObjects = true)
-        {
-            PathNodeObject obj = null;
-
-            if (reuseObjects)
-                obj = nodeObject;
-            else if (nodeObject != null)
-            {
-                obj = UnityEngine.Object.Instantiate(nodeObject);
-                obj.Grid = grid;
-            }
-
-            var clone = new PathNode(gridPosition, worldPosition)
-            {
-                size = grid.NodeSize,
-                data = (PathNodeData)data?.Clone(),
-                nodeObject = obj,
-                gCost = gCost,
-                hCost = hCost,
-            };
-
-            return clone;
-        }
     }
 }

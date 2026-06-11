@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using Shears.Logging;
 using UnityEngine;
 
@@ -24,6 +22,7 @@ namespace Shears.Pathfinding
         public IReadOnlyList<PathNode> Nodes => nodes;
         public Vector3Int GridSize => gridSize;
         public float NodeSize => nodeSize;
+        public Transform Transform => transform;
 
         public event Action GridChanged;
 

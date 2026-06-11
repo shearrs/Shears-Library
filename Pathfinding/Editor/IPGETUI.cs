@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Shears.Editor;
+using Shears.Logging;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -10,9 +11,9 @@ using UnityEngine.UIElements;
 
 namespace Shears.Pathfinding.Editor
 {
-    public class PGETUI : VisualElement
+    public class IPGETUI : VisualElement
     {
-        private readonly PGETSettings settings;
+        private readonly IPGETSettings settings;
         private readonly Dictionary<int, PathNode> nodeHandles = new();
         private readonly Dictionary<Vector2Int, List<PathNode>> nodeHandleRows = new();
         private readonly List<MenuItem> menuItems = new();
@@ -24,7 +25,7 @@ namespace Shears.Pathfinding.Editor
         private GenericMenu typeMenu;
         private Button typeButton;
 
-        private PathGrid Grid => settings.Grid;
+        private IPathGrid Grid => settings.Grid;
 
         public event Action<Type> TypeSelected;
         public event Action<PathNode, SerializedProperty> PaintRequested;
@@ -47,12 +48,75 @@ namespace Shears.Pathfinding.Editor
             }
         }
 
-        public PGETUI(PGETSettings settings)
+        public IPGETUI(IPGETSettings settings)
         {
             this.settings = settings;
 
             CreateTypeMenu();
             CreateUI();
+        }
+
+        private void CreateTypeMenu()
+        {
+            typeMenu = new GenericMenu();
+
+            typeMenu.AddItem(new("None"), false, () => OnTypeSelected(null));
+            menuItems.Clear();
+
+            foreach (var type in TypeCache.GetTypesDerivedFrom<PathNodeData>())
+            {
+                if (type.IsAbstract)
+                    continue;
+
+                var attribute = type.GetCustomAttribute<NodeDataMenuItem>();
+                MenuItem menuItem;
+
+                if (attribute == null)
+                    menuItem = new(type.Name, int.MaxValue, type);
+                else
+                    menuItem = new(attribute.MenuPath, attribute.Order, type);
+
+                menuItems.Add(menuItem);
+            }
+
+            menuItems.Sort((item1, item2) => item2.Order.CompareTo(item1.Order));
+
+            foreach (var item in menuItems)
+                typeMenu.AddItem(new(item.MenuPath), false, () => OnTypeSelected(item.Type));
+        }
+
+        private void OnTypeSelected(Type type)
+        {
+            TypeSelected?.Invoke(type);
+
+            UpdateNodeData();
+        }
+
+        private void UpdateNodeData()
+        {
+            var type = settings.NodeData?.GetType();
+
+            string typeName = type == null ? "None" : type.Name;
+            typeButton.text = typeName;
+
+            UpdateNodeDataFields();
+        }
+
+        private void UpdateNodeDataFields()
+        {
+            nodeDataContainer.Clear();
+            nodeDataContainer.Unbind();
+
+            if (settings.NodeData == null)
+                nodeDataContainer.style.display = DisplayStyle.None;
+            else
+            {
+                var dataField = new PropertyField(settings.NodeDataProp);
+                dataField.Bind(settings.EditorSO);
+
+                nodeDataContainer.Add(dataField);
+                nodeDataContainer.style.display = DisplayStyle.Flex;
+            }
         }
 
         private void CreateUI()
@@ -114,52 +178,6 @@ namespace Shears.Pathfinding.Editor
                 UpdateNodeDataFields();
         }
 
-        private void CreateTypeMenu()
-        {
-            typeMenu = new GenericMenu();
-
-            typeMenu.AddItem(new("None"), false, () => OnTypeSelected(null));
-            menuItems.Clear();
-
-            foreach (var type in TypeCache.GetTypesDerivedFrom<PathNodeData>())
-            {
-                if (!type.IsAbstract)
-                {
-                    var attribute = type.GetCustomAttribute<NodeDataMenuItem>();
-                    MenuItem menuItem;
-
-                    if (attribute == null)
-                        menuItem = new(type.Name, int.MaxValue, type);
-                    else
-                        menuItem = new(attribute.MenuPath, attribute.Order, type);
-
-                    menuItems.Add(menuItem);
-                }
-            }
-
-            menuItems.Sort((item1, item2) => item2.Order.CompareTo(item1.Order));
-
-            foreach (var item in menuItems)
-                typeMenu.AddItem(new(item.MenuPath), false, () => OnTypeSelected(item.Type));
-        }
-
-        private void OnTypeSelected(Type type)
-        {
-            TypeSelected?.Invoke(type);
-
-            UpdateNodeData();
-        }
-
-        private void UpdateNodeData()
-        {
-            var type = settings.NodeData?.GetType();
-
-            string typeName = type == null ? "None" : type.Name;
-            typeButton.text = typeName;
-
-            UpdateNodeDataFields();
-        }
-
         private VisualElement CreateNodePrefabField()
         {
             var searchContext = UnityEditor.Search.SearchService.CreateContext(
@@ -184,23 +202,6 @@ namespace Shears.Pathfinding.Editor
             prefabField.BindProperty(settings.NodePrefabProp);
 
             return prefabField;
-        }
-
-        private void UpdateNodeDataFields()
-        {
-            nodeDataContainer.Clear();
-            nodeDataContainer.Unbind();
-
-            if (settings.NodeData == null)
-                nodeDataContainer.style.display = DisplayStyle.None;
-            else
-            {
-                var dataField = new PropertyField(settings.NodeDataProp);
-                dataField.Bind(settings.EditorSO);
-
-                nodeDataContainer.Add(dataField);
-                nodeDataContainer.style.display = DisplayStyle.Flex;
-            }
         }
 
         private void CreateNodeRows()
@@ -233,8 +234,7 @@ namespace Shears.Pathfinding.Editor
 
                 foreach (var node in Grid.Nodes)
                 {
-                    var grid = Grid.Parent ?? Grid;
-                    var worldPosition = PathGridEditorTool.GetWorldPosition(grid, node);
+                    var worldPosition = Grid.GetPositionForNode(node);
 
                     Handles.DrawWireCube(worldPosition, Grid.NodeSize * Vector3.one);
                 }
@@ -255,8 +255,7 @@ namespace Shears.Pathfinding.Editor
         private void CreateNodeHandle(PathNode node)
         {
             int controlID = GUIUtility.GetControlID(FocusType.Passive);
-            var grid = Grid.Parent ?? Grid;
-            Vector3 handlePosition = PathGridEditorTool.GetWorldPosition(grid, node);
+            Vector3 handlePosition = Grid.GetPositionForNode(node);
             Vector3 handleSize = Grid.NodeSize * 0.98f * Vector3.one;
             Vector3 screenPosition = Handles.matrix.MultiplyPoint(handlePosition);
 
@@ -348,8 +347,8 @@ namespace Shears.Pathfinding.Editor
 
                 foreach (var rowNode in row)
                 {
-                    var grid = Grid.Parent ?? Grid;
-                    var gridSO = settings.ParentSO ?? settings.GridSO;
+                    var grid = settings.GetTopLevelGrid();
+                    var gridSO = settings.GetTopLevelGridSO();
                     Vector3Int pos = rowNode.GridPosition;
                     int index =
                         (pos.z * grid.GridSize.y * grid.GridSize.x)
@@ -366,8 +365,8 @@ namespace Shears.Pathfinding.Editor
             }
             else
             {
-                var grid = Grid.Parent != null ? Grid.Parent : Grid;
-                var gridSO = settings.ParentSO ?? settings.GridSO;
+                var grid = settings.GetTopLevelGrid();
+                var gridSO = settings.GetTopLevelGridSO();
                 Vector3Int pos = node.GridPosition;
                 int index =
                     (pos.z * grid.GridSize.y * grid.GridSize.x) + (pos.y * grid.GridSize.x) + pos.x;
