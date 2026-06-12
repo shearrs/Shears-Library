@@ -347,8 +347,8 @@ namespace Shears.Pathfinding.Editor
 
                 foreach (var rowNode in row)
                 {
-                    var grid = settings.GetTopLevelGrid();
-                    var gridSO = settings.GetTopLevelGridSO();
+                    var grid = settings.Grid;
+                    var gridSO = settings.GridSO;
                     Vector3Int pos = rowNode.GridPosition;
                     int index =
                         (pos.z * grid.GridSize.y * grid.GridSize.x)
@@ -365,8 +365,8 @@ namespace Shears.Pathfinding.Editor
             }
             else
             {
-                var grid = settings.GetTopLevelGrid();
-                var gridSO = settings.GetTopLevelGridSO();
+                var grid = settings.Grid;
+                var gridSO = settings.GridSO;
                 Vector3Int pos = node.GridPosition;
                 int index =
                     (pos.z * grid.GridSize.y * grid.GridSize.x) + (pos.y * grid.GridSize.x) + pos.x;

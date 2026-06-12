@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Shears.Logging;
 using UnityEngine;
 
@@ -7,9 +8,6 @@ namespace Shears.Pathfinding
 {
     public class PathGridGroup : MonoBehaviour, IPathGrid
     {
-        [SerializeField]
-        private List<PathGrid> subGrids = new();
-
         [SerializeField]
         private List<PathNode> nodes = new();
 
@@ -186,45 +184,42 @@ namespace Shears.Pathfinding
             return transform.position + (0.5f * nodeSize * ((Vector3)GridSize - Vector3.one));
         }
 
-        public void Add(PathGrid grid)
+        // should be refactored to not rebuild whole grid if we can already fit the new one
+        public void Add(PathGrid grid, List<PathNode> clonedNodes = null)
         {
-            if (subGrids.Contains(grid))
+            if (grid.Nodes.Count == 0)
             {
-                SHLogger.Log(
-                    $"Grid {grid.name} is already a sub-grid of {name}.",
-                    SHLogLevels.Warning
-                );
+                SHLogger.Log("Grid has no nodes to add!", SHLogLevels.Warning);
                 return;
             }
 
-            subGrids.Add(grid);
-            grid.Parent = this;
+            var newNodes = new List<PathNode>();
 
-            RecalculateNodes();
-        }
-
-        [ContextMenu("Recalculate Nodes")]
-        private void RecalculateNodes()
-        {
-            nodes.Clear();
-
-            VectorUtil.MinMax(
+            VectorUtil.Min(
                 out var xMin,
-                out var xMax,
                 out var yMin,
-                out var yMax,
                 out var zMin,
+                transform.position,
+                grid.transform.position
+            );
+
+            Vector3 maxPos = Nodes.Count > 0 ? Nodes[^1].WorldPosition : transform.position;
+
+            VectorUtil.Max(
+                out var xMax,
+                out var yMax,
                 out var zMax,
-                subGrids,
-                s => s.transform.position,
-                s => s.GetPositionForNode(s.Nodes[^1])
+                maxPos,
+                grid.Nodes[^1].WorldPosition
             );
 
             var newGridSize =
                 new Vector3(xMax - xMin, yMax - yMin, zMax - zMin).RoundToInt() + Vector3Int.one;
-            var previousPosition = transform.position;
 
+            var previousPosition = transform.position;
             transform.position = new Vector3(xMin, yMin, zMin);
+
+            var offset = transform.position - previousPosition;
 
             for (int z = 0; z < newGridSize.z; z++)
             {
@@ -233,53 +228,106 @@ namespace Shears.Pathfinding
                     for (int x = 0; x < newGridSize.x; x++)
                     {
                         var worldPosition = new Vector3(xMin + x, yMin + y, zMin + z);
-                        var validNode = GetFirstValidNode(worldPosition);
+                        var node = GetNodeInBounds(grid, worldPosition);
 
-                        if (validNode == null)
-                        {
-                            validNode = new PathNode
-                            {
-                                GridPosition = new Vector3Int(x, y, z),
-                                WorldPosition = worldPosition,
-                                Size = nodeSize,
-                            };
-                        }
+                        if (node == null || node.Data == null)
+                            node = GetNodeInBounds(this, worldPosition + offset);
+
+                        if (node == null)
+                            node = new PathNode(new Vector3Int(x, y, z), worldPosition, nodeSize);
                         else
                         {
-                            validNode.GridPosition = new Vector3Int(x, y, z);
-                            validNode.WorldPosition = worldPosition;
-                            validNode.Size = nodeSize;
+                            node = node.Clone();
+                            node.GridPosition = new Vector3Int(x, y, z);
+
+                            clonedNodes?.Add(node);
                         }
 
-                        nodes.Add(validNode);
+                        if (node.NodeObject != null)
+                        {
+                            node.NodeObject.Grid = this;
+                            node.NodeObject.Node = node;
+                        }
+
+                        newNodes.Add(node);
                     }
                 }
             }
 
+            nodes = newNodes;
             gridSize = newGridSize;
         }
 
-        private PathNode GetFirstValidNode(Vector3 worldPosition)
+        private static PathNode GetNodeInBounds(IPathGrid grid, Vector3 worldPosition)
         {
-            bool isValid(PathGrid grid, PathNode node) =>
-                (worldPosition - grid.GetPositionForNode(node)).sqrMagnitude < NodeSize * NodeSize;
+            if (grid.Nodes.Count == 0)
+                return null;
 
-            foreach (var subGrid in subGrids)
-            {
-                var node = subGrid.GetNodeForPosition(worldPosition);
+            var node = grid.GetNodeForPosition(worldPosition);
 
-                if (node != null && isValid(subGrid, node))
-                    return node;
-            }
-
-            return null;
+            if (
+                node != null
+                && (worldPosition - grid.GetPositionForNode(node)).sqrMagnitude
+                    < 0.99 * (grid.NodeSize * grid.NodeSize)
+            )
+                return node;
+            else
+                return null;
         }
 
         [ContextMenu("Fix Missing Objects")]
         public void FixMissingObjects()
         {
-            foreach (var subGrid in subGrids)
-                subGrid.FixMissingObjects();
+            var results = new Collider[GridSize.x * GridSize.y * GridSize.z];
+            var nodeObjects = new List<PathNodeObject>();
+
+            foreach (var node in Nodes)
+            {
+                var position = GetPositionForNode(node);
+
+                int hits = Physics.OverlapBoxNonAlloc(
+                    position,
+                    (0.1f * nodeSize) * Vector3.one,
+                    results,
+                    Quaternion.identity,
+                    -1,
+                    QueryTriggerInteraction.Ignore
+                );
+
+                if (hits == 0)
+                {
+                    node.NodeObject = null;
+
+                    continue;
+                }
+
+                nodeObjects.Clear();
+
+                for (int i = 0; i < hits; i++)
+                {
+                    var hit = results[i];
+
+                    var nodeObject = hit.GetComponentInParent<PathNodeObject>();
+
+                    if (nodeObject != null)
+                        nodeObjects.Add(nodeObject);
+                }
+
+                if (nodeObjects.Count == 0)
+                {
+                    node.NodeObject = null;
+
+                    continue;
+                }
+
+                var closestObj = nodeObjects
+                    .OrderBy((obj) => (obj.transform.position - position).sqrMagnitude)
+                    .FirstOrDefault();
+
+                node.NodeObject = closestObj;
+                closestObj.Grid = this;
+                closestObj.Node = node;
+            }
         }
     }
 }

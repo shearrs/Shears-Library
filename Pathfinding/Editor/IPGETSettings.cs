@@ -79,29 +79,5 @@ namespace Shears.Pathfinding.Editor
         {
             editorSO.ApplyModifiedProperties();
         }
-
-        public IPathGrid GetTopLevelGrid()
-        {
-            if (Grid is PathGrid pGrid && pGrid.Parent != null)
-                return pGrid.Parent;
-            else
-                return Grid;
-        }
-
-        public SerializedObject GetTopLevelGridSO()
-        {
-            if (Grid is PathGrid pGrid && pGrid.Parent != null)
-            {
-                if (pGrid.Parent is UnityEngine.Object oGrid)
-                    return new SerializedObject(oGrid);
-                else
-                {
-                    SHLogger.Log($"Failed to resolve {nameof(PathGrid)} type!", SHLogLevels.Error);
-                    return GridSO;
-                }
-            }
-            else
-                return GridSO;
-        }
     }
 }

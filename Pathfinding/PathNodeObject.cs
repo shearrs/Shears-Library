@@ -4,10 +4,21 @@ namespace Shears.Pathfinding
 {
     public class PathNodeObject : MonoBehaviour
     {
-        [SerializeField] private PathGrid grid;
-        [SerializeReference] private PathNode node;
+        [SerializeField]
+        private InterfaceReference<IPathGrid> grid;
 
-        public PathGrid Grid { get => grid; internal set => grid = value; }
-        public PathNode Node { get => node; internal set => node = value; }
+        [SerializeReference]
+        private PathNode node;
+
+        public IPathGrid Grid
+        {
+            get => grid.Value;
+            internal set => grid.Value = value;
+        }
+        public PathNode Node
+        {
+            get => node;
+            internal set => node = value;
+        }
     }
 }

@@ -50,7 +50,7 @@ namespace Shears.Pathfinding.Editor
                 PrefabUtility.InstantiatePrefab(settings.NodePrefab, settings.Grid.Transform)
                 as PathNodeObject;
 
-            var grid = settings.GetTopLevelGrid();
+            var grid = settings.Grid;
 
             newInstance.transform.position = grid.GetPositionForNode(node);
             Undo.RegisterCreatedObjectUndo(newInstance.gameObject, "Instantiate Node Prefab");
@@ -59,7 +59,8 @@ namespace Shears.Pathfinding.Editor
             var gridProp = objSO.FindProperty("grid");
             var objNodeProp = objSO.FindProperty("node");
 
-            gridProp.objectReferenceValue = settings.Grid as Object;
+            gridProp.FindPropertyRelative("objectValue").objectReferenceValue =
+                settings.Grid as Object;
             objNodeProp.boxedValue = node;
             objSO.ApplyModifiedProperties();
 

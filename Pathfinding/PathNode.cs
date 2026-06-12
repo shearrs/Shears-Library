@@ -71,10 +71,11 @@ namespace Shears.Pathfinding
 
         public PathNode() { }
 
-        public PathNode(Vector3Int gridPosition, Vector3 worldPosition)
+        public PathNode(Vector3Int gridPosition, Vector3 worldPosition, float size = 1.0f)
         {
             this.gridPosition = gridPosition;
             this.worldPosition = worldPosition;
+            this.size = size;
         }
 
         public bool TryGetData<T>(out T nodeData)
@@ -102,6 +103,17 @@ namespace Shears.Pathfinding
                 compare = HCost.CompareTo(other.HCost);
 
             return -compare;
+        }
+
+        public PathNode Clone()
+        {
+            var clone = new PathNode(gridPosition, worldPosition, size)
+            {
+                data = data,
+                nodeObject = nodeObject,
+            };
+
+            return clone;
         }
     }
 }

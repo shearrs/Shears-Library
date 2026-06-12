@@ -194,6 +194,30 @@ namespace Shears
             return v;
         }
 
+        public static void Min(
+            out float xMin,
+            out float yMin,
+            out float zMin,
+            params Vector3[] vectors
+        )
+        {
+            xMin = MathUtil.MinSelector(vectors, v => v.x);
+            yMin = MathUtil.MinSelector(vectors, v => v.y);
+            zMin = MathUtil.MinSelector(vectors, v => v.z);
+        }
+
+        public static void Max(
+            out float xMax,
+            out float yMax,
+            out float zMax,
+            params Vector3[] vectors
+        )
+        {
+            xMax = MathUtil.MaxSelector(vectors, v => v.x);
+            yMax = MathUtil.MaxSelector(vectors, v => v.y);
+            zMax = MathUtil.MaxSelector(vectors, v => v.z);
+        }
+
         public static void MinMax(
             out float xMin,
             out float xMax,

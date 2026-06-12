@@ -30,17 +30,9 @@ namespace Shears.Pathfinding
         [SerializeReference]
         private List<PathNode> nodes = new();
 
-        [SerializeReference]
-        private IPathGrid parent;
-
         public Vector3Int GridSize => gridSize;
         public float NodeSize => nodeSize;
         public IReadOnlyList<PathNode> Nodes => nodes;
-        public IPathGrid Parent
-        {
-            get => parent;
-            internal set => parent = value;
-        }
         public Transform Transform => transform;
 
         public event Action GridChanged;
@@ -230,6 +222,17 @@ namespace Shears.Pathfinding
             }
 
             return null;
+        }
+
+        // need to connect doorways to each other
+        public void GetNodesWithData<T>(List<PathNode> nodes)
+            where T : PathNodeData
+        {
+            foreach (var node in Nodes)
+            {
+                if (node.TryGetData(out T _))
+                    nodes.Add(node);
+            }
         }
 
         public Vector3 GetCenter()

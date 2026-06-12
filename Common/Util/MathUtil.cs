@@ -7,6 +7,42 @@ namespace Shears
 {
     public static class MathUtil
     {
+        public static float MinSelector<T>(IReadOnlyList<T> items, Func<T, float> selector)
+        {
+            if (items.Count == 0)
+                return -1;
+
+            float min = selector(items[0]);
+
+            for (int i = 1; i < items.Count; i++)
+            {
+                float currentMin = selector(items[i]);
+
+                if (currentMin < min)
+                    min = currentMin;
+            }
+
+            return min;
+        }
+
+        public static float MaxSelector<T>(IReadOnlyList<T> items, Func<T, float> selector)
+        {
+            if (items.Count == 0)
+                return -1;
+
+            float max = selector(items[0]);
+
+            for (int i = 1; i < items.Count; i++)
+            {
+                float currentMax = selector(items[i]);
+
+                if (currentMax > max)
+                    max = currentMax;
+            }
+
+            return max;
+        }
+
         public static void MinMax(out float min, out float max, params float[] values)
         {
             min = Mathf.Min(values);

@@ -5,8 +5,11 @@ namespace Shears.Pathfinding
 {
     public class Pathfinder : MonoBehaviour
     {
-        [SerializeField] private Transform target;
-        [SerializeField] private PathGrid grid;
+        [SerializeField]
+        private Transform target;
+
+        [SerializeField]
+        private PathGrid grid;
 
         private readonly List<PathNode> openSet = new();
         private readonly HashSet<PathNode> closedSet = new();
@@ -35,7 +38,13 @@ namespace Shears.Pathfinding
                 {
                     var possibleNode = openSet[i];
 
-                    if (possibleNode.FCost < currentNode.FCost || (possibleNode.FCost == currentNode.FCost && possibleNode.HCost < currentNode.HCost))
+                    if (
+                        possibleNode.FCost < currentNode.FCost
+                        || (
+                            possibleNode.FCost == currentNode.FCost
+                            && possibleNode.HCost < currentNode.HCost
+                        )
+                    )
                         currentNode = openSet[i];
                 }
 
@@ -66,11 +75,11 @@ namespace Shears.Pathfinding
 
                         if (!inOpenSet)
                             openSet.Add(neighbor);
-                    }    
+                    }
                 }
             }
         }
-        
+
         private void RetracePath(PathNode startNode, PathNode endNode)
         {
             path.Clear();
@@ -107,7 +116,10 @@ namespace Shears.Pathfinding
                 return;
 
             Gizmos.color = Color.magenta;
-            Gizmos.DrawWireCube(grid.GetNodeForPosition(transform.position).WorldPosition, Vector3.one);
+            Gizmos.DrawWireCube(
+                grid.GetNodeForPosition(transform.position).WorldPosition,
+                Vector3.one
+            );
 
             Gizmos.color = Color.green;
             Gizmos.DrawWireSphere(target.position, 0.5f);

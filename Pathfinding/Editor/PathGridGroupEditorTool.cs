@@ -28,6 +28,9 @@ namespace Shears.Pathfinding.Editor
 
         public override void OnActivated()
         {
+            if (ui == null)
+                Debug.LogError("ui is null???");
+
             settings.IsActivated = true;
 
             CreateGUI();
@@ -100,14 +103,11 @@ namespace Shears.Pathfinding.Editor
 
         private void OnPaintRequested(PathNode node, SerializedProperty nodeProp)
         {
-            var gridSO = settings.GetTopLevelGridSO();
+            var gridSO = settings.GridSO;
 
             gridSO.Update();
             painter.PaintNode(node, nodeProp);
             gridSO.ApplyModifiedProperties();
-
-            if (settings.Grid is PathGrid pGrid && pGrid.Parent != null)
-                settings.GridSO.ApplyModifiedProperties();
         }
     }
 }
