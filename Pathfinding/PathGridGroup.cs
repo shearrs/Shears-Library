@@ -187,6 +187,8 @@ namespace Shears.Pathfinding
         // should be refactored to not rebuild whole grid if we can already fit the new one
         public void Add(PathGrid grid, List<PathNode> clonedNodes = null)
         {
+            clonedNodes?.Clear();
+
             if (grid.Nodes.Count == 0)
             {
                 SHLogger.Log("Grid has no nodes to add!", SHLogLevels.Warning);
@@ -229,18 +231,25 @@ namespace Shears.Pathfinding
                     {
                         var worldPosition = new Vector3(xMin + x, yMin + y, zMin + z);
                         var node = GetNodeInBounds(grid, worldPosition);
+                        bool currentGridNode = false;
 
                         if (node == null || node.Data == null)
+                        {
                             node = GetNodeInBounds(this, worldPosition + offset);
+                            currentGridNode = node != null;
+                        }
 
                         if (node == null)
                             node = new PathNode(new Vector3Int(x, y, z), worldPosition, nodeSize);
                         else
                         {
-                            node = node.Clone();
-                            node.GridPosition = new Vector3Int(x, y, z);
+                            if (!currentGridNode) // if the node was already belonging to this grid, we don't need to clone a new one
+                            {
+                                node = node.Clone();
+                                clonedNodes?.Add(node);
+                            }
 
-                            clonedNodes?.Add(node);
+                            node.GridPosition = new Vector3Int(x, y, z);
                         }
 
                         if (node.NodeObject != null)

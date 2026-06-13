@@ -224,10 +224,11 @@ namespace Shears.Pathfinding
             return null;
         }
 
-        // need to connect doorways to each other
         public void GetNodesWithData<T>(List<PathNode> nodes)
             where T : PathNodeData
         {
+            nodes.Clear();
+
             foreach (var node in Nodes)
             {
                 if (node.TryGetData(out T _))

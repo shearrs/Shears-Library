@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using Shears.Input;
 using Shears.Logging;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,7 +10,11 @@ namespace Shears.UI
     public partial class UIElementEventSystem : MonoBehaviour
     {
         #region Variables
-        public enum DetectionType { Canvas, World3D }
+        public enum DetectionType
+        {
+            Canvas,
+            World3D,
+        }
 
         const int MAX_RAYCAST_HITS = 10;
         const float DRAG_BEGIN_SQR_DISTANCE = 0.01f * 0.01f;
@@ -54,7 +58,7 @@ namespace Shears.UI
         public static UIElementEventSystem CanvasSystem => canvasSystem;
         public static UIElementEventSystem World3DSystem => world3DSystem;
 
-        public bool IsHovering => canvasSystem != null &&  canvasSystem.hoveredElement != null;
+        public bool IsHovering => canvasSystem != null && canvasSystem.hoveredElement != null;
         public IReadOnlyList<Graphic> HitGraphics => hitGraphics;
         #endregion
 
@@ -78,7 +82,9 @@ namespace Shears.UI
             detectionMask = LayerMask.GetMask("UI");
 
             if (inputMap == null)
-                inputMap = Resources.Load<ManagedInputMap>("ManagedElements/Shears_DefaultEventSystemInputMap");
+                inputMap = Resources.Load<ManagedInputMap>(
+                    "ManagedElements/Shears_DefaultEventSystemInputMap"
+                );
 
             clickInput = inputMap.GetInput("Click");
             selectInput = inputMap.GetInput("Select");
@@ -101,12 +107,16 @@ namespace Shears.UI
         {
             if (canvasSystem == null)
             {
-                SHLogger.Log($"No canvas system was set! You need to have a {nameof(UIElementEventSystem)} with {nameof(detectionType)} set to {nameof(DetectionType.Canvas)}!", SHLogLevels.Error);
+                SHLogger.Log(
+                    $"No canvas system was set! You need to have a {nameof(UIElementEventSystem)} with {nameof(detectionType)} set to {nameof(DetectionType.Canvas)}!",
+                    SHLogLevels.Error
+                );
                 return;
             }
 
             canvasSystem.InstRegisterCanvas(canvas);
         }
+
         private void InstRegisterCanvas(UIElementCanvas canvas)
         {
             if (!registeredCanvases.Contains(canvas))
@@ -120,25 +130,33 @@ namespace Shears.UI
 
             canvasSystem.InstDeregisterCanvas(canvas);
         }
-        private void InstDeregisterCanvas(UIElementCanvas canvas) => registeredCanvases.Remove(canvas);
+
+        private void InstDeregisterCanvas(UIElementCanvas canvas) =>
+            registeredCanvases.Remove(canvas);
 
         public static void RegisterElement(UIElement element)
         {
             if (canvasSystem == null)
             {
-                SHLogger.Log($"No canvas system was set! You need to have a {nameof(UIElementEventSystem)} with {nameof(detectionType)} set to {nameof(DetectionType.Canvas)}!", SHLogLevels.Error);
+                SHLogger.Log(
+                    $"No canvas system was set! You need to have a {nameof(UIElementEventSystem)} with {nameof(detectionType)} set to {nameof(DetectionType.Canvas)}!",
+                    SHLogLevels.Error
+                );
                 return;
             }
 
             canvasSystem.InstRegisterElement(element);
         }
+
         private void InstRegisterElement(UIElement element)
         {
             if (!registeredElements.Contains(element))
                 registeredElements.Add(element);
         }
 
-        public static void DeregisterElement(UIElement element) => canvasSystem.InstDeregisterElement(element);
+        public static void DeregisterElement(UIElement element) =>
+            canvasSystem.InstDeregisterElement(element);
+
         private void InstDeregisterElement(UIElement element) => registeredElements.Remove(element);
         #endregion
 
@@ -146,12 +164,16 @@ namespace Shears.UI
         {
             if (canvasSystem == null)
             {
-                SHLogger.Log($"No canvas system was set! You need to have a {nameof(UIElementEventSystem)} with {nameof(detectionType)} set to {nameof(DetectionType.Canvas)}!", SHLogLevels.Error);
+                SHLogger.Log(
+                    $"No canvas system was set! You need to have a {nameof(UIElementEventSystem)} with {nameof(detectionType)} set to {nameof(DetectionType.Canvas)}!",
+                    SHLogLevels.Error
+                );
                 return;
             }
 
             canvasSystem.InstFocus(element);
         }
+
         private void InstFocus(UIElement element)
         {
             if (applicationIsQuitting)
@@ -244,7 +266,8 @@ namespace Shears.UI
 
             Vector3 direction = (camera.transform.position - transform.position);
             var planePosition = camera.ScreenPointToPlanePosition(
-                pointerPos, direction,
+                pointerPos,
+                direction,
                 targetPosition
             );
 
@@ -283,7 +306,8 @@ namespace Shears.UI
             }
         }
 
-        public static bool TryRaycastElement<T>(out T component) where T : Component
+        public static bool TryRaycastElement<T>(out T component)
+            where T : Component
         {
             Raycast3D(s_sortedHits, s_sortedResults);
 
@@ -306,7 +330,11 @@ namespace Shears.UI
         {
             Vector2 pointerPos = ManagedPointer.Current.Position;
 
-            if (pointerPos == Vector2.zero || float.IsNaN(pointerPos.x) || float.IsNaN(pointerPos.y))
+            if (
+                pointerPos == Vector2.zero
+                || float.IsNaN(pointerPos.x)
+                || float.IsNaN(pointerPos.y)
+            )
                 return null;
 
             hitGraphics.Clear();
@@ -316,7 +344,9 @@ namespace Shears.UI
                 if (canvas.Raycaster == null)
                     continue;
 
-                var raycastableGraphics = GraphicRegistry.GetRaycastableGraphicsForCanvas(canvas.UnityCanvas);
+                var raycastableGraphics = GraphicRegistry.GetRaycastableGraphicsForCanvas(
+                    canvas.UnityCanvas
+                );
 
                 for (int i = 0; i < raycastableGraphics.Count; i++)
                 {
@@ -330,19 +360,28 @@ namespace Shears.UI
                     if (canvas.UnityCanvas.renderMode != RenderMode.ScreenSpaceCamera)
                         cam = null;
 
-                    if (RectTransformUtility.RectangleContainsScreenPoint(graphic.rectTransform, pointerPos, cam))
+                    if (
+                        RectTransformUtility.RectangleContainsScreenPoint(
+                            graphic.rectTransform,
+                            pointerPos,
+                            cam
+                        )
+                    )
                         hitGraphics.Add(graphic);
                 }
             }
-            
+
             Graphic targetGraphic = null;
             UIElement element = null;
 
             foreach (var graphic in hitGraphics)
             {
-                if (targetGraphic == null 
+                if (
+                    targetGraphic == null
                     || graphic.canvas.renderOrder > targetGraphic.canvas.renderOrder
-                    || graphic.canvas.renderOrder == targetGraphic.canvas.renderOrder && graphic.depth > targetGraphic.depth)
+                    || graphic.canvas.renderOrder == targetGraphic.canvas.renderOrder
+                        && graphic.depth > targetGraphic.depth
+                )
                     targetGraphic = graphic;
             }
 
@@ -358,14 +397,24 @@ namespace Shears.UI
 
             if (camera == null)
             {
-                SHLogger.Log($"{nameof(UIElementEventSystem)} requires a MainCamera in the scene to raycast!", SHLogLevels.Error);
+                SHLogger.Log(
+                    $"{nameof(UIElementEventSystem)} requires a MainCamera in the scene to raycast!",
+                    SHLogLevels.Error
+                );
+                world3DSystem.gameObject.SetActive(false);
                 return;
             }
 
             Vector2 pointerPos = ManagedPointer.Current.Position;
             var ray = camera.ScreenPointToRay(pointerPos);
 
-            int hits = Physics.RaycastNonAlloc(ray, raycastHits, 1000, detectionMask, QueryTriggerInteraction.Collide);
+            int hits = Physics.RaycastNonAlloc(
+                ray,
+                raycastHits,
+                1000,
+                detectionMask,
+                QueryTriggerInteraction.Collide
+            );
 
             sortedHits.Clear();
 
