@@ -406,6 +406,13 @@ namespace Shears.UI
             }
 
             Vector2 pointerPos = ManagedPointer.Current.Position;
+
+            if (pointerPos.x == float.NaN || pointerPos.y == float.NaN)
+            {
+                sortedHits.Clear();
+                return;
+            }
+
             var ray = camera.ScreenPointToRay(pointerPos);
 
             int hits = Physics.RaycastNonAlloc(

@@ -7,7 +7,7 @@ namespace Shears
 {
     /// <summary>
     /// A simple timer class.<br/><br/>
-    /// 
+    ///
     /// Features:<br/>
     /// - Dynamic or preset time<br/>
     /// - <see cref="SafeAwaitable"/> timer<br/>
@@ -16,15 +16,24 @@ namespace Shears
     [Serializable]
     public class Timer
     {
-        [SerializeField] private float time = 1f;
-        [SerializeField] private float currentTime = 0.0f;
-        [SerializeField, ReadOnly] private bool isDone = true;
-        
+        [SerializeField]
+        private float time = 1f;
+
+        [SerializeField]
+        private float currentTime = 0.0f;
+
+        [SerializeField, ReadOnly]
+        private bool isDone = true;
+
         private CancellationTokenSource tokenSource;
         private bool isQuitting = false;
         private bool isPaused = false;
 
-        public float Time { get => time; set => time = value; }
+        public float Time
+        {
+            get => time;
+            set => time = value;
+        }
         public float CurrentTime => currentTime;
         public float Percentage => CurrentTime / Time;
         public bool IsDone => isDone;
@@ -142,7 +151,12 @@ namespace Shears
             while (currentTime < time)
             {
                 while (isPaused)
+                {
+                    if (isQuitting || token.IsCancellationRequested)
+                        break;
+
                     await SafeAwaitable.NextFrameAsync(token);
+                }
 
                 currentTime += UnityEngine.Time.deltaTime;
 
