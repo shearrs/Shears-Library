@@ -230,12 +230,12 @@ namespace Shears.Pathfinding
                     for (int x = 0; x < newGridSize.x; x++)
                     {
                         var worldPosition = new Vector3(xMin + x, yMin + y, zMin + z);
-                        var node = GetNodeInBounds(grid, worldPosition);
+                        var node = grid.GetNodeInBounds(worldPosition);
                         bool currentGridNode = false;
 
                         if (node == null || node.Data == null)
                         {
-                            node = GetNodeInBounds(this, worldPosition + offset);
+                            node = GetNodeInBounds(worldPosition + offset);
                             currentGridNode = node != null;
                         }
 
@@ -267,17 +267,17 @@ namespace Shears.Pathfinding
             gridSize = newGridSize;
         }
 
-        private static PathNode GetNodeInBounds(IPathGrid grid, Vector3 worldPosition)
+        public PathNode GetNodeInBounds(Vector3 worldPosition)
         {
-            if (grid.Nodes.Count == 0)
+            if (Nodes.Count == 0)
                 return null;
 
-            var node = grid.GetNodeForPosition(worldPosition);
+            var node = GetNodeForPosition(worldPosition);
 
             if (
                 node != null
-                && (worldPosition - grid.GetPositionForNode(node)).sqrMagnitude
-                    < 0.99 * (grid.NodeSize * grid.NodeSize)
+                && (worldPosition - GetPositionForNode(node)).sqrMagnitude
+                    < 0.99 * (NodeSize * NodeSize)
             )
                 return node;
             else

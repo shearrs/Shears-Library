@@ -124,6 +124,23 @@ namespace Shears.Pathfinding
             return GetNode(x, y, z);
         }
 
+        public PathNode GetNodeInBounds(Vector3 worldPosition)
+        {
+            if (Nodes.Count == 0)
+                return null;
+
+            var node = GetNodeForPosition(worldPosition);
+
+            if (
+                node != null
+                && (worldPosition - GetPositionForNode(node)).sqrMagnitude
+                    < 0.99 * (NodeSize * NodeSize)
+            )
+                return node;
+            else
+                return null;
+        }
+
         public void GetNodesInBounds(Bounds bounds, List<PathNode> boundsNodes)
         {
             boundsNodes.Clear();

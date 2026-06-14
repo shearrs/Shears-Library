@@ -20,6 +20,8 @@ namespace Shears.Pathfinding
 
         public PathNode GetNodeForPosition(Vector3 worldPosition);
 
+        public PathNode GetNodeInBounds(Vector3 worldPosition);
+
         public void GetNodesInBounds(Bounds bounds, List<PathNode> boundsNodes);
 
         public void GetNeighbors(PathNode node, List<PathNode> neighbors);
