@@ -1,49 +1,80 @@
-using Shears.Input;
 using System;
 using System.Collections.Generic;
+using Shears.Input;
 using UnityEngine;
 
 namespace Shears.Detection
 {
     public class RayDetector3D : AreaDetector3D
     {
-        private static readonly Comparer<RaycastHit> HIT_COMPARER = Comparer<RaycastHit>.Create((h1, h2) =>
-        {
-            if (h1.collider == null)
-            {
-                if (h2.collider == null)
-                    return 0;
-                else
-                    return 1;
-            }
-            else if (h2.collider == null)
+        private static readonly Comparer<RaycastHit> HIT_COMPARER = Comparer<RaycastHit>.Create(
+            (h1, h2) =>
             {
                 if (h1.collider == null)
-                    return 0;
+                {
+                    if (h2.collider == null)
+                        return 0;
+                    else
+                        return 1;
+                }
+                else if (h2.collider == null)
+                {
+                    if (h1.collider == null)
+                        return 0;
+                    else
+                        return -1;
+                }
                 else
-                    return -1;
+                    return h1.distance.CompareTo(h2.distance);
             }
-            else
-                return h1.distance.CompareTo(h2.distance);
-        });
+        );
 
-        [SerializeField, Tooltip("Continous detection can solve missing detections at lower framerates or higher speeds.")]
+        [
+            SerializeField,
+            Tooltip(
+                "Continous detection can solve missing detections at lower framerates or higher speeds."
+            )
+        ]
         private bool continuousDetection = false;
 
         [SerializeField, ShowIf("continuousDetection"), Min(0.01f)]
         private float continuousDetectionStep = 0.1f;
 
         [Header("Ray Settings")]
-        [SerializeField, Tooltip("Whether or not to cast from the camera's world position to the cursor's world position.")]
+        [
+            SerializeField,
+            Tooltip(
+                "Whether or not to cast from the camera's world position to the cursor's world position."
+            )
+        ]
         private bool castCameraToCursor = false;
 
-        [SerializeField, ShowIf("castCameraToCursor"), Tooltip("The camera to cast from. If null, defaults to the MainCamera.")]
+        [
+            SerializeField,
+            ShowIf("!castCameraToCursor"),
+            Tooltip("Whether or not the direction is local.")
+        ]
+        private bool useLocalDirection = true;
+
+        [
+            SerializeField,
+            ShowIf("castCameraToCursor"),
+            Tooltip("The camera to cast from. If null, defaults to the MainCamera.")
+        ]
         private Camera originCamera;
 
-        [SerializeField, ShowIf("!castCameraToCursor"), Tooltip("The local offset for the raycast's origin.")] 
+        [
+            SerializeField,
+            ShowIf("!castCameraToCursor"),
+            Tooltip("The local offset for the raycast's origin.")
+        ]
         private Vector3 offset = Vector3.zero;
 
-        [SerializeField, ShowIf("!castCameraToCursor"), Tooltip("The local direction to raycast in.")] 
+        [
+            SerializeField,
+            ShowIf("!castCameraToCursor"),
+            Tooltip("The local direction to raycast in.")
+        ]
         private Vector3 direction = Vector3.forward;
 
         [SerializeField, Tooltip("The distance to cast.")]
@@ -56,11 +87,31 @@ namespace Shears.Detection
         private bool isFirstFrame = true;
         private Vector3 previousPosition;
 
-        public bool CastCameraToCursor { get => castCameraToCursor; set => castCameraToCursor = value; }
-        public Camera OriginCamera { get => originCamera; set => originCamera = value; }
-        public Vector3 Offset { get => offset; set => offset = value; }
-        public Vector3 Direction { get => direction; set => direction = value; }
-        public float Distance { get => distance; set => distance = value; }
+        public bool CastCameraToCursor
+        {
+            get => castCameraToCursor;
+            set => castCameraToCursor = value;
+        }
+        public Camera OriginCamera
+        {
+            get => originCamera;
+            set => originCamera = value;
+        }
+        public Vector3 Offset
+        {
+            get => offset;
+            set => offset = value;
+        }
+        public Vector3 Direction
+        {
+            get => direction;
+            set => direction = value;
+        }
+        public float Distance
+        {
+            get => distance;
+            set => distance = value;
+        }
 
         public Func<RaycastHit, bool> ValidationCallback { get; set; }
 
@@ -95,7 +146,7 @@ namespace Shears.Detection
                 else
                 {
                     isFirstFrame = false;
-                    return Sweep(transform.TransformPoint(offset), transform.TransformDirection(direction), detections);
+                    return Sweep(transform.TransformPoint(offset), GetFinalDirection(), detections);
                 }
             }
         }
@@ -116,7 +167,7 @@ namespace Shears.Detection
             continuousDetections.Clear();
 
             Vector3 currentPos = transform.TransformPoint(offset);
-            Vector3 direction = transform.TransformDirection(this.direction);
+            Vector3 direction = GetFinalDirection();
 
             Vector3 heading = currentPos - previousPosition;
             float distance = heading.magnitude;
@@ -159,7 +210,14 @@ namespace Shears.Detection
 
         private int Sweep(Vector3 origin, Vector3 direction, Collider[] detections)
         {
-            int hits = Physics.RaycastNonAlloc(origin, direction, raycastHits, distance, DetectionMask, TriggerInteraction);
+            int hits = Physics.RaycastNonAlloc(
+                origin,
+                direction,
+                raycastHits,
+                distance,
+                DetectionMask,
+                TriggerInteraction
+            );
 
             Array.Sort(raycastHits, 0, hits, HIT_COMPARER);
 
@@ -183,6 +241,7 @@ namespace Shears.Detection
         }
 
         public RaycastHit GetHit(int index) => raycastHits[index];
+
         public RaycastHit GetHit(Collider collider)
         {
             foreach (var hit in raycastHits)
@@ -192,6 +251,11 @@ namespace Shears.Detection
             }
 
             return default;
+        }
+
+        public Vector3 GetFinalDirection()
+        {
+            return useLocalDirection ? transform.TransformDirection(direction) : direction;
         }
 
         protected override void DrawWireGizmos()
@@ -212,7 +276,7 @@ namespace Shears.Detection
             else
             {
                 origin = transform.TransformPoint(offset);
-                dir = transform.TransformDirection(direction);
+                dir = GetFinalDirection();
             }
 
             Gizmos.DrawRay(origin, dir * distance);
