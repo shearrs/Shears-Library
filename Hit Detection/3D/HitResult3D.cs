@@ -4,17 +4,26 @@ namespace Shears.HitDetection
 {
     public readonly struct HitResult3D
     {
-        private readonly Vector3 point;
-        private readonly Vector3 normal;
-        private readonly float distance;
-        private readonly Transform transform;
-        private readonly Collider collider;
+        public readonly Vector3 point;
+        public readonly Vector3 normal;
+        public readonly float distance;
+        public readonly Transform transform;
+        public readonly Collider collider;
 
-        public readonly Vector3 Point => point;
-        public readonly Vector3 Normal => normal;
-        public readonly float Distance => distance;
-        public readonly Transform Transform => transform;
-        public readonly Collider Collider => collider;
+        public HitResult3D(
+            Vector3 point,
+            Vector3 normal,
+            float distance,
+            Transform transform,
+            Collider collider
+        )
+        {
+            this.point = point;
+            this.normal = normal;
+            this.distance = distance;
+            this.transform = transform;
+            this.collider = collider;
+        }
 
         public HitResult3D(RaycastHit hit)
         {

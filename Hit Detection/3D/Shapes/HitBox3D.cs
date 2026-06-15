@@ -1,7 +1,7 @@
-using Shears;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using Shears;
 using UnityEngine;
 
 namespace Shears.HitDetection
@@ -24,24 +24,46 @@ namespace Shears.HitDetection
             Left = 1 << 2,
             Right = 1 << 3,
             Front = 1 << 4,
-            Back = 1 << 5
+            Back = 1 << 5,
         }
 
         [Serializable]
         private struct GizmoSettings
         {
             [Header("Modes")]
-            [SerializeField] private GizmoModes gizmoModes;
-            [SerializeField] private bool drawOnSelect;
+            [SerializeField]
+            private GizmoModes gizmoModes;
+
+            [SerializeField]
+            private bool drawOnSelect;
 
             [Header("Colors")]
-            [SerializeField] private Color hitboxColor;
-            [SerializeField] private Color rayColor;
+            [SerializeField]
+            private Color hitboxColor;
 
-            public GizmoModes Modes { readonly get => gizmoModes; set => gizmoModes = value; }
-            public bool DrawOnSelect { readonly get => drawOnSelect; set => drawOnSelect = value; }
-            public Color HitboxColor { readonly get => hitboxColor; set => hitboxColor = value; }
-            public Color RayColor { readonly get => rayColor; set => rayColor = value; }
+            [SerializeField]
+            private Color rayColor;
+
+            public GizmoModes Modes
+            {
+                readonly get => gizmoModes;
+                set => gizmoModes = value;
+            }
+            public bool DrawOnSelect
+            {
+                readonly get => drawOnSelect;
+                set => drawOnSelect = value;
+            }
+            public Color HitboxColor
+            {
+                readonly get => hitboxColor;
+                set => hitboxColor = value;
+            }
+            public Color RayColor
+            {
+                readonly get => rayColor;
+                set => rayColor = value;
+            }
         }
 
         private readonly struct HitRay
@@ -95,7 +117,8 @@ namespace Shears.HitDetection
         private Vector3 size = Vector3.one;
 
         private readonly HashSet<HitRay> blockedRays = new();
-        private RaycastHit[] results;
+        private RaycastHit[] rayResults;
+        private HitResult3D[] hitResults;
         private bool isDetecting = false;
         private bool debugIsDetecting = false;
         private bool isFirstFrame = true;
@@ -105,11 +128,27 @@ namespace Shears.HitDetection
         private Quaternion TOrientation => transform.rotation * Quaternion.Euler(orientation);
         private Vector3 TSize => Vector3.Scale(size, transform.lossyScale);
 
-        public Vector3 Center { get => center; set => center = value; }
-        public Quaternion Orientation { get => Quaternion.Euler(orientation); set => orientation = value.eulerAngles; }
-        public Vector3 Size { get => size; set => size = value; }
+        public Vector3 Center
+        {
+            get => center;
+            set => center = value;
+        }
+        public Quaternion Orientation
+        {
+            get => Quaternion.Euler(orientation);
+            set => orientation = value.eulerAngles;
+        }
+        public Vector3 Size
+        {
+            get => size;
+            set => size = value;
+        }
 
-        public Vector3 WorldCenter { get => transform.TransformPoint(center); set => center = transform.InverseTransformPoint(value); }
+        public Vector3 WorldCenter
+        {
+            get => transform.TransformPoint(center);
+            set => center = transform.InverseTransformPoint(value);
+        }
         #endregion
 
         private void Reset()
@@ -119,7 +158,8 @@ namespace Shears.HitDetection
 
         private void Awake()
         {
-            results = ArrayPool<RaycastHit>.Shared.Rent(maxHits);
+            rayResults = ArrayPool<RaycastHit>.Shared.Rent(maxHits);
+            hitResults = ArrayPool<HitResult3D>.Shared.Rent(maxHits);
         }
 
         private void Update()
@@ -150,7 +190,7 @@ namespace Shears.HitDetection
 
         private void OnDestroy()
         {
-            ArrayPool<RaycastHit>.Shared.Return(results);
+            ArrayPool<RaycastHit>.Shared.Return(rayResults);
         }
 
         internal override void Sweep(DetectionHandle handle)
@@ -207,93 +247,120 @@ namespace Shears.HitDetection
 
             if ((sourceDirections & SourceDirections.Back) != 0)
             {
-                Vector3 backStart = origin + (back * halfSize.z) + (up * halfSize.y) + (left * halfSize.x);
+                Vector3 backStart =
+                    origin + (back * halfSize.z) + (up * halfSize.y) + (left * halfSize.x);
                 Vector3 backEnd = backStart + (down * TSize.y);
                 ArrayCast(
                     SourceDirections.Back,
-                    backStart, backEnd,
-                    right, TSize.x,
-                    forward, TSize.z,
+                    backStart,
+                    backEnd,
+                    right,
+                    TSize.x,
+                    forward,
+                    TSize.z,
                     handle
                 );
             }
 
             if ((sourceDirections & SourceDirections.Front) != 0)
             {
-                Vector3 frontStart = origin + (forward * halfSize.z) + (up * halfSize.y) + (left * halfSize.x);
+                Vector3 frontStart =
+                    origin + (forward * halfSize.z) + (up * halfSize.y) + (left * halfSize.x);
                 Vector3 frontEnd = frontStart + (down * TSize.y);
 
                 ArrayCast(
                     SourceDirections.Front,
-                    frontStart, frontEnd,
-                    right, TSize.x,
-                    back, TSize.z,
+                    frontStart,
+                    frontEnd,
+                    right,
+                    TSize.x,
+                    back,
+                    TSize.z,
                     handle
                 );
             }
 
             if ((sourceDirections & SourceDirections.Left) != 0)
             {
-                Vector3 leftStart = origin + (left * halfSize.x) + (up * halfSize.y) + (forward * halfSize.z);
+                Vector3 leftStart =
+                    origin + (left * halfSize.x) + (up * halfSize.y) + (forward * halfSize.z);
                 Vector3 leftEnd = leftStart + (down * TSize.y);
 
                 ArrayCast(
                     SourceDirections.Left,
-                    leftStart, leftEnd,
-                    back, TSize.z,
-                    right, TSize.x,
+                    leftStart,
+                    leftEnd,
+                    back,
+                    TSize.z,
+                    right,
+                    TSize.x,
                     handle
                 );
             }
 
             if ((sourceDirections & SourceDirections.Right) != 0)
             {
-                Vector3 rightStart = origin + (right * halfSize.x) + (up * halfSize.y) + (forward * halfSize.z);
+                Vector3 rightStart =
+                    origin + (right * halfSize.x) + (up * halfSize.y) + (forward * halfSize.z);
                 Vector3 rightEnd = rightStart + (down * TSize.y);
 
                 ArrayCast(
                     SourceDirections.Right,
-                    rightStart, rightEnd,
-                    back, TSize.z,
-                    left, TSize.x,
+                    rightStart,
+                    rightEnd,
+                    back,
+                    TSize.z,
+                    left,
+                    TSize.x,
                     handle
                 );
             }
 
             if ((sourceDirections & SourceDirections.Top) != 0)
             {
-                Vector3 topStart = origin + (up * halfSize.y) + (left * halfSize.x) + (forward * halfSize.z);
+                Vector3 topStart =
+                    origin + (up * halfSize.y) + (left * halfSize.x) + (forward * halfSize.z);
                 Vector3 topEnd = topStart + (back * TSize.z);
 
                 ArrayCast(
                     SourceDirections.Top,
-                    topStart, topEnd,
-                    right, TSize.x,
-                    down, TSize.y,
+                    topStart,
+                    topEnd,
+                    right,
+                    TSize.x,
+                    down,
+                    TSize.y,
                     handle
                 );
             }
 
             if ((sourceDirections & SourceDirections.Bottom) != 0)
             {
-                Vector3 bottomStart = origin + (down * halfSize.y) + (left * halfSize.x) + (forward * halfSize.z);
+                Vector3 bottomStart =
+                    origin + (down * halfSize.y) + (left * halfSize.x) + (forward * halfSize.z);
                 Vector3 bottomEnd = bottomStart + (back * TSize.z);
 
                 ArrayCast(
                     SourceDirections.Bottom,
-                    bottomStart, bottomEnd,
-                    right, TSize.x,
-                    up, TSize.y,
+                    bottomStart,
+                    bottomEnd,
+                    right,
+                    TSize.x,
+                    up,
+                    TSize.y,
                     handle
                 );
             }
         }
 
         private void ArrayCast(
-            SourceDirections sourceDirection, 
-            Vector3 start, Vector3 end,
-            Vector3 columnOffsetDirection, float columnOffsetDistance,
-            Vector3 direction, float distance,
+            SourceDirections sourceDirection,
+            Vector3 start,
+            Vector3 end,
+            Vector3 columnOffsetDirection,
+            float columnOffsetDistance,
+            Vector3 direction,
+            float distance,
             DetectionHandle handle
         )
         {
@@ -309,13 +376,28 @@ namespace Shears.HitDetection
                     float tY = (float)row / (raysPerFace - 1);
                     float tX = (float)column / (raysPerFace - 1);
 
-                    Vector3 origin = Vector3.Lerp(start, end, tY) + (columnOffsetDistance * tX * columnOffsetDirection);
+                    Vector3 origin =
+                        Vector3.Lerp(start, end, tY)
+                        + (columnOffsetDistance * tX * columnOffsetDirection);
 
-                    int hits = Physics.RaycastNonAlloc(origin, direction, results, distance, handle.CollisionMask, QueryTriggerInteraction.Collide);
+                    int hits = Physics.RaycastNonAlloc(
+                        origin,
+                        direction,
+                        rayResults,
+                        distance,
+                        handle.CollisionMask,
+                        QueryTriggerInteraction.Collide
+                    );
 
                     if (hits > 0)
                     {
-                        handle.ValidateCallback(this, results, hits, null, out bool blocked);
+                        for (int i = 0; i < hits; i++)
+                        {
+                            var hit = new HitResult3D(rayResults[i]);
+                            hitResults[i] = hit;
+                        }
+
+                        handle.ValidateCallback(this, hitResults, hits, null, out bool blocked);
 
                         if (blocked)
                             blockedRays.Add(ray);
@@ -344,7 +426,11 @@ namespace Shears.HitDetection
             if ((gizmoSettings.Modes & GizmoModes.Hitbox) != 0)
             {
                 var originalMatrix = Gizmos.matrix;
-                var newMatrix = Matrix4x4.TRS(transform.position, transform.rotation, transform.lossyScale);
+                var newMatrix = Matrix4x4.TRS(
+                    transform.position,
+                    transform.rotation,
+                    transform.lossyScale
+                );
                 newMatrix *= Matrix4x4.TRS(center, Quaternion.Euler(orientation), Vector3.one);
 
                 Gizmos.matrix = newMatrix;
@@ -363,22 +449,28 @@ namespace Shears.HitDetection
                 Vector3 up = TOrientation * Vector3.up;
                 Vector3 down = TOrientation * Vector3.down;
 
-                Vector3 backStart = TCenter + (back * halfSize.z) + (up * halfSize.y) + (left * halfSize.x);
+                Vector3 backStart =
+                    TCenter + (back * halfSize.z) + (up * halfSize.y) + (left * halfSize.x);
                 Vector3 backEnd = backStart + (down * TSize.y);
 
-                Vector3 frontStart = TCenter + (forward * halfSize.z) + (up * halfSize.y) + (left * halfSize.x);
+                Vector3 frontStart =
+                    TCenter + (forward * halfSize.z) + (up * halfSize.y) + (left * halfSize.x);
                 Vector3 frontEnd = frontStart + (down * TSize.y);
 
-                Vector3 leftStart = TCenter + (left * halfSize.x) + (up * halfSize.y) + (forward * halfSize.z);
+                Vector3 leftStart =
+                    TCenter + (left * halfSize.x) + (up * halfSize.y) + (forward * halfSize.z);
                 Vector3 leftEnd = leftStart + (down * TSize.y);
 
-                Vector3 rightStart = TCenter + (right * halfSize.x) + (up * halfSize.y) + (forward * halfSize.z);
+                Vector3 rightStart =
+                    TCenter + (right * halfSize.x) + (up * halfSize.y) + (forward * halfSize.z);
                 Vector3 rightEnd = rightStart + (down * TSize.y);
 
-                Vector3 topStart = TCenter + (up * halfSize.y) + (left * halfSize.x) + (forward * halfSize.z);
+                Vector3 topStart =
+                    TCenter + (up * halfSize.y) + (left * halfSize.x) + (forward * halfSize.z);
                 Vector3 topEnd = topStart + (back * TSize.z);
 
-                Vector3 bottomStart = TCenter + (down * halfSize.y) + (left * halfSize.x) + (forward * halfSize.z);
+                Vector3 bottomStart =
+                    TCenter + (down * halfSize.y) + (left * halfSize.x) + (forward * halfSize.z);
                 Vector3 bottomEnd = bottomStart + (back * TSize.z);
 
                 if ((sourceDirections & SourceDirections.Back) != 0)
@@ -404,7 +496,14 @@ namespace Shears.HitDetection
                 debugIsDetecting = false;
         }
 
-        private void DrawArrayCast(Vector3 start, Vector3 end, Vector3 columnOffsetDirection, float columnOffsetDistance, Vector3 direction, float distance)
+        private void DrawArrayCast(
+            Vector3 start,
+            Vector3 end,
+            Vector3 columnOffsetDirection,
+            float columnOffsetDistance,
+            Vector3 direction,
+            float distance
+        )
         {
             Color opacity = debugIsDetecting ? Color.white : new(1, 1, 1, 0.35f);
             Gizmos.color = Color.yellow * opacity;
@@ -416,10 +515,22 @@ namespace Shears.HitDetection
                     float tX = (float)column / (raysPerFace - 1);
                     float tY = (float)row / (raysPerFace - 1);
 
-                    Vector3 origin = Vector3.Lerp(start, end, tY) + (columnOffsetDistance * tX * columnOffsetDirection);
-                    Vector3 crossAgainst = (direction == Vector3.up || direction == Vector3.down) ? Vector3.forward : Vector3.up;
+                    Vector3 origin =
+                        Vector3.Lerp(start, end, tY)
+                        + (columnOffsetDistance * tX * columnOffsetDirection);
+                    Vector3 crossAgainst =
+                        (direction == Vector3.up || direction == Vector3.down)
+                            ? Vector3.forward
+                            : Vector3.up;
 
-                    GizmosUtil.DrawArrow(origin, direction * distance, Vector3.Cross(direction, crossAgainst), 0.075f, 0.075f, Color.magenta * opacity);
+                    GizmosUtil.DrawArrow(
+                        origin,
+                        direction * distance,
+                        Vector3.Cross(direction, crossAgainst),
+                        0.075f,
+                        0.075f,
+                        Color.magenta * opacity
+                    );
                 }
             }
         }

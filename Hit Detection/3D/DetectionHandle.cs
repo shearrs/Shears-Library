@@ -5,7 +5,13 @@ namespace Shears.HitDetection
 {
     public readonly struct DetectionHandle
     {
-        public delegate void ValidationDelegate(HitShape3D shape, RaycastHit[] hits, int hitCount, Comparison<int> comparison, out bool blocked);
+        public delegate void ValidationDelegate(
+            HitShape3D shape,
+            HitResult3D[] hits,
+            int hitCount,
+            Comparison<int> comparison,
+            out bool blocked
+        );
 
         private readonly LayerMask collisionMask;
         private readonly ValidationDelegate validateCallback;

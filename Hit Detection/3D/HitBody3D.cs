@@ -1,7 +1,7 @@
-using Shears;
-using Shears.Logging;
 using System;
 using System.Collections.Generic;
+using Shears;
+using Shears.Logging;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -22,13 +22,22 @@ namespace Shears.HitDetection
         private List<HitShape3D> shapes;
 
         [Header("Hit Settings")]
-        [SerializeField, RuntimeReadOnly, Tooltip("Whether or not this HitBody3D enables itself on Start.")]
+        [
+            SerializeField,
+            RuntimeReadOnly,
+            Tooltip("Whether or not this HitBody3D enables itself on Start.")
+        ]
         private bool enableOnStart = false;
 
         [SerializeField, Tooltip("Whether or not this HitBody3D updates in FixedUpdate.")]
         private bool fixedUpdate = false;
 
-        [SerializeField, Tooltip("Whether or not this HitBody3D can repeatedly hit the same target without resetting.")]
+        [
+            SerializeField,
+            Tooltip(
+                "Whether or not this HitBody3D can repeatedly hit the same target without resetting."
+            )
+        ]
         private bool multiHits;
 
         [SerializeField, Tooltip("Whether or not this HitBody3D is unblockable.")]
@@ -47,12 +56,36 @@ namespace Shears.HitDetection
         private List<int> sortedHits = new();
 
         public bool IsEnabled => isEnabled;
-        public List<HitShape3D> Shapes { get => shapes; set => shapes = value; }
-        public bool UseFixedUpdate { get => fixedUpdate; set => fixedUpdate = value; }
-        public bool MultiHits { get => multiHits; set => multiHits = value; }
-        public bool Unblockable { get => unblockable; set => unblockable = value; }
-        public LayerMask CollisionMask { get => collisionMask; set => collisionMask = value; }
-        public List<HurtBody3D> IgnoreList { get => ignoreList; set => ignoreList = value; }
+        public List<HitShape3D> Shapes
+        {
+            get => shapes;
+            set => shapes = value;
+        }
+        public bool UseFixedUpdate
+        {
+            get => fixedUpdate;
+            set => fixedUpdate = value;
+        }
+        public bool MultiHits
+        {
+            get => multiHits;
+            set => multiHits = value;
+        }
+        public bool Unblockable
+        {
+            get => unblockable;
+            set => unblockable = value;
+        }
+        public LayerMask CollisionMask
+        {
+            get => collisionMask;
+            set => collisionMask = value;
+        }
+        public List<HurtBody3D> IgnoreList
+        {
+            get => ignoreList;
+            set => ignoreList = value;
+        }
 
         public event Action Enabled;
         public event Action Disabled;
@@ -62,9 +95,9 @@ namespace Shears.HitDetection
         private readonly struct MappedHit
         {
             public readonly HitShape3D shape;
-            public readonly RaycastHit hit;
+            public readonly HitResult3D hit;
 
-            public MappedHit(HitShape3D shape, RaycastHit hit)
+            public MappedHit(HitShape3D shape, HitResult3D hit)
             {
                 this.shape = shape;
                 this.hit = hit;
@@ -115,7 +148,7 @@ namespace Shears.HitDetection
             isEnabled = false;
             Disabled?.Invoke();
         }
-        
+
         public void ClearHits()
         {
             unclearedHits.Clear();
@@ -160,7 +193,13 @@ namespace Shears.HitDetection
             DeliverHits();
         }
 
-        private void ValidateHits(HitShape3D shape, RaycastHit[] results, int hits, Comparison<int> sortFunc, out bool blocked)
+        private void ValidateHits(
+            HitShape3D shape,
+            HitResult3D[] results,
+            int hits,
+            Comparison<int> sortFunc,
+            out bool blocked
+        )
         {
             sortedHits.Clear();
 
@@ -173,11 +212,15 @@ namespace Shears.HitDetection
 
             foreach (var hitIndex in sortedHits)
             {
-                RaycastHit hit = results[hitIndex];
-                
+                var hit = results[hitIndex];
+
                 if (hit.collider == null)
                 {
-                    this.Log($"Hit had no collider: {hit.transform.name}.", SHLogLevels.Verbose, context: hit.transform);
+                    this.Log(
+                        $"Hit had no collider: {hit.transform.name}.",
+                        SHLogLevels.Verbose,
+                        context: hit.transform
+                    );
                     continue;
                 }
 
@@ -185,13 +228,21 @@ namespace Shears.HitDetection
 
                 if (hurtBody == null)
                 {
-                    this.Log($"Hit had no HurtBody: {hit.transform.name}.", SHLogLevels.Verbose, context: hit.transform);
+                    this.Log(
+                        $"Hit had no HurtBody: {hit.transform.name}.",
+                        SHLogLevels.Verbose,
+                        context: hit.transform
+                    );
                     continue;
                 }
 
                 if (unclearedHits.Contains(hurtBody) && !multiHits)
                 {
-                    this.Log($"Hit was uncleared: {hurtBody.name}.", SHLogLevels.Verbose, context: hurtBody);
+                    this.Log(
+                        $"Hit was uncleared: {hurtBody.name}.",
+                        SHLogLevels.Verbose,
+                        context: hurtBody
+                    );
                     continue;
                 }
 
@@ -200,11 +251,22 @@ namespace Shears.HitDetection
 
                 if (!unblockable && hurtBody.IsBlocking)
                 {
-                    var blockHitData = new HitData3D(shape, this, hurtBody, new(hit), dataProvider.Value?.GetData(), false);
+                    var blockHitData = new HitData3D(
+                        shape,
+                        this,
+                        hurtBody,
+                        hit,
+                        dataProvider.Value?.GetData(),
+                        false
+                    );
 
                     if (hurtBody.CanBlock(blockHitData))
                     {
-                        this.Log($"Hit was blocked: {shape.name}.", SHLogLevels.Verbose, context: shape);
+                        this.Log(
+                            $"Hit was blocked: {shape.name}.",
+                            SHLogLevels.Verbose,
+                            context: shape
+                        );
                         blocked = true;
                         return;
                     }
@@ -219,10 +281,24 @@ namespace Shears.HitDetection
             foreach (var (hurtBody, hitMap) in finalHits)
             {
                 var subData = dataProvider.Value?.GetData();
-                var hitData = new HitData3D(hitMap.shape, this, hurtBody, new(hitMap.hit), subData, false);
+                var hitData = new HitData3D(
+                    hitMap.shape,
+                    this,
+                    hurtBody,
+                    hitMap.hit,
+                    subData,
+                    false
+                );
 
                 if (!unblockable && hurtBody.IsBlocking)
-                    hitData = new HitData3D(hitMap.shape, this, hurtBody, new(hitMap.hit), subData, hurtBody.CanBlock(hitData));
+                    hitData = new HitData3D(
+                        hitMap.shape,
+                        this,
+                        hurtBody,
+                        hitMap.hit,
+                        subData,
+                        hurtBody.CanBlock(hitData)
+                    );
 
                 hurtBody.OnHitReceived(hitData);
                 OnHitDelivered(hitData);
@@ -246,7 +322,10 @@ namespace Shears.HitDetection
             {
                 if (ignoreList.Contains(hurtBody))
                 {
-                    this.Log($"Ignoring HurtBody3D {hurtBody} due to ignore list.", SHLogLevels.Verbose);
+                    this.Log(
+                        $"Ignoring HurtBody3D {hurtBody} due to ignore list.",
+                        SHLogLevels.Verbose
+                    );
 
                     if (hurtBody.Colliders.Contains(collider))
                         return null;

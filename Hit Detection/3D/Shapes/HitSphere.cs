@@ -25,24 +25,53 @@ namespace Shears.HitDetection
             Left = 1 << 2,
             Right = 1 << 3,
             Front = 1 << 4,
-            Back = 1 << 5
+            Back = 1 << 5,
+        }
+
+        private enum DetectionType
+        {
+            Grid,
+            Center,
+            Overlap,
         }
 
         [Serializable]
         private struct GizmoSettings
         {
             [Header("Modes")]
-            [SerializeField] private GizmoModes gizmoModes;
-            [SerializeField] private bool drawOnSelect;
+            [SerializeField]
+            private GizmoModes gizmoModes;
+
+            [SerializeField]
+            private bool drawOnSelect;
 
             [Header("Colors")]
-            [SerializeField] private Color sphereColor;
-            [SerializeField] private Color rayColor;
+            [SerializeField]
+            private Color sphereColor;
 
-            public GizmoModes Modes { readonly get => gizmoModes; set => gizmoModes = value; }
-            public bool DrawOnSelect { readonly get => drawOnSelect; set => drawOnSelect = value; }
-            public Color SphereColor { readonly get => sphereColor; set => sphereColor = value; }
-            public Color RayColor { readonly get => rayColor; set => rayColor = value; }
+            [SerializeField]
+            private Color rayColor;
+
+            public GizmoModes Modes
+            {
+                readonly get => gizmoModes;
+                set => gizmoModes = value;
+            }
+            public bool DrawOnSelect
+            {
+                readonly get => drawOnSelect;
+                set => drawOnSelect = value;
+            }
+            public Color SphereColor
+            {
+                readonly get => sphereColor;
+                set => sphereColor = value;
+            }
+            public Color RayColor
+            {
+                readonly get => rayColor;
+                set => rayColor = value;
+            }
         }
 
         private readonly struct HitRay
@@ -80,7 +109,7 @@ namespace Shears.HitDetection
 
         [Header("Collision Settings")]
         [SerializeField, RuntimeReadOnly]
-        private bool castFromCenter = false;
+        private DetectionType detectionType = DetectionType.Grid;
 
         [SerializeField, RuntimeReadOnly]
         private bool halfSphere = false;
@@ -88,10 +117,10 @@ namespace Shears.HitDetection
         [SerializeField, Range(0, 500), RuntimeReadOnly]
         private int maxHits = 10;
 
-        [SerializeField, Range(2, 32), RuntimeReadOnly]
+        [SerializeField, Range(2, 64), RuntimeReadOnly]
         private int raysPerSide = 5;
 
-        [SerializeField, ShowIf("!castFromCenter")]
+        [SerializeField, ShowIf("detectionType", DetectionType.Grid)]
         private SourceDirections sourceDirections = (SourceDirections)(-1);
 
         [Header("Transform Settings")]
@@ -105,17 +134,35 @@ namespace Shears.HitDetection
         private float radius = 0.5f;
 
         private readonly HashSet<HitRay> blockedRays = new();
-        private RaycastHit[] results;
+        private RaycastHit[] rayResults;
+        private Collider[] colliderResults;
+        private HitResult3D[] hitResults;
         private bool isDetecting = false;
 
         private Vector3 TCenter => transform.position + center;
         private float TRadius => transform.localScale.GetAverage() * radius;
 
-        public Vector3 Center { get => center; set => center = value; }
-        public Quaternion Orientation { get => Quaternion.Euler(orientation); set => orientation = value.eulerAngles; }
-        public float Radius { get => radius; set => radius = value; }
+        public Vector3 Center
+        {
+            get => center;
+            set => center = value;
+        }
+        public Quaternion Orientation
+        {
+            get => Quaternion.Euler(orientation);
+            set => orientation = value.eulerAngles;
+        }
+        public float Radius
+        {
+            get => radius;
+            set => radius = value;
+        }
 
-        public Vector3 WorldCenter { get => transform.TransformPoint(center); set => center = transform.InverseTransformPoint(value); }
+        public Vector3 WorldCenter
+        {
+            get => transform.TransformPoint(center);
+            set => center = transform.InverseTransformPoint(value);
+        }
         #endregion
 
         private void Reset()
@@ -125,12 +172,14 @@ namespace Shears.HitDetection
 
         private void Awake()
         {
-            results = ArrayPool<RaycastHit>.Shared.Rent(maxHits);
+            rayResults = ArrayPool<RaycastHit>.Shared.Rent(maxHits);
+            colliderResults = ArrayPool<Collider>.Shared.Rent(maxHits);
+            hitResults = ArrayPool<HitResult3D>.Shared.Rent(maxHits);
         }
 
         private void OnDestroy()
         {
-            ArrayPool<RaycastHit>.Shared.Return(results);
+            ArrayPool<RaycastHit>.Shared.Return(rayResults);
         }
 
         internal override void Sweep(DetectionHandle handle)
@@ -138,9 +187,9 @@ namespace Shears.HitDetection
             isDetecting = true;
             blockedRays.Clear();
 
-            if (castFromCenter)
+            if (detectionType == DetectionType.Center)
                 CenterCast(handle);
-            else
+            else if (detectionType == DetectionType.Grid)
             {
                 Quaternion orientation = Quaternion.Euler(this.orientation);
                 Vector3 forward = orientation * transform.forward;
@@ -168,12 +217,44 @@ namespace Shears.HitDetection
                 if ((sourceDirections & SourceDirections.Bottom) != 0)
                     ArrayCast(SourceDirections.Bottom, up, right, back, handle);
             }
+            else
+            {
+                int hits = Physics.OverlapSphereNonAlloc(
+                    TCenter,
+                    TRadius,
+                    colliderResults,
+                    handle.CollisionMask,
+                    QueryTriggerInteraction.Collide
+                );
+
+                for (int i = 0; i < hits; i++)
+                {
+                    var collider = colliderResults[i];
+                    var heading = collider.transform.position - TCenter;
+                    var distance = heading.magnitude;
+                    var direction = heading / distance;
+                    var hit = new HitResult3D(
+                        collider.transform.position,
+                        -direction,
+                        distance,
+                        collider.transform,
+                        collider
+                    );
+
+                    hitResults[i] = hit;
+                }
+
+                if (hits > 0)
+                    handle.ValidateCallback(this, hitResults, hits, null, out bool _);
+            }
         }
 
         private void ArrayCast(
             SourceDirections sourceDirection,
-            Vector3 direction, Vector3 offsetDirectionX, 
-            Vector3 offsetDirectionY, DetectionHandle handle
+            Vector3 direction,
+            Vector3 offsetDirectionX,
+            Vector3 offsetDirectionY,
+            DetectionHandle handle
         )
         {
             float trueRadius = TRadius;
@@ -193,17 +274,32 @@ namespace Shears.HitDetection
                     float tX = (float)row / (raysPerSide - 1);
                     float tY = (float)column / (raysPerSide - 1);
 
-                    Vector3 offset = startOffset + diameter * ((tX * offsetDirectionX) + (tY * offsetDirectionY));
+                    Vector3 offset =
+                        startOffset
+                        + diameter * ((tX * offsetDirectionX) + (tY * offsetDirectionY));
                     float distance = Mathf.Sqrt(trueRadius * trueRadius - offset.sqrMagnitude);
 
                     Vector3 origin = TCenter + offset + (distance * -direction);
                     distance *= 2.0f;
 
-                    int hits = Physics.RaycastNonAlloc(origin, direction, results, distance, handle.CollisionMask, QueryTriggerInteraction.Collide);
+                    int hits = Physics.RaycastNonAlloc(
+                        origin,
+                        direction,
+                        rayResults,
+                        distance,
+                        handle.CollisionMask,
+                        QueryTriggerInteraction.Collide
+                    );
 
                     if (hits > 0)
                     {
-                        handle.ValidateCallback(this, results, hits, null, out bool blocked);
+                        for (int i = 0; i < hits; i++)
+                        {
+                            var hit = new HitResult3D(rayResults[i]);
+                            hitResults[i] = hit;
+                        }
+
+                        handle.ValidateCallback(this, hitResults, hits, null, out bool blocked);
 
                         if (blocked)
                             blockedRays.Add(ray);
@@ -220,7 +316,7 @@ namespace Shears.HitDetection
             float xDegrees = 0.0f;
             float yDegrees = 0.0f;
             Quaternion orientation = Quaternion.Euler(this.orientation);
-            Vector3 forward = orientation * transform.forward; 
+            Vector3 forward = orientation * transform.forward;
 
             while (xDegrees < sphereAngles)
             {
@@ -234,11 +330,24 @@ namespace Shears.HitDetection
                     Quaternion rotation = Quaternion.Euler(new(xDegrees, yDegrees, 0.0f));
                     Vector3 direction = rotation * forward;
 
-                    int hits = Physics.RaycastNonAlloc(TCenter, direction, results, TRadius, handle.CollisionMask, QueryTriggerInteraction.Collide);
+                    int hits = Physics.RaycastNonAlloc(
+                        TCenter,
+                        direction,
+                        rayResults,
+                        TRadius,
+                        handle.CollisionMask,
+                        QueryTriggerInteraction.Collide
+                    );
 
                     if (hits > 0)
                     {
-                        handle.ValidateCallback(this, results, hits, null, out bool blocked);
+                        for (int i = 0; i < hits; i++)
+                        {
+                            var hit = new HitResult3D(rayResults[i]);
+                            hitResults[i] = hit;
+                        }
+
+                        handle.ValidateCallback(this, hitResults, hits, null, out bool blocked);
 
                         if (blocked)
                             blockedRays.Add(ray);
@@ -270,24 +379,36 @@ namespace Shears.HitDetection
             Color opacity = isDetecting ? Color.white : new(1, 1, 1, 0.15f);
 
             Matrix4x4 matrix = Gizmos.matrix;
-            Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, transform.lossyScale);
-            Gizmos.matrix *= Matrix4x4.TRS(Vector3.zero, Quaternion.Euler(orientation), Vector3.one);
+            Gizmos.matrix = Matrix4x4.TRS(
+                transform.position,
+                transform.rotation,
+                transform.lossyScale
+            );
+            Gizmos.matrix *= Matrix4x4.TRS(
+                Vector3.zero,
+                Quaternion.Euler(orientation),
+                Vector3.one
+            );
 
             if ((gizmoSettings.Modes & GizmoModes.Sphere) != 0)
             {
                 Gizmos.color = opacity * Color.red;
-                Gizmos.DrawWireSphere(center, radius);
+
+                if (detectionType == DetectionType.Overlap)
+                    Gizmos.DrawSphere(center, radius);
+                else
+                    Gizmos.DrawWireSphere(center, radius);
             }
 
             if ((gizmoSettings.Modes & GizmoModes.Rays) != 0)
             {
                 Gizmos.color = opacity * Color.yellow;
 
-                if (castFromCenter)
+                if (detectionType == DetectionType.Center)
                 {
                     DrawCenterCast();
                 }
-                else
+                else if (detectionType == DetectionType.Grid)
                 {
                     if ((sourceDirections & SourceDirections.Back) != 0)
                         DrawArrayCast(Vector3.forward, Vector3.right, Vector3.up);
@@ -315,7 +436,11 @@ namespace Shears.HitDetection
                 isDetecting = false;
         }
 
-        private void DrawArrayCast(Vector3 direction, Vector3 offsetDirectionX, Vector3 offsetDirectionY)
+        private void DrawArrayCast(
+            Vector3 direction,
+            Vector3 offsetDirectionX,
+            Vector3 offsetDirectionY
+        )
         {
             float radius = this.radius - EDGE_OFFSET;
             float diameter = 2.0f * radius;
@@ -327,8 +452,10 @@ namespace Shears.HitDetection
                 {
                     float tX = (float)row / (raysPerSide - 1);
                     float tY = (float)column / (raysPerSide - 1);
-                    
-                    Vector3 offset = startOffset + diameter * ((tX * offsetDirectionX) + (tY * offsetDirectionY));
+
+                    Vector3 offset =
+                        startOffset
+                        + diameter * ((tX * offsetDirectionX) + (tY * offsetDirectionY));
                     float distance = Mathf.Sqrt(this.radius * this.radius - offset.sqrMagnitude);
 
                     Vector3 origin = center + offset + (distance * -direction);
