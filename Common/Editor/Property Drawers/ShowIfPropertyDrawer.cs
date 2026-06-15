@@ -56,30 +56,8 @@ namespace Shears.Editor
         public override VisualElement CreatePropertyGUI(SerializedProperty targetProperty)
         {
             var root = new VisualElement();
-            var showIfAttribute = attribute as ShowIfAttribute;
 
-            comparisons.Clear();
-
-            foreach (var condition in showIfAttribute.Conditions)
-            {
-                string name = condition.ConditionName;
-                bool negate = name.StartsWith("!");
-
-                if (negate)
-                    name = name[1..];
-
-                var conditionProperty = GetConditionProperty(targetProperty, name);
-
-                if (conditionProperty == null)
-                {
-                    Debug.LogError(
-                        $"Could not find property {name} in {targetProperty.propertyPath}!"
-                    );
-                    return root;
-                }
-
-                comparisons.Add(new(name, negate, condition.CompareValue));
-            }
+            GetComparisons(targetProperty);
 
             var propertyField = new PropertyField(targetProperty)
             {
@@ -120,16 +98,21 @@ namespace Shears.Editor
 
             var parentProperty = targetProperty.FindParentProperty();
 
-            if (parentProperty != null)
-                root.TrackPropertyValue(
-                    parentProperty,
-                    _ => onValueChanged(parentProperty, targetProperty.serializedObject)
-                );
-            else
-                root.TrackSerializedObjectValue(
-                    targetProperty.serializedObject,
-                    _ => onValueChanged(parentProperty, targetProperty.serializedObject)
-                );
+            root.TrackSerializedObjectValue(
+                targetProperty.serializedObject,
+                _ => onValueChanged(parentProperty, targetProperty.serializedObject)
+            );
+
+            //if (parentProperty != null)
+            //    root.TrackPropertyValue(
+            //        parentProperty,
+            //        _ => onValueChanged(parentProperty, targetProperty.serializedObject)
+            //    );
+            //else
+            //    root.TrackSerializedObjectValue(
+            //        targetProperty.serializedObject,
+            //        _ => onValueChanged(parentProperty, targetProperty.serializedObject)
+            //    );
 
             onValueChanged(parentProperty, targetProperty.serializedObject);
 
@@ -142,28 +125,7 @@ namespace Shears.Editor
             GUIContent label
         )
         {
-            var displayAttribute = attribute as ShowIfAttribute;
-
-            comparisons.Clear();
-
-            foreach (var condition in displayAttribute.Conditions)
-            {
-                string name = condition.ConditionName;
-                bool negate = name.StartsWith("!");
-
-                if (negate)
-                    name = name[1..];
-
-                var conditionProperty = GetConditionProperty(targetProperty, name);
-
-                if (conditionProperty == null)
-                {
-                    Debug.LogError($"Could not find property {name} in {targetProperty.name}!");
-                    return;
-                }
-
-                comparisons.Add(new(name, negate, condition.CompareValue));
-            }
+            GetComparisons(targetProperty);
 
             bool isValid = true;
             var parentProperty = targetProperty.FindParentProperty();
@@ -205,6 +167,32 @@ namespace Shears.Editor
             var serializedObject = targetProperty.serializedObject;
 
             return serializedObject.FindProperty(conditionName);
+        }
+
+        private void GetComparisons(SerializedProperty targetProperty)
+        {
+            var attribute = this.attribute as ShowIfAttribute;
+
+            comparisons.Clear();
+
+            foreach (var condition in attribute.Conditions)
+            {
+                string name = condition.ConditionName;
+                bool negate = name.StartsWith("!");
+
+                if (negate)
+                    name = name[1..];
+
+                var conditionProperty = GetConditionProperty(targetProperty, name);
+
+                if (conditionProperty == null)
+                {
+                    Debug.LogError($"Could not find property {name} in {targetProperty.name}!");
+                    return;
+                }
+
+                comparisons.Add(new(name, negate, condition.CompareValue));
+            }
         }
     }
 }
