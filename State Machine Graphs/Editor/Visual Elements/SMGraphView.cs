@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using Shears.GraphViews;
 using Shears.GraphViews.Editor;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -15,7 +15,8 @@ namespace Shears.StateMachineGraphs.Editor
         private SMToolbar toolbar;
         private SMParameterBar parameterBar;
 
-        public SMGraphView() : base()
+        public SMGraphView()
+            : base()
         {
             this.AddStyleSheet(SMEditorUtil.GraphStyleSheet);
 
@@ -117,24 +118,58 @@ namespace Shears.StateMachineGraphs.Editor
         private void PopulateContextualMenu(ContextualMenuPopulateEvent evt)
         {
             var target = evt.target as VisualElement;
-            Vector2 parameterMousePos = target.ChangeCoordinatesTo(parameterBar, evt.localMousePosition);
+            Vector2 parameterMousePos = target.ChangeCoordinatesTo(
+                parameterBar,
+                evt.localMousePosition
+            );
 
             if (parameterBar.ContainsPoint(parameterMousePos))
                 return;
 
-            Vector2 mousePos = target.ChangeCoordinatesTo(ContentViewContainer, evt.localMousePosition);
+            Vector2 mousePos = target.ChangeCoordinatesTo(
+                ContentViewContainer,
+                evt.localMousePosition
+            );
 
             if (graphData.SelectionCount == 1 && GetSelection()[0] is IEdgeAnchorable anchorable)
             {
-                evt.menu.AppendAction("Create Transition", (action) => BeginPlacingEdge(anchorable, TryCreateTransition));
+                evt.menu.AppendAction(
+                    "Create Transition",
+                    (action) =>
+                        BeginPlacingEdge(anchorable, (e1, e2) => TryCreateTransition(e1, e2))
+                );
 
-                if (GetSelection()[0] is IStateNode node)
-                    evt.menu.AppendAction("Set as Layer Default State", (action) => SetAsLayerDefault(node));
+                var selection = GetSelection()[0];
+
+                if (selection is IStateNode node)
+                {
+                    evt.menu.AppendAction(
+                        "Set as Layer Default State",
+                        (action) => SetAsLayerDefault(node)
+                    );
+
+                    if (selection is StateNode stateNode)
+                        evt.menu.AppendAction(
+                            "Upgrade to State Machine Node",
+                            (action) => UpgradeToStateMachineNode(stateNode)
+                        );
+                }
+
+                evt.menu.AppendSeparator();
             }
+
             evt.menu.AppendAction("Create State Node", (action) => CreateStateNode(mousePos));
-            evt.menu.AppendAction("Create State Machine Node", (action) => CreateStateMachineNode(mousePos));
-            evt.menu.AppendAction("Create External State Machine Node", (action) => CreateExternalStateMachineNode(mousePos));
-            if (graphData.SelectionCount > 0) evt.menu.AppendAction("Delete", (action) => DeleteSelection());
+            evt.menu.AppendAction(
+                "Create State Machine Node",
+                (action) => CreateStateMachineNode(mousePos)
+            );
+            evt.menu.AppendAction(
+                "Create External State Machine Node",
+                (action) => CreateExternalStateMachineNode(mousePos)
+            );
+
+            if (graphData.SelectionCount > 0)
+                evt.menu.AppendAction("Delete", (action) => DeleteSelection());
         }
         #endregion
 
@@ -145,6 +180,48 @@ namespace Shears.StateMachineGraphs.Editor
             Record("Set Layer Default State");
             graphData.SetLayerDefault(node.Data);
             Save();
+        }
+
+        private void UpgradeToStateMachineNode(StateNode oldNode)
+        {
+            Record("Upgrade to State Machine Node");
+            var newNodeData = graphData.CreateStateMachineNodeData(oldNode.Data.Position);
+            var newNode = GetNode(newNodeData.ID) as StateMachineNode;
+            newNodeData.Name = oldNode.Data.Name;
+            newNodeData.StateType = oldNode.Data.StateType;
+
+            if (IsLayerDefault(oldNode.Data))
+                SetAsLayerDefault(newNode);
+
+            foreach (var edgeID in oldNode.Data.Edges)
+            {
+                var oldEdge = GetEdge(edgeID) as TransitionEdge;
+                bool isOutgoing = false;
+                IEdgeAnchorable target;
+                TransitionEdge newEdge;
+
+                if (oldEdge.Data.ToID != oldNode.Data.ID)
+                    isOutgoing = true;
+
+                if (isOutgoing)
+                {
+                    target = GetNode(oldEdge.Data.ToID);
+                    newEdge = TryCreateTransition(newNode, target, false);
+                }
+                else
+                {
+                    target = GetNode(oldEdge.Data.FromID);
+                    newEdge = TryCreateTransition(target, newNode, false);
+                }
+
+                foreach (var transitionData in oldEdge.Data.TransitionData)
+                    newEdge.Data.AddTransitionData(transitionData);
+            }
+
+            graphData.RemoveNodeData(oldNode.Data);
+            Save();
+
+            Select(newNode);
         }
 
         private void CreateStateNode(Vector2 pos)
@@ -177,22 +254,32 @@ namespace Shears.StateMachineGraphs.Editor
             Select(node);
         }
 
-        private void TryCreateTransition(IEdgeAnchorable anchor1, IEdgeAnchorable anchor2)
+        private TransitionEdge TryCreateTransition(
+            IEdgeAnchorable anchor1,
+            IEdgeAnchorable anchor2,
+            bool addDefaultData = true
+        )
         {
             if (anchor1 == anchor2)
-                return;
+                return null;
 
             var element1Data = anchor1.Element.GetData();
             var element2Data = anchor2.Element.GetData();
 
-            if (element1Data is not ITransitionable transitionable1 || element2Data is not ITransitionable transitionable2)
-                return;
+            if (
+                element1Data is not ITransitionable transitionable1
+                || element2Data is not ITransitionable transitionable2
+            )
+                return null;
 
             TransitionEdgeData transitionData;
 
             if (anchor1.HasConnectionTo(anchor2))
             {
-                transitionData = graphData.GetTransitionEdgeData(transitionable1.ID, transitionable2.ID);
+                transitionData = graphData.GetTransitionEdgeData(
+                    transitionable1.ID,
+                    transitionable2.ID
+                );
 
                 Record("Add Transition");
                 transitionData.AddTransitionData(new TransitionData());
@@ -201,12 +288,18 @@ namespace Shears.StateMachineGraphs.Editor
             else
             {
                 Record("Add Transition");
-                transitionData = graphData.CreateTransitionEdgeData(transitionable1, transitionable2);
+                transitionData = graphData.CreateTransitionEdgeData(
+                    transitionable1,
+                    transitionable2,
+                    addDefaultData
+                );
                 Save();
             }
 
             var edge = GetEdge(transitionData);
             Select(edge);
+
+            return edge as TransitionEdge;
         }
 
         protected override GraphNode CreateNodeFromData(GraphNodeData data)

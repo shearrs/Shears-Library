@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -14,25 +13,42 @@ namespace Shears.GraphViews
         #region Variables
         const string CLIPBOARD_KEY = "Graph View - ";
 
-        [SerializeField] private string id;
+        [SerializeField]
+        private string id;
 
         [Header("Transform")]
-        [SerializeField] private Vector2 position;
-        [SerializeField] private Vector2 scale = Vector2.one;
+        [SerializeField]
+        private Vector2 position;
+
+        [SerializeField]
+        private Vector2 scale = Vector2.one;
 
         [Header("Layers")]
-        [SerializeField] private List<GraphLayer> layers = new();
+        [SerializeField]
+        private List<GraphLayer> layers = new();
 
         [Header("Graph Elements")]
-        [SerializeReference] private GraphElementDictionary graphElements = new();
-        [SerializeField] private List<string> nodeData = new();
-        [SerializeField] private List<string> edgeData = new();
-        [SerializeField] private List<string> selection = new();
-        [SerializeField] protected List<string> rootNodes = new();
+        [SerializeReference]
+        private GraphElementDictionary graphElements = new();
+
+        [SerializeField]
+        private List<string> nodeData = new();
+
+        [SerializeField]
+        private List<string> edgeData = new();
+
+        [SerializeField]
+        private List<string> selection = new();
+
+        [SerializeField]
+        protected List<string> rootNodes = new();
 
         [Header("Clipboard")]
-        [SerializeField] private string copyBuffer;
-        [SerializeField] private JsonList<GraphElementClipboardData> clipboardData = new();
+        [SerializeField]
+        private string copyBuffer;
+
+        [SerializeField]
+        private JsonList<GraphElementClipboardData> clipboardData = new();
 
         private readonly List<GraphElementData> instanceSelection = new();
         private readonly List<GraphNodeData> instanceNodes = new();
@@ -41,8 +57,16 @@ namespace Shears.GraphViews
         private readonly StringBuilder stringBuilder = new(255);
 
         public string ID => id;
-        public Vector2 Position { get => position; set => position = value; }
-        public Vector2 Scale { get => scale; set => scale = value; }
+        public Vector2 Position
+        {
+            get => position;
+            set => position = value;
+        }
+        public Vector2 Scale
+        {
+            get => scale;
+            set => scale = value;
+        }
         public int SelectionCount => selection.Count;
         public IReadOnlyList<GraphLayer> Layers => layers;
 
@@ -123,7 +147,8 @@ namespace Shears.GraphViews
             GraphElementsChanged?.Invoke();
         }
 
-        public bool TryGetData<GraphElementType>(string id, out GraphElementType data) where GraphElementType : GraphElementData
+        public bool TryGetData<GraphElementType>(string id, out GraphElementType data)
+            where GraphElementType : GraphElementData
         {
             data = null;
 
@@ -152,7 +177,7 @@ namespace Shears.GraphViews
                 var root = CreateRootLayer();
                 layers.Add(root);
             }
-            
+
             if (string.IsNullOrEmpty(id))
                 id = Guid.NewGuid().ToString();
 
@@ -167,7 +192,8 @@ namespace Shears.GraphViews
             {
                 string otherPath = AssetDatabase.GUIDToAssetPath(guid);
 
-                if (otherPath == path) continue;
+                if (otherPath == path)
+                    continue;
 
                 var other = AssetDatabase.LoadAssetAtPath<GraphData>(otherPath);
                 if (other != null && other.id == id)
@@ -224,14 +250,14 @@ namespace Shears.GraphViews
             NodeDataAddedToLayer?.Invoke(data);
         }
 
-        protected void RemoveNodeData(GraphNodeData data)
+        public void RemoveNodeData(GraphNodeData data)
         {
             if (!nodeData.Contains(data.ID))
             {
                 LogError("Node data does not have data with ID: " + data.ID + "!");
                 return;
             }
-            
+
             nodeData.Remove(data.ID);
             RemoveGraphElementData(data);
 
@@ -242,7 +268,10 @@ namespace Shears.GraphViews
             {
                 foreach (var subNodeID in multiData.SubNodeIDs)
                 {
-                    if (nodeData.Contains(subNodeID) && graphElements.TryGetValue(subNodeID, out var childData))
+                    if (
+                        nodeData.Contains(subNodeID)
+                        && graphElements.TryGetValue(subNodeID, out var childData)
+                    )
                         RemoveNodeData((GraphNodeData)childData);
                 }
             }
@@ -265,7 +294,10 @@ namespace Shears.GraphViews
             stringBuilder.Clear();
             stringBuilder.Append(data.ID);
 
-            while (currentNode.ParentID != GraphLayer.ROOT_ID && TryGetData(currentNode.ParentID, out GraphMultiNodeData parent))
+            while (
+                currentNode.ParentID != GraphLayer.ROOT_ID
+                && TryGetData(currentNode.ParentID, out GraphMultiNodeData parent)
+            )
             {
                 stringBuilder.Insert(0, parent.ID + "/");
                 currentNode = parent;
@@ -280,7 +312,10 @@ namespace Shears.GraphViews
 
             foreach (var edgeID in nodeData.Edges)
             {
-                if (graphElements.TryGetValue(edgeID, out var elementData) && elementData is GraphEdgeData edgeData)
+                if (
+                    graphElements.TryGetValue(edgeID, out var elementData)
+                    && elementData is GraphEdgeData edgeData
+                )
                     instanceEdges.Add(edgeData);
             }
 
@@ -291,7 +326,10 @@ namespace Shears.GraphViews
         #region Edges
         protected void AddEdgeData(GraphEdgeData data)
         {
-            if (!graphElements.TryGetValue(data.FromID, out var from) || from is not GraphNodeData fromNode)
+            if (
+                !graphElements.TryGetValue(data.FromID, out var from)
+                || from is not GraphNodeData fromNode
+            )
             {
                 LogError("Could not find 'from' node with ID: " + data.FromID);
                 return;
@@ -320,7 +358,10 @@ namespace Shears.GraphViews
             edgeData.Remove(data.ID);
             RemoveGraphElementData(data);
 
-            if (graphElements.TryGetValue(data.FromID, out var from) && from is GraphNodeData fromNode)
+            if (
+                graphElements.TryGetValue(data.FromID, out var from)
+                && from is GraphNodeData fromNode
+            )
                 fromNode.RemoveEdge(data);
 
             if (graphElements.TryGetValue(data.ToID, out var to) && to is GraphNodeData toNode)
@@ -335,7 +376,10 @@ namespace Shears.GraphViews
 
         protected GraphEdgeData GetEdgeData(string fromID, string toID)
         {
-            if (!graphElements.TryGetValue(fromID, out var from) || from is not GraphNodeData fromNode)
+            if (
+                !graphElements.TryGetValue(fromID, out var from)
+                || from is not GraphNodeData fromNode
+            )
             {
                 LogError("Could not find 'from' node with ID: " + fromID);
                 return null;
@@ -349,7 +393,10 @@ namespace Shears.GraphViews
 
             foreach (var edgeID in fromNode.Edges)
             {
-                if (graphElements.TryGetValue(edgeID, out var elementData) && elementData is GraphEdgeData edgeData)
+                if (
+                    graphElements.TryGetValue(edgeID, out var elementData)
+                    && elementData is GraphEdgeData edgeData
+                )
                 {
                     if (edgeData.FromID == fromID && edgeData.ToID == toID)
                         return edgeData;
@@ -467,7 +514,10 @@ namespace Shears.GraphViews
 
             while (parentID != null && parentID != string.Empty)
             {
-                if (!nodeData.Contains(parentID) || !graphElements.TryGetValue(parentID, out var untypedParent))
+                if (
+                    !nodeData.Contains(parentID)
+                    || !graphElements.TryGetValue(parentID, out var untypedParent)
+                )
                     break;
 
                 if (untypedParent == null || untypedParent is not GraphMultiNodeData parent)
@@ -482,7 +532,7 @@ namespace Shears.GraphViews
 
         public IReadOnlyCollection<GraphNodeData> GetActiveNodes()
         {
-            return GetLayerSubNodes(layers[^1]); 
+            return GetLayerSubNodes(layers[^1]);
         }
 
         private IReadOnlyList<GraphNodeData> GetLayerSubNodes(GraphLayer layer)
@@ -513,7 +563,10 @@ namespace Shears.GraphViews
         {
             return CreateLayer(Vector2.zero, Vector2.one, null);
         }
-        protected GraphLayer CreateLayer(GraphMultiNodeData parent) => CreateLayer(Vector2.zero, Vector2.one, parent);
+
+        protected GraphLayer CreateLayer(GraphMultiNodeData parent) =>
+            CreateLayer(Vector2.zero, Vector2.one, parent);
+
         private GraphLayer CreateLayer(Vector2 position, Vector2 scale, GraphMultiNodeData parent)
         {
             return new GraphLayer(position, scale, parent);
@@ -524,7 +577,7 @@ namespace Shears.GraphViews
             layers.Clear();
         }
         #endregion Layers
-    
+
         private void LogError(string message)
         {
             Debug.LogError(message);

@@ -1,28 +1,43 @@
-using Shears.GraphViews;
 using System;
 using System.Collections.Generic;
+using Shears.GraphViews;
 using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
     [Serializable]
-    public class StateMachineNodeData : GraphMultiNodeData, IStateNodeData, ICopyable<StateMachineNodeClipboardData>
+    public class StateMachineNodeData
+        : GraphMultiNodeData,
+            IStateNodeData,
+            ICopyable<StateMachineNodeClipboardData>
     {
-        [SerializeField] private string defaultStateID;
-        [SerializeField] private SerializableSystemType stateType;
+        [SerializeField]
+        private string defaultStateID;
+
+        [SerializeField]
+        private SerializableSystemType stateType;
 
         public event Action SetAsLayerDefault;
         public event Action RemovedAsLayerDefault;
 
         public string DefaultStateID => defaultStateID;
-        public SerializableSystemType StateType => stateType;
+        public SerializableSystemType StateType
+        {
+            get => stateType;
+            set => stateType = value;
+        }
 
         public StateMachineNodeData(SerializableSystemType stateType)
         {
             this.stateType = stateType;
         }
 
-        public StateMachineNodeData(string name, Vector2 position, string parentID, SerializableSystemType stateType)
+        public StateMachineNodeData(
+            string name,
+            Vector2 position,
+            string parentID,
+            SerializableSystemType stateType
+        )
         {
             this.name = name;
             this.position = position;

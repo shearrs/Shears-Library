@@ -1,6 +1,6 @@
+using System;
 using Shears.GraphViews;
 using Shears.GraphViews.Editor;
-using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -11,9 +11,11 @@ namespace Shears.StateMachineGraphs.Editor
         private readonly StateNodeData data;
         private readonly VisualElement emptyTag;
 
+        public StateNodeData Data => data;
         IStateNodeData IStateNode.Data => data;
 
-        public StateNode(StateNodeData data, SMGraphView graphView, GraphData graphData) : base(data, graphView, graphData)
+        public StateNode(StateNodeData data, SMGraphView graphView, GraphData graphData)
+            : base(data, graphView, graphData)
         {
             this.data = data;
 
@@ -61,10 +63,7 @@ namespace Shears.StateMachineGraphs.Editor
 
         private VisualElement CreateEmptyTag()
         {
-            var tag = new VisualElement()
-            {
-                name = "Empty Tag"
-            };
+            var tag = new VisualElement() { name = "Empty Tag" };
 
             tag.AddToClassList(SMEditorUtil.EmptyTagClassName);
 

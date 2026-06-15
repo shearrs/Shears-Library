@@ -1,6 +1,6 @@
-using Shears.GraphViews;
 using System;
 using System.Collections.Generic;
+using Shears.GraphViews;
 using UnityEngine;
 
 namespace Shears.StateMachineGraphs
@@ -8,12 +8,17 @@ namespace Shears.StateMachineGraphs
     [Serializable]
     public class StateNodeData : GraphNodeData, IStateNodeData, ICopyable<StateNodeClipboardData>
     {
-        [SerializeField] private SerializableSystemType stateType;
+        [SerializeField]
+        private SerializableSystemType stateType;
 
         public event Action SetAsLayerDefault;
         public event Action RemovedAsLayerDefault;
 
-        public SerializableSystemType StateType => stateType;
+        public SerializableSystemType StateType
+        {
+            get => stateType;
+            set => stateType = value;
+        }
 
         public event Action StateTypeChanged;
 
@@ -22,7 +27,12 @@ namespace Shears.StateMachineGraphs
             this.stateType = stateType;
         }
 
-        public StateNodeData(string name, Vector2 position, string parentID, SerializableSystemType stateType)
+        public StateNodeData(
+            string name,
+            Vector2 position,
+            string parentID,
+            SerializableSystemType stateType
+        )
         {
             this.name = name;
             this.position = position;
@@ -32,7 +42,8 @@ namespace Shears.StateMachineGraphs
 
         IReadOnlyList<string> ITransitionable.GetTransitionIDs() => Edges;
 
-        State IStateNodeData.CreateStateInstance() => (State)Activator.CreateInstance(stateType.SystemType);
+        State IStateNodeData.CreateStateInstance() =>
+            (State)Activator.CreateInstance(stateType.SystemType);
 
         void ILayerElement.OnSetAsLayerDefault() => SetAsLayerDefault?.Invoke();
 
