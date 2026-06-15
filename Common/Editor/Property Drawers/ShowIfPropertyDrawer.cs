@@ -1,10 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEditor.UIElements;
-using System.Linq;
-using System.Collections.Generic;
-using System;
 
 namespace Shears.Editor
 {
@@ -33,16 +33,23 @@ namespace Shears.Editor
             {
                 var property = parent.FindPropertyRelative(propertyName);
 
-                //Debug.Log($"does {property.name} == {compareValue}?: {property.boxedValue.Equals(compareValue)}");
+                var value = compareValue;
 
-                return property.boxedValue.Equals(compareValue) != negate;
+                if (value is Enum)
+                    value = (int)compareValue;
+
+                return property.boxedValue.Equals(value) != negate;
             }
 
             public readonly bool Evaluate(SerializedObject parent)
             {
                 var property = parent.FindProperty(propertyName);
+                var value = compareValue;
 
-                return property.boxedValue.Equals(compareValue) != negate;
+                if (value is Enum)
+                    value = (int)compareValue;
+
+                return property.boxedValue.Equals(value) != negate;
             }
         }
 
@@ -65,7 +72,9 @@ namespace Shears.Editor
 
                 if (conditionProperty == null)
                 {
-                    Debug.LogError($"Could not find property {name} in {targetProperty.propertyPath}!");
+                    Debug.LogError(
+                        $"Could not find property {name} in {targetProperty.propertyPath}!"
+                    );
                     return root;
                 }
 
@@ -74,7 +83,7 @@ namespace Shears.Editor
 
             var propertyField = new PropertyField(targetProperty)
             {
-                name = targetProperty.displayName
+                name = targetProperty.displayName,
             };
 
             void onValueChanged(SerializedProperty parentProperty, SerializedObject parentObject)
@@ -112,16 +121,26 @@ namespace Shears.Editor
             var parentProperty = targetProperty.FindParentProperty();
 
             if (parentProperty != null)
-                root.TrackPropertyValue(parentProperty, _ => onValueChanged(parentProperty, targetProperty.serializedObject));
+                root.TrackPropertyValue(
+                    parentProperty,
+                    _ => onValueChanged(parentProperty, targetProperty.serializedObject)
+                );
             else
-                root.TrackSerializedObjectValue(targetProperty.serializedObject, _ => onValueChanged(parentProperty, targetProperty.serializedObject));
+                root.TrackSerializedObjectValue(
+                    targetProperty.serializedObject,
+                    _ => onValueChanged(parentProperty, targetProperty.serializedObject)
+                );
 
             onValueChanged(parentProperty, targetProperty.serializedObject);
 
             return root;
         }
 
-        public override void OnGUI(Rect position, SerializedProperty targetProperty, GUIContent label)
+        public override void OnGUI(
+            Rect position,
+            SerializedProperty targetProperty,
+            GUIContent label
+        )
         {
             var displayAttribute = attribute as ShowIfAttribute;
 
@@ -173,7 +192,10 @@ namespace Shears.Editor
                 EditorGUI.PropertyField(position, targetProperty, label);
         }
 
-        private SerializedProperty GetConditionProperty(SerializedProperty targetProperty, string conditionName)
+        private SerializedProperty GetConditionProperty(
+            SerializedProperty targetProperty,
+            string conditionName
+        )
         {
             var parent = targetProperty.FindParentProperty();
 
