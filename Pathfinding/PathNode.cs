@@ -68,7 +68,7 @@ namespace Shears.Pathfinding
         public int FCost => gCost + hCost;
         public int HeapIndex { get; set; }
 
-        public event Action Updated
+        public event Action<PathNodeData> Updated
         {
             add
             {

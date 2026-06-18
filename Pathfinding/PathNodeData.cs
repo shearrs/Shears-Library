@@ -8,7 +8,7 @@ namespace Shears.Pathfinding
     {
         public abstract Color EditorColor { get; }
 
-        public event Action Updated;
+        public event Action<PathNodeData> Updated;
 
         public virtual object Clone()
         {
@@ -19,7 +19,7 @@ namespace Shears.Pathfinding
 
         protected void InvokeUpdated()
         {
-            Updated?.Invoke();
+            Updated?.Invoke(this);
         }
     }
 }
