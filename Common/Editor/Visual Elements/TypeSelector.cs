@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using UnityEditor;
+using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -8,40 +9,68 @@ namespace Shears.Editor
 {
     public class TypeSelector : VisualElement
     {
-        public enum SelectionType { Attribute, Inheritance }
+        public enum SelectionType
+        {
+            Attribute,
+            Inheritance,
+        }
 
         private readonly SerializableSystemType defaultType;
         private readonly SerializableSystemType searchType;
         private readonly SelectionType selectionType;
         private readonly Label label;
         private readonly Button button;
+        private readonly bool isSearchable;
         private SerializedProperty boundProperty;
 
-        public static TypeSelector CreateAttributeSelector<T>(SerializableSystemType? defaultType = null) where T : Attribute
+        public static TypeSelector CreateAttributeSelector<T>(
+            SerializableSystemType? defaultType = null,
+            bool isSearchable = false
+        )
+            where T : Attribute
         {
             if (!defaultType.HasValue)
                 defaultType = SerializableSystemType.Empty;
 
-            var selector = new TypeSelector(SelectionType.Attribute, defaultType.Value, typeof(T));
+            var selector = new TypeSelector(
+                SelectionType.Attribute,
+                defaultType.Value,
+                typeof(T),
+                isSearchable
+            );
 
             return selector;
         }
 
-        public static TypeSelector CreateInheritanceSelector<T>(SerializableSystemType? defaultType = null)
+        public static TypeSelector CreateInheritanceSelector<T>(
+            SerializableSystemType? defaultType = null,
+            bool isSearchable = false
+        )
         {
             if (!defaultType.HasValue)
                 defaultType = SerializableSystemType.Empty;
 
-            var selector = new TypeSelector(SelectionType.Inheritance, defaultType.Value, typeof(T));
+            var selector = new TypeSelector(
+                SelectionType.Inheritance,
+                defaultType.Value,
+                typeof(T),
+                isSearchable
+            );
 
             return selector;
         }
 
-        private TypeSelector(SelectionType selectionType, SerializableSystemType defaultType, SerializableSystemType searchType)
+        private TypeSelector(
+            SelectionType selectionType,
+            SerializableSystemType defaultType,
+            SerializableSystemType searchType,
+            bool isSearchable
+        )
         {
             this.defaultType = defaultType;
             this.searchType = searchType;
             this.selectionType = selectionType;
+            this.isSearchable = isSearchable;
 
             var container = new VisualElement();
             container.style.flexDirection = FlexDirection.Row;
@@ -57,11 +86,12 @@ namespace Shears.Editor
 
             button = new Button(ShowContextMenu)
             {
-                text = defaultType == SerializableSystemType.Empty ? "None" : defaultType.PrettyName
+                text =
+                    defaultType == SerializableSystemType.Empty ? "None" : defaultType.PrettyName,
             };
             button.style.flexGrow = 1;
             button.style.marginLeft = StyleKeyword.Auto;
-            
+
             container.AddAll(label, button);
             Add(container);
         }
@@ -88,9 +118,18 @@ namespace Shears.Editor
 
         private void ShowContextMenu()
         {
+            if (!isSearchable)
+                ShowUnsearchableMenu();
+            else
+                ShowSearchableMenu();
+        }
+
+        private void ShowUnsearchableMenu()
+        {
             GenericMenu menu = new();
 
-            string defaultText = defaultType == SerializableSystemType.Empty ? "None" : defaultType.PrettyName;
+            string defaultText =
+                defaultType == SerializableSystemType.Empty ? "None" : defaultType.PrettyName;
 
             menu.AddItem(new GUIContent(defaultText), false, () => SetType(defaultType));
             TypeCache.TypeCollection types;
@@ -111,10 +150,23 @@ namespace Shears.Editor
             menu.ShowAsContext();
         }
 
+        private void ShowSearchableMenu()
+        {
+            var menu = new TypeDropdown(
+                selectionType,
+                searchType,
+                SetType,
+                new AdvancedDropdownState()
+            );
+
+            menu.Show(button.worldBound, 300);
+        }
+
         private void TryAddMenuItem(GenericMenu menu, Type type)
         {
             var attribute = type.GetCustomAttribute<TypeSelectorItemAttribute>();
-            string path = attribute != null ? attribute.MenuPath : StringUtil.PascalSpace(type.Name);
+            string path =
+                attribute != null ? attribute.MenuPath : StringUtil.PascalSpace(type.Name);
 
             menu.AddItem(new GUIContent(path), false, () => SetType(type));
         }
@@ -125,6 +177,68 @@ namespace Shears.Editor
             boundProperty.serializedObject.ApplyModifiedProperties();
 
             button.text = type == SerializableSystemType.Empty ? "None" : type.PrettyName;
+        }
+
+        private class TypeDropdown : AdvancedDropdown
+        {
+            private readonly SelectionType selectionType;
+            private readonly Type searchType;
+            private readonly Action<SerializableSystemType> setType;
+
+            public TypeDropdown(
+                SelectionType selectionType,
+                Type searchType,
+                Action<SerializableSystemType> setType,
+                AdvancedDropdownState state
+            )
+                : base(state)
+            {
+                this.selectionType = selectionType;
+                this.searchType = searchType;
+                this.setType = setType;
+            }
+
+            protected override AdvancedDropdownItem BuildRoot()
+            {
+                var root = new AdvancedDropdownItem($"{searchType.Name.PascalSpace()}");
+                TypeCache.TypeCollection types;
+
+                if (selectionType == SelectionType.Attribute)
+                    types = TypeCache.GetTypesWithAttribute(searchType);
+                else
+                    types = TypeCache.GetTypesDerivedFrom(searchType);
+
+                foreach (var type in types)
+                {
+                    if (type.IsAbstract)
+                        continue;
+
+                    var attribute = type.GetCustomAttribute<TypeSelectorItemAttribute>();
+                    string path =
+                        attribute != null ? attribute.MenuPath : StringUtil.PascalSpace(type.Name);
+
+                    root.AddChild(new TypeItem(path, () => setType(type)));
+                }
+
+                return root;
+            }
+
+            protected override void ItemSelected(AdvancedDropdownItem item)
+            {
+                if (item is TypeItem typeItem)
+                    typeItem.setType();
+            }
+
+            private class TypeItem : AdvancedDropdownItem
+            {
+                public readonly Action setType;
+
+                public TypeItem(string name, Action setType)
+                    : base(name)
+                {
+                    this.setType = setType;
+                }
+            }
         }
     }
 }

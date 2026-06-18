@@ -6,20 +6,20 @@ namespace Shears
     public static class StringUtil
     {
         // sourced from Binary Worrier @ https://stackoverflow.com/questions/272633/add-spaces-before-capital-letters
-        public static string PascalSpace(string pascalText)
+        public static string PascalSpace(this string text)
         {
-            if (string.IsNullOrWhiteSpace(pascalText))
+            if (string.IsNullOrWhiteSpace(text))
                 return "";
 
-            var builder = new StringBuilder(pascalText.Length * 2);
-            builder.Append(pascalText[0]);
+            var builder = new StringBuilder(text.Length * 2);
+            builder.Append(text[0]);
 
-            for (int i = 1; i < pascalText.Length; i++)
+            for (int i = 1; i < text.Length; i++)
             {
-                if (char.IsUpper(pascalText[i]) && pascalText[i - 1] != ' ')
+                if (char.IsUpper(text[i]) && text[i - 1] != ' ')
                     builder.Append(' ');
 
-                builder.Append(pascalText[i]);
+                builder.Append(text[i]);
             }
 
             return builder.ToString();

@@ -1,5 +1,6 @@
 using System.Linq;
 using UnityEditor;
+using UnityEditor.IMGUI.Controls;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -18,7 +19,11 @@ namespace Shears.Editor
         /// <param name="height">The height of the element.</param>
         /// <param name="color">The color of the element.</param>
         /// <returns>A square test element with absolute positioning.</returns>
-        public static VisualElement CreateTestElement(float width = 50, float height = 50, Color color = default)
+        public static VisualElement CreateTestElement(
+            float width = 50,
+            float height = 50,
+            Color color = default
+        )
         {
             if (color == default)
                 color = Color.white;
@@ -93,7 +98,13 @@ namespace Shears.Editor
         /// </summary>
         /// <param name="element">The element to set margins for.</param>
         /// <param name="margin">The size of margins in pixels.</param>
-        public static void SetAllMargins(this VisualElement element, int marginTop, int marginRight, int marginBottom, int marginLeft)
+        public static void SetAllMargins(
+            this VisualElement element,
+            int marginTop,
+            int marginRight,
+            int marginBottom,
+            int marginLeft
+        )
         {
             element.style.marginTop = marginTop;
             element.style.marginRight = marginRight;
@@ -119,12 +130,13 @@ namespace Shears.Editor
         /// </summary>
         /// <param name="serializedObject">The <see cref="SerializedObject"/> to create fields for.</param>
         /// <returns>A <see cref="VisualElement"/> with all default <see cref="PropertyField"/>s for the passed <see cref="SerializedObject"/>.</returns>
-        public static VisualElement CreateDefaultFields(SerializedObject serializedObject, bool includeScript = true, params string[] excludedFields)
+        public static VisualElement CreateDefaultFields(
+            SerializedObject serializedObject,
+            bool includeScript = true,
+            params string[] excludedFields
+        )
         {
-            var container = new VisualElement
-            {
-                name = "Default Fields"
-            };
+            var container = new VisualElement { name = "Default Fields" };
 
             var iterator = serializedObject.GetIterator();
             bool isNext = iterator.Next(true);
@@ -142,10 +154,7 @@ namespace Shears.Editor
                 if (prop.name == "m_Script" && !includeScript)
                     continue;
 
-                var field = new PropertyField(prop)
-                {
-                    name = prop.name
-                };
+                var field = new PropertyField(prop) { name = prop.name };
                 field.Bind(prop.serializedObject);
 
                 if (prop.name == "m_Script")
@@ -156,13 +165,10 @@ namespace Shears.Editor
 
             return container;
         }
-    
+
         public static VisualElement CreateDefaultFields(SerializedProperty serializedProperty)
         {
-            var container = new VisualElement
-            {
-                name = "Default Fields"
-            };
+            var container = new VisualElement { name = "Default Fields" };
 
             var iterator = serializedProperty;
             bool isNext = iterator.Next(true);
@@ -173,10 +179,7 @@ namespace Shears.Editor
             while (iterator.NextVisible(false))
             {
                 var prop = iterator.Copy();
-                var field = new PropertyField(prop)
-                {
-                    name = prop.name
-                };
+                var field = new PropertyField(prop) { name = prop.name };
                 field.Bind(prop.serializedObject);
 
                 if (prop.name == "m_Script")
@@ -187,8 +190,11 @@ namespace Shears.Editor
 
             return container;
         }
-    
-        public static void CreateDefaultFieldsIMGUI(SerializedObject serializedObject, bool includeScript = true)
+
+        public static void CreateDefaultFieldsIMGUI(
+            SerializedObject serializedObject,
+            bool includeScript = true
+        )
         {
             var iterator = serializedObject.GetIterator();
             bool isNext = iterator.Next(true);
@@ -216,15 +222,46 @@ namespace Shears.Editor
         public static VisualElement CreateScriptField(SerializedObject serializedObject)
         {
             var scriptProp = serializedObject.FindProperty("m_Script");
-            var scriptField = new PropertyField(scriptProp)
-            {
-                name = "m_Script"
-            };
+            var scriptField = new PropertyField(scriptProp) { name = "m_Script" };
 
             scriptField.Bind(serializedObject);
             scriptField.SetEnabled(false);
 
             return scriptField;
+        }
+
+        // from user "SisusCo": https://discussions.unity.com/t/add-maximum-window-size-to-advanceddropdown-control/753671/3
+        public static void Show(this AdvancedDropdown dropdown, Rect buttonRect, float maxHeight)
+        {
+            dropdown.Show(buttonRect);
+
+            var window = EditorWindow.focusedWindow;
+
+            if (window == null)
+            {
+                Debug.LogWarning("EditorWindow.focusedWindow was null.");
+                return;
+            }
+
+            if (!string.Equals(window.GetType().Namespace, typeof(AdvancedDropdown).Namespace))
+            {
+                Debug.LogWarning(
+                    "EditorWindow.focusedWindow "
+                        + EditorWindow.focusedWindow.GetType().FullName
+                        + " was not in expected namespace."
+                );
+                return;
+            }
+
+            var rect = window.position;
+            if (rect.height <= maxHeight)
+                return;
+
+            rect.height = maxHeight;
+            window.minSize = rect.size;
+            window.maxSize = rect.size;
+            window.position = rect;
+            window.ShowAsDropDown(GUIUtility.GUIToScreenRect(buttonRect), rect.size);
         }
     }
 }
