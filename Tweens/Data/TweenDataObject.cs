@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using static Shears.Tweens.EasingFunction;
 
 namespace Shears.Tweens
 {
@@ -8,22 +7,38 @@ namespace Shears.Tweens
     public class TweenDataObject : ScriptableObject, ITweenData
     {
         [field: Header("Duration Settings")]
-        [field: SerializeField] public float Duration { get; private set; } = 1;
-        [field: SerializeField] public bool ForceFinalValue { get; private set; } = true;
-        [field: SerializeField] public Tween.UpdateMode UpdateMode { get; private set; } = Tween.UpdateMode.Update;
-        [field: SerializeField] public bool UnscaledTime { get; private set; } = false;
+        [field: SerializeField]
+        public float Duration { get; private set; } = 1;
+
+        [field: SerializeField]
+        public bool ForceFinalValue { get; private set; } = true;
+
+        [field: SerializeField]
+        public Tween.UpdateMode UpdateMode { get; private set; } = Tween.UpdateMode.Update;
+
+        [field: SerializeField]
+        public bool UnscaledTime { get; private set; } = false;
 
         [field: Header("Loop Settings")]
-        [field: SerializeField] public int Loops { get; private set; } = 0;
-        [field: SerializeField] public LoopMode LoopMode { get; private set; }
+        [field: SerializeField]
+        public int Loops { get; private set; } = 0;
+
+        [field: SerializeField]
+        public LoopMode LoopMode { get; private set; }
 
         [field: Header("Ease Settings")]
-        [SerializeField] private bool usesCurve = false;
-        [field: SerializeField, ShowIf("!usesCurve")] public TweenEase EasingFunction { get; private set; } = TweenEase.Linear;
-        [field: SerializeField, ShowIf("usesCurve")] public AnimationCurve Curve { get; private set; }
+        [SerializeField]
+        private bool usesCurve = false;
+
+        [field: SerializeField, ShowIf("!usesCurve")]
+        public TweenEase EasingFunction { get; private set; } = TweenEase.Linear;
+
+        [field: SerializeField, ShowIf("usesCurve")]
+        public AnimationCurve Curve { get; private set; }
 
         [Header("Events")]
-        [SerializeField] private List<TweenUnityEvent> unityEvents = new();
+        [SerializeField]
+        private List<TweenUnityEvent> unityEvents = new();
 
         public bool UsesCurve => usesCurve;
         public IReadOnlyList<TweenEventBase> Events => unityEvents;
