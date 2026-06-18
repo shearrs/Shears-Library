@@ -8,11 +8,18 @@ namespace Shears.Pathfinding
     {
         public abstract Color EditorColor { get; }
 
+        public event Action Updated;
+
         public virtual object Clone()
         {
             return MemberwiseClone();
         }
 
         public virtual void DrawHandles(Vector3 nodePosition, float nodeSize) { }
+
+        protected void InvokeUpdated()
+        {
+            Updated?.Invoke();
+        }
     }
 }
