@@ -20,9 +20,14 @@ namespace Shears.HitDetection
         public readonly int DataCount => dataCount;
         public readonly bool Blocked => blocked;
 
-        internal HitData3D(HitShape3D hitShape, HitBody3D hitBody, HurtBody3D hurtBody,
-            HitResult3D result, IReadOnlyCollection<IHitSubdata> data,
-            bool blocked)
+        internal HitData3D(
+            HitShape3D hitShape,
+            HitBody3D hitBody,
+            HurtBody3D hurtBody,
+            HitResult3D result,
+            IReadOnlyCollection<IHitSubdata> data,
+            bool blocked
+        )
         {
             this.hitShape = hitShape;
             this.hitBody = hitBody;
@@ -33,9 +38,21 @@ namespace Shears.HitDetection
             this.blocked = blocked;
         }
 
+        public HitData3D(HurtBody3D hurtBody, params IHitSubdata[] data)
+        {
+            hitShape = null;
+            hitBody = null;
+            this.hurtBody = hurtBody;
+            result = default;
+            this.data = data;
+            dataCount = (data == null) ? 0 : data.Length;
+            blocked = false;
+        }
+
         public readonly IHitSubdata GetDataAt(int index) => data.ElementAt(index);
 
-        public readonly bool TryGetData<T>(out T data) where T : IHitSubdata
+        public readonly bool TryGetData<T>(out T data)
+            where T : IHitSubdata
         {
             if (this.data == null)
             {
