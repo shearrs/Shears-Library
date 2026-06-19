@@ -174,7 +174,7 @@ namespace Shears.HitDetection
             DetectHits();
         }
 
-        private void DetectHits()
+        public void DetectHits()
         {
             if (shapes.Count == 0)
             {

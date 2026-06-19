@@ -193,6 +193,12 @@ namespace Shears.HitDetection
             ArrayPool<RaycastHit>.Shared.Return(rayResults);
         }
 
+        public void ResetContinuousCollision()
+        {
+            isFirstFrame = true;
+            previousPosition = TCenter;
+        }
+
         internal override void Sweep(DetectionHandle handle)
         {
             isDetecting = true;
