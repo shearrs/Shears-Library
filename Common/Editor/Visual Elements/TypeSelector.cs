@@ -23,6 +23,8 @@ namespace Shears.Editor
         private readonly bool isSearchable;
         private SerializedProperty boundProperty;
 
+        public event Action<SerializableSystemType> TypeChanged;
+
         public static TypeSelector CreateAttributeSelector<T>(
             SerializableSystemType? defaultType = null,
             bool isSearchable = false
@@ -155,6 +157,7 @@ namespace Shears.Editor
             var menu = new TypeDropdown(
                 selectionType,
                 searchType,
+                defaultType,
                 SetType,
                 new AdvancedDropdownState()
             );
@@ -177,17 +180,21 @@ namespace Shears.Editor
             boundProperty.serializedObject.ApplyModifiedProperties();
 
             button.text = type == SerializableSystemType.Empty ? "None" : type.PrettyName;
+
+            TypeChanged?.Invoke(type);
         }
 
         private class TypeDropdown : AdvancedDropdown
         {
             private readonly SelectionType selectionType;
-            private readonly Type searchType;
+            private readonly SerializableSystemType searchType;
+            private readonly SerializableSystemType defaultType;
             private readonly Action<SerializableSystemType> setType;
 
             public TypeDropdown(
                 SelectionType selectionType,
-                Type searchType,
+                SerializableSystemType searchType,
+                SerializableSystemType defaultType,
                 Action<SerializableSystemType> setType,
                 AdvancedDropdownState state
             )
@@ -195,13 +202,19 @@ namespace Shears.Editor
             {
                 this.selectionType = selectionType;
                 this.searchType = searchType;
+                this.defaultType = defaultType;
                 this.setType = setType;
             }
 
             protected override AdvancedDropdownItem BuildRoot()
             {
-                var root = new AdvancedDropdownItem($"{searchType.Name.PascalSpace()}");
+                var root = new AdvancedDropdownItem($"{searchType.PrettyName}");
                 TypeCache.TypeCollection types;
+
+                string defaultText =
+                    defaultType == SerializableSystemType.Empty ? "None" : defaultType.PrettyName;
+
+                root.AddChild(new TypeItem(defaultText, () => setType(defaultType)));
 
                 if (selectionType == SelectionType.Attribute)
                     types = TypeCache.GetTypesWithAttribute(searchType);
