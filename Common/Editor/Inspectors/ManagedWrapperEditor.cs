@@ -35,9 +35,13 @@ namespace Shears.Editor
         private void SetHideFlags()
         {
             var wrappedValueSO = new SerializedObject(wrappedValue);
-            wrappedValueSO.FindProperty("m_ObjectHideFlags").intValue = (int)HideFlags.HideInInspector;
+            var flagsProp = wrappedValueSO.FindProperty("m_ObjectHideFlags");
+
+            if (flagsProp.intValue == (int)HideFlags.HideInInspector)
+                return;
+
+            flagsProp.intValue = (int)HideFlags.HideInInspector;
             wrappedValueSO.ApplyModifiedPropertiesWithoutUndo();
-            EditorUtility.SetDirty(wrappedValueSO.targetObject);
         }
 
         protected virtual void OnDestroy()
@@ -89,7 +93,9 @@ namespace Shears.Editor
 
                         if (prop == null)
                         {
-                            Debug.LogError($"Could not find property with name {fieldName} on type {wrappedValue.GetType().Name}!");
+                            Debug.LogError(
+                                $"Could not find property with name {fieldName} on type {wrappedValue.GetType().Name}!"
+                            );
                             continue;
                         }
 
@@ -128,7 +134,7 @@ namespace Shears.Editor
                 var wrappedFoldout = new Foldout
                 {
                     text = $"Wrapped {wrappedValue.GetType().Name} Settings",
-                    value = false
+                    value = false,
                 };
                 wrappedFoldout.AddStyleSheet(ShearsStyles.InspectorStyles);
                 wrappedFoldout.AddToClassList(ShearsStyles.DarkFoldoutClass);
