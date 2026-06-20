@@ -68,6 +68,28 @@ namespace Shears.Editor
         }
 
         /// <summary>
+        /// Shorthand function for setting all padding values on a <see cref="VisualElement"/>.
+        /// </summary>
+        /// <param name="element">The elemend to pad.</param>
+        /// <param name="paddingTop">The amount of top padding.</param>
+        /// <param name="paddingRight">The amount of right padding.</param>
+        /// <param name="paddingBottom">The amount of bottom padding.</param>
+        /// <param name="paddingLeft">The amount of left padding.</param>
+        public static void SetAllPadding(
+            this VisualElement element,
+            int paddingTop,
+            int paddingRight,
+            int paddingBottom,
+            int paddingLeft
+        )
+        {
+            element.style.paddingTop = paddingTop;
+            element.style.paddingRight = paddingRight;
+            element.style.paddingBottom = paddingBottom;
+            element.style.paddingLeft = paddingLeft;
+        }
+
+        /// <summary>
         /// Shorthand function for setting all border values on a <see cref="VisualElement"/>.
         /// </summary>
         /// <param name="element">The element to set borders for.</param>

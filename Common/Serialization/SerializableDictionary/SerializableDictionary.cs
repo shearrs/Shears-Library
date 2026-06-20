@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,10 +11,13 @@ namespace Shears
     /// <typeparam name="TKey">The type of the dictionary's keys.</typeparam>
     /// <typeparam name="TValue">The type of the dictionary's values.</typeparam>
     [System.Serializable]
-    internal struct SerializableDictionaryEntry<TKey, TValue>
+    public struct SerializableDictionaryEntry<TKey, TValue>
     {
-        [SerializeField] private TKey key;
-        [SerializeField] private TValue value;
+        [SerializeField]
+        private TKey key;
+
+        [SerializeField]
+        private TValue value;
 
         public readonly TKey Key => key;
         public readonly TValue Value => value;
@@ -29,9 +34,13 @@ namespace Shears
     /// </summary>
     /// <typeparam name="TKey">The type of the dictionary's keys.</typeparam>
     /// <typeparam name="TValue">The type of the dictionary's values.</typeparam>
-    public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver
+    [System.Serializable]
+    public class SerializableDictionary<TKey, TValue>
+        : Dictionary<TKey, TValue>,
+            ISerializationCallbackReceiver
     {
-        [SerializeField] private List<SerializableDictionaryEntry<TKey, TValue>> entries = new();
+        [SerializeField]
+        private List<SerializableDictionaryEntry<TKey, TValue>> entries = new();
 
         void ISerializationCallbackReceiver.OnBeforeSerialize()
         {
@@ -53,7 +62,12 @@ namespace Shears
                 var key = entry.Key;
 
                 if (ContainsKey(key))
-                    key = default;
+                {
+                    if (typeof(TKey) == typeof(string))
+                        key = (TKey)(Guid.NewGuid().ToString() as object);
+                    else
+                        key = default;
+                }
 
                 Add(key, entry.Value);
             }
@@ -61,15 +75,20 @@ namespace Shears
     }
 
     /// <summary>
-    /// A serializable dictionary that can be used in the Unity Inspector, with support Unity's <see cref="SerializeReference"/> attribute..
+    /// A serializable dictionary that can be used in the Unity Inspector. Supports Unity's <see cref="SerializeReference"/> attribute.
     /// </summary>
     /// <typeparam name="TKey">The type of the dictionary's keys.</typeparam>
     /// <typeparam name="TValue">The type of the dictionary's values.</typeparam>
     [System.Serializable]
-    public class SerializableReferenceDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver
+    public class SerializableReferenceDictionary<TKey, TValue>
+        : Dictionary<TKey, TValue>,
+            ISerializationCallbackReceiver
     {
-        [SerializeField] private List<TKey> keys = new();
-        [SerializeReference] private List<TValue> values = new();
+        [SerializeField]
+        private List<TKey> keys = new();
+
+        [SerializeReference]
+        private List<TValue> values = new();
         private readonly List<KeyToRemove> keysToRemove = new();
 
         private readonly struct KeyToRemove
@@ -121,7 +140,9 @@ namespace Shears
             int valueCount = values.Count;
 
             if (keyCount != valueCount)
-                throw new System.Exception("Number of keys not equal to number of values! Make sure both types are serializable.");
+                throw new System.Exception(
+                    "Number of keys not equal to number of values! Make sure both types are serializable."
+                );
 
             for (int i = 0; i < keyCount; i++)
                 Add(keys[i], values[i]);

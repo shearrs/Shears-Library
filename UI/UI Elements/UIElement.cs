@@ -1,30 +1,55 @@
-using Shears.Logging;
-using Shears.Tweens;
 using System;
 using System.Collections.Generic;
+using Shears.Logging;
+using Shears.Tweens;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Shears.UI
 {
     public class UIElement : SHMonoBehaviourLogger
     {
+        [Header("UI Element")]
+        [SerializeField, RuntimeReadOnly]
+        private GameObject graphicsContainer;
+
         private readonly Dictionary<Type, object> registrations = new();
         private readonly Dictionary<IRef, object> refBindings = new();
         private readonly Dictionary<IRef, object> rawRefBindings = new();
         private readonly List<UIElement> childElements = new();
         private readonly TweenStorage tweenStorage = new();
-        private bool isEnabled = false;
+        private bool isEnabled = true;
         private float dragBeginTime = 0.1f;
 
         protected IReadOnlyList<Tween> Tweens => tweenStorage.Tweens;
-        public bool IsEnabled => isEnabled;
-        public float DragBeginTime { get => dragBeginTime; set => dragBeginTime = value; }
+        public GameObject GraphicsContainer
+        {
+            get
+            {
+                if (graphicsContainer == null)
+                    graphicsContainer = gameObject;
 
+                return graphicsContainer;
+            }
+            set => graphicsContainer = value;
+        }
+        public bool IsEnabled => isEnabled;
+        public bool IsHovered { get; internal set; }
+        public float DragBeginTime
+        {
+            get => dragBeginTime;
+            set => dragBeginTime = value;
+        }
         public event Action Disabled;
 
         protected virtual void Awake()
         {
-            Enable();
+            GetComponentsInChildren(true, childElements);
+
+            if (GraphicsContainer.activeInHierarchy)
+                Enable();
+            else
+                Disable();
 
             RegisterEvents();
 
@@ -41,26 +66,29 @@ namespace Shears.UI
             Unbind();
         }
 
+        private void OnTransformChildrenChanged()
+        {
+            GetComponentsInChildren(true, childElements);
+        }
+
         protected virtual void BindRefs() { }
 
         public void Enable()
         {
-            if (isEnabled)
-                return;
-
-            gameObject.SetActive(true);
+            GraphicsContainer.SetActive(true);
 
             isEnabled = true;
         }
 
         public void Disable()
         {
-            if (!isEnabled)
-                return;
-
-            gameObject.SetActive(false);
-
+            bool wasEnabled = isEnabled;
             isEnabled = false;
+
+            GraphicsContainer.SetActive(false);
+
+            if (wasEnabled && GraphicsContainer != gameObject)
+                Disabled?.Invoke();
         }
 
         private void OnValidate()
@@ -68,6 +96,7 @@ namespace Shears.UI
             Invoke(nameof(SetLayer), 0f);
         }
 
+        #region Event Registration
         public void RegisterEvent<EventType>(Action<EventType> callback)
             where EventType : UIEvent
         {
@@ -79,18 +108,22 @@ namespace Shears.UI
                 registrations[eventType] = list;
             }
 
-            ((List<IEventRegistration<EventType>>)list).Add(new EventRegistration<EventType>(callback));
+            ((List<IEventRegistration<EventType>>)list).Add(
+                new EventRegistration<EventType>(callback)
+            );
         }
 
         public void DeregisterEvent<EventType>(Action<EventType> callback)
-            where EventType: UIEvent
+            where EventType : UIEvent
         {
             var eventType = typeof(EventType);
 
             if (!registrations.TryGetValue(eventType, out var list))
                 return;
 
-            ((List<IEventRegistration<EventType>>)list).Remove(new EventRegistration<EventType>(callback));
+            ((List<IEventRegistration<EventType>>)list).Remove(
+                new EventRegistration<EventType>(callback)
+            );
         }
 
         internal void InvokeEvent<EventType>(EventType evt)
@@ -103,7 +136,7 @@ namespace Shears.UI
 
                 if (evt.TrickleDown)
                 {
-                    GetComponentsInChildren(childElements);
+                    evt.IsTricklingDown = true;
 
                     foreach (var child in childElements)
                     {
@@ -116,6 +149,8 @@ namespace Shears.UI
 
                 if (evt.BubbleUp)
                 {
+                    evt.IsBubblingUp = true;
+
                     if (transform.parent == null)
                         return;
 
@@ -126,9 +161,17 @@ namespace Shears.UI
                 }
             }
         }
+        #endregion
 
+        #region Tweens
         protected Tween GetFirstValidTween() => tweenStorage.GetFirstValid();
 
+        protected Tween StoreTween(Tween tween) => tweenStorage.Store(tween);
+
+        protected void DisposeTweens() => tweenStorage.Dispose();
+        #endregion
+
+        #region Children
         internal UIElement GetDeepestChild()
         {
             GetDeepestChildRecursive(0, out var child);
@@ -148,7 +191,10 @@ namespace Shears.UI
                 if (!child.TryGetComponent(out UIElement element))
                     continue;
 
-                int currentDepth = element.GetDeepestChildRecursive(depth + 1, out var currentChild);
+                int currentDepth = element.GetDeepestChildRecursive(
+                    depth + 1,
+                    out var currentChild
+                );
 
                 if (currentDepth > deepestDepth)
                     deepestChild = currentChild;
@@ -156,11 +202,13 @@ namespace Shears.UI
 
             return deepestDepth;
         }
+        #endregion
 
         public void Focus() => UIElementEventSystem.Focus(this);
 
         public void Blur() => UIElementEventSystem.Focus(null);
 
+        #region Binding Events
         protected void Bind<T>(IReadOnlyRef<T> refVar, Action<RefChangeEvent<T>> action)
         {
             if (refBindings.ContainsKey(refVar))
@@ -176,7 +224,10 @@ namespace Shears.UI
         {
             if (rawRefBindings.ContainsKey(refVar))
             {
-                Log($"{nameof(UIElement)} already has raw binding for ${refVar}!", SHLogLevels.Warning);
+                Log(
+                    $"{nameof(UIElement)} already has raw binding for ${refVar}!",
+                    SHLogLevels.Warning
+                );
                 return;
             }
 
@@ -208,12 +259,9 @@ namespace Shears.UI
             rawRefBindings.Remove(refVar);
         }
 
-        protected void StoreTween(Tween tween) => tweenStorage.Store(tween);
-
-        protected void DisposeTweens() => tweenStorage.Dispose();
-
         protected virtual void RegisterEvents() { }
-    
+        #endregion
+
         private void SetLayer()
         {
             gameObject.layer = LayerMask.NameToLayer("UI");

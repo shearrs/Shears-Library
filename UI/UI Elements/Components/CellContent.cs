@@ -1,5 +1,5 @@
-using Shears.Tweens;
 using System;
+using Shears.Tweens;
 using UnityEngine;
 
 namespace Shears.UI
@@ -28,7 +28,11 @@ namespace Shears.UI
         private bool initialized = false;
 
         public Renderer Renderer => renderer;
-        public ElementCell Cell { get => cell; set => cell = value; }
+        public ElementCell Cell
+        {
+            get => cell;
+            set => cell = value;
+        }
         public ColorModulator ColorModulator => colorModulator;
 
         public event Action DragBegan;
@@ -127,7 +131,11 @@ namespace Shears.UI
 
             Vector3 pointerWorld = evt.PointerWorldPosition;
             Vector3 targetPosition = pointerWorld + offset;
-            element.transform.position = Vector3.MoveTowards(element.transform.position, targetPosition, MOVE_SPEED * Time.deltaTime);
+            element.transform.position = Vector3.MoveTowards(
+                element.transform.position,
+                targetPosition,
+                MOVE_SPEED * Time.deltaTime
+            );
         }
 
         private void OnDragEnd(DragEndEvent evt)
@@ -136,7 +144,7 @@ namespace Shears.UI
 
             colorModulator.CanChangeColor = true;
 
-            if (colorModulator.IsHovered)
+            if (cell.IsHovered)
                 colorModulator.TweenToHover();
             else
                 colorModulator.ClearModulation();

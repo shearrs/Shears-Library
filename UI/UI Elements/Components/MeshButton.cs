@@ -1,7 +1,7 @@
-using Shears.Logging;
-using Shears.Tweens;
 using System;
 using System.Collections.Generic;
+using Shears.Logging;
+using Shears.Tweens;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -25,7 +25,10 @@ namespace Shears.UI
         [SerializeField]
         private UnityEvent clicked;
 
-        private readonly StructTweenData notSelectableTweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
+        private readonly StructTweenData notSelectableTweenData = new(
+            0.1f,
+            easingFunction: TweenEase.InOutQuad
+        );
         private readonly List<TextMeshPro> textChildren = new();
         private readonly TweenStorage tweenStorage = new();
         private ColorModulator colorModulator;
@@ -33,7 +36,11 @@ namespace Shears.UI
         private bool isFadingOut = false;
         private bool initializeColor = true;
 
-        public bool InitializeColor { get => initializeColor; set => initializeColor = value; }
+        public bool InitializeColor
+        {
+            get => initializeColor;
+            set => initializeColor = value;
+        }
         public ColorModulator ColorModulator
         {
             get
@@ -44,8 +51,11 @@ namespace Shears.UI
                 return colorModulator;
             }
         }
-        public bool IsHovered => colorModulator != null && colorModulator.IsHovered;
-        public bool Selectable { get => selectable; set => SetSelectable(value); }
+        public bool Selectable
+        {
+            get => selectable;
+            set => SetSelectable(value);
+        }
 
         public event Action Clicked;
         public event Action FadeInCompleted;
@@ -89,7 +99,11 @@ namespace Shears.UI
             }
 
             isFadingIn = true;
-            var tweenData = new StructTweenData(duration, easingFunction: TweenEase.InOutQuad, unscaledTime: unscaledTime);
+            var tweenData = new StructTweenData(
+                duration,
+                easingFunction: TweenEase.InOutQuad,
+                unscaledTime: unscaledTime
+            );
 
             Enable();
             bool wasSelectable = selectable;
@@ -133,7 +147,11 @@ namespace Shears.UI
             }
 
             isFadingOut = true;
-            var tweenData = new StructTweenData(duration, easingFunction: TweenEase.InOutQuad, unscaledTime: unscaledTime);
+            var tweenData = new StructTweenData(
+                duration,
+                easingFunction: TweenEase.InOutQuad,
+                unscaledTime: unscaledTime
+            );
 
             bool wasSelectable = selectable;
             selectable = false;
@@ -203,7 +221,7 @@ namespace Shears.UI
 
             OnClickedImplementation();
         }
-    
+
         private void OnClickedImplementation()
         {
             Clicked?.Invoke();

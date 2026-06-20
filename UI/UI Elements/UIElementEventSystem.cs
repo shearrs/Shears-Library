@@ -229,8 +229,14 @@ namespace Shears.UI
             if (newHoverTarget == hoveredElement)
                 return;
 
+            if (newHoverTarget != null)
+                newHoverTarget.IsHovered = true;
+
             if (hoveredElement != null)
+            {
+                hoveredElement.IsHovered = false;
                 hoveredElement.InvokeEvent(new HoverExitEvent());
+            }
 
             hoveredElement = newHoverTarget;
 

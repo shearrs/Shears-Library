@@ -5,10 +5,13 @@ using UnityEngine.UI;
 namespace Shears.UI
 {
     [RequireComponent(typeof(Image))]
-    public class ManagedImage : MonoBehaviour, IColorTweenable
+    public class ManagedImage : ManagedWrapper<Image>, IColorTweenable
     {
-        [SerializeField] private Color baseColor = Color.white;
-        [SerializeField] private Color modulate = Color.white;
+        [SerializeField]
+        private Color baseColor = Color.white;
+
+        [SerializeField]
+        private Color modulate = Color.white;
 
         private Image image;
 
@@ -26,7 +29,7 @@ namespace Shears.UI
         public Color BaseColor
         {
             get => baseColor;
-            set 
+            set
             {
                 baseColor = value;
 
@@ -46,7 +49,11 @@ namespace Shears.UI
                 RawImage.color = color;
             }
         }
-    
-        public Sprite Sprite { get => RawImage.sprite; set => RawImage.sprite = value; }
+
+        public Sprite Sprite
+        {
+            get => RawImage.sprite;
+            set => RawImage.sprite = value;
+        }
     }
 }

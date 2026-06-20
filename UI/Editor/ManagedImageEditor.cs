@@ -2,6 +2,7 @@ using Shears.Editor;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 namespace Shears.UI.Editor
@@ -11,22 +12,55 @@ namespace Shears.UI.Editor
     {
         private UnityEngine.UI.Image image;
 
-        public void OnEnable()
+        protected virtual void OnEnable()
         {
-            var managedImage = target as ManagedImage;
-            image = managedImage.GetComponent<UnityEngine.UI.Image>();
+            if (image != null)
+                return;
 
-            image.hideFlags = HideFlags.HideInInspector;
+            var managedImage = target as ManagedImage;
+
+            if (managedImage == null)
+                return;
+
+            image = managedImage.RawImage;
+
+            EditorApplication.delayCall += SetHideFlags;
         }
 
         private void OnDisable()
         {
-            var managedImage = target as ManagedImage;
+            EditorApplication.delayCall -= SetHideFlags;
+        }
 
-            if (managedImage != null)
+        private void SetHideFlags()
+        {
+            var imageSO = new SerializedObject(image);
+            var flagsProp = imageSO.FindProperty("m_ObjectHideFlags");
+
+            if (flagsProp.intValue == (int)HideFlags.HideInInspector)
                 return;
 
-            DestroyImmediate(image);
+            flagsProp.intValue = (int)HideFlags.HideInInspector;
+            imageSO.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        protected virtual void OnDestroy()
+        {
+            if (target == null && image != null)
+            {
+                var wrappers = image.GetComponents<ManagedWrapper>();
+
+                foreach (var wrapper in wrappers)
+                {
+                    if (wrapper.WrappedValue == image)
+                        return;
+                }
+
+                if (Application.isPlaying)
+                    Destroy(image);
+                else
+                    DestroyImmediate(image);
+            }
         }
 
         public override VisualElement CreateInspectorGUI()
@@ -40,10 +74,7 @@ namespace Shears.UI.Editor
             var baseColorProp = serializedObject.FindProperty("baseColor");
             var modulateProp = serializedObject.FindProperty("modulate");
 
-            var spriteField = new ObjectField("Sprite")
-            {
-                objectType = typeof(Sprite)
-            };
+            var spriteField = new ObjectField("Sprite") { objectType = typeof(Sprite) };
             spriteField.BindProperty(spriteProp);
 
             void updateColor(SerializedPropertyChangeEvent evt)
@@ -59,15 +90,11 @@ namespace Shears.UI.Editor
             var modulateField = new PropertyField(modulateProp);
             modulateField.RegisterValueChangeCallback(updateColor);
 
-            var imageContainer = new Foldout
-            {
-                text = "Wrapped Image Settings",
-                value = false
-            };
+            var imageContainer = new Foldout { text = "Wrapped Image Settings", value = false };
             imageContainer.AddStyleSheet(ShearsStyles.InspectorStyles);
             imageContainer.AddToClassList(ShearsStyles.DarkFoldoutClass);
 
-            imageContainer.Add(Shears.Editor.VisualElementEditorUtil.CreateDefaultFields(imageSO));
+            imageContainer.Add(VisualElementEditorUtil.CreateDefaultFields(imageSO));
 
             root.AddAll(spriteField, colorField, modulateField, imageContainer);
 

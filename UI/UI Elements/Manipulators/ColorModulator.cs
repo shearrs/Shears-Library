@@ -1,6 +1,6 @@
-using Shears.Tweens;
 using System;
 using System.Collections.Generic;
+using Shears.Tweens;
 using UnityEngine;
 
 namespace Shears.UI
@@ -21,7 +21,6 @@ namespace Shears.UI
         private readonly Dictionary<RenderTarget, Color> originalColors = new();
         private readonly TweenData tweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
         private readonly TweenStorage tweenStorage = new();
-        private bool isHovered;
         private bool isDragged;
         private bool originalColorsInitialized = false;
 
@@ -35,16 +34,22 @@ namespace Shears.UI
                 return originalColors;
             }
         }
-        public bool IsHovered => isHovered;
         public bool IsDragged => isDragged;
         public List<RenderTarget> Renderers => renderTargets;
-        public bool CanChangeColor { get => canChangeColor; set => canChangeColor = value; }
+        public bool CanChangeColor
+        {
+            get => canChangeColor;
+            set => canChangeColor = value;
+        }
         #endregion
 
         [Serializable]
         public struct RenderTarget
         {
-            public static readonly RenderTarget Default = new(DEFAULT_HOVER_COLOR, DEFAULT_PRESSED_COLOR);
+            public static readonly RenderTarget Default = new(
+                DEFAULT_HOVER_COLOR,
+                DEFAULT_PRESSED_COLOR
+            );
 
             [SerializeField]
             public Renderer renderer;
@@ -123,8 +128,6 @@ namespace Shears.UI
         {
             evt.PreventTrickleDown();
 
-            isHovered = true;
-
             if (isDragged)
                 return;
 
@@ -134,8 +137,6 @@ namespace Shears.UI
         private void OnHoverExit(HoverExitEvent evt)
         {
             evt.PreventTrickleDown();
-
-            isHovered = false;
 
             if (isDragged)
                 return;
@@ -160,7 +161,7 @@ namespace Shears.UI
             if (isDragged)
                 return;
 
-            if (isHovered)
+            if (Element.IsHovered)
                 TweenToHover();
             else
                 ClearModulation();
@@ -188,9 +189,16 @@ namespace Shears.UI
             foreach (var target in renderTargets)
             {
                 if (target.renderer is SpriteRenderer spriteRenderer)
-                    tweenStorage.Store(spriteRenderer.DoColorTween(spriteRenderer.color.With(a: 1.0f), data));
+                    tweenStorage.Store(
+                        spriteRenderer.DoColorTween(spriteRenderer.color.With(a: 1.0f), data)
+                    );
                 else
-                    tweenStorage.Store(target.renderer.material.DoColorTween(target.renderer.material.color.With(a: 1.0f), data));
+                    tweenStorage.Store(
+                        target.renderer.material.DoColorTween(
+                            target.renderer.material.color.With(a: 1.0f),
+                            data
+                        )
+                    );
             }
 
             return tweenStorage.GetFirstValid();
@@ -206,9 +214,16 @@ namespace Shears.UI
             foreach (var target in renderTargets)
             {
                 if (target.renderer is SpriteRenderer spriteRenderer)
-                    tweenStorage.Store(spriteRenderer.DoColorTween(spriteRenderer.color.With(a: 0.0f), data));
+                    tweenStorage.Store(
+                        spriteRenderer.DoColorTween(spriteRenderer.color.With(a: 0.0f), data)
+                    );
                 else
-                    tweenStorage.Store(target.renderer.material.DoColorTween(target.renderer.material.color.With(a: 0.0f), data));
+                    tweenStorage.Store(
+                        target.renderer.material.DoColorTween(
+                            target.renderer.material.color.With(a: 0.0f),
+                            data
+                        )
+                    );
             }
 
             return tweenStorage.GetFirstValid();
@@ -228,7 +243,9 @@ namespace Shears.UI
                 if (target.renderer is SpriteRenderer spriteRenderer)
                     tweenStorage.Store(spriteRenderer.DoColorTween(originalColor, tweenData));
                 else
-                    tweenStorage.Store(target.renderer.material.DoColorTween(originalColor, tweenData));
+                    tweenStorage.Store(
+                        target.renderer.material.DoColorTween(originalColor, tweenData)
+                    );
             }
         }
 
@@ -303,7 +320,7 @@ namespace Shears.UI
             foreach (var target in renderTargets)
                 SetColor(target, OriginalColors[target] * color);
         }
-        
+
         private void TweenToColor(RenderTarget target, Color color, ITweenData tweenData)
         {
             var originalColor = OriginalColors[target];

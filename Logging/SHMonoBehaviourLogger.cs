@@ -6,9 +6,14 @@ namespace Shears.Logging
     public abstract class SHMonoBehaviourLogger : MonoBehaviour, ISHLoggable
     {
         [Header("Logging")]
-        [SerializeField] private SHLogLevels logLevels = SHLogLevels.Log | SHLogUtil.Issues;
+        [SerializeField]
+        private SHLogLevels logLevels = SHLogLevels.Log | SHLogUtil.Issues;
 
-        public SHLogLevels LogLevels { get => logLevels; set => logLevels = value; }
+        public SHLogLevels LogLevels
+        {
+            get => logLevels;
+            set => logLevels = value;
+        }
 
         /// <summary>
         /// Logs a message to the current <see cref="ISHLogger"/>.
@@ -22,8 +27,16 @@ namespace Shears.Logging
         /// <param name="callerFilePath">The file path of the class who called this. Should not be set manually.</param>
         /// <param name="callerLineNumber">The line number of the class who called this. Should not be set manually.</param>
         [HideInCallstack]
-        public void Log(string message, SHLogLevels level = SHLogLevels.Log, Color color = default, Object context = null, string prefix = "", ISHLogFormatter formatter = default,
-        [CallerFilePath] string callerFilePath = "", [CallerLineNumber] long callerLineNumber = 0)
+        public void Log(
+            object message,
+            SHLogLevels level = SHLogLevels.Log,
+            Color color = default,
+            Object context = null,
+            string prefix = "",
+            ISHLogFormatter formatter = default,
+            [CallerFilePath] string callerFilePath = "",
+            [CallerLineNumber] long callerLineNumber = 0
+        )
         {
             if ((SHLogger.LogLevels & level) == 0)
                 return;
@@ -36,7 +49,12 @@ namespace Shears.Logging
                 context = gameObject;
             }
 
-            Log(new SHLog(message, context, prefix, level, color), formatter, callerFilePath, callerLineNumber);
+            Log(
+                new SHLog(message.ToString(), context, prefix, level, color),
+                formatter,
+                callerFilePath,
+                callerLineNumber
+            );
         }
 
         /// <summary>
@@ -47,7 +65,11 @@ namespace Shears.Logging
         /// <param name="callerFilePath">The file path of the class who called this. Should not be set manually.</param>
         /// <param name="callerLineNumber">The line number of the class who called this. Should not be set manually.</param>
         [HideInCallstack]
-        public void Log(SHLog log, ISHLogFormatter formatter = null, [CallerFilePath] string callerFilePath = "", [CallerLineNumber] long callerLineNumber = 0)
-            => ISHLoggableLogger.Log(this, log, formatter, callerFilePath, callerLineNumber);
+        public void Log(
+            SHLog log,
+            ISHLogFormatter formatter = null,
+            [CallerFilePath] string callerFilePath = "",
+            [CallerLineNumber] long callerLineNumber = 0
+        ) => ISHLoggableLogger.Log(this, log, formatter, callerFilePath, callerLineNumber);
     }
 }
