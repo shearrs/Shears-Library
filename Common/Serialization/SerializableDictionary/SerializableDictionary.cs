@@ -10,10 +10,10 @@ namespace Shears
     /// </summary>
     /// <typeparam name="TKey">The type of the dictionary's keys.</typeparam>
     /// <typeparam name="TValue">The type of the dictionary's values.</typeparam>
-    [System.Serializable]
+    [Serializable]
     public struct SerializableDictionaryEntry<TKey, TValue>
     {
-        [SerializeField]
+        [SerializeField, Delayed]
         private TKey key;
 
         [SerializeField]
@@ -34,7 +34,7 @@ namespace Shears
     /// </summary>
     /// <typeparam name="TKey">The type of the dictionary's keys.</typeparam>
     /// <typeparam name="TValue">The type of the dictionary's values.</typeparam>
-    [System.Serializable]
+    [Serializable]
     public class SerializableDictionary<TKey, TValue>
         : Dictionary<TKey, TValue>,
             ISerializationCallbackReceiver

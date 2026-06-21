@@ -69,6 +69,11 @@ namespace Shears.UI
                 BindHover(hoverParent);
         }
 
+        protected override void RegisterEvents()
+        {
+            RegisterEvent<HoverExitEvent>(OnHoverExit);
+        }
+
         public void BindHover(UIElement parent)
         {
             if (parent == null)
@@ -93,11 +98,6 @@ namespace Shears.UI
 
             parent.DeregisterEvent<HoverEnterEvent>(OnParentHoverEnter);
             parent.DeregisterEvent<HoverExitEvent>(OnParentHoverExit);
-        }
-
-        protected override void RegisterEvents()
-        {
-            RegisterEvent<HoverExitEvent>(OnHoverExit);
         }
 
         public void FadeIn()
@@ -199,6 +199,37 @@ namespace Shears.UI
                 isFadingOut = false;
                 FadeOutCompleted?.Invoke();
             };
+        }
+
+        public void SetText(string key, string text)
+        {
+            if (!TryGetElement(key, out TextMeshProUGUI textElement))
+                return;
+
+            textElement.text = text;
+        }
+
+        public bool TryGetElement<T>(string key, out T element)
+            where T : Component
+        {
+            element = null;
+
+            if (typeof(T) == typeof(TextMeshProUGUI))
+            {
+                if (textElements.TryGetValue(key, out var value))
+                {
+                    element = value as T;
+                    return true;
+                }
+
+                return false;
+            }
+
+            Log(
+                $"{nameof(CanvasTooltip)} does not support type {typeof(T).Name}!",
+                SHLogLevels.Error
+            );
+            return false;
         }
 
         private void OnParentHoverEnter(HoverEnterEvent evt)
