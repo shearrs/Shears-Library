@@ -23,7 +23,7 @@ namespace Shears
             var rotation = prefab.transform.localRotation;
             var instance = Object.Instantiate(prefab, InactiveParent.Transform);
             instance.gameObject.SetActive(false);
-            instance.transform.parent = parent;
+            instance.transform.SetParent(parent);
             instance.transform.localScale = scale;
             instance.transform.localRotation = rotation;
 
