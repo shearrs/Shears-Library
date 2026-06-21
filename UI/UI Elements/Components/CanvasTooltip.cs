@@ -27,7 +27,7 @@ namespace Shears.UI
         private float hoverTimeBeforeAppearing = 0.5f;
 
         [SerializeField]
-        private bool usesUnscaledTime = false;
+        private bool usesUnscaledTime = true;
 
         [SerializeField]
         private bool staysOpenOnHover = true;
@@ -43,7 +43,6 @@ namespace Shears.UI
         [SerializeField]
         private TweenData fadeOutData = new(0.1f, easingFunction: TweenEase.InOutQuad);
 
-        [AutoEvent(nameof(Timer.Completed), nameof(OnAppearTimerCompleted))]
         private readonly Timer appearTimer = new();
 
         private readonly List<TextMeshProUGUI> textChildren = new();
@@ -236,13 +235,17 @@ namespace Shears.UI
         {
             if (hoverTimeBeforeAppearing == 0.0f)
                 FadeIn();
-            else
+            else if (appearTimer.IsDone)
+            {
                 appearTimer.Start(hoverTimeBeforeAppearing);
+                appearTimer.Completed += OnAppearTimerCompleted;
+            }
         }
 
         private void OnParentHoverExit(HoverExitEvent evt)
         {
             appearTimer.Stop();
+            appearTimer.Completed -= OnAppearTimerCompleted;
 
             if (!IsHovered || !staysOpenOnHover)
                 FadeOut();
@@ -254,6 +257,7 @@ namespace Shears.UI
                 return;
 
             appearTimer.Stop();
+            appearTimer.Completed -= OnAppearTimerCompleted;
 
             FadeOut();
         }
@@ -261,6 +265,7 @@ namespace Shears.UI
         private void OnAppearTimerCompleted()
         {
             BeforeFadeIn?.Invoke();
+            appearTimer.Completed -= OnAppearTimerCompleted;
 
             FadeIn();
         }

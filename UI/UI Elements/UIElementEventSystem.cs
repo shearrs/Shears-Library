@@ -413,7 +413,7 @@ namespace Shears.UI
 
             Vector2 pointerPos = ManagedPointer.Current.Position;
 
-            if (pointerPos.x == float.NaN || pointerPos.y == float.NaN)
+            if (float.IsNaN(pointerPos.x) || float.IsNaN(pointerPos.y))
             {
                 sortedHits.Clear();
                 return;

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Shears.Input;
 using UnityEngine;
@@ -154,8 +155,12 @@ namespace Shears.Detection
         private int CameraSweep(Collider[] detections)
         {
             var cam = originCamera == null ? Camera.main : originCamera;
+            var pointerPos = ManagedPointer.Current.Position;
 
-            Ray cameraRay = cam.ScreenPointToRay(ManagedPointer.Current.Position);
+            if (float.IsNaN(pointerPos.x) || float.IsNaN(pointerPos.y))
+                return 0;
+
+            Ray cameraRay = cam.ScreenPointToRay(pointerPos);
             Vector3 origin = cameraRay.origin;
             Vector3 dir = cameraRay.direction;
 
