@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Shears.Logging;
 using UnityEngine;
 
-namespace Shears
+namespace Shears.DataManagement
 {
     public class DataMap
     {
@@ -33,7 +34,10 @@ namespace Shears
                 return true;
             }
 
-            Debug.LogWarning($"{nameof(DataMap)} does not contain type {type.Name}!");
+            SHLogger.Log(
+                $"{nameof(DataMap)} does not contain type {type.Name}!",
+                SHLogLevels.Warning
+            );
 
             data = default;
             return false;

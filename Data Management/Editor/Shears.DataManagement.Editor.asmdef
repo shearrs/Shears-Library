@@ -1,0 +1,18 @@
+{
+    "name": "Shears.DataManagement.Editor",
+    "rootNamespace": "Shears.DataManagement.Editor",
+    "references": [
+        "GUID:b28a31c08beef024d83a7aa1ec3f2f6d",
+        "GUID:b8ce35fbba9686d4a8094487b762ff16",
+        "GUID:b0d62abbb60789f4db99aec3ed39fd2b"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -47,6 +47,12 @@ namespace Shears.Editor
         public static TypeSelector CreateInheritanceSelector<T>(
             SerializableSystemType? defaultType = null,
             bool isSearchable = false
+        ) => CreateInheritanceSelector(typeof(T), defaultType, isSearchable);
+
+        public static TypeSelector CreateInheritanceSelector(
+            Type type,
+            SerializableSystemType? defaultType = null,
+            bool isSearchable = false
         )
         {
             if (!defaultType.HasValue)
@@ -55,7 +61,7 @@ namespace Shears.Editor
             var selector = new TypeSelector(
                 SelectionType.Inheritance,
                 defaultType.Value,
-                typeof(T),
+                type,
                 isSearchable
             );
 
@@ -176,8 +182,11 @@ namespace Shears.Editor
 
         private void SetType(SerializableSystemType type)
         {
-            boundProperty.boxedValue = type;
-            boundProperty.serializedObject.ApplyModifiedProperties();
+            if (boundProperty != null)
+            {
+                boundProperty.boxedValue = type;
+                boundProperty.serializedObject.ApplyModifiedProperties();
+            }
 
             button.text = type == SerializableSystemType.Empty ? "None" : type.PrettyName;
 

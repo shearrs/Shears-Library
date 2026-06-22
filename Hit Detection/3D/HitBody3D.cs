@@ -15,6 +15,9 @@ namespace Shears.HitDetection
         public SHLogLevels LogLevels { get; set; } = SHLogLevels.Log | SHLogUtil.Issues;
 
         [Header("Components")]
+        [SerializeField]
+        private GameObject owner;
+
         [SerializeField, Tooltip("Optional provider for extra data to be sent with hits.")]
         private InterfaceReference<IHitDataProvider> dataProvider;
 
@@ -55,6 +58,17 @@ namespace Shears.HitDetection
         private Dictionary<HurtBody3D, MappedHit> finalHits;
         private List<int> sortedHits = new();
 
+        public GameObject Owner
+        {
+            get
+            {
+                if (owner == null && !Application.isPlaying)
+                    owner = gameObject;
+
+                return owner;
+            }
+            set => owner = value;
+        }
         public bool IsEnabled => isEnabled;
         public List<HitShape3D> Shapes
         {
