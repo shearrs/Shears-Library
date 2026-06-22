@@ -30,6 +30,7 @@ namespace Shears.UI
             easingFunction: TweenEase.InOutQuad
         );
         private readonly List<TextMeshPro> textChildren = new();
+        private readonly List<SpriteRenderer> spriteChildren = new();
         private readonly TweenStorage tweenStorage = new();
         private ColorModulator colorModulator;
         private bool isFadingIn = false;
@@ -115,10 +116,18 @@ namespace Shears.UI
             ColorModulator.CanChangeColor = false;
 
             GetComponentsInChildren(true, textChildren);
+            GetComponentsInChildren(true, spriteChildren);
 
-            for (int i = 0; i < textChildren.Count; i++)
+            foreach (var child in textChildren)
             {
-                var child = textChildren[i];
+                var childColor = child.color;
+
+                child.color = childColor.With(a: 0.0f);
+                tweenStorage.Store(child.DoColorTween(childColor.With(a: 1.0f), tweenData));
+            }
+
+            foreach (var child in spriteChildren)
+            {
                 var childColor = child.color;
 
                 child.color = childColor.With(a: 0.0f);
@@ -131,7 +140,7 @@ namespace Shears.UI
                 isFadingIn = false;
                 FadeInCompleted?.Invoke();
 
-                ColorModulator.CanChangeColor = true;
+                ColorModulator.CanChangeColor = selectable;
             });
         }
 
@@ -160,10 +169,24 @@ namespace Shears.UI
             ColorModulator.CanChangeColor = false;
 
             GetComponentsInChildren(true, textChildren);
+            GetComponentsInChildren(true, spriteChildren);
 
-            for (int i = 0; i < textChildren.Count; i++)
+            foreach (var child in textChildren)
             {
-                var child = textChildren[i];
+                var childColor = child.color;
+                var targetColor = childColor.With(a: 0.0f);
+
+                var childTween = child.DoColorTween(targetColor, tweenData);
+                tweenStorage.Store(childTween);
+                ColorModulator.AddOnComplete(() =>
+                {
+                    childTween.Dispose();
+                    child.color = targetColor;
+                });
+            }
+
+            foreach (var child in spriteChildren)
+            {
                 var childColor = child.color;
                 var targetColor = childColor.With(a: 0.0f);
 
@@ -190,8 +213,12 @@ namespace Shears.UI
         {
             ColorModulator.SetColor(a: alpha);
             GetComponentsInChildren(true, textChildren);
+            GetComponentsInChildren(true, spriteChildren);
 
             foreach (var child in textChildren)
+                child.color = child.color.With(a: alpha);
+
+            foreach (var child in spriteChildren)
                 child.color = child.color.With(a: alpha);
         }
 

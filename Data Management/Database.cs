@@ -72,13 +72,16 @@ namespace Shears.DataManagement
             return default;
         }
 
-        public TData GetRandomData(IReadOnlyCollection<TData> exclusions)
+        public TData GetRandomData(IReadOnlyCollection<TData> exclusions = null)
         {
             randomChoices.Clear();
             randomChoices.AddRange(map.Values.ToList());
 
-            foreach (var exclusion in exclusions)
-                randomChoices.Remove(exclusion);
+            if (exclusions != null)
+            {
+                foreach (var exclusion in exclusions)
+                    randomChoices.Remove(exclusion);
+            }
 
             return randomChoices[UnityEngine.Random.Range(0, randomChoices.Count)];
         }
