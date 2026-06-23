@@ -59,8 +59,6 @@ namespace Shears.UI
         }
 
         public event Action Clicked;
-        public event Action FadeInCompleted;
-        public event Action FadeOutCompleted;
 
         protected override void Awake()
         {
