@@ -43,7 +43,6 @@ namespace Shears.UI
             0.1f,
             easingFunction: TweenEase.InOutQuad
         );
-        private readonly List<TextMeshProUGUI> textChildren = new();
         private bool isFocused = false;
         private bool isFading = false;
 
@@ -66,8 +65,6 @@ namespace Shears.UI
         public event Action Unfocused;
         public event Action HoverEntered;
         public event Action HoverExited;
-        public event Action FadeInCompleted;
-        public event Action FadeOutCompleted;
 
         protected override void Awake()
         {
@@ -86,86 +83,6 @@ namespace Shears.UI
             RegisterEvent<PointerDownEvent>(OnPointerDown);
             RegisterEvent<PointerUpEvent>(OnPointerUp);
             RegisterEvent<ClickEvent>(OnClicked);
-        }
-
-        public void FadeIn(
-            float duration = 0.5f,
-            Color? modulateColor = null,
-            bool unscaledTime = false
-        )
-        {
-            if (isFading)
-                DisposeTweens();
-
-            isFading = true;
-            var tweenData = new StructTweenData(
-                duration,
-                easingFunction: TweenEase.InOutQuad,
-                unscaledTime: unscaledTime
-            );
-
-            Enable();
-
-            Color targetColor = modulateColor == null ? Color.white : modulateColor.Value;
-
-            image.Modulate = image.Modulate.With(a: 0.0f);
-            TweenToColor(targetColor, tweenData);
-
-            GetComponentsInChildren(true, textChildren);
-
-            for (int i = 0; i < textChildren.Count; i++)
-            {
-                var child = textChildren[i];
-                var childColor = child.color;
-
-                child.color = childColor.With(a: 0.0f);
-                StoreTween(child.DoColorTween(childColor.With(a: 1.0f), tweenData));
-            }
-
-            GetFirstValidTween().Completed += () =>
-            {
-                isFading = false;
-                FadeInCompleted?.Invoke();
-            };
-        }
-
-        public void FadeOut(float duration = 0.5f, bool unscaledTime = false)
-        {
-            if (isFading)
-                DisposeTweens();
-
-            isFading = true;
-            var tweenData = new StructTweenData(
-                duration,
-                easingFunction: TweenEase.InOutQuad,
-                unscaledTime: unscaledTime
-            );
-
-            TweenToColor(image.Modulate.With(a: 0.0f), tweenData);
-
-            GetComponentsInChildren(true, textChildren);
-
-            for (int i = 0; i < textChildren.Count; i++)
-            {
-                var child = textChildren[i];
-                var childColor = child.color;
-                var targetColor = childColor.With(a: 0.0f);
-
-                var childTween = StoreTween(child.DoColorTween(targetColor, tweenData));
-                GetFirstValidTween().Completed += () =>
-                {
-                    childTween.Dispose();
-                    child.color = targetColor;
-                };
-            }
-
-            GetFirstValidTween().Completed += () =>
-            {
-                Disable();
-
-                isFading = false;
-                FadeOutCompleted?.Invoke();
-            };
         }
 
         private void OnFocusEnter(FocusEnterEvent evt)

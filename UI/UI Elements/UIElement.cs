@@ -6,7 +6,6 @@ using TMPro;
 using TreeEditor;
 using UnityEngine;
 using UnityEngine.UI;
-using static Codice.CM.Common.CmCallContext;
 
 namespace Shears.UI
 {
@@ -32,6 +31,9 @@ namespace Shears.UI
         private float dragBeginTime = 0.1f;
 
         protected IReadOnlyList<Tween> Tweens => tweenStorage.Tweens;
+        public bool IsFadingIn => isFadingIn;
+        public bool IsFadingOut => IsFadingOut;
+        public bool IsFading => isFadingIn || isFadingOut;
         public GameObject GraphicsContainer
         {
             get
@@ -74,6 +76,10 @@ namespace Shears.UI
 
         protected virtual void OnDisable()
         {
+            DisposeTweens();
+            isFadingIn = false;
+            isFadingOut = false;
+
             Disabled?.Invoke();
         }
 
@@ -134,7 +140,7 @@ namespace Shears.UI
                 Disabled?.Invoke();
         }
 
-        public void FadeIn(TweenData fadeData = null)
+        public void FadeIn(ITweenData fadeData = null)
         {
             fadeData ??= FadeTweenData;
 
@@ -142,7 +148,7 @@ namespace Shears.UI
             FadeRecursive(true, transform);
         }
 
-        public void FadeOut(TweenData fadeData = null)
+        public void FadeOut(ITweenData fadeData = null)
         {
             fadeData ??= FadeTweenData;
 
@@ -150,10 +156,21 @@ namespace Shears.UI
             FadeRecursive(true, transform);
         }
 
-        protected virtual void FadeInImplementation(TweenData fadeData)
+        public virtual void SetAlpha(float alpha)
+        {
+            foreach (var child in textChildren)
+                child.color = child.color.With(a: alpha);
+
+            foreach (var child in spriteChildren)
+                child.color = child.color.With(a: alpha);
+        }
+
+        protected virtual void FadeInImplementation(ITweenData fadeData)
         {
             if (isFadingIn)
                 return;
+
+            FadeInBegan?.Invoke();
 
             if (isFadingOut)
             {
@@ -165,12 +182,10 @@ namespace Shears.UI
 
             Enable();
 
-            Tween? activeTween = null;
-
             if (spriteRenderer != null)
             {
                 spriteRenderer.color = spriteRenderer.color.With(a: 0.0f);
-                activeTween = spriteRenderer.DoFadeTween(1.0f, fadeData);
+                StoreTween(spriteRenderer.DoFadeTween(1.0f, fadeData));
             }
 
             foreach (var child in textChildren)
@@ -218,19 +233,94 @@ namespace Shears.UI
             void onCompleted()
             {
                 isFadingIn = false;
+                FadeOutCompleted?.Invoke();
+            }
 
+            var firstTween = GetFirstValidTween();
+
+            if (firstTween == null)
+                onCompleted();
+            else
+                firstTween.Completed += onCompleted;
+        }
+
+        protected virtual void FadeOutImplementation(ITweenData fadeData)
+        {
+            if (isFadingOut)
+                return;
+
+            FadeOutBegan?.Invoke();
+
+            if (isFadingIn)
+            {
+                DisposeTweens();
+                isFadingIn = false;
+            }
+
+            isFadingOut = true;
+
+            Enable();
+
+            if (spriteRenderer != null)
+                StoreTween(spriteRenderer.DoFadeTween(0.0f, fadeData));
+
+            foreach (var child in textChildren)
+            {
+                var childColor = child.color;
+
+                child.color = childColor.With(a: 1.0f);
+                var current = StoreTween(child.DoFadeTween(0.0f, fadeData));
+
+                var first = GetFirstValidTween();
+
+                if (first == current)
+                    continue;
+
+                var targetColor = childColor.With(a: 0.0f);
+
+                first.Completed += () =>
+                {
+                    current.Dispose();
+                    child.color = targetColor;
+                };
+            }
+
+            foreach (var child in spriteChildren)
+            {
+                var childColor = child.color;
+
+                child.color = childColor.With(a: 1.0f);
+                var current = StoreTween(child.DoFadeTween(0.0f, fadeData));
+
+                var first = GetFirstValidTween();
+
+                if (first == current)
+                    continue;
+
+                var targetColor = childColor.With(a: 0.0f);
+
+                first.Completed += () =>
+                {
+                    current.Dispose();
+                    child.color = targetColor;
+                };
+            }
+
+            void onCompleted()
+            {
+                isFadingOut = false;
                 Disable();
 
                 FadeOutCompleted?.Invoke();
             }
 
-            if (activeTween == null)
+            var firstTween = GetFirstValidTween();
+
+            if (firstTween == null)
                 onCompleted();
             else
-                activeTween.Value.Completed += onCompleted;
+                firstTween.Completed += onCompleted;
         }
-
-        protected virtual void FadeOutImplementation(TweenData fadeData) { }
 
         private void FadeRecursive(bool fadeIn, Transform parent)
         {

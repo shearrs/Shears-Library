@@ -23,6 +23,7 @@ namespace Shears.UI
         private readonly TweenStorage tweenStorage = new();
         private bool isDragged;
         private bool originalColorsInitialized = false;
+        private Func<bool> canChangeColorCallback;
 
         private Dictionary<RenderTarget, Color> OriginalColors
         {
@@ -40,6 +41,16 @@ namespace Shears.UI
         {
             get => canChangeColor;
             set => canChangeColor = value;
+        }
+        public Func<bool> CanChangeColorCallback
+        {
+            get
+            {
+                canChangeColorCallback ??= () => canChangeColor;
+
+                return canChangeColorCallback;
+            }
+            set => canChangeColorCallback = value;
         }
         #endregion
 
@@ -179,59 +190,9 @@ namespace Shears.UI
             isDragged = false;
         }
 
-        public Tween FadeIn(ITweenData data)
-        {
-            if (renderTargets.Count == 0)
-                return Tween.Empty;
-
-            tweenStorage.Dispose();
-
-            foreach (var target in renderTargets)
-            {
-                if (target.renderer is SpriteRenderer spriteRenderer)
-                    tweenStorage.Store(
-                        spriteRenderer.DoColorTween(spriteRenderer.color.With(a: 1.0f), data)
-                    );
-                else
-                    tweenStorage.Store(
-                        target.renderer.material.DoColorTween(
-                            target.renderer.material.color.With(a: 1.0f),
-                            data
-                        )
-                    );
-            }
-
-            return tweenStorage.GetFirstValid();
-        }
-
-        public Tween FadeOut(ITweenData data)
-        {
-            if (renderTargets.Count == 0)
-                return Tween.Empty;
-
-            tweenStorage.Dispose();
-
-            foreach (var target in renderTargets)
-            {
-                if (target.renderer is SpriteRenderer spriteRenderer)
-                    tweenStorage.Store(
-                        spriteRenderer.DoColorTween(spriteRenderer.color.With(a: 0.0f), data)
-                    );
-                else
-                    tweenStorage.Store(
-                        target.renderer.material.DoColorTween(
-                            target.renderer.material.color.With(a: 0.0f),
-                            data
-                        )
-                    );
-            }
-
-            return tweenStorage.GetFirstValid();
-        }
-
         public void ClearModulation()
         {
-            if (!canChangeColor)
+            if (!CanChangeColorCallback())
                 return;
 
             tweenStorage.Dispose();
@@ -251,7 +212,7 @@ namespace Shears.UI
 
         public void TweenToHover()
         {
-            if (!canChangeColor)
+            if (!CanChangeColorCallback())
                 return;
 
             tweenStorage.Dispose();
@@ -262,7 +223,7 @@ namespace Shears.UI
 
         public void TweenToPressed()
         {
-            if (!canChangeColor)
+            if (!CanChangeColorCallback())
                 return;
 
             tweenStorage.Dispose();
@@ -273,7 +234,7 @@ namespace Shears.UI
 
         public void TweenToColor(Color color, ITweenData tweenData)
         {
-            if (!canChangeColor)
+            if (!CanChangeColorCallback())
                 return;
 
             tweenStorage.Dispose();
@@ -286,33 +247,6 @@ namespace Shears.UI
         {
             if (tweenStorage.HasValidTween())
                 tweenStorage.GetFirstValid().Completed += action;
-        }
-
-        public void SetColor(Color color)
-        {
-            foreach (var renderer in renderTargets)
-                SetColor(renderer, color);
-        }
-
-        public void SetColor(float? r = null, float? g = null, float? b = null, float? a = null)
-        {
-            tweenStorage.Dispose();
-
-            foreach (var renderer in renderTargets)
-            {
-                Color newColor = OriginalColors[renderer];
-
-                if (r.HasValue)
-                    newColor.r = r.Value;
-                if (g.HasValue)
-                    newColor.g = g.Value;
-                if (b.HasValue)
-                    newColor.b = b.Value;
-                if (a.HasValue)
-                    newColor.a = a.Value;
-
-                SetColor(renderer, newColor);
-            }
         }
 
         public void ModulateColor(Color color)
