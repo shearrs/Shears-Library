@@ -8,7 +8,30 @@ namespace Shears.UI.Editor
 {
     public static class UIElementsCreateMenu
     {
-        [MenuItem(CreateMenuUtility.LIBRARY_PATH + "/UI Elements/Image", priority = CreateMenuUtility.LIBRARY_PRIORITY, secondaryPriority = 0)]
+        [MenuItem(
+            CreateMenuUtility.LIBRARY_PATH + "/UI Elements/UI Element",
+            priority = CreateMenuUtility.LIBRARY_PRIORITY,
+            secondaryPriority = 0
+        )]
+        private static void MenuCreateUIElement()
+        {
+            var gameObject = new GameObject("UI Element");
+            gameObject.AddComponent<UIElement>();
+
+            var parent = GetOrCreateParent();
+            gameObject.transform.SetParent(parent.transform);
+
+            gameObject.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            gameObject.transform.localScale = Vector3.one;
+
+            Selection.activeGameObject = gameObject;
+        }
+
+        [MenuItem(
+            CreateMenuUtility.LIBRARY_PATH + "/UI Elements/Image",
+            priority = CreateMenuUtility.LIBRARY_PRIORITY,
+            secondaryPriority = 1
+        )]
         private static void MenuCreateManagedImage()
         {
             var gameObject = new GameObject("Image");
@@ -23,7 +46,11 @@ namespace Shears.UI.Editor
             Selection.activeGameObject = gameObject;
         }
 
-        [MenuItem(CreateMenuUtility.LIBRARY_PATH + "/UI Elements/Button", priority = CreateMenuUtility.LIBRARY_PRIORITY, secondaryPriority = 1)]
+        [MenuItem(
+            CreateMenuUtility.LIBRARY_PATH + "/UI Elements/Button",
+            priority = CreateMenuUtility.LIBRARY_PRIORITY,
+            secondaryPriority = 2
+        )]
         private static void MenuCreateCanvasButton()
         {
             var gameObject = new GameObject("Button");
@@ -44,7 +71,11 @@ namespace Shears.UI.Editor
             Selection.activeGameObject = gameObject;
         }
 
-        [MenuItem(CreateMenuUtility.LIBRARY_PATH + "/UI Elements/Canvas", priority = CreateMenuUtility.LIBRARY_PRIORITY, secondaryPriority = 10)]
+        [MenuItem(
+            CreateMenuUtility.LIBRARY_PATH + "/UI Elements/Canvas",
+            priority = CreateMenuUtility.LIBRARY_PRIORITY,
+            secondaryPriority = 13
+        )]
         private static void MenuCreateUIElementCanvas()
         {
             var canvas = CreateUICanvas();
@@ -52,7 +83,11 @@ namespace Shears.UI.Editor
             Selection.activeGameObject = canvas.gameObject;
         }
 
-        [MenuItem(CreateMenuUtility.LIBRARY_PATH + "/UI Elements/Event System", priority = CreateMenuUtility.LIBRARY_PRIORITY, secondaryPriority = 100)]
+        [MenuItem(
+            CreateMenuUtility.LIBRARY_PATH + "/UI Elements/Event System",
+            priority = CreateMenuUtility.LIBRARY_PRIORITY,
+            secondaryPriority = 100
+        )]
         private static void MenuCreateUIElementEventSystem()
         {
             var eventSystem = CreateEventSystem();
@@ -62,7 +97,10 @@ namespace Shears.UI.Editor
 
         private static void CreateEventSystemIfNecessary(UIElementEventSystem.DetectionType type)
         {
-            var eventSystems = GameObject.FindObjectsByType<UIElementEventSystem>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var eventSystems = GameObject.FindObjectsByType<UIElementEventSystem>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None
+            );
             bool targetSystem = false;
 
             foreach (var eventSystem in eventSystems)
@@ -115,7 +153,7 @@ namespace Shears.UI.Editor
         {
             var gameObject = new GameObject("UI Element Canvas")
             {
-                layer = LayerMask.NameToLayer("UI")
+                layer = LayerMask.NameToLayer("UI"),
             };
 
             var canvas = gameObject.AddComponent<Canvas>();

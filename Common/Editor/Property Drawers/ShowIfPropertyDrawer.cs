@@ -38,6 +38,9 @@ namespace Shears.Editor
                 if (value is Enum)
                     value = (int)compareValue;
 
+                if (property.boxedValue == null)
+                    return (null == value) != negate;
+
                 return property.boxedValue.Equals(value) != negate;
             }
 
@@ -49,6 +52,9 @@ namespace Shears.Editor
                 if (value is Enum)
                     value = (int)compareValue;
 
+                if (property.boxedValue == null)
+                    return (null == value) != negate;
+
                 return property.boxedValue.Equals(value) != negate;
             }
         }
@@ -57,12 +63,16 @@ namespace Shears.Editor
         {
             var root = new VisualElement();
 
+            var parentProperty = targetProperty.FindParentProperty();
+
             GetComparisons(targetProperty);
 
             var propertyField = new PropertyField(targetProperty)
             {
                 name = targetProperty.displayName,
             };
+
+            bool isArray = false;
 
             void onValueChanged(SerializedProperty parentProperty, SerializedObject parentObject)
             {
@@ -88,31 +98,39 @@ namespace Shears.Editor
                     }
                 }
 
+                VisualElement targetElement = propertyField;
+
+                if (isArray)
+                {
+                    while (targetElement != null && targetElement is not ListView)
+                        targetElement = targetElement.parent;
+                }
+
+                if (targetElement == null)
+                    return;
+
                 if (isValid)
-                    propertyField.style.display = DisplayStyle.Flex;
+                    targetElement.style.display = DisplayStyle.Flex;
                 else if (root.Children().Contains(propertyField))
-                    propertyField.style.display = DisplayStyle.None;
+                    targetElement.style.display = DisplayStyle.None;
             }
 
             root.Add(propertyField);
 
-            var parentProperty = targetProperty.FindParentProperty();
+            if (
+                parentProperty != null
+                && targetProperty.propertyPath == $"{parentProperty.name}.Array.data[0]"
+            )
+            {
+                targetProperty = parentProperty;
+                parentProperty = targetProperty.FindParentProperty();
+                isArray = true;
+            }
 
             root.TrackSerializedObjectValue(
                 targetProperty.serializedObject,
                 _ => onValueChanged(parentProperty, targetProperty.serializedObject)
             );
-
-            //if (parentProperty != null)
-            //    root.TrackPropertyValue(
-            //        parentProperty,
-            //        _ => onValueChanged(parentProperty, targetProperty.serializedObject)
-            //    );
-            //else
-            //    root.TrackSerializedObjectValue(
-            //        targetProperty.serializedObject,
-            //        _ => onValueChanged(parentProperty, targetProperty.serializedObject)
-            //    );
 
             onValueChanged(parentProperty, targetProperty.serializedObject);
 
@@ -162,7 +180,19 @@ namespace Shears.Editor
             var parent = targetProperty.FindParentProperty();
 
             if (parent != null)
-                return parent.FindPropertyRelative(conditionName);
+            {
+                if (targetProperty.propertyPath == $"{parent.name}.Array.data[0]")
+                {
+                    var nextParent = parent.FindParentProperty();
+
+                    if (nextParent != null)
+                        return nextParent.FindPropertyRelative(conditionName);
+                    else
+                        return parent.serializedObject.FindProperty(conditionName);
+                }
+                else
+                    return parent.FindPropertyRelative(conditionName);
+            }
 
             var serializedObject = targetProperty.serializedObject;
 
@@ -187,7 +217,9 @@ namespace Shears.Editor
 
                 if (conditionProperty == null)
                 {
-                    Debug.LogError($"Could not find property {name} in {targetProperty.name}!");
+                    Debug.LogError(
+                        $"Could not find property {name} in {targetProperty.displayName}!"
+                    );
                     return;
                 }
 

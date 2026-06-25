@@ -182,6 +182,7 @@ namespace Shears.UI
             ClearFocus();
 
             focusedElement = element;
+            element.IsFocused = true;
 
             if (focusedElement != null)
             {
@@ -195,8 +196,9 @@ namespace Shears.UI
             if (applicationIsQuitting || focusedElement == null)
                 return;
 
-            focusedElement.InvokeEvent(new FocusExitEvent());
+            focusedElement.IsFocused = false;
             focusedElement.Disabled -= ClearFocus;
+            focusedElement.InvokeEvent(new FocusExitEvent());
             focusedElement = null;
         }
 

@@ -10,7 +10,8 @@ namespace Shears.Tweens
     {
         private static readonly int EMISSION_ID = Shader.PropertyToID("_EmissionColor");
 
-        private static Tween CreateTween(Action<float> update, ITweenData data) => TweenManager.CreateTween(update, data);
+        private static Tween CreateTween(Action<float> update, ITweenData data) =>
+            TweenManager.CreateTween(update, data);
 
         private static Tween Do(Tween tween)
         {
@@ -19,7 +20,11 @@ namespace Shears.Tweens
             return tween;
         }
 
-        private static Tween CreateAutoDisposeTween(UnityEngine.Object obj, Action<float> update, ITweenData data)
+        private static Tween CreateAutoDisposeTween(
+            UnityEngine.Object obj,
+            Action<float> update,
+            ITweenData data
+        )
         {
             var tween = CreateTween(update, data).WithLifetime(obj);
 
@@ -28,8 +33,17 @@ namespace Shears.Tweens
 
         #region Transform Tweens
         #region Move Tween
-        public static Tween DoMoveTween(this Transform transform, Vector3 targetPos, ITweenData data = null) => Do(GetMoveTween(transform, targetPos, data));
-        public static Tween GetMoveTween(this Transform transform, Vector3 targetPos, ITweenData data = null)
+        public static Tween DoMoveTween(
+            this Transform transform,
+            Vector3 targetPos,
+            ITweenData data = null
+        ) => Do(GetMoveTween(transform, targetPos, data));
+
+        public static Tween GetMoveTween(
+            this Transform transform,
+            Vector3 targetPos,
+            ITweenData data = null
+        )
         {
             Vector3 start = transform.position;
 
@@ -40,20 +54,41 @@ namespace Shears.Tweens
         #endregion
 
         #region Local Move Tween
-        public static Tween DoMoveLocalTween(this Transform transform, Vector3 targetPos, ITweenData data = null) => Do(GetMoveLocalTween(transform, targetPos, data));
-        public static Tween GetMoveLocalTween(this Transform transform, Vector3 targetPos, ITweenData data = null)
+        public static Tween DoMoveLocalTween(
+            this Transform transform,
+            Vector3 targetPos,
+            ITweenData data = null
+        ) => Do(GetMoveLocalTween(transform, targetPos, data));
+
+        public static Tween GetMoveLocalTween(
+            this Transform transform,
+            Vector3 targetPos,
+            ITweenData data = null
+        )
         {
             Vector3 start = transform.localPosition;
 
-            void update(float t) => transform.localPosition = Vector3.LerpUnclamped(start, targetPos, t);
+            void update(float t) =>
+                transform.localPosition = Vector3.LerpUnclamped(start, targetPos, t);
 
             return CreateAutoDisposeTween(transform, update, data);
         }
         #endregion
 
         #region Rotate Tween
-        public static Tween DoRotateTween(this Transform transform, Quaternion targetRot, bool shortestPath, ITweenData data = null) => Do(GetRotateTween(transform, targetRot, shortestPath, data));
-        public static Tween GetRotateTween(this Transform transform, Quaternion targetRot, bool shortestPath, ITweenData data = null)
+        public static Tween DoRotateTween(
+            this Transform transform,
+            Quaternion targetRot,
+            bool shortestPath,
+            ITweenData data = null
+        ) => Do(GetRotateTween(transform, targetRot, shortestPath, data));
+
+        public static Tween GetRotateTween(
+            this Transform transform,
+            Quaternion targetRot,
+            bool shortestPath,
+            ITweenData data = null
+        )
         {
             Quaternion start = transform.rotation;
 
@@ -79,15 +114,27 @@ namespace Shears.Tweens
         #endregion
 
         #region Local Rotate Tween
-        public static Tween DoRotateLocalTween(this Transform transform, Quaternion targetRot, bool shortestPath, ITweenData data = null) => Do(GetRotateLocalTween(transform, targetRot, shortestPath, data));
-        public static Tween GetRotateLocalTween(this Transform transform, Quaternion targetRot, bool shortestPath, ITweenData data = null)
+        public static Tween DoRotateLocalTween(
+            this Transform transform,
+            Quaternion targetRot,
+            bool shortestPath,
+            ITweenData data = null
+        ) => Do(GetRotateLocalTween(transform, targetRot, shortestPath, data));
+
+        public static Tween GetRotateLocalTween(
+            this Transform transform,
+            Quaternion targetRot,
+            bool shortestPath,
+            ITweenData data = null
+        )
         {
             Quaternion start = transform.localRotation;
 
             Action<float> update;
 
             if (shortestPath)
-                update = (t) => transform.localRotation = Quaternion.LerpUnclamped(start, targetRot, t);
+                update = (t) =>
+                    transform.localRotation = Quaternion.LerpUnclamped(start, targetRot, t);
             else
             {
                 start.ToAngleAxis(out float sourceAngle, out Vector3 _);
@@ -106,20 +153,41 @@ namespace Shears.Tweens
         #endregion
 
         #region Local Scale Tween
-        public static Tween DoScaleLocalTween(this Transform transform, Vector3 targetScale, ITweenData data = null) => Do(GetScaleLocalTween(transform, targetScale, data));
-        public static Tween GetScaleLocalTween(this Transform transform, Vector3 targetScale, ITweenData data = null)
+        public static Tween DoScaleLocalTween(
+            this Transform transform,
+            Vector3 targetScale,
+            ITweenData data = null
+        ) => Do(GetScaleLocalTween(transform, targetScale, data));
+
+        public static Tween GetScaleLocalTween(
+            this Transform transform,
+            Vector3 targetScale,
+            ITweenData data = null
+        )
         {
             Vector3 start = transform.localScale;
 
-            void update(float t) => transform.localScale = Vector3.LerpUnclamped(start, targetScale, t);
+            void update(float t) =>
+                transform.localScale = Vector3.LerpUnclamped(start, targetScale, t);
 
             return CreateAutoDisposeTween(transform, update, data);
         }
         #endregion
 
         #region Shake Tween
-        public static Tween DoShakeTween(this Transform transform, float strength, float shakeDelay = 0, ITweenData data = null) => Do(GetShakeTween(transform, strength, shakeDelay, data));
-        public static Tween GetShakeTween(this Transform transform, float strength, float shakeDelay = 0, ITweenData data = null)
+        public static Tween DoShakeTween(
+            this Transform transform,
+            float strength,
+            float shakeDelay = 0,
+            ITweenData data = null
+        ) => Do(GetShakeTween(transform, strength, shakeDelay, data));
+
+        public static Tween GetShakeTween(
+            this Transform transform,
+            float strength,
+            float shakeDelay = 0,
+            ITweenData data = null
+        )
         {
             Vector3 start = transform.localPosition;
             float time = 0;
@@ -130,9 +198,10 @@ namespace Shears.Tweens
 
                 if (time >= shakeDelay)
                 {
-                    transform.localPosition = start + (Vector3)(strength * UnityEngine.Random.insideUnitCircle);
+                    transform.localPosition =
+                        start + (Vector3)(strength * UnityEngine.Random.insideUnitCircle);
                     time = 0;
-                }    
+                }
             }
 
             var tween = CreateAutoDisposeTween(transform, update, data);
@@ -145,8 +214,17 @@ namespace Shears.Tweens
 
         #region Rigidbody Tweens
         #region Move Tween
-        public static Tween DoMoveTween(this Rigidbody rb, Vector3 targetPos, ITweenData data = null) => Do(GetMoveTween(rb, targetPos, data));
-        public static Tween GetMoveTween(this Rigidbody rb, Vector3 targetPos, ITweenData data = null)
+        public static Tween DoMoveTween(
+            this Rigidbody rb,
+            Vector3 targetPos,
+            ITweenData data = null
+        ) => Do(GetMoveTween(rb, targetPos, data));
+
+        public static Tween GetMoveTween(
+            this Rigidbody rb,
+            Vector3 targetPos,
+            ITweenData data = null
+        )
         {
             Vector3 start = rb.position;
 
@@ -157,8 +235,19 @@ namespace Shears.Tweens
         #endregion
 
         #region Rotate Tween
-        public static Tween DoRotateTween(this Rigidbody rb, Quaternion targetRot, bool shortestPath, ITweenData data = null) => Do(GetRotateTween(rb, targetRot, shortestPath, data));
-        public static Tween GetRotateTween(this Rigidbody rb, Quaternion targetRot, bool shortestPath, ITweenData data = null)
+        public static Tween DoRotateTween(
+            this Rigidbody rb,
+            Quaternion targetRot,
+            bool shortestPath,
+            ITweenData data = null
+        ) => Do(GetRotateTween(rb, targetRot, shortestPath, data));
+
+        public static Tween GetRotateTween(
+            this Rigidbody rb,
+            Quaternion targetRot,
+            bool shortestPath,
+            ITweenData data = null
+        )
         {
             Quaternion start = rb.rotation;
 
@@ -187,12 +276,22 @@ namespace Shears.Tweens
 
         #region RectTransform Tweens
         #region Local Move Tween
-        public static Tween DoMoveLocalTween(this RectTransform transform, Vector3 targetPos, ITweenData data = null) => Do(GetMoveLocalTween(transform, targetPos, data));
-        public static Tween GetMoveLocalTween(this RectTransform transform, Vector3 targetPos, ITweenData data = null)
+        public static Tween DoMoveLocalTween(
+            this RectTransform transform,
+            Vector3 targetPos,
+            ITweenData data = null
+        ) => Do(GetMoveLocalTween(transform, targetPos, data));
+
+        public static Tween GetMoveLocalTween(
+            this RectTransform transform,
+            Vector3 targetPos,
+            ITweenData data = null
+        )
         {
             Vector3 start = transform.anchoredPosition;
 
-            void update(float t) => transform.anchoredPosition3D = Vector3.LerpUnclamped(start, targetPos, t);
+            void update(float t) =>
+                transform.anchoredPosition3D = Vector3.LerpUnclamped(start, targetPos, t);
 
             return CreateAutoDisposeTween(transform, update, data);
         }
@@ -201,12 +300,20 @@ namespace Shears.Tweens
 
         #region Vector3 Tweens
         public static Tween DoTween(
-            this Vector3 vector, Action<Vector3> setter, Vector3 targetValue, 
-            UnityEngine.Object lifetime, ITweenData data = null) 
-                => Do(GetTween(vector, setter, targetValue, lifetime, data));
+            this Vector3 vector,
+            Action<Vector3> setter,
+            Vector3 targetValue,
+            UnityEngine.Object lifetime,
+            ITweenData data = null
+        ) => Do(GetTween(vector, setter, targetValue, lifetime, data));
+
         public static Tween GetTween(
-            this Vector3 vector, Action<Vector3> setter, Vector3 targetValue, 
-            UnityEngine.Object lifeTime, ITweenData data = null)
+            this Vector3 vector,
+            Action<Vector3> setter,
+            Vector3 targetValue,
+            UnityEngine.Object lifeTime,
+            ITweenData data = null
+        )
         {
             Vector3 start = vector;
 
@@ -223,8 +330,17 @@ namespace Shears.Tweens
         #endregion
 
         #region Image Tweens
-        public static Tween DoColorTween(this Image image, Color targetColor, ITweenData data = null) => Do(GetColorTween(image, targetColor, data));
-        public static Tween GetColorTween(this Image image, Color targetColor, ITweenData data = null)
+        public static Tween DoColorTween(
+            this Image image,
+            Color targetColor,
+            ITweenData data = null
+        ) => Do(GetColorTween(image, targetColor, data));
+
+        public static Tween GetColorTween(
+            this Image image,
+            Color targetColor,
+            ITweenData data = null
+        )
         {
             Color start = image.color;
 
@@ -238,8 +354,17 @@ namespace Shears.Tweens
         #endregion
 
         #region Renderer Tweens
-        public static Tween DoColorTween(this Renderer renderer, Color targetColor, ITweenData data = null) => Do(GetColorTween(renderer, targetColor, data));
-        public static Tween GetColorTween(this Renderer renderer, Color targetColor, ITweenData data = null)
+        public static Tween DoColorTween(
+            this Renderer renderer,
+            Color targetColor,
+            ITweenData data = null
+        ) => Do(GetColorTween(renderer, targetColor, data));
+
+        public static Tween GetColorTween(
+            this Renderer renderer,
+            Color targetColor,
+            ITweenData data = null
+        )
         {
             var mat = renderer.material;
             Color start = mat.color;
@@ -251,11 +376,35 @@ namespace Shears.Tweens
 
             return CreateAutoDisposeTween(renderer, update, data);
         }
+
+        public static Tween DoFadeTween(
+            this Renderer renderer,
+            float alpha,
+            ITweenData data = null
+        ) => Do(GetFadeTween(renderer, alpha, data));
+
+        public static Tween GetFadeTween(
+            this Renderer renderer,
+            float alpha,
+            ITweenData data = null
+        )
+        {
+            return GetColorTween(renderer, renderer.material.color.With(a: alpha), data);
+        }
         #endregion
 
         #region SpriteRenderer Tweens
-        public static Tween DoColorTween(this SpriteRenderer spriteRenderer, Color targetColor, ITweenData data = null) => Do(GetColorTween(spriteRenderer, targetColor, data));
-        public static Tween GetColorTween(this SpriteRenderer spriteRenderer, Color targetColor, ITweenData data = null)
+        public static Tween DoColorTween(
+            this SpriteRenderer spriteRenderer,
+            Color targetColor,
+            ITweenData data = null
+        ) => Do(GetColorTween(spriteRenderer, targetColor, data));
+
+        public static Tween GetColorTween(
+            this SpriteRenderer spriteRenderer,
+            Color targetColor,
+            ITweenData data = null
+        )
         {
             Color start = spriteRenderer.color;
 
@@ -267,8 +416,17 @@ namespace Shears.Tweens
             return CreateAutoDisposeTween(spriteRenderer, update, data);
         }
 
-        public static Tween DoFadeTween(this SpriteRenderer spriteRenderer, float alpha, ITweenData data = null) => Do(GetFadeTween(spriteRenderer, alpha, data));
-        public static Tween GetFadeTween(this SpriteRenderer spriteRenderer, float alpha, ITweenData data = null)
+        public static Tween DoFadeTween(
+            this SpriteRenderer spriteRenderer,
+            float alpha,
+            ITweenData data = null
+        ) => Do(GetFadeTween(spriteRenderer, alpha, data));
+
+        public static Tween GetFadeTween(
+            this SpriteRenderer spriteRenderer,
+            float alpha,
+            ITweenData data = null
+        )
         {
             return GetColorTween(spriteRenderer, spriteRenderer.color.With(a: alpha), data);
         }
@@ -276,8 +434,17 @@ namespace Shears.Tweens
 
         #region TextMesh Tweens
         #region Color
-        public static Tween DoColorTween(this TextMeshProUGUI textMesh, Color targetColor, ITweenData data = null) => Do(GetColorTween(textMesh, targetColor, data));
-        public static Tween GetColorTween(this TextMeshProUGUI textMesh, Color targetColor, ITweenData data = null)
+        public static Tween DoColorTween(
+            this TextMeshProUGUI textMesh,
+            Color targetColor,
+            ITweenData data = null
+        ) => Do(GetColorTween(textMesh, targetColor, data));
+
+        public static Tween GetColorTween(
+            this TextMeshProUGUI textMesh,
+            Color targetColor,
+            ITweenData data = null
+        )
         {
             Color start = textMesh.color;
 
@@ -289,14 +456,32 @@ namespace Shears.Tweens
             return CreateAutoDisposeTween(textMesh, update, data);
         }
 
-        public static Tween DoFadeTween(this TextMeshProUGUI textMesh, float alpha, ITweenData data = null) => Do(GetFadeTween(textMesh, alpha, data));
-        public static Tween GetFadeTween(this TextMeshProUGUI textMesh, float alpha, ITweenData data = null)
+        public static Tween DoFadeTween(
+            this TextMeshProUGUI textMesh,
+            float alpha,
+            ITweenData data = null
+        ) => Do(GetFadeTween(textMesh, alpha, data));
+
+        public static Tween GetFadeTween(
+            this TextMeshProUGUI textMesh,
+            float alpha,
+            ITweenData data = null
+        )
         {
             return GetColorTween(textMesh, textMesh.color.With(a: alpha), data);
         }
 
-        public static Tween DoColorTween(this TextMeshPro textMesh, Color targetColor, ITweenData data = null) => Do(GetColorTween(textMesh, targetColor, data));
-        public static Tween GetColorTween(this TextMeshPro textMesh, Color targetColor, ITweenData data = null)
+        public static Tween DoColorTween(
+            this TextMeshPro textMesh,
+            Color targetColor,
+            ITweenData data = null
+        ) => Do(GetColorTween(textMesh, targetColor, data));
+
+        public static Tween GetColorTween(
+            this TextMeshPro textMesh,
+            Color targetColor,
+            ITweenData data = null
+        )
         {
             Color start = textMesh.color;
 
@@ -308,17 +493,40 @@ namespace Shears.Tweens
             return CreateAutoDisposeTween(textMesh, update, data);
         }
 
-        public static Tween DoFadeTween(this TextMeshPro textMesh, float alpha, ITweenData data = null) => Do(GetFadeTween(textMesh, alpha, data));
-        public static Tween GetFadeTween(this TextMeshPro textMesh, float alpha, ITweenData data = null)
+        public static Tween DoFadeTween(
+            this TextMeshPro textMesh,
+            float alpha,
+            ITweenData data = null
+        ) => Do(GetFadeTween(textMesh, alpha, data));
+
+        public static Tween GetFadeTween(
+            this TextMeshPro textMesh,
+            float alpha,
+            ITweenData data = null
+        )
         {
             return GetColorTween(textMesh, textMesh.color.With(a: alpha), data);
         }
         #endregion
 
         #region Counter
-        public static Tween DoCounterTween(this TextMeshProUGUI textMesh, int targetNumber, int startNumber = 0, string prefix = "", string suffix = "", ITweenData data = null)
-    => Do(GetCounterTween(textMesh, targetNumber, startNumber, prefix, suffix, data));
-        public static Tween GetCounterTween(this TextMeshProUGUI textMesh, int targetNumber, int startNumber = 0, string prefix = "", string suffix = "", ITweenData data = null)
+        public static Tween DoCounterTween(
+            this TextMeshProUGUI textMesh,
+            int targetNumber,
+            int startNumber = 0,
+            string prefix = "",
+            string suffix = "",
+            ITweenData data = null
+        ) => Do(GetCounterTween(textMesh, targetNumber, startNumber, prefix, suffix, data));
+
+        public static Tween GetCounterTween(
+            this TextMeshProUGUI textMesh,
+            int targetNumber,
+            int startNumber = 0,
+            string prefix = "",
+            string suffix = "",
+            ITweenData data = null
+        )
         {
             void update(float t)
             {
@@ -330,9 +538,23 @@ namespace Shears.Tweens
             return CreateAutoDisposeTween(textMesh, update, data);
         }
 
-        public static Tween DoCounterTween(this TextMeshPro textMesh, int targetNumber, int startNumber = 0, string prefix = "", string suffix = "", ITweenData data = null)
-            => Do(GetCounterTween(textMesh, targetNumber, startNumber, prefix, suffix, data));
-        public static Tween GetCounterTween(this TextMeshPro textMesh, int targetNumber, int startNumber = 0, string prefix = "", string suffix = "", ITweenData data = null)
+        public static Tween DoCounterTween(
+            this TextMeshPro textMesh,
+            int targetNumber,
+            int startNumber = 0,
+            string prefix = "",
+            string suffix = "",
+            ITweenData data = null
+        ) => Do(GetCounterTween(textMesh, targetNumber, startNumber, prefix, suffix, data));
+
+        public static Tween GetCounterTween(
+            this TextMeshPro textMesh,
+            int targetNumber,
+            int startNumber = 0,
+            string prefix = "",
+            string suffix = "",
+            ITweenData data = null
+        )
         {
             void update(float t)
             {
@@ -344,12 +566,56 @@ namespace Shears.Tweens
             return CreateAutoDisposeTween(textMesh, update, data);
         }
         #endregion
+        #endregion
+
+        #region Graphic Tweens
+        public static Tween DoColorTween(
+            this Graphic graphic,
+            Color targetColor,
+            ITweenData data = null
+        ) => Do(GetColorTween(graphic, targetColor, data));
+
+        public static Tween GetColorTween(
+            this Graphic graphic,
+            Color targetColor,
+            ITweenData data = null
+        )
+        {
+            Color start = graphic.color;
+
+            void update(float t)
+            {
+                graphic.color = Color.LerpUnclamped(start, targetColor, t);
+            }
+
+            return CreateAutoDisposeTween(graphic, update, data);
+        }
+
+        public static Tween DoFadeTween(
+            this Graphic graphic,
+            float alpha,
+            ITweenData data = null
+        ) => Do(GetFadeTween(graphic, alpha, data));
+
+        public static Tween GetFadeTween(this Graphic graphic, float alpha, ITweenData data = null)
+        {
+            return GetColorTween(graphic, graphic.color.With(a: alpha), data);
+        }
         #endregion
 
         #region Materials
         #region Color
-        public static Tween DoColorTween(this Material material, Color targetColor, ITweenData data = null) => Do(GetColorTween(material, targetColor, data));
-        public static Tween GetColorTween(this Material material, Color targetColor, ITweenData data = null)
+        public static Tween DoColorTween(
+            this Material material,
+            Color targetColor,
+            ITweenData data = null
+        ) => Do(GetColorTween(material, targetColor, data));
+
+        public static Tween GetColorTween(
+            this Material material,
+            Color targetColor,
+            ITweenData data = null
+        )
         {
             Color start = material.color;
 
@@ -366,8 +632,17 @@ namespace Shears.Tweens
         #endregion
 
         #region Emission
-        public static Tween DoEmissionTween(this Material material, Color targetEmission, ITweenData data = null) => Do(GetColorTween(material, targetEmission, data));
-        public static Tween GetEmissionTween(this Material material, Color targetEmission, ITweenData data = null)
+        public static Tween DoEmissionTween(
+            this Material material,
+            Color targetEmission,
+            ITweenData data = null
+        ) => Do(GetColorTween(material, targetEmission, data));
+
+        public static Tween GetEmissionTween(
+            this Material material,
+            Color targetEmission,
+            ITweenData data = null
+        )
         {
             Color start = material.GetColor(EMISSION_ID);
 
@@ -385,8 +660,17 @@ namespace Shears.Tweens
         #endregion
 
         #region IColorTweenable Tweens
-        public static Tween DoColorTween(this IColorTweenable colorTweenable, Color targetColor, ITweenData data = null) => Do(GetColorTween(colorTweenable, targetColor, data));
-        public static Tween GetColorTween(this IColorTweenable colorTweenable, Color targetColor, ITweenData data = null)
+        public static Tween DoColorTween(
+            this IColorTweenable colorTweenable,
+            Color targetColor,
+            ITweenData data = null
+        ) => Do(GetColorTween(colorTweenable, targetColor, data));
+
+        public static Tween GetColorTween(
+            this IColorTweenable colorTweenable,
+            Color targetColor,
+            ITweenData data = null
+        )
         {
             Color start = colorTweenable.BaseColor;
 
@@ -401,8 +685,17 @@ namespace Shears.Tweens
                 return CreateTween(update, data);
         }
 
-        public static Tween DoModulateTween(this IColorTweenable colorTweenable, Color targetColor, ITweenData data = null) => Do(GetModulateTween(colorTweenable, targetColor, data));
-        public static Tween GetModulateTween(this IColorTweenable colorTweenable, Color targetColor, ITweenData data = null)
+        public static Tween DoModulateTween(
+            this IColorTweenable colorTweenable,
+            Color targetColor,
+            ITweenData data = null
+        ) => Do(GetModulateTween(colorTweenable, targetColor, data));
+
+        public static Tween GetModulateTween(
+            this IColorTweenable colorTweenable,
+            Color targetColor,
+            ITweenData data = null
+        )
         {
             var startColor = colorTweenable.Modulate;
 

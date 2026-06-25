@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using Shears.Tweens;
-using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -43,10 +41,7 @@ namespace Shears.UI
             0.1f,
             easingFunction: TweenEase.InOutQuad
         );
-        private bool isFocused = false;
-        private bool isFading = false;
 
-        public bool IsFocused => isFocused;
         public ManagedImage Image
         {
             get => image;
@@ -88,7 +83,6 @@ namespace Shears.UI
         private void OnFocusEnter(FocusEnterEvent evt)
         {
             evt.PreventTrickleDown();
-            isFocused = true;
 
             if (!selectable)
                 return;
@@ -100,7 +94,6 @@ namespace Shears.UI
         private void OnFocusExit(FocusExitEvent evt)
         {
             evt.PreventTrickleDown();
-            isFocused = false;
 
             if (!selectable)
                 return;
@@ -113,7 +106,7 @@ namespace Shears.UI
         {
             evt.PreventTrickleDown();
 
-            if (!selectable || isFading)
+            if (!selectable || IsFading)
                 return;
 
             HoverEntered?.Invoke();
@@ -124,7 +117,7 @@ namespace Shears.UI
         {
             evt.PreventTrickleDown();
 
-            if (!selectable || isFading)
+            if (!selectable || IsFading)
                 return;
 
             HoverExited?.Invoke();
@@ -149,7 +142,7 @@ namespace Shears.UI
 
             PointerDown?.Invoke();
 
-            if (selectable && !isFading)
+            if (selectable && !IsFading)
                 TweenToColor(pressedColor, hoverTweenData);
         }
 
@@ -164,7 +157,7 @@ namespace Shears.UI
 
             PointerUp?.Invoke();
 
-            if (!isFading)
+            if (!IsFading)
                 TweenToColor(targetColor, hoverTweenData);
         }
 

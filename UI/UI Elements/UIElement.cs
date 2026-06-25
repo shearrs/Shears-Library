@@ -13,18 +13,30 @@ namespace Shears.UI
     {
         private static readonly TweenData FadeTweenData = new(0.1f, unscaledTime: true);
 
+        [Flags]
+        public enum RenderTargetType
+        {
+            Fade = 1 << 0,
+            SetAlpha = 1 << 1,
+            SetColor = 1 << 2,
+        }
+
         [Header("UI Element")]
         [SerializeField, RuntimeReadOnly]
         private GameObject graphicsContainer;
+
+        [SerializeField, RuntimeReadOnly]
+        private bool useDefaultRenderTargets = true;
+
+        [SerializeField, RuntimeReadOnly, ShowIf("!useDefaultRenderTargets")]
+        private List<RenderTarget> renderTargets = new();
 
         private readonly Dictionary<Type, object> registrations = new();
         private readonly Dictionary<IRef, object> refBindings = new();
         private readonly Dictionary<IRef, object> rawRefBindings = new();
         private readonly List<UIElement> childElements = new();
-        private readonly List<TextMeshPro> textChildren = new();
-        private readonly List<SpriteRenderer> spriteChildren = new();
+        private readonly List<RenderTarget> newRenderTargets = new();
         private readonly TweenStorage tweenStorage = new();
-        private SpriteRenderer spriteRenderer;
         private bool isEnabled = true;
         private bool isFadingIn = false;
         private bool isFadingOut = false;
@@ -47,6 +59,7 @@ namespace Shears.UI
         }
         public bool IsEnabled => isEnabled;
         public bool IsHovered { get; internal set; }
+        public bool IsFocused { get; internal set; }
         public float DragBeginTime
         {
             get => dragBeginTime;
@@ -59,9 +72,122 @@ namespace Shears.UI
         public event Action FadeOutBegan;
         public event Action FadeOutCompleted;
 
+        [Serializable]
+        public struct RenderTarget
+        {
+            private const RenderTargetType DefaultType =
+                RenderTargetType.Fade | RenderTargetType.SetAlpha | RenderTargetType.SetColor;
+
+            [SerializeField, ShowIf(nameof(graphic), compareValue1: null, nameof(uiElement), null)]
+            public Renderer renderer;
+
+            [SerializeField, ShowIf(nameof(renderer), compareValue1: null, nameof(uiElement), null)]
+            public Graphic graphic;
+
+            [SerializeField, ShowIf(nameof(renderer), compareValue1: null, nameof(graphic), null)]
+            public UIElement uiElement;
+
+            [SerializeField]
+            public RenderTargetType type;
+
+            public RenderTarget(Renderer renderer)
+            {
+                this.renderer = renderer;
+                graphic = null;
+                uiElement = null;
+                type = DefaultType;
+            }
+
+            public RenderTarget(Graphic graphic)
+            {
+                renderer = null;
+                this.graphic = graphic;
+                uiElement = null;
+                type = DefaultType;
+            }
+
+            public RenderTarget(UIElement uiElement)
+            {
+                renderer = null;
+                graphic = null;
+                this.uiElement = uiElement;
+                type = DefaultType;
+            }
+
+            public readonly void SetAlpha(float alpha)
+            {
+                if (renderer != null)
+                    renderer.material.color = renderer.material.color.With(a: alpha);
+                else if (graphic != null)
+                    graphic.color = graphic.color.With(a: alpha);
+                else if (uiElement != null)
+                    uiElement.SetAlpha(alpha);
+                else
+                    SHLogger.Log(
+                        $"{nameof(RenderTarget).PascalSpace()} had no target assigned!",
+                        SHLogLevels.Error
+                    );
+            }
+
+            public readonly Tween? FadeIn(ITweenData fadeData)
+            {
+                if (renderer != null)
+                {
+                    renderer.material.color = renderer.material.color.With(a: 0.0f);
+
+                    return renderer.DoFadeTween(1.0f, fadeData);
+                }
+                else if (graphic != null)
+                {
+                    graphic.color = graphic.color.With(a: 0.0f);
+
+                    return graphic.DoFadeTween(1.0f, fadeData);
+                }
+                else if (uiElement != null)
+                    return uiElement.FadeIn(fadeData);
+                else
+                {
+                    SHLogger.Log(
+                        $"{nameof(RenderTarget)} has no target to fade!",
+                        SHLogLevels.Error
+                    );
+                    return Tween.Empty;
+                }
+            }
+
+            public readonly Tween? FadeOut(ITweenData fadeData)
+            {
+                if (renderer != null)
+                    return renderer.DoFadeTween(0.0f, fadeData);
+                else if (graphic != null)
+                    return graphic.DoFadeTween(0.0f, fadeData);
+                else if (uiElement != null)
+                    return uiElement.FadeOut(fadeData);
+                else
+                {
+                    SHLogger.Log(
+                        $"{nameof(RenderTarget)} has no target to fade!",
+                        SHLogLevels.Error
+                    );
+                    return Tween.Empty;
+                }
+            }
+
+            public readonly UnityEngine.Object GetTarget()
+            {
+                if (renderer != null)
+                    return renderer;
+                else if (graphic != null)
+                    return graphic;
+                else if (uiElement != null)
+                    return uiElement;
+                else
+                    return null;
+            }
+        }
+
         protected virtual void Awake()
         {
-            TryGetComponent(out spriteRenderer);
             UpdateChildLists(transform);
 
             if (GraphicsContainer.activeInHierarchy)
@@ -90,7 +216,13 @@ namespace Shears.UI
 
         private void OnValidate()
         {
+            if (Application.isPlaying)
+                return;
+
             Invoke(nameof(SetLayer), 0f);
+
+            if (useDefaultRenderTargets)
+                UpdateChildLists(transform);
         }
 
         private void OnTransformChildrenChanged()
@@ -100,6 +232,16 @@ namespace Shears.UI
 
         private void UpdateChildLists(Transform parent)
         {
+            newRenderTargets.Clear();
+
+            if (useDefaultRenderTargets)
+            {
+                if (TryGetComponent(out Graphic graphic))
+                    newRenderTargets.Add(new(graphic));
+                if (TryGetComponent(out Renderer renderer))
+                    newRenderTargets.Add(new(renderer));
+            }
+
             for (int i = 0; i < parent.childCount; i++)
             {
                 var child = parent.GetChild(i);
@@ -107,16 +249,41 @@ namespace Shears.UI
                 if (child.TryGetComponent(out UIElement element))
                 {
                     childElements.Add(element);
+
+                    if (useDefaultRenderTargets)
+                        newRenderTargets.Add(new(element));
+
                     continue;
                 }
 
-                if (child.TryGetComponent(out TextMeshPro text))
-                    textChildren.Add(text);
-
-                if (child.TryGetComponent(out SpriteRenderer sprite))
-                    spriteChildren.Add(sprite);
+                if (useDefaultRenderTargets)
+                {
+                    if (child.TryGetComponent(out Graphic graphic))
+                        newRenderTargets.Add(new(graphic));
+                    if (child.TryGetComponent(out Renderer renderer))
+                        newRenderTargets.Add(new(renderer));
+                }
 
                 UpdateChildLists(child);
+            }
+
+            foreach (var target in newRenderTargets)
+            {
+                if (renderTargets.Exists(r => r.GetTarget() == target.GetTarget()))
+                    continue;
+                else
+                    renderTargets.Add(target);
+            }
+
+            for (int i = 0; i < renderTargets.Count; i++)
+            {
+                var target = renderTargets[i];
+
+                if (!newRenderTargets.Exists(r => r.GetTarget() == target.GetTarget()))
+                {
+                    renderTargets.RemoveAt(i);
+                    i--;
+                }
             }
         }
 
@@ -140,93 +307,60 @@ namespace Shears.UI
                 Disabled?.Invoke();
         }
 
-        public void FadeIn(ITweenData fadeData = null)
-        {
-            fadeData ??= FadeTweenData;
+        [ContextMenu("Fade In")]
+        public Tween? FadeIn() => FadeIn(FadeTweenData);
 
-            FadeInImplementation(fadeData);
-            FadeRecursive(true, transform);
+        public Tween? FadeIn(ITweenData fadeData)
+        {
+            return FadeInImplementation(fadeData);
         }
 
-        public void FadeOut(ITweenData fadeData = null)
-        {
-            fadeData ??= FadeTweenData;
+        [ContextMenu("Fade Out")]
+        public Tween? FadeOut() => FadeOut(FadeTweenData);
 
-            FadeOutImplementation(fadeData);
-            FadeRecursive(true, transform);
+        public Tween? FadeOut(ITweenData fadeData)
+        {
+            return FadeOutImplementation(fadeData);
         }
 
-        public virtual void SetAlpha(float alpha)
+        public void SetAlpha(float alpha)
         {
-            foreach (var child in textChildren)
-                child.color = child.color.With(a: alpha);
-
-            foreach (var child in spriteChildren)
-                child.color = child.color.With(a: alpha);
+            foreach (var target in renderTargets)
+                target.SetAlpha(alpha);
         }
 
-        protected virtual void FadeInImplementation(ITweenData fadeData)
+        protected virtual Tween? FadeInImplementation(ITweenData fadeData)
         {
             if (isFadingIn)
-                return;
+                return null;
 
             FadeInBegan?.Invoke();
 
             if (isFadingOut)
-            {
-                DisposeTweens();
                 isFadingOut = false;
-            }
 
+            DisposeTweens();
             isFadingIn = true;
 
             Enable();
 
-            if (spriteRenderer != null)
+            foreach (var target in renderTargets)
             {
-                spriteRenderer.color = spriteRenderer.color.With(a: 0.0f);
-                StoreTween(spriteRenderer.DoFadeTween(1.0f, fadeData));
-            }
+                var tween = target.FadeIn(fadeData);
 
-            foreach (var child in textChildren)
-            {
-                var childColor = child.color;
-
-                child.color = childColor.With(a: 0.0f);
-                var current = StoreTween(child.DoFadeTween(1.0f, fadeData));
-
-                var first = GetFirstValidTween();
-
-                if (first == current)
+                if (!tween.HasValue)
                     continue;
 
-                var targetColor = childColor.With(a: 1.0f);
+                StoreTween(tween.Value);
+                var first = GetFirstValidTween();
+
+                if (first == tween)
+                    continue;
 
                 first.Completed += () =>
                 {
-                    current.Dispose();
-                    child.color = targetColor;
-                };
-            }
-
-            foreach (var child in spriteChildren)
-            {
-                var childColor = child.color;
-
-                child.color = childColor.With(a: 0.0f);
-                var current = StoreTween(child.DoFadeTween(1.0f, fadeData));
-
-                var first = GetFirstValidTween();
-
-                if (first == current)
-                    continue;
-
-                var targetColor = childColor.With(a: 1.0f);
-
-                first.Completed += () =>
-                {
-                    current.Dispose();
-                    child.color = targetColor;
+                    tween.Value.Dispose();
+                    target.SetAlpha(1.0f);
                 };
             }
 
@@ -242,67 +376,44 @@ namespace Shears.UI
                 onCompleted();
             else
                 firstTween.Completed += onCompleted;
+
+            return firstTween;
         }
 
-        protected virtual void FadeOutImplementation(ITweenData fadeData)
+        protected virtual Tween? FadeOutImplementation(ITweenData fadeData)
         {
+            if (!IsEnabled)
+                return null;
+
             if (isFadingOut)
-                return;
+                return GetFirstValidTween();
 
             FadeOutBegan?.Invoke();
 
             if (isFadingIn)
-            {
-                DisposeTweens();
                 isFadingIn = false;
-            }
 
+            DisposeTweens();
             isFadingOut = true;
 
-            Enable();
-
-            if (spriteRenderer != null)
-                StoreTween(spriteRenderer.DoFadeTween(0.0f, fadeData));
-
-            foreach (var child in textChildren)
+            foreach (var target in renderTargets)
             {
-                var childColor = child.color;
+                var tween = target.FadeOut(fadeData);
 
-                child.color = childColor.With(a: 1.0f);
-                var current = StoreTween(child.DoFadeTween(0.0f, fadeData));
+                if (!tween.HasValue)
+                    continue;
+
+                StoreTween(tween.Value);
 
                 var first = GetFirstValidTween();
 
-                if (first == current)
+                if (first == tween)
                     continue;
-
-                var targetColor = childColor.With(a: 0.0f);
 
                 first.Completed += () =>
                 {
-                    current.Dispose();
-                    child.color = targetColor;
-                };
-            }
-
-            foreach (var child in spriteChildren)
-            {
-                var childColor = child.color;
-
-                child.color = childColor.With(a: 1.0f);
-                var current = StoreTween(child.DoFadeTween(0.0f, fadeData));
-
-                var first = GetFirstValidTween();
-
-                if (first == current)
-                    continue;
-
-                var targetColor = childColor.With(a: 0.0f);
-
-                first.Completed += () =>
-                {
-                    current.Dispose();
-                    child.color = targetColor;
+                    tween.Value.Dispose();
+                    target.SetAlpha(0.0f);
                 };
             }
 
@@ -320,24 +431,8 @@ namespace Shears.UI
                 onCompleted();
             else
                 firstTween.Completed += onCompleted;
-        }
 
-        private void FadeRecursive(bool fadeIn, Transform parent)
-        {
-            for (int i = 0; i < parent.childCount; i++)
-            {
-                var child = parent.GetChild(i);
-
-                if (child.TryGetComponent(out UIElement element))
-                {
-                    if (fadeIn)
-                        element.FadeIn();
-                    else
-                        element.FadeOut();
-                }
-                else
-                    FadeRecursive(fadeIn, child);
-            }
+            return firstTween;
         }
 
         #region Event Registration
