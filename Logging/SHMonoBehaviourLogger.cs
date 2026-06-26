@@ -49,6 +49,10 @@ namespace Shears.Logging
                 context = gameObject;
             }
 
+            if (prefix == string.Empty && context != null)
+                prefix =
+                    $"[{SHLog.GetCallerClassName(SHLog.GetCallerFileName(callerFilePath))}]({context.name})";
+
             Log(
                 new SHLog(message.ToString(), context, prefix, level, color),
                 formatter,

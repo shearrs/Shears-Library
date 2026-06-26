@@ -19,7 +19,7 @@ namespace Shears.Logging
         /// The default log formatter.
         /// <para>
         ///     <example>
-        ///     <c>SHLogger.Log("Hello World!", SHLogFormats.Default);</c> 
+        ///     <c>SHLogger.Log("Hello World!", SHLogFormats.Default);</c>
         ///     </example>
         /// </para>
         /// <para>
@@ -32,56 +32,63 @@ namespace Shears.Logging
         /// The default log formatter with a time stamp in the prefix.
         /// <para>
         ///     <example>
-        ///     <c>SHLogger.Log("Hello World!", SHLogFormats.DefaultWithTimestamp);</c> 
+        ///     <c>SHLogger.Log("Hello World!", SHLogFormats.DefaultWithTimestamp);</c>
         ///     </example>
         /// </para>
         /// <para>
         ///     Output: "[Hour:Minute:Second] [ClassName] - Hello World!"
         /// </para>
         /// </summary>
-        public static SHLogFormatter DefaultWithTimestamp => new(CombinePrefixes(" ", TimestampPrefix, DefaultPrefix));
+        public static SHLogFormatter DefaultWithTimestamp =>
+            new(CombinePrefixes(" ", TimestampPrefix, DefaultPrefix));
 
         /// <summary>
         /// The default log formatter with a long time stamp in the prefix.
         /// <para>
         ///     <example>
-        ///     <c>SHLogger.Log("Hello World!", SHLogFormats.DefaultWithLongTimestamp);</c> 
+        ///     <c>SHLogger.Log("Hello World!", SHLogFormats.DefaultWithLongTimestamp);</c>
         ///     </example>
         /// </para>
         /// <para>
         ///     Output: "[Day/Month - Hour:Minute:Second] [ClassName] - Hello World!"
         /// </para>
         /// </summary>
-        public static SHLogFormatter DefaultWithLongTimestamp => new(CombinePrefixes(" ", LongTimestampPrefix, DefaultPrefix));
+        public static SHLogFormatter DefaultWithLongTimestamp =>
+            new(CombinePrefixes(" ", LongTimestampPrefix, DefaultPrefix));
 
         /// <summary>
         /// The default log formatter with the context name in the prefix.
         /// <para>
         ///     <example>
-        ///     <c>SHLogger.Log("Hello World!", SHLogFormats.DefaultWithContext);</c> 
+        ///     <c>SHLogger.Log("Hello World!", SHLogFormats.DefaultWithContext);</c>
         ///     </example>
         /// </para>
         /// <para>
         ///     Output: "[Context: {contextName}] [ClassName] - Hello World!"
         /// </para>
         /// </summary>
-        public static SHLogFormatter DefaultWithContext => new(CombinePrefixes(" ", ContextPrefix, DefaultPrefix));
+        public static SHLogFormatter DefaultWithContext =>
+            new(CombinePrefixes(" ", ContextPrefix, DefaultPrefix));
 
         /// <summary>
         /// A formatter that outputs a raw message.
         /// <para>
         ///     <example>
-        ///     <c>SHLogger.Log("Hello World!", SHLogFormats.RawMessage);</c> 
+        ///     <c>SHLogger.Log("Hello World!", SHLogFormats.RawMessage);</c>
         ///     </example>
         /// </para>
         /// <para>
         ///     Output: "Hello World!"
         /// </para>
         /// </summary>
-        public static SHLogFormatter RawMessage => new(NoPrefix, DefaultMessage, NoColor, NoCompositor);
+        public static SHLogFormatter RawMessage =>
+            new(NoPrefix, DefaultMessage, NoColor, NoCompositor);
         #endregion
 
-        public static PrefixFormatter CombinePrefixes(string separator, params PrefixFormatter[] prefixFormatters)
+        public static PrefixFormatter CombinePrefixes(
+            string separator,
+            params PrefixFormatter[] prefixFormatters
+        )
         {
             string combinedFormatter(SHLog log)
             {
@@ -200,7 +207,7 @@ namespace Shears.Logging
                     SHLogLevels.Verbose => verboseCustomPrefix(false),
                     SHLogLevels.Warning => verboseCustomPrefix(true),
                     SHLogLevels.Error => verboseCustomPrefix(true),
-                    _ => defaultCustomPrefix()
+                    _ => defaultCustomPrefix(),
                 };
             }
             else
@@ -211,7 +218,7 @@ namespace Shears.Logging
                     SHLogLevels.Verbose => verbosePrefix(false),
                     SHLogLevels.Warning => verbosePrefix(true),
                     SHLogLevels.Error => verbosePrefix(true),
-                    _ => defaultPrefix()
+                    _ => defaultPrefix(),
                 };
             }
         }
@@ -371,7 +378,7 @@ namespace Shears.Logging
         }
         #endregion
 
-        private static string GetDefaultLogLevelPrefix(SHLogLevels level)
+        public static string GetDefaultLogLevelPrefix(SHLogLevels level)
         {
             return level.ToString().ToUpper();
         }

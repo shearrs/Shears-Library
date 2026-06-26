@@ -28,6 +28,9 @@ namespace Shears.Tweens
 
         public Tween Store(Tween tween)
         {
+            if (tween == Tween.Empty)
+                return tween;
+
             tweens.Add(tween);
 
             tween.Completed += () => tweens.Remove(tween);

@@ -16,16 +16,16 @@ namespace Shears.UI
         private bool canChangeColor = true;
 
         [SerializeField, RuntimeReadOnly]
-        private List<RenderTarget> renderTargets = new();
+        private List<RenderTargetSettings> renderTargets = new();
 
-        private readonly Dictionary<RenderTarget, Color> originalColors = new();
+        private readonly Dictionary<RenderTargetSettings, Color> originalColors = new();
         private readonly TweenData tweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
         private readonly TweenStorage tweenStorage = new();
         private bool isDragged;
         private bool originalColorsInitialized = false;
         private Func<bool> canChangeColorCallback;
 
-        private Dictionary<RenderTarget, Color> OriginalColors
+        private Dictionary<RenderTargetSettings, Color> OriginalColors
         {
             get
             {
@@ -36,7 +36,7 @@ namespace Shears.UI
             }
         }
         public bool IsDragged => isDragged;
-        public List<RenderTarget> Renderers => renderTargets;
+        public List<RenderTargetSettings> Renderers => renderTargets;
         public bool CanChangeColor
         {
             get => canChangeColor;
@@ -55,15 +55,15 @@ namespace Shears.UI
         #endregion
 
         [Serializable]
-        public struct RenderTarget
+        public struct RenderTargetSettings
         {
-            public static readonly RenderTarget Default = new(
+            public static readonly RenderTargetSettings Default = new(
                 DEFAULT_HOVER_COLOR,
                 DEFAULT_PRESSED_COLOR
             );
 
             [SerializeField]
-            public Renderer renderer;
+            public UIElement.RenderTarget target;
 
             [SerializeField]
             public Color hoverColor;
@@ -71,9 +71,9 @@ namespace Shears.UI
             [SerializeField]
             public Color pressedColor;
 
-            public RenderTarget(Color hoverColor, Color pressedColor)
+            public RenderTargetSettings(Color hoverColor, Color pressedColor)
             {
-                renderer = null;
+                target = default;
                 this.hoverColor = hoverColor;
                 this.pressedColor = pressedColor;
             }
@@ -91,7 +91,7 @@ namespace Shears.UI
             for (int i = 0; i < renderTargets.Count; i++)
             {
                 if (renderTargets[i].hoverColor == Color.clear)
-                    renderTargets[i] = RenderTarget.Default;
+                    renderTargets[i] = RenderTargetSettings.Default;
             }
         }
 
@@ -101,16 +101,7 @@ namespace Shears.UI
                 return;
 
             foreach (var target in renderTargets)
-            {
-                Color originalColor;
-
-                if (target.renderer is SpriteRenderer spriteRenderer)
-                    originalColor = spriteRenderer.color.With(a: 1.0f);
-                else
-                    originalColor = target.renderer.material.color;
-
-                originalColors[target] = originalColor;
-            }
+                originalColors[target] = target.target.GetColor().With(a: 1.0f);
 
             originalColorsInitialized = true;
         }
@@ -119,6 +110,8 @@ namespace Shears.UI
         {
             Element.RegisterEvent<HoverEnterEvent>(OnHoverEnter);
             Element.RegisterEvent<HoverExitEvent>(OnHoverExit);
+            Element.RegisterEvent<FocusEnterEvent>(OnFocusEnter);
+            Element.RegisterEvent<FocusExitEvent>(OnFocusExit);
             Element.RegisterEvent<PointerDownEvent>(OnPointerDown);
             Element.RegisterEvent<PointerUpEvent>(OnPointerUp);
             Element.RegisterEvent<DragBeginEvent>(OnDragBegin);
@@ -129,6 +122,8 @@ namespace Shears.UI
         {
             Element.DeregisterEvent<HoverEnterEvent>(OnHoverEnter);
             Element.DeregisterEvent<HoverExitEvent>(OnHoverExit);
+            Element.DeregisterEvent<FocusEnterEvent>(OnFocusEnter);
+            Element.DeregisterEvent<FocusExitEvent>(OnFocusExit);
             Element.DeregisterEvent<PointerDownEvent>(OnPointerDown);
             Element.DeregisterEvent<PointerUpEvent>(OnPointerUp);
             Element.DeregisterEvent<DragBeginEvent>(OnDragBegin);
@@ -137,8 +132,6 @@ namespace Shears.UI
 
         private void OnHoverEnter(HoverEnterEvent evt)
         {
-            evt.PreventTrickleDown();
-
             if (isDragged)
                 return;
 
@@ -147,8 +140,22 @@ namespace Shears.UI
 
         private void OnHoverExit(HoverExitEvent evt)
         {
-            evt.PreventTrickleDown();
+            if (isDragged)
+                return;
 
+            ClearModulation();
+        }
+
+        private void OnFocusEnter(FocusEnterEvent evt)
+        {
+            if (isDragged)
+                return;
+
+            TweenToHover();
+        }
+
+        private void OnFocusExit(FocusExitEvent evt)
+        {
             if (isDragged)
                 return;
 
@@ -157,8 +164,6 @@ namespace Shears.UI
 
         private void OnPointerDown(PointerDownEvent evt)
         {
-            evt.PreventTrickleDown();
-
             if (isDragged)
                 return;
 
@@ -167,8 +172,6 @@ namespace Shears.UI
 
         private void OnPointerUp(PointerUpEvent evt)
         {
-            evt.PreventTrickleDown();
-
             if (isDragged)
                 return;
 
@@ -201,12 +204,7 @@ namespace Shears.UI
             {
                 var originalColor = OriginalColors[target];
 
-                if (target.renderer is SpriteRenderer spriteRenderer)
-                    tweenStorage.Store(spriteRenderer.DoColorTween(originalColor, tweenData));
-                else
-                    tweenStorage.Store(
-                        target.renderer.material.DoColorTween(originalColor, tweenData)
-                    );
+                tweenStorage.Store(target.target.DoColorTween(originalColor, tweenData));
             }
         }
 
@@ -243,37 +241,20 @@ namespace Shears.UI
                 TweenToColor(target, color, tweenData);
         }
 
-        public void AddOnComplete(Action action)
-        {
-            if (tweenStorage.HasValidTween())
-                tweenStorage.GetFirstValid().Completed += action;
-        }
-
         public void ModulateColor(Color color)
         {
             foreach (var target in renderTargets)
-                SetColor(target, OriginalColors[target] * color);
+                target.target.SetColor(color);
         }
 
-        private void TweenToColor(RenderTarget target, Color color, ITweenData tweenData)
+        private void TweenToColor(RenderTargetSettings target, Color color, ITweenData tweenData)
         {
             var originalColor = OriginalColors[target];
 
             if (color != originalColor)
                 color *= originalColor;
 
-            if (target.renderer is SpriteRenderer spriteRenderer)
-                tweenStorage.Store(spriteRenderer.DoColorTween(color, tweenData));
-            else
-                tweenStorage.Store(target.renderer.material.DoColorTween(color, tweenData));
-        }
-
-        private void SetColor(RenderTarget target, Color color)
-        {
-            if (target.renderer is SpriteRenderer spriteRenderer)
-                spriteRenderer.color = color;
-            else
-                target.renderer.material.color = color;
+            tweenStorage.Store(target.target.DoColorTween(color, tweenData));
         }
     }
 }

@@ -5,6 +5,7 @@ using UnityEngine.Events;
 
 namespace Shears.UI
 {
+    [RequireComponent(typeof(ColorModulator))]
     public class CanvasButton : UIElement
     {
         [Header("Mesh Button")]
@@ -18,16 +19,7 @@ namespace Shears.UI
         private bool clickOnMouseDown = false;
 
         [SerializeField]
-        private bool usesUnscaledTime = false;
-
-        [SerializeField]
         private ManagedImage image;
-
-        [SerializeField]
-        private Color hoverColor = new(0.6f, 0.6f, 0.6f);
-
-        [SerializeField]
-        private Color pressedColor = new(0.4f, 0.4f, 0.4f);
 
         [SerializeField]
         private Color notSelectableColor = new(0.15f, 0.15f, 0.15f);
@@ -36,17 +28,30 @@ namespace Shears.UI
         [SerializeField]
         private UnityEvent clicked;
 
-        private readonly TweenData hoverTweenData = new(0.1f, easingFunction: TweenEase.InOutQuad);
         private readonly TweenData notSelectableTweenData = new(
             0.1f,
             easingFunction: TweenEase.InOutQuad
         );
+        private ColorModulator colorModulator;
+
+        public bool InitializeColor { get; set; } = true;
+        public ColorModulator ColorModulator
+        {
+            get
+            {
+                if (colorModulator == null)
+                    colorModulator = GetComponent<ColorModulator>();
+
+                return colorModulator;
+            }
+        }
 
         public ManagedImage Image
         {
             get => image;
             set => image = value;
         }
+
         public bool Selectable
         {
             get => selectable;
@@ -54,12 +59,6 @@ namespace Shears.UI
         }
 
         public event Action Clicked;
-        public event Action PointerDown;
-        public event Action PointerUp;
-        public event Action Focused;
-        public event Action Unfocused;
-        public event Action HoverEntered;
-        public event Action HoverExited;
 
         protected override void Awake()
         {
@@ -71,57 +70,8 @@ namespace Shears.UI
 
         protected override void RegisterEvents()
         {
-            RegisterEvent<FocusEnterEvent>(OnFocusEnter);
-            RegisterEvent<FocusExitEvent>(OnFocusExit);
-            RegisterEvent<HoverEnterEvent>(OnHoverEnter);
-            RegisterEvent<HoverExitEvent>(OnHoverExit);
             RegisterEvent<PointerDownEvent>(OnPointerDown);
-            RegisterEvent<PointerUpEvent>(OnPointerUp);
             RegisterEvent<ClickEvent>(OnClicked);
-        }
-
-        private void OnFocusEnter(FocusEnterEvent evt)
-        {
-            evt.PreventTrickleDown();
-
-            if (!selectable)
-                return;
-
-            Focused?.Invoke();
-            TweenToColor(hoverColor, hoverTweenData);
-        }
-
-        private void OnFocusExit(FocusExitEvent evt)
-        {
-            evt.PreventTrickleDown();
-
-            if (!selectable)
-                return;
-
-            Unfocused?.Invoke();
-            TweenToColor(Color.white, hoverTweenData);
-        }
-
-        private void OnHoverEnter(HoverEnterEvent evt)
-        {
-            evt.PreventTrickleDown();
-
-            if (!selectable || IsFading)
-                return;
-
-            HoverEntered?.Invoke();
-            TweenToColor(hoverColor, hoverTweenData);
-        }
-
-        private void OnHoverExit(HoverExitEvent evt)
-        {
-            evt.PreventTrickleDown();
-
-            if (!selectable || IsFading)
-                return;
-
-            HoverExited?.Invoke();
-            TweenToColor(Color.white, hoverTweenData);
         }
 
         private void OnPointerDown(PointerDownEvent evt)
@@ -139,26 +89,6 @@ namespace Shears.UI
                 if (focusable)
                     Focus();
             }
-
-            PointerDown?.Invoke();
-
-            if (selectable && !IsFading)
-                TweenToColor(pressedColor, hoverTweenData);
-        }
-
-        private void OnPointerUp(PointerUpEvent evt)
-        {
-            evt.PreventTrickleDown();
-
-            if (!selectable)
-                return;
-
-            Color targetColor = IsHovered ? hoverColor : Color.white;
-
-            PointerUp?.Invoke();
-
-            if (!IsFading)
-                TweenToColor(targetColor, hoverTweenData);
         }
 
         private void OnClicked(ClickEvent evt)
@@ -175,32 +105,27 @@ namespace Shears.UI
                 Focus();
         }
 
-        private void TweenToColor(Color color, ITweenData tweenData)
-        {
-            hoverTweenData.UnscaledTime = usesUnscaledTime;
-            notSelectableTweenData.UnscaledTime = usesUnscaledTime;
-
-            DisposeTweens();
-            StoreTween(image.DoModulateTween(color, tweenData));
-        }
-
         private void SetSelectable(bool value)
         {
-            if (!value)
+            if (value == selectable)
+                return;
+
+            if (!IsFading)
             {
-                TweenToColor(notSelectableColor, notSelectableTweenData);
-
-                if (IsHovered)
-                    HoverExited?.Invoke();
-            }
-            else
-            {
-                Color targetColor = IsHovered ? hoverColor : Color.white;
-
-                TweenToColor(targetColor, notSelectableTweenData);
-
-                if (IsHovered)
-                    HoverEntered?.Invoke();
+                if (isActiveAndEnabled)
+                {
+                    if (!value)
+                        ColorModulator.TweenToColor(notSelectableColor, notSelectableTweenData);
+                    else
+                    {
+                        if (IsHovered)
+                            ColorModulator.TweenToHover();
+                        else
+                            ColorModulator.ClearModulation();
+                    }
+                }
+                else
+                    ColorModulator.ModulateColor(notSelectableColor);
             }
 
             selectable = value;

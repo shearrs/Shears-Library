@@ -36,20 +36,9 @@ namespace Shears.UI
         [SerializeField]
         private SerializableDictionary<string, TextMeshProUGUI> textElements = new();
 
-        [Header("Tweens")]
-        [SerializeField]
-        private TweenData fadeInData = new(0.1f, easingFunction: TweenEase.InOutQuad);
-
-        [SerializeField]
-        private TweenData fadeOutData = new(0.1f, easingFunction: TweenEase.InOutQuad);
-
         private readonly Timer appearTimer = new();
-
-        private readonly List<TextMeshProUGUI> textChildren = new();
-        private readonly List<ManagedImage> imageChildren = new();
         private UIElement parent;
-        private bool isFadingIn;
-        private bool isFadingOut;
+
         public bool UsesUnscaledTime
         {
             get => usesUnscaledTime;
@@ -57,8 +46,6 @@ namespace Shears.UI
         }
 
         public event Action BeforeFadeIn;
-        public event Action FadeInCompleted;
-        public event Action FadeOutCompleted;
 
         protected override void Awake()
         {
@@ -97,107 +84,6 @@ namespace Shears.UI
 
             parent.DeregisterEvent<HoverEnterEvent>(OnParentHoverEnter);
             parent.DeregisterEvent<HoverExitEvent>(OnParentHoverExit);
-        }
-
-        public void FadeIn()
-        {
-            if (isFadingIn || IsEnabled)
-                return;
-
-            if (isFadingOut)
-            {
-                isFadingOut = false;
-                DisposeTweens();
-            }
-
-            isFadingIn = true;
-
-            Enable();
-
-            image.Modulate = image.Modulate.With(a: 0.0f);
-            fadeInData.UnscaledTime = usesUnscaledTime;
-            StoreTween(image.DoModulateTween(Color.white, fadeInData));
-
-            GetComponentsInChildren(true, textChildren);
-            GetComponentsInChildren(true, imageChildren);
-
-            for (int i = 0; i < textChildren.Count; i++)
-            {
-                var child = textChildren[i];
-                var childColor = child.color;
-
-                child.color = childColor.With(a: 0.0f);
-                StoreTween(child.DoColorTween(childColor.With(a: 1.0f), fadeInData));
-            }
-
-            for (int i = 0; i < imageChildren.Count; i++)
-            {
-                var child = imageChildren[i];
-                child.Modulate = child.Modulate.With(a: 0.0f);
-
-                StoreTween(child.DoModulateTween(child.Modulate.With(a: 1.0f), fadeInData));
-            }
-
-            GetFirstValidTween().Completed += () =>
-            {
-                isFadingIn = false;
-                FadeInCompleted?.Invoke();
-            };
-        }
-
-        public void FadeOut()
-        {
-            if (isFadingOut || !IsEnabled)
-                return;
-
-            if (isFadingIn)
-            {
-                isFadingIn = false;
-                DisposeTweens();
-            }
-
-            isFadingOut = true;
-
-            fadeOutData.UnscaledTime = usesUnscaledTime;
-            StoreTween(image.DoModulateTween(image.Modulate.With(a: 0.0f), fadeOutData));
-
-            GetComponentsInChildren(true, textChildren);
-            GetComponentsInChildren(true, imageChildren);
-
-            for (int i = 0; i < textChildren.Count; i++)
-            {
-                var child = textChildren[i];
-                var childColor = child.color;
-                var targetColor = childColor.With(a: 0.0f);
-
-                var childTween = StoreTween(child.DoColorTween(targetColor, fadeOutData));
-                GetFirstValidTween().Completed += () =>
-                {
-                    childTween.Dispose();
-                    child.color = targetColor;
-                };
-            }
-
-            for (int i = 0; i < imageChildren.Count; i++)
-            {
-                var child = imageChildren[i];
-                var targetColor = child.Modulate.With(a: 0.0f);
-
-                var childTween = StoreTween(child.DoModulateTween(targetColor, fadeOutData));
-                GetFirstValidTween().Completed += () =>
-                {
-                    childTween.Dispose();
-                    child.Modulate = targetColor;
-                };
-            }
-
-            GetFirstValidTween().Completed += () =>
-            {
-                Disable();
-
-                isFadingOut = false;
-                FadeOutCompleted?.Invoke();
-            };
         }
 
         public void SetText(string key, string text)

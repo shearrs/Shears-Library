@@ -77,10 +77,19 @@ namespace Shears.DataManagement
             randomChoices.Clear();
             randomChoices.AddRange(map.Values.ToList());
 
-            if (exclusions != null)
+            if (exclusions != null && exclusions.Count > 0)
             {
                 foreach (var exclusion in exclusions)
                     randomChoices.Remove(exclusion);
+            }
+
+            if (randomChoices.Count == 0)
+            {
+                this.Log(
+                    $"{GetType().Name.PascalSpace()} has no {typeof(TData).Name.PascalSpace()} to choose from!",
+                    SHLogLevels.Error
+                );
+                return null;
             }
 
             return randomChoices[UnityEngine.Random.Range(0, randomChoices.Count)];

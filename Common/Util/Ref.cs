@@ -3,12 +3,14 @@ using UnityEngine;
 
 namespace Shears
 {
-    public readonly struct RefChangeEvent<T>
+    public delegate void RefChangeEvent<T>(in RefChangeData<T> data);
+
+    public readonly struct RefChangeData<T>
     {
         public readonly T oldValue;
         public readonly T newValue;
 
-        public RefChangeEvent(T oldValue, T newValue)
+        public RefChangeData(T oldValue, T newValue)
         {
             this.oldValue = oldValue;
             this.newValue = newValue;
@@ -24,7 +26,7 @@ namespace Shears
         public T Value
         {
             get => value;
-            set 
+            set
             {
                 var oldValue = this.value;
                 this.value = value;
@@ -34,10 +36,10 @@ namespace Shears
             }
         }
 
-        public event Action<RefChangeEvent<T>> Changed;
+        public event RefChangeEvent<T> Changed;
         public event Action<T> ChangedRaw;
 
-        public void Bind(Action<RefChangeEvent<T>> action)
+        public void Bind(RefChangeEvent<T> action)
         {
             Changed += action;
             action(new(value, value));
@@ -49,14 +51,14 @@ namespace Shears
             action(value);
         }
 
-        public void Unbind(Action<RefChangeEvent<T>> action)
+        public void Unbind(RefChangeEvent<T> action)
         {
             Changed -= action;
         }
 
         void IRef.Unbind(object changeEvent)
         {
-            if (changeEvent is not Action<RefChangeEvent<T>> typedEvent)
+            if (changeEvent is not RefChangeEvent<T> typedEvent)
                 return;
 
             Changed -= typedEvent;
@@ -81,9 +83,10 @@ namespace Shears
             return base.GetHashCode();
         }
 
-        public static bool operator==(Ref<T> a, T b) => a.value == null ? b == null : a.value.Equals(b);
+        public static bool operator ==(Ref<T> a, T b) =>
+            a.value == null ? b == null : a.value.Equals(b);
 
-        public static bool operator!=(Ref<T> a, T b) => !(a == b);
+        public static bool operator !=(Ref<T> a, T b) => !(a == b);
 
         public static implicit operator T(Ref<T> reference) => reference.value;
         #endregion
@@ -93,10 +96,10 @@ namespace Shears
     {
         public T Value { get; }
 
-        public event Action<RefChangeEvent<T>> Changed;
+        public event RefChangeEvent<T> Changed;
         public event Action<T> ChangedRaw;
 
-        public void Bind(Action<RefChangeEvent<T>> action);
+        public void Bind(RefChangeEvent<T> action);
         public void BindRaw(Action<T> action);
     }
 

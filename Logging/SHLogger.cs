@@ -18,7 +18,13 @@ namespace Shears.Logging
         /// <see cref="Custom"/> => outputs to <see cref="CustomLogger"/>.
         /// </para>
         /// </summary>
-        public enum LogType { UnityConsole, UIConsole, File, Custom }
+        public enum LogType
+        {
+            UnityConsole,
+            UIConsole,
+            File,
+            Custom,
+        }
 
         private static SHLoggerSettings settings;
         private static SHUnityConsoleLogger unityLogger;
@@ -37,7 +43,7 @@ namespace Shears.Logging
                     LogType.UIConsole => uiLogger,
                     LogType.File => fileLogger,
                     LogType.Custom => CustomLogger,
-                    _ => null
+                    _ => null,
                 };
             }
         }
@@ -67,17 +73,29 @@ namespace Shears.Logging
         /// <summary>
         /// Whether or not the logger is enabled. If this is false, no logs will be logged.
         /// </summary>
-        public static bool Enabled { get => Settings.Enabled; set => Settings.Enabled = value; }
+        public static bool Enabled
+        {
+            get => Settings.Enabled;
+            set => Settings.Enabled = value;
+        }
+
+        /// <summary>
+        /// The type of log to send logs to.
+        /// </summary>
+        public static LogType LoggingType
+        {
+            get => Settings.LogType;
+            set => Settings.LogType = value;
+        }
 
         /// <summary>
         /// The log levels that will be logged. Anything not selected will be stripped.
         /// </summary>
-        public static LogType LoggingType { get => Settings.LogType; set => Settings.LogType = value; }
-
-        /// <summary>
-        /// The log levels that will be logged. Anything not selected will be stripped.
-        /// </summary>
-        public static SHLogLevels LogLevels { get => Settings.LogLevels; set => Settings.LogLevels = value; }
+        public static SHLogLevels LogLevels
+        {
+            get => Settings.LogLevels;
+            set => Settings.LogLevels = value;
+        }
 
         /// <summary>
         /// The current formatter being used to format logs. If <see cref="FormatterOverride"/> is not set, this is the current logger target's formatter.
@@ -101,17 +119,29 @@ namespace Shears.Logging
         /// <summary>
         /// If this is not null, this formatter is used by default instead of the current logger target's formatter.
         /// </summary>
-        public static ISHLogFormatter FormatterOverride { get => Settings.FormatterOverride; set => Settings.FormatterOverride = value; }
+        public static ISHLogFormatter FormatterOverride
+        {
+            get => Settings.FormatterOverride;
+            set => Settings.FormatterOverride = value;
+        }
 
         /// <summary>
         /// The custom logger to output to when <see cref="LogType"/> is set to <see cref="LogType.Custom"/>.
         /// </summary>
-        public static ISHLogger CustomLogger { get => Settings.CustomLogger; set => Settings.CustomLogger = value; }
+        public static ISHLogger CustomLogger
+        {
+            get => Settings.CustomLogger;
+            set => Settings.CustomLogger = value;
+        }
 
         /// <summary>
         /// The colors to display for each <see cref="SHLogLevels"/>. If not set, automatically sets to a default.
         /// </summary>
-        public static SHLogColors LogColors { get => Settings.LogColors; set => Settings.LogColors = value; }
+        public static SHLogColors LogColors
+        {
+            get => Settings.LogColors;
+            set => Settings.LogColors = value;
+        }
 
         /// <summary>
         /// The file path that the <see cref="SHFileLogger"/> logs to.
@@ -154,9 +184,22 @@ namespace Shears.Logging
         /// <param name="callerFilePath">The file path of the class who called this. Should not be set manually.</param>
         /// <param name="callerLineNumber">The line number of the class who called this. Should not be set manually.</param>
         [HideInCallstack]
-        public static void Log(string message, SHLogLevels level = SHLogLevels.Log, Color color = default, Object context = null, string prefix = "", ISHLogFormatter formatter = default,
-        [CallerFilePath] string callerFilePath = "", [CallerLineNumber] long callerLineNumber = 0)
-        => Log(new SHLog(message, context, prefix, level, color), formatter, callerFilePath, callerLineNumber);
+        public static void Log(
+            string message,
+            SHLogLevels level = SHLogLevels.Log,
+            Color color = default,
+            Object context = null,
+            string prefix = "",
+            ISHLogFormatter formatter = default,
+            [CallerFilePath] string callerFilePath = "",
+            [CallerLineNumber] long callerLineNumber = 0
+        ) =>
+            Log(
+                new SHLog(message, context, prefix, level, color),
+                formatter,
+                callerFilePath,
+                callerLineNumber
+            );
 
         /// <summary>
         /// Logs a message to the current logger.
@@ -166,8 +209,12 @@ namespace Shears.Logging
         /// <param name="callerFilePath">The file path of the class who called this. Should not be set manually.</param>
         /// <param name="callerLineNumber">The line number of the class who called this. Should not be set manually.</param>
         [HideInCallstack]
-        public static void Log(SHLog log, ISHLogFormatter formatter = null,
-        [CallerFilePath] string callerFilePath = "", [CallerLineNumber] long callerLineNumber = 0)
+        public static void Log(
+            SHLog log,
+            ISHLogFormatter formatter = null,
+            [CallerFilePath] string callerFilePath = "",
+            [CallerLineNumber] long callerLineNumber = 0
+        )
         {
             if (!Enabled || (LogLevels & log.Level) == 0)
                 return;
@@ -238,7 +285,8 @@ namespace Shears.Logging
         /// </summary>
         /// <param name="level">The log level to get a <see cref="Color"/> for.</param>
         /// <returns>The <see cref="Color"/> of the passed <see cref="SHLogLevels"/>.</returns>
-        public static Color GetColorForLogLevel(SHLogLevels level) => LogColors.GetColorForLogLevel(level);
+        public static Color GetColorForLogLevel(SHLogLevels level) =>
+            LogColors.GetColorForLogLevel(level);
 
         private static void InitializeUIConsole()
         {
