@@ -3,10 +3,10 @@ using UnityEngine;
 
 namespace Shears.Tweens
 {
-    internal readonly struct TweenUpdate
+    public readonly struct TweenUpdate
     {
         private readonly Action<float> floatUpdate;
-        
+
         public TweenUpdate(Action<float> floatUpdate)
         {
             this.floatUpdate = floatUpdate;

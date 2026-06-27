@@ -11,7 +11,7 @@ namespace Shears.UI
     {
         [Header("Components")]
         [SerializeField]
-        private ManagedImage image;
+        private UIImage image;
 
         [SerializeField, RuntimeReadOnly]
         private UIElement hoverParent;

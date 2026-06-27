@@ -35,7 +35,7 @@ namespace Shears.UI.Editor
         private static void MenuCreateManagedImage()
         {
             var gameObject = new GameObject("Image");
-            gameObject.AddComponent<ManagedImage>();
+            gameObject.AddComponent<UIImage>();
 
             var parent = GetOrCreateParent();
             gameObject.transform.SetParent(parent.transform);
@@ -56,7 +56,7 @@ namespace Shears.UI.Editor
             var gameObject = new GameObject("Button");
             gameObject.AddComponent<CanvasRenderer>();
             var button = gameObject.AddComponent<CanvasButton>();
-            var image = gameObject.AddComponent<ManagedImage>();
+            var image = gameObject.AddComponent<UIImage>();
 
             button.Image = image;
             image.Sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
@@ -95,7 +95,7 @@ namespace Shears.UI.Editor
             Selection.activeGameObject = eventSystem.gameObject;
         }
 
-        private static void CreateEventSystemIfNecessary(UIElementEventSystem.DetectionType type)
+        private static void CreateEventSystemIfNecessary(UIElementEventSystem.DetectionTypes type)
         {
             var eventSystems = GameObject.FindObjectsByType<UIElementEventSystem>(
                 FindObjectsInactive.Include,
@@ -170,7 +170,7 @@ namespace Shears.UI.Editor
             if (Selection.activeGameObject != null)
                 gameObject.transform.SetParent(Selection.activeGameObject.transform);
 
-            CreateEventSystemIfNecessary(UIElementEventSystem.DetectionType.Canvas);
+            CreateEventSystemIfNecessary(UIElementEventSystem.DetectionTypes.Canvas);
 
             return uiCanvas;
         }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Shears.Input;
 using Shears.Logging;
@@ -7,36 +8,39 @@ using UnityEngine.UI;
 namespace Shears.UI
 {
     [DefaultExecutionOrder(-1000)]
-    public partial class UIElementEventSystem : MonoBehaviour
+    public partial class UIElementEventSystem : PersistentProtectedSingleton<UIElementEventSystem>
     {
         #region Variables
-        public enum DetectionType
+        [Flags]
+        public enum DetectionTypes
         {
-            Canvas,
-            World3D,
+            Canvas = 0 << 1,
+            World3D = 0 << 2,
         }
 
         const int MAX_RAYCAST_HITS = 10;
         const float DRAG_BEGIN_SQR_DISTANCE = 0.01f * 0.01f;
 
-        private static readonly RaycastHit[] s_results3D = new RaycastHit[MAX_RAYCAST_HITS];
-        private static readonly List<RaycastHit> s_sortedHits = new(MAX_RAYCAST_HITS);
-        private static readonly List<UIElement> s_sortedResults = new(MAX_RAYCAST_HITS);
-        private static bool applicationIsQuitting = false;
-        private static UIElementEventSystem canvasSystem;
-        private static UIElementEventSystem world3DSystem;
-
         [SerializeField]
         [AutoProperty("SystemType")]
-        private DetectionType detectionType = DetectionType.Canvas;
+        private DetectionTypes detectionTypes = DetectionTypes.Canvas;
 
-        private readonly RaycastHit[] results3D = new RaycastHit[MAX_RAYCAST_HITS];
-        private readonly List<RaycastHit> sortedHits = new(MAX_RAYCAST_HITS);
-        private readonly HashSet<UIElementCanvas> registeredCanvases = new();
-        private readonly List<Graphic> hitGraphics = new();
-        private readonly HashSet<UIElement> registeredElements = new();
-
-        private ManagedInputMap inputMap;
+        private static readonly RaycastHit[] results3D = new RaycastHit[MAX_RAYCAST_HITS];
+        private static readonly List<RaycastHit> sortedHits = new(MAX_RAYCAST_HITS);
+        private static readonly List<UIElement> sortedResults = new(MAX_RAYCAST_HITS);
+        private static readonly HashSet<UIElementCanvas> registeredCanvases = new();
+        private static readonly HashSet<UIElement> registeredElements = new();
+        private static readonly List<Graphic> hitGraphics = new();
+        private static bool applicationIsQuitting = false;
+        private static ManagedInputMap inputMap;
+        private static LayerMask detectionMask;
+        private static UIElement hoveredElement;
+        private static UIElement draggedElement;
+        private static UIElement pointerDownElement;
+        private static UIElement focusedElement;
+        private static float pointerDownTime;
+        private static Vector2 pointerDownPosition;
+        private static float dragInitialZ;
 
         [AutoEvent(nameof(IManagedInput.Started), nameof(OnPointerDown))]
         [AutoEvent(nameof(IManagedInput.Canceled), nameof(OnPointerUp))]
@@ -45,21 +49,6 @@ namespace Shears.UI
         [AutoEvent(nameof(IManagedInput.Started), nameof(OnSelectDown))]
         [AutoEvent(nameof(IManagedInput.Canceled), nameof(OnSelectUp))]
         private IManagedInput selectInput;
-
-        private static LayerMask detectionMask;
-        private UIElement hoveredElement;
-        private UIElement draggedElement;
-        private UIElement pointerDownElement;
-        private UIElement focusedElement;
-        private float pointerDownTime;
-        private Vector2 pointerDownPosition;
-        private float dragInitialZ;
-
-        public static UIElementEventSystem CanvasSystem => canvasSystem;
-        public static UIElementEventSystem World3DSystem => world3DSystem;
-
-        public bool IsHovering => canvasSystem != null && canvasSystem.hoveredElement != null;
-        public IReadOnlyList<Graphic> HitGraphics => hitGraphics;
         #endregion
 
         #region Static Initialization
@@ -77,8 +66,10 @@ namespace Shears.UI
         #endregion
 
         #region Unity Methods
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
+
             detectionMask = LayerMask.GetMask("UI");
 
             if (inputMap == null)
@@ -88,11 +79,6 @@ namespace Shears.UI
 
             clickInput = inputMap.GetInput("Click");
             selectInput = inputMap.GetInput("Select");
-
-            if (detectionType == DetectionType.Canvas)
-                canvasSystem = this;
-            else
-                world3DSystem = this;
         }
 
         private void Update()
@@ -105,76 +91,26 @@ namespace Shears.UI
         #region Registration
         public static void RegisterCanvas(UIElementCanvas canvas)
         {
-            if (canvasSystem == null)
-            {
-                SHLogger.Log(
-                    $"No canvas system was set! You need to have a {nameof(UIElementEventSystem)} with {nameof(detectionType)} set to {nameof(DetectionType.Canvas)}!",
-                    SHLogLevels.Error
-                );
-                return;
-            }
-
-            canvasSystem.InstRegisterCanvas(canvas);
-        }
-
-        private void InstRegisterCanvas(UIElementCanvas canvas)
-        {
             if (!registeredCanvases.Contains(canvas))
                 registeredCanvases.Add(canvas);
         }
 
         public static void DeregisterCanvas(UIElementCanvas canvas)
         {
-            if (applicationIsQuitting)
-                return;
-
-            canvasSystem.InstDeregisterCanvas(canvas);
-        }
-
-        private void InstDeregisterCanvas(UIElementCanvas canvas) =>
             registeredCanvases.Remove(canvas);
+        }
 
         public static void RegisterElement(UIElement element)
-        {
-            if (canvasSystem == null)
-            {
-                SHLogger.Log(
-                    $"No canvas system was set! You need to have a {nameof(UIElementEventSystem)} with {nameof(detectionType)} set to {nameof(DetectionType.Canvas)}!",
-                    SHLogLevels.Error
-                );
-                return;
-            }
-
-            canvasSystem.InstRegisterElement(element);
-        }
-
-        private void InstRegisterElement(UIElement element)
         {
             if (!registeredElements.Contains(element))
                 registeredElements.Add(element);
         }
 
         public static void DeregisterElement(UIElement element) =>
-            canvasSystem.InstDeregisterElement(element);
-
-        private void InstDeregisterElement(UIElement element) => registeredElements.Remove(element);
+            registeredElements.Remove(element);
         #endregion
 
         public static void Focus(UIElement element)
-        {
-            if (canvasSystem == null)
-            {
-                SHLogger.Log(
-                    $"No canvas system was set! You need to have a {nameof(UIElementEventSystem)} with {nameof(detectionType)} set to {nameof(DetectionType.Canvas)}!",
-                    SHLogLevels.Error
-                );
-                return;
-            }
-
-            canvasSystem.InstFocus(element);
-        }
-
-        private void InstFocus(UIElement element)
         {
             if (applicationIsQuitting)
                 return;
@@ -191,7 +127,7 @@ namespace Shears.UI
             }
         }
 
-        private void ClearFocus()
+        private static void ClearFocus()
         {
             if (applicationIsQuitting || focusedElement == null)
                 return;
@@ -213,18 +149,36 @@ namespace Shears.UI
                 return;
             }
 
+            UIElement canvasTarget = null;
+            UIElement target3D = null;
             UIElement newHoverTarget = null;
 
-            if (detectionType == DetectionType.Canvas)
-                newHoverTarget = RaycastCanvas();
-            else if (detectionType == DetectionType.World3D)
+            if ((detectionTypes & DetectionTypes.Canvas) != 0)
+                canvasTarget = RaycastCanvas();
+            if ((detectionTypes & DetectionTypes.World3D) != 0)
             {
-                if (canvasSystem != null && canvasSystem.IsHovering) // world raycasts are blocked by canvas elements
-                    newHoverTarget = null;
-                else
+                Raycast3DInternal(results3D, sortedHits);
+                target3D = FindFirstUIElement(sortedHits);
+            }
+
+            if (canvasTarget == null && target3D == null)
+                newHoverTarget = null;
+            else if (canvasTarget != null && target3D == null)
+                newHoverTarget = canvasTarget;
+            else if (canvasTarget == null && target3D != null)
+                newHoverTarget = target3D;
+            else
+            {
+                if (target3D.IsChildOfCanvas())
                 {
-                    Raycast3DInternal(results3D, sortedHits);
-                    newHoverTarget = FindFirstUIElement(sortedHits);
+                    if (canvasTarget.Canvas.SortOrder > target3D.Canvas.SortOrder)
+                        newHoverTarget = canvasTarget;
+                    else if (target3D.Canvas.SortOrder > canvasTarget.Canvas.SortOrder)
+                        newHoverTarget = target3D;
+                    else if (canvasTarget.SortOrder > target3D.SortOrder)
+                        newHoverTarget = canvasTarget;
+                    else
+                        newHoverTarget = target3D;
                 }
             }
 
@@ -303,7 +257,7 @@ namespace Shears.UI
         {
             hitElements.Clear();
 
-            Raycast3DInternal(s_results3D, sortedHits);
+            Raycast3DInternal(results3D, sortedHits);
 
             for (int i = 0; i < sortedHits.Count; i++)
             {
@@ -317,11 +271,11 @@ namespace Shears.UI
         public static bool TryRaycastElement<T>(out T component)
             where T : Component
         {
-            Raycast3D(s_sortedHits, s_sortedResults);
+            Raycast3D(sortedHits, sortedResults);
 
-            for (int i = 0; i < s_sortedResults.Count; i++)
+            for (int i = 0; i < sortedResults.Count; i++)
             {
-                var result = s_sortedResults[i];
+                var result = sortedResults[i];
 
                 if (result.TryGetComponent(out T typedComponent))
                 {
@@ -409,7 +363,7 @@ namespace Shears.UI
                     $"{nameof(UIElementEventSystem)} requires a MainCamera in the scene to raycast!",
                     SHLogLevels.Error
                 );
-                world3DSystem.gameObject.SetActive(false);
+                Instance.gameObject.SetActive(false);
                 return;
             }
 

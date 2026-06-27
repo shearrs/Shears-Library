@@ -19,7 +19,7 @@ namespace Shears.UI
         private bool clickOnMouseDown = false;
 
         [SerializeField]
-        private ManagedImage image;
+        private UIImage image;
 
         [SerializeField]
         private Color notSelectableColor = new(0.15f, 0.15f, 0.15f);
@@ -46,7 +46,7 @@ namespace Shears.UI
             }
         }
 
-        public ManagedImage Image
+        public UIImage Image
         {
             get => image;
             set => image = value;

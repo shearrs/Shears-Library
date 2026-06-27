@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using TMPro;
+using UnityEditor.Graphs;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -333,20 +334,27 @@ namespace Shears.Tweens
         public static Tween DoColorTween(
             this Image image,
             Color targetColor,
-            ITweenData data = null
-        ) => Do(GetColorTween(image, targetColor, data));
+            ITweenData data = null,
+            bool affectAlpha = false
+        ) => Do(GetColorTween(image, targetColor, data, affectAlpha));
 
         public static Tween GetColorTween(
             this Image image,
             Color targetColor,
-            ITweenData data = null
+            ITweenData data = null,
+            bool affectAlpha = false
         )
         {
             Color start = image.color;
 
             void update(float t)
             {
-                image.color = Color.LerpUnclamped(start, targetColor, t);
+                var col = targetColor;
+
+                if (!affectAlpha)
+                    col = col.With(a: image.color.a);
+
+                image.color = Color.LerpUnclamped(start, col, t);
             }
 
             return CreateAutoDisposeTween(image, update, data);
@@ -708,6 +716,21 @@ namespace Shears.Tweens
                 return CreateAutoDisposeTween(unityObject, update, data);
             else
                 return CreateTween(update, data);
+        }
+
+        public static Tween DoFadeTween(
+            this IColorTweenable colorTweenable,
+            float alpha,
+            ITweenData data = null
+        ) => Do(GetFadeTween(colorTweenable, alpha, data));
+
+        public static Tween GetFadeTween(
+            this IColorTweenable colorTweenable,
+            float alpha,
+            ITweenData data = null
+        )
+        {
+            return GetModulateTween(colorTweenable, Color.white.With(a: alpha), data);
         }
         #endregion
     }

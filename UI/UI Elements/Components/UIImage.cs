@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace Shears.UI
 {
     [RequireComponent(typeof(Image))]
-    public class ManagedImage : UIElement, IColorTweenable
+    public class UIImage : UIElement, IColorTweenable
     {
         [SerializeField]
         private Color baseColor = Color.white;

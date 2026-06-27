@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 namespace Shears.UI.Editor
 {
-    [CustomEditor(typeof(ManagedImage))]
+    [CustomEditor(typeof(UIImage))]
     public class ManagedImageEditor : UnityEditor.Editor
     {
         private UnityEngine.UI.Image image;
@@ -17,7 +17,7 @@ namespace Shears.UI.Editor
             if (image != null)
                 return;
 
-            var managedImage = target as ManagedImage;
+            var managedImage = target as UIImage;
 
             if (managedImage == null)
                 return;
