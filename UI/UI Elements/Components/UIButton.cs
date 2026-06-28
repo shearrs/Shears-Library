@@ -36,27 +36,52 @@ namespace Shears.UI
         private readonly Timer colorTimer = new(COLOR_MOVE_TIME);
         private Color startColor;
         private Color targetColor;
+        private Color modulate = Color.white;
+        private Color interactModulate = Color.white;
+        private bool modulateInitialized;
         private bool isDragged;
         private bool isPressed;
+
+        private Color InteractModulate
+        {
+            get => interactModulate;
+            set
+            {
+                interactModulate = value;
+                image.Modulate = interactModulate * Modulate;
+            }
+        }
 
         public UIImage Image
         {
             get => image;
             set => image = value;
         }
-
+        public bool IsHovered { get; private set; }
         public override Color BaseColor
         {
             get => image.BaseColor;
             set => image.BaseColor = value;
         }
-
         public override Color Modulate
         {
-            get => image.Modulate;
-            set => image.Modulate = value;
-        }
+            get
+            {
+                if (!modulateInitialized)
+                {
+                    modulate = image.Modulate;
+                    modulateInitialized = true;
+                }
 
+                return modulate;
+            }
+            set
+            {
+                modulate = value;
+
+                image.Modulate = modulate * interactModulate;
+            }
+        }
         public bool Selectable
         {
             get => selectable;
@@ -70,7 +95,7 @@ namespace Shears.UI
             base.Awake();
 
             if (!selectable)
-                Modulate = notSelectableColor.With(a: Modulate.a);
+                InteractModulate = notSelectableColor.With(a: Modulate.a);
         }
 
         private void Update()
@@ -86,11 +111,28 @@ namespace Shears.UI
 
         protected override void RegisterEvents()
         {
+            RegisterEvent<HoverEnterEvent>(OnHoverEnter);
+            RegisterEvent<HoverExitEvent>(OnHoverExit);
             RegisterEvent<PointerDownEvent>(OnPointerDown);
             RegisterEvent<PointerUpEvent>(OnPointerUp);
             RegisterEvent<ClickEvent>(OnClicked);
             RegisterEvent<DragBeginEvent>(OnDragBegin);
             RegisterEvent<DragEndEvent>(OnDragEnd);
+        }
+
+        private void OnHoverEnter(HoverEnterEvent evt)
+        {
+            evt.PreventBubbleUp();
+
+            IsHovered = true;
+        }
+
+        private void OnHoverExit(HoverExitEvent evt)
+        {
+            evt.PreventBubbleUp();
+
+            Log("exit");
+            IsHovered = false;
         }
 
         private void OnPointerDown(PointerDownEvent evt)
@@ -156,10 +198,10 @@ namespace Shears.UI
                 newColor = notSelectableColor;
             else
             {
-                if (isPressed)
-                    newColor = pressColor;
-                else if (isDragged)
+                if (isDragged)
                     newColor = IsHovered ? pressColor : hoverColor;
+                else if (isPressed)
+                    newColor = pressColor;
                 else if (IsHovered)
                     newColor = hoverColor;
                 else if (IsFocused)
@@ -169,16 +211,16 @@ namespace Shears.UI
             }
 
             // If we are already this color, do nothing
-            if (Modulate.CompareRGB(newColor))
+            if (InteractModulate.CompareRGB(newColor))
                 return;
             else if (targetColor != newColor || colorTimer.IsDone) // If this is a new color, or we aren't moving towards it, start moving toward it
             {
                 colorTimer.Restart();
                 targetColor = newColor;
-                startColor = Modulate;
+                startColor = InteractModulate;
             }
 
-            Modulate = Color
+            InteractModulate = Color
                 .Lerp(startColor, targetColor, colorTimer.Percentage)
                 .With(a: Modulate.a);
         }

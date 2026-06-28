@@ -7,9 +7,12 @@ namespace Shears.UI
     {
         private enum TestType
         {
-            FadeIn,
             FadeOut,
+            FadeIn,
+            FadeAllOut,
+            FadeAllIn,
             Color,
+            ColorAndFade,
         }
 
         [Header("Element")]
@@ -26,25 +29,42 @@ namespace Shears.UI
         [SerializeField]
         private TweenData tweenData;
 
-        [SerializeField, ShowIf(nameof(type), TestType.Color)]
-        private Color color;
+        [SerializeField]
+        private Color color = Color.white;
 
         private void Update()
         {
             if (run)
             {
                 run = false;
+                var children = element.GetComponentsInChildren<UIElement>();
 
                 switch (type)
                 {
-                    case TestType.FadeIn:
-                        element.DoFadeTween(1.0f, tweenData);
-                        break;
                     case TestType.FadeOut:
                         element.DoFadeTween(0.0f, tweenData);
                         break;
+                    case TestType.FadeIn:
+                        element.DoFadeTween(1.0f, tweenData);
+                        break;
+                    case TestType.FadeAllOut:
+                        foreach (var child in children)
+                            child.DoFadeTween(0.0f, tweenData);
+                        break;
+                    case TestType.FadeAllIn:
+                        foreach (var child in children)
+                            child.DoFadeTween(1.0f, tweenData);
+                        break;
                     case TestType.Color:
-                        element.DoColorTween(color, tweenData);
+                        foreach (var child in children)
+                            child.DoModulateTween(color, tweenData);
+                        break;
+                    case TestType.ColorAndFade:
+                        foreach (var child in children)
+                        {
+                            child.DoModulateTween(color, tweenData);
+                            child.DoFadeTween(0.0f, tweenData);
+                        }
                         break;
                 }
             }

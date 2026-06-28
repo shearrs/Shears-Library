@@ -79,9 +79,63 @@ namespace Shears.UI.Editor
         }
 
         [MenuItem(
+            CreateMenuUtility.LIBRARY_PATH + "/UI Elements/Text Mesh",
+            priority = CreateMenuUtility.LIBRARY_PRIORITY,
+            secondaryPriority = 3
+        )]
+        private static void MenuCreateTextMesh()
+        {
+            var gameObject = new GameObject("Text");
+            var text = gameObject.AddComponent<UIText>();
+
+            text.Text = "Text";
+
+            var parent = GetOrCreateParent();
+            if (parent.GetComponentInParent<UIElementCanvas>())
+            {
+                if (!gameObject.TryGetComponent<RectTransform>(out var _))
+                    gameObject.AddComponent<RectTransform>();
+            }
+
+            gameObject.transform.SetParent(parent.transform);
+
+            gameObject.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            gameObject.transform.localScale = Vector3.one;
+
+            Selection.activeGameObject = gameObject;
+        }
+
+        [MenuItem(
+            CreateMenuUtility.LIBRARY_PATH + "/UI Elements/Text Mesh UGUI",
+            priority = CreateMenuUtility.LIBRARY_PRIORITY,
+            secondaryPriority = 4
+        )]
+        private static void MenuCreateTextMeshUGUI()
+        {
+            var gameObject = new GameObject("Text");
+            var text = gameObject.AddComponent<UITextGUI>();
+
+            text.Text = "Text";
+
+            var parent = GetOrCreateParent();
+            if (parent.GetComponentInParent<UIElementCanvas>())
+            {
+                if (!gameObject.TryGetComponent<RectTransform>(out var _))
+                    gameObject.AddComponent<RectTransform>();
+            }
+
+            gameObject.transform.SetParent(parent.transform);
+
+            gameObject.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            gameObject.transform.localScale = Vector3.one;
+
+            Selection.activeGameObject = gameObject;
+        }
+
+        [MenuItem(
             CreateMenuUtility.LIBRARY_PATH + "/UI Elements/Canvas",
             priority = CreateMenuUtility.LIBRARY_PRIORITY,
-            secondaryPriority = 13
+            secondaryPriority = 15
         )]
         private static void MenuCreateUIElementCanvas()
         {

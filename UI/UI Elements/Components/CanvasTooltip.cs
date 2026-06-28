@@ -58,6 +58,7 @@ namespace Shears.UI
             get => image.Modulate;
             set => image.Modulate = value;
         }
+        public bool IsHovered { get; private set; }
 
         public event Action BeforeFadeIn;
 
@@ -71,6 +72,7 @@ namespace Shears.UI
 
         protected override void RegisterEvents()
         {
+            RegisterEvent<HoverEnterEvent>(OnHoverEnter);
             RegisterEvent<HoverExitEvent>(OnHoverExit);
         }
 
@@ -157,9 +159,16 @@ namespace Shears.UI
             }
         }
 
+        private void OnHoverEnter(HoverEnterEvent evt)
+        {
+            IsHovered = true;
+        }
+
         private void OnHoverExit(HoverExitEvent evt)
         {
-            if (evt.IsTricklingDown || staysOpenOnHover)
+            IsHovered = false;
+
+            if (evt.IsTricklingDown || evt.IsBubblingUp)
                 return;
 
             appearTimer.Stop();

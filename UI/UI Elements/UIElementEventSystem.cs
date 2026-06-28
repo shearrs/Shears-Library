@@ -38,6 +38,8 @@ namespace Shears.UI
         private static readonly List<UIElement> sortedResults = new(MAX_RAYCAST_HITS);
         private static readonly HashSet<UIElementCanvas> registeredCanvases = new();
         private static readonly HashSet<UIElement> registeredElements = new();
+        private static readonly List<UIElement> hoveredElements = new();
+        private static readonly List<UIElement> newHoveredElements = new();
         private static readonly List<Graphic> hitGraphics = new();
         private static bool applicationIsQuitting = false;
         private static ManagedInputMap inputMap;
@@ -148,10 +150,13 @@ namespace Shears.UI
         {
             if (draggedElement != null)
             {
-                if (hoveredElement != draggedElement && hoveredElement != null)
+                if (hoveredElement == draggedElement)
+                    return;
+                else if (hoveredElement != null)
                     hoveredElement.InvokeEvent(new HoverExitEvent());
 
                 hoveredElement = draggedElement;
+                hoveredElement.InvokeEvent(new HoverEnterEvent());
                 return;
             }
 
@@ -198,14 +203,8 @@ namespace Shears.UI
             if (newHoverTarget == hoveredElement)
                 return;
 
-            if (newHoverTarget != null)
-                newHoverTarget.IsHovered = true;
-
             if (hoveredElement != null)
-            {
-                hoveredElement.IsHovered = false;
                 hoveredElement.InvokeEvent(new HoverExitEvent());
-            }
 
             hoveredElement = newHoverTarget;
 

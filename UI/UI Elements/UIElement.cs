@@ -16,12 +16,13 @@ namespace Shears.UI
         private readonly List<UIElement> childElements = new();
         private readonly TweenStorage tweenStorage = new();
         private UIElementCanvas canvas;
+        private UIElement parent;
         private float dragBeginTime = 0.1f;
 
         protected IReadOnlyList<Tween> Tweens => tweenStorage.Tweens;
         public UIElementCanvas Canvas => canvas;
+        public UIElement Parent => parent;
         public bool IsEnabled => isActiveAndEnabled;
-        public bool IsHovered { get; internal set; }
         public bool IsFocused { get; internal set; }
         public float DragBeginTime
         {
@@ -54,10 +55,9 @@ namespace Shears.UI
         {
             canvas = GetComponentInParent<UIElementCanvas>();
 
+            UpdateParent();
             UpdateChildList();
-
             RegisterEvents();
-
             BindRefs();
         }
 
@@ -83,7 +83,7 @@ namespace Shears.UI
 
         private void OnTransformParentChanged()
         {
-            canvas = GetComponentInParent<UIElementCanvas>();
+            UpdateParent();
         }
 
         private void OnTransformChildrenChanged()
@@ -112,9 +112,6 @@ namespace Shears.UI
         public virtual void SetAlpha(float alpha)
         {
             Modulate = Modulate.With(a: alpha);
-
-            foreach (var child in childElements)
-                child.SetAlpha(alpha);
         }
 
         #region Event Registration
@@ -248,6 +245,16 @@ namespace Shears.UI
             }
 
             return deepestDepth;
+        }
+
+        private void UpdateParent()
+        {
+            canvas = GetComponentInParent<UIElementCanvas>();
+
+            if (transform.parent != null)
+                transform.parent.TryGetComponent(out parent);
+            else
+                parent = null;
         }
 
         private void UpdateChildList()
