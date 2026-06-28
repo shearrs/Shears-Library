@@ -6,7 +6,8 @@ using UnityEngine;
 
 namespace Shears.UI
 {
-    public class UIElement : SHMonoBehaviourLogger
+    [DisallowMultipleComponent]
+    public class UIElement : SHMonoBehaviourLogger, IColorTweenable
     {
         #region Variables
         private readonly Dictionary<Type, object> registrations = new();
@@ -37,6 +38,13 @@ namespace Shears.UI
                 return Canvas.GetSortOrder(this);
             }
         }
+        public float Alpha
+        {
+            get => Modulate.a;
+            set => SetAlpha(value);
+        }
+        public virtual Color BaseColor { get; set; }
+        public virtual Color Modulate { get; set; }
 
         public event Action Disabled;
         #endregion
@@ -46,7 +54,7 @@ namespace Shears.UI
         {
             canvas = GetComponentInParent<UIElementCanvas>();
 
-            UpdateChildLists();
+            UpdateChildList();
 
             RegisterEvents();
 
@@ -80,7 +88,7 @@ namespace Shears.UI
 
         private void OnTransformChildrenChanged()
         {
-            UpdateChildLists();
+            UpdateChildList();
         }
         #endregion
 
@@ -101,26 +109,13 @@ namespace Shears.UI
 
         protected virtual void BindRefs() { }
 
-        public void SetAlpha(float alpha)
+        public virtual void SetAlpha(float alpha)
         {
+            Modulate = Modulate.With(a: alpha);
+
             foreach (var child in childElements)
                 child.SetAlpha(alpha);
         }
-
-        public Tween DoFadeTween(float alpha, ITweenData data)
-        {
-            var tween = TweenManager.CreateTween(
-                (t) =>
-                {
-                    foreach (var child in childElements)
-                        child.TweenFadeUpdate(alpha, data);
-                }
-            );
-
-            return tween;
-        }
-
-        protected virtual void TweenFadeUpdate(float alpha, ITweenData data) { }
 
         #region Event Registration
         public void RegisterEvent<EventType>(Action<EventType> callback)
@@ -201,6 +196,24 @@ namespace Shears.UI
         protected Tween StoreTween(Tween tween) => tweenStorage.Store(tween);
 
         protected void DisposeTweens() => tweenStorage.Dispose();
+
+        public Tween DoColorTween(
+            Color targetColor,
+            ITweenData data = null,
+            bool affectsAlpha = false
+        ) => ((IColorTweenable)this).DoColorTween(targetColor, data, affectsAlpha);
+
+        public Tween GetColorTween(
+            Color targetColor,
+            ITweenData data = null,
+            bool affectsAlpha = false
+        ) => ((IColorTweenable)this).GetColorTween(targetColor, data, affectsAlpha);
+
+        public Tween DoFadeTween(float alpha, ITweenData data = null) =>
+            ((IAlphaTweenable)this).DoFadeTween(alpha, data);
+
+        public Tween GetFadeTween(float alpha, ITweenData data = null) =>
+            ((IAlphaTweenable)this).GetFadeTween(alpha, data);
         #endregion
 
         #region Children
@@ -237,7 +250,11 @@ namespace Shears.UI
             return deepestDepth;
         }
 
-        private void UpdateChildLists() { }
+        private void UpdateChildList()
+        {
+            GetComponentsInChildren(childElements);
+            childElements.Remove(this);
+        }
         #endregion
 
         public void Focus() => UIElementEventSystem.Focus(this);

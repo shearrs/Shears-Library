@@ -365,13 +365,15 @@ namespace Shears.Tweens
         public static Tween DoColorTween(
             this Renderer renderer,
             Color targetColor,
-            ITweenData data = null
-        ) => Do(GetColorTween(renderer, targetColor, data));
+            ITweenData data = null,
+            bool affectAlpha = false
+        ) => Do(GetColorTween(renderer, targetColor, data, affectAlpha));
 
         public static Tween GetColorTween(
             this Renderer renderer,
             Color targetColor,
-            ITweenData data = null
+            ITweenData data = null,
+            bool affectAlpha = false
         )
         {
             var mat = renderer.material;
@@ -379,7 +381,12 @@ namespace Shears.Tweens
 
             void update(float t)
             {
-                mat.color = Color.LerpUnclamped(start, targetColor, t);
+                var col = targetColor;
+
+                if (!affectAlpha)
+                    col = col.With(a: mat.color.a);
+
+                mat.color = Color.LerpUnclamped(start, col, t);
             }
 
             return CreateAutoDisposeTween(renderer, update, data);
@@ -397,7 +404,13 @@ namespace Shears.Tweens
             ITweenData data = null
         )
         {
-            return GetColorTween(renderer, renderer.material.color.With(a: alpha), data);
+            var mat = renderer.material;
+
+            void update(float t)
+            {
+                mat.color = Color.LerpUnclamped(mat.color, mat.color.With(a: alpha), t);
+            }
+            return CreateAutoDisposeTween(renderer, update, data);
         }
         #endregion
 
@@ -405,20 +418,27 @@ namespace Shears.Tweens
         public static Tween DoColorTween(
             this SpriteRenderer spriteRenderer,
             Color targetColor,
-            ITweenData data = null
-        ) => Do(GetColorTween(spriteRenderer, targetColor, data));
+            ITweenData data = null,
+            bool affectAlpha = false
+        ) => Do(GetColorTween(spriteRenderer, targetColor, data, affectAlpha));
 
         public static Tween GetColorTween(
             this SpriteRenderer spriteRenderer,
             Color targetColor,
-            ITweenData data = null
+            ITweenData data = null,
+            bool affectAlpha = false
         )
         {
             Color start = spriteRenderer.color;
 
             void update(float t)
             {
-                spriteRenderer.color = Color.LerpUnclamped(start, targetColor, t);
+                var col = targetColor;
+
+                if (!affectAlpha)
+                    col = col.With(a: spriteRenderer.color.a);
+
+                spriteRenderer.color = Color.LerpUnclamped(start, col, t);
             }
 
             return CreateAutoDisposeTween(spriteRenderer, update, data);
@@ -436,87 +456,19 @@ namespace Shears.Tweens
             ITweenData data = null
         )
         {
-            return GetColorTween(spriteRenderer, spriteRenderer.color.With(a: alpha), data);
+            void update(float t)
+            {
+                spriteRenderer.color = Color.LerpUnclamped(
+                    spriteRenderer.color,
+                    spriteRenderer.color.With(a: alpha),
+                    t
+                );
+            }
+            return CreateAutoDisposeTween(spriteRenderer, update, data);
         }
         #endregion
 
         #region TextMesh Tweens
-        #region Color
-        public static Tween DoColorTween(
-            this TextMeshProUGUI textMesh,
-            Color targetColor,
-            ITweenData data = null
-        ) => Do(GetColorTween(textMesh, targetColor, data));
-
-        public static Tween GetColorTween(
-            this TextMeshProUGUI textMesh,
-            Color targetColor,
-            ITweenData data = null
-        )
-        {
-            Color start = textMesh.color;
-
-            void update(float t)
-            {
-                textMesh.color = Color.LerpUnclamped(start, targetColor, t);
-            }
-
-            return CreateAutoDisposeTween(textMesh, update, data);
-        }
-
-        public static Tween DoFadeTween(
-            this TextMeshProUGUI textMesh,
-            float alpha,
-            ITweenData data = null
-        ) => Do(GetFadeTween(textMesh, alpha, data));
-
-        public static Tween GetFadeTween(
-            this TextMeshProUGUI textMesh,
-            float alpha,
-            ITweenData data = null
-        )
-        {
-            return GetColorTween(textMesh, textMesh.color.With(a: alpha), data);
-        }
-
-        public static Tween DoColorTween(
-            this TextMeshPro textMesh,
-            Color targetColor,
-            ITweenData data = null
-        ) => Do(GetColorTween(textMesh, targetColor, data));
-
-        public static Tween GetColorTween(
-            this TextMeshPro textMesh,
-            Color targetColor,
-            ITweenData data = null
-        )
-        {
-            Color start = textMesh.color;
-
-            void update(float t)
-            {
-                textMesh.color = Color.LerpUnclamped(start, targetColor, t);
-            }
-
-            return CreateAutoDisposeTween(textMesh, update, data);
-        }
-
-        public static Tween DoFadeTween(
-            this TextMeshPro textMesh,
-            float alpha,
-            ITweenData data = null
-        ) => Do(GetFadeTween(textMesh, alpha, data));
-
-        public static Tween GetFadeTween(
-            this TextMeshPro textMesh,
-            float alpha,
-            ITweenData data = null
-        )
-        {
-            return GetColorTween(textMesh, textMesh.color.With(a: alpha), data);
-        }
-        #endregion
-
         #region Counter
         public static Tween DoCounterTween(
             this TextMeshProUGUI textMesh,
@@ -580,20 +532,27 @@ namespace Shears.Tweens
         public static Tween DoColorTween(
             this Graphic graphic,
             Color targetColor,
-            ITweenData data = null
-        ) => Do(GetColorTween(graphic, targetColor, data));
+            ITweenData data = null,
+            bool affectAlpha = false
+        ) => Do(GetColorTween(graphic, targetColor, data, affectAlpha));
 
         public static Tween GetColorTween(
             this Graphic graphic,
             Color targetColor,
-            ITweenData data = null
+            ITweenData data = null,
+            bool affectAlpha = false
         )
         {
             Color start = graphic.color;
 
             void update(float t)
             {
-                graphic.color = Color.LerpUnclamped(start, targetColor, t);
+                var col = targetColor;
+
+                if (!affectAlpha)
+                    col = col.With(a: graphic.color.a);
+
+                graphic.color = Color.LerpUnclamped(start, col, t);
             }
 
             return CreateAutoDisposeTween(graphic, update, data);
@@ -607,7 +566,12 @@ namespace Shears.Tweens
 
         public static Tween GetFadeTween(this Graphic graphic, float alpha, ITweenData data = null)
         {
-            return GetColorTween(graphic, graphic.color.With(a: alpha), data);
+            void update(float t)
+            {
+                graphic.color = Color.LerpUnclamped(graphic.color, graphic.color.With(a: alpha), t);
+            }
+
+            return CreateAutoDisposeTween(graphic, update, data);
         }
         #endregion
 
@@ -616,26 +580,30 @@ namespace Shears.Tweens
         public static Tween DoColorTween(
             this Material material,
             Color targetColor,
-            ITweenData data = null
-        ) => Do(GetColorTween(material, targetColor, data));
+            ITweenData data = null,
+            bool affectAlpha = false
+        ) => Do(GetColorTween(material, targetColor, data, affectAlpha));
 
         public static Tween GetColorTween(
             this Material material,
             Color targetColor,
-            ITweenData data = null
+            ITweenData data = null,
+            bool affectAlpha = false
         )
         {
             Color start = material.color;
 
             void update(float t)
             {
-                material.color = Color.LerpUnclamped(start, targetColor, t);
+                var col = targetColor;
+
+                if (!affectAlpha)
+                    col = col.With(a: material.color.a);
+
+                material.color = Color.LerpUnclamped(start, col, t);
             }
 
-            if (material is UnityEngine.Object unityObject)
-                return CreateAutoDisposeTween(unityObject, update, data);
-            else
-                return CreateTween(update, data);
+            return CreateAutoDisposeTween(material, update, data);
         }
         #endregion
 
@@ -671,20 +639,27 @@ namespace Shears.Tweens
         public static Tween DoColorTween(
             this IColorTweenable colorTweenable,
             Color targetColor,
-            ITweenData data = null
-        ) => Do(GetColorTween(colorTweenable, targetColor, data));
+            ITweenData data = null,
+            bool affectAlpha = false
+        ) => Do(GetColorTween(colorTweenable, targetColor, data, affectAlpha));
 
         public static Tween GetColorTween(
             this IColorTweenable colorTweenable,
             Color targetColor,
-            ITweenData data = null
+            ITweenData data = null,
+            bool affectAlpha = false
         )
         {
             Color start = colorTweenable.BaseColor;
 
             void update(float t)
             {
-                colorTweenable.BaseColor = Color.LerpUnclamped(start, targetColor, t);
+                var col = targetColor;
+
+                if (!affectAlpha)
+                    col = col.With(a: colorTweenable.BaseColor.a);
+
+                colorTweenable.BaseColor = Color.LerpUnclamped(start, col, t);
             }
 
             if (colorTweenable is UnityEngine.Object unityObject)
@@ -696,19 +671,26 @@ namespace Shears.Tweens
         public static Tween DoModulateTween(
             this IColorTweenable colorTweenable,
             Color targetColor,
-            ITweenData data = null
-        ) => Do(GetModulateTween(colorTweenable, targetColor, data));
+            ITweenData data = null,
+            bool affectAlpha = false
+        ) => Do(GetModulateTween(colorTweenable, targetColor, data, affectAlpha));
 
         public static Tween GetModulateTween(
             this IColorTweenable colorTweenable,
             Color targetColor,
-            ITweenData data = null
+            ITweenData data = null,
+            bool affectAlpha = false
         )
         {
             var startColor = colorTweenable.Modulate;
 
             void update(float t)
             {
+                var col = targetColor;
+
+                if (!affectAlpha)
+                    col = col.With(a: colorTweenable.Modulate.a);
+
                 colorTweenable.Modulate = Color.LerpUnclamped(startColor, targetColor, t);
             }
 
@@ -717,20 +699,32 @@ namespace Shears.Tweens
             else
                 return CreateTween(update, data);
         }
+        #endregion
 
+        #region IFadeTweenable Tweens
         public static Tween DoFadeTween(
-            this IColorTweenable colorTweenable,
+            this IAlphaTweenable fadeTweenable,
             float alpha,
             ITweenData data = null
-        ) => Do(GetFadeTween(colorTweenable, alpha, data));
+        ) => Do(GetFadeTween(fadeTweenable, alpha, data));
 
         public static Tween GetFadeTween(
-            this IColorTweenable colorTweenable,
+            this IAlphaTweenable fadeTweenable,
             float alpha,
             ITweenData data = null
         )
         {
-            return GetModulateTween(colorTweenable, Color.white.With(a: alpha), data);
+            var start = fadeTweenable.Alpha;
+
+            void update(float t)
+            {
+                fadeTweenable.Alpha = Mathf.LerpUnclamped(start, alpha, t);
+            }
+
+            if (fadeTweenable is UnityEngine.Object unityObject)
+                return CreateAutoDisposeTween(unityObject, update, data);
+            else
+                return CreateTween(update, data);
         }
         #endregion
     }

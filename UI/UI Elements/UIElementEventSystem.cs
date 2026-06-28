@@ -14,8 +14,8 @@ namespace Shears.UI
         [Flags]
         public enum DetectionTypes
         {
-            Canvas = 0 << 1,
-            World3D = 0 << 2,
+            Canvas = 1 << 0,
+            World3D = 1 << 1,
         }
 
         const int MAX_RAYCAST_HITS = 10;
@@ -23,7 +23,15 @@ namespace Shears.UI
 
         [SerializeField]
         [AutoProperty("SystemType")]
-        private DetectionTypes detectionTypes = DetectionTypes.Canvas;
+        private DetectionTypes detectionTypes = (DetectionTypes)(-1);
+
+        [AutoEvent(nameof(IManagedInput.Started), nameof(OnPointerDown))]
+        [AutoEvent(nameof(IManagedInput.Canceled), nameof(OnPointerUp))]
+        private IManagedInput clickInput;
+
+        [AutoEvent(nameof(IManagedInput.Started), nameof(OnSelectDown))]
+        [AutoEvent(nameof(IManagedInput.Canceled), nameof(OnSelectUp))]
+        private IManagedInput selectInput;
 
         private static readonly RaycastHit[] results3D = new RaycastHit[MAX_RAYCAST_HITS];
         private static readonly List<RaycastHit> sortedHits = new(MAX_RAYCAST_HITS);
@@ -38,17 +46,13 @@ namespace Shears.UI
         private static UIElement draggedElement;
         private static UIElement pointerDownElement;
         private static UIElement focusedElement;
+        private static bool hoveredCanvasTarget;
         private static float pointerDownTime;
         private static Vector2 pointerDownPosition;
         private static float dragInitialZ;
 
-        [AutoEvent(nameof(IManagedInput.Started), nameof(OnPointerDown))]
-        [AutoEvent(nameof(IManagedInput.Canceled), nameof(OnPointerUp))]
-        private IManagedInput clickInput;
-
-        [AutoEvent(nameof(IManagedInput.Started), nameof(OnSelectDown))]
-        [AutoEvent(nameof(IManagedInput.Canceled), nameof(OnSelectUp))]
-        private IManagedInput selectInput;
+        public static bool IsHovering => hoveredElement != null;
+        public static bool IsHoveringCanvasTarget => IsHovering && hoveredCanvasTarget;
         #endregion
 
         #region Static Initialization
@@ -69,6 +73,8 @@ namespace Shears.UI
         protected override void Awake()
         {
             base.Awake();
+            registeredCanvases.Clear();
+            registeredElements.Clear();
 
             detectionMask = LayerMask.GetMask("UI");
 
@@ -161,10 +167,15 @@ namespace Shears.UI
                 target3D = FindFirstUIElement(sortedHits);
             }
 
+            hoveredCanvasTarget = false;
+
             if (canvasTarget == null && target3D == null)
                 newHoverTarget = null;
             else if (canvasTarget != null && target3D == null)
+            {
                 newHoverTarget = canvasTarget;
+                hoveredCanvasTarget = true;
+            }
             else if (canvasTarget == null && target3D != null)
                 newHoverTarget = target3D;
             else
@@ -179,6 +190,8 @@ namespace Shears.UI
                         newHoverTarget = canvasTarget;
                     else
                         newHoverTarget = target3D;
+
+                    hoveredCanvasTarget = true;
                 }
             }
 

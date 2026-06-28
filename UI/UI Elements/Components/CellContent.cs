@@ -19,9 +19,6 @@ namespace Shears.UI
         [SerializeField, RuntimeReadOnly, Min(0.0f)]
         private float dragBeginTime = 0.05f;
 
-        [SerializeField]
-        private ColorModulator colorModulator;
-
         [Auto]
         private UIElement element;
         private Vector3 offset;
@@ -33,7 +30,6 @@ namespace Shears.UI
             get => cell;
             set => cell = value;
         }
-        public ColorModulator ColorModulator => colorModulator;
 
         public event Action DragBegan;
         public event Action DragEnded;
@@ -113,9 +109,6 @@ namespace Shears.UI
         {
             evt.PreventTrickleDown();
 
-            colorModulator.TweenToPressed();
-            colorModulator.CanChangeColor = false;
-
             offset = evt.PointerWorldOffset;
 
             transform.SetParent(null);
@@ -141,13 +134,6 @@ namespace Shears.UI
         private void OnDragEnd(DragEndEvent evt)
         {
             evt.PreventTrickleDown();
-
-            colorModulator.CanChangeColor = true;
-
-            if (cell.IsHovered)
-                colorModulator.TweenToHover();
-            else
-                colorModulator.ClearModulation();
 
             if (UIElementEventSystem.TryRaycastElement(out ElementCell newCell))
             {

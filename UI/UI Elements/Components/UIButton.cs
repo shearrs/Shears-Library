@@ -1,17 +1,13 @@
 using System;
-using Shears.Tweens;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using static UnityEngine.Audio.ProcessorInstance.AvailableData;
 
 namespace Shears.UI
 {
-    public class UIButton : UIElement, IColorTweenable
+    public class UIButton : UIElement
     {
-        private static readonly TweenData TWEEN_DATA = new(
-            0.1f,
-            easingFunction: TweenEase.InOutQuad
-        );
+        private const float COLOR_MOVE_TIME = 0.1f;
 
         [Header("UI Button")]
         [SerializeField]
@@ -19,9 +15,6 @@ namespace Shears.UI
 
         [SerializeField]
         private bool selectable = true;
-
-        [SerializeField]
-        private bool focusable = true;
 
         [SerializeField]
         private bool clickOnMouseDown = false;
@@ -40,15 +33,25 @@ namespace Shears.UI
         [SerializeField]
         private UnityEvent clicked;
 
+        private readonly Timer colorTimer = new(COLOR_MOVE_TIME);
+        private Color startColor;
+        private Color targetColor;
         private bool isDragged;
+        private bool isPressed;
 
-        public Color BaseColor
+        public UIImage Image
+        {
+            get => image;
+            set => image = value;
+        }
+
+        public override Color BaseColor
         {
             get => image.BaseColor;
             set => image.BaseColor = value;
         }
 
-        public Color Modulate
+        public override Color Modulate
         {
             get => image.Modulate;
             set => image.Modulate = value;
@@ -70,6 +73,11 @@ namespace Shears.UI
                 Modulate = notSelectableColor.With(a: Modulate.a);
         }
 
+        private void Update()
+        {
+            UpdateTargetColor();
+        }
+
         [ContextMenu("Click")]
         public void Click()
         {
@@ -79,12 +87,8 @@ namespace Shears.UI
         protected override void RegisterEvents()
         {
             RegisterEvent<PointerDownEvent>(OnPointerDown);
-            RegisterEvent<ClickEvent>(OnClicked);
-            RegisterEvent<HoverEnterEvent>(OnHoverEnter);
-            RegisterEvent<HoverExitEvent>(OnHoverExit);
-            RegisterEvent<FocusEnterEvent>(OnFocusEnter);
-            RegisterEvent<FocusExitEvent>(OnFocusExit);
             RegisterEvent<PointerUpEvent>(OnPointerUp);
+            RegisterEvent<ClickEvent>(OnClicked);
             RegisterEvent<DragBeginEvent>(OnDragBegin);
             RegisterEvent<DragEndEvent>(OnDragEnd);
         }
@@ -96,8 +100,15 @@ namespace Shears.UI
             if (!selectable)
                 return;
 
+            isPressed = true;
+
             if (clickOnMouseDown)
                 OnClickedImplementation();
+        }
+
+        private void OnPointerUp(PointerUpEvent evt)
+        {
+            isPressed = false;
         }
 
         private void OnClicked(ClickEvent evt)
@@ -116,62 +127,9 @@ namespace Shears.UI
             clicked.Invoke();
         }
 
-        private void OnHoverEnter(HoverEnterEvent evt)
-        {
-            if (isDragged)
-                return;
-
-            TweenToHover();
-        }
-
-        private void OnHoverExit(HoverExitEvent evt)
-        {
-            if (isDragged)
-                return;
-
-            ClearModulation();
-        }
-
-        private void OnFocusEnter(FocusEnterEvent evt)
-        {
-            if (isDragged)
-                return;
-
-            TweenToHover();
-        }
-
-        private void OnFocusExit(FocusExitEvent evt)
-        {
-            if (isDragged)
-                return;
-
-            ClearModulation();
-        }
-
-        private void OnPointerDown(PointerDownEvent evt)
-        {
-            if (isDragged)
-                return;
-
-            TweenToPressed();
-        }
-
-        private void OnPointerUp(PointerUpEvent evt)
-        {
-            if (isDragged)
-                return;
-
-            if (Element.IsHovered)
-                TweenToHover();
-            else
-                ClearModulation();
-        }
-
         private void OnDragBegin(DragBeginEvent evt)
         {
             isDragged = true;
-
-            TweenToHover();
         }
 
         private void OnDragEnd(DragEndEvent evt)
@@ -181,25 +139,48 @@ namespace Shears.UI
 
         private void SetSelectable(bool value)
         {
-            if (value == selectable)
-                return;
-
-            if (IsEnabled)
-            {
-                if (!value)
-                    this.DoModulateTween(notSelectableColor.With(Modulate.a), TWEEN_DATA);
-                else
-                {
-                    if (IsHovered)
-                        this.DoModulateTween(hoverColor, TWEEN_DATA);
-                    else
-                        this.DoModulateTween(Color.white, TWEEN_DATA);
-                }
-            }
-            else
-                this.DoModulateTween(notSelectableColor, TWEEN_DATA);
-
             selectable = value;
+
+            if (!value)
+            {
+                isPressed = false;
+                isDragged = false;
+            }
+        }
+
+        private void UpdateTargetColor()
+        {
+            Color newColor;
+
+            if (!selectable)
+                newColor = notSelectableColor;
+            else
+            {
+                if (isPressed)
+                    newColor = pressColor;
+                else if (isDragged)
+                    newColor = IsHovered ? pressColor : hoverColor;
+                else if (IsHovered)
+                    newColor = hoverColor;
+                else if (IsFocused)
+                    newColor = hoverColor;
+                else
+                    newColor = Color.white;
+            }
+
+            // If we are already this color, do nothing
+            if (Modulate.CompareRGB(newColor))
+                return;
+            else if (targetColor != newColor || colorTimer.IsDone) // If this is a new color, or we aren't moving towards it, start moving toward it
+            {
+                colorTimer.Restart();
+                targetColor = newColor;
+                startColor = Modulate;
+            }
+
+            Modulate = Color
+                .Lerp(startColor, targetColor, colorTimer.Percentage)
+                .With(a: Modulate.a);
         }
     }
 }

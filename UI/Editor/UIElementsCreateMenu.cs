@@ -51,18 +51,25 @@ namespace Shears.UI.Editor
             priority = CreateMenuUtility.LIBRARY_PRIORITY,
             secondaryPriority = 2
         )]
-        private static void MenuCreateCanvasButton()
+        private static void MenuCreateButton()
         {
             var gameObject = new GameObject("Button");
-            gameObject.AddComponent<CanvasRenderer>();
-            var button = gameObject.AddComponent<CanvasButton>();
-            var image = gameObject.AddComponent<UIImage>();
+            var button = gameObject.AddComponent<UIButton>();
+
+            var image = new GameObject("Image").AddComponent<UIImage>();
+            image.transform.SetParent(gameObject.transform);
 
             button.Image = image;
             image.Sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
             image.RawImage.type = Image.Type.Sliced;
 
             var parent = GetOrCreateParent();
+            if (parent.GetComponentInParent<UIElementCanvas>())
+            {
+                if (!gameObject.TryGetComponent<RectTransform>(out var _))
+                    gameObject.AddComponent<RectTransform>();
+            }
+
             gameObject.transform.SetParent(parent.transform);
 
             gameObject.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
@@ -97,7 +104,7 @@ namespace Shears.UI.Editor
 
         private static void CreateEventSystemIfNecessary(UIElementEventSystem.DetectionTypes type)
         {
-            var eventSystems = GameObject.FindObjectsByType<UIElementEventSystem>(
+            var eventSystems = Object.FindObjectsByType<UIElementEventSystem>(
                 FindObjectsInactive.Include,
                 FindObjectsSortMode.None
             );
@@ -129,13 +136,12 @@ namespace Shears.UI.Editor
                 return stage.prefabContentsRoot;
             }
 
-            if (Selection.activeGameObject != null)
+            if (selection != null)
             {
-                var activeGameObject = Selection.activeGameObject;
-                var canvas = activeGameObject.GetComponentInParent<UIElementCanvas>(true);
+                var canvas = selection.GetComponentInParent<UIElementCanvas>(true);
 
                 if (canvas != null)
-                    return canvas.gameObject;
+                    return selection;
             }
 
             return CreateUICanvas().gameObject;

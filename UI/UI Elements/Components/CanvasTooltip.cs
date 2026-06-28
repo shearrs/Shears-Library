@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Shears.Logging;
 using Shears.Tweens;
 using TMPro;
@@ -7,8 +6,13 @@ using UnityEngine;
 
 namespace Shears.UI
 {
-    public partial class CanvasTooltip : UIElement
+    public partial class CanvasTooltip : UIElement, IColorTweenable
     {
+        private static readonly TweenData FADE_DATA = new(
+            0.1f,
+            easingFunction: TweenEase.InOutQuad
+        );
+
         [Header("Components")]
         [SerializeField]
         private UIImage image;
@@ -43,6 +47,16 @@ namespace Shears.UI
         {
             get => usesUnscaledTime;
             set => usesUnscaledTime = value;
+        }
+        public override Color BaseColor
+        {
+            get => image.BaseColor;
+            set => image.BaseColor = value;
+        }
+        public override Color Modulate
+        {
+            get => image.Modulate;
+            set => image.Modulate = value;
         }
 
         public event Action BeforeFadeIn;
@@ -120,7 +134,10 @@ namespace Shears.UI
         private void OnParentHoverEnter(HoverEnterEvent evt)
         {
             if (hoverTimeBeforeAppearing == 0.0f)
-                FadeIn();
+            {
+                DisposeTweens();
+                StoreTween(image.DoFadeTween(1.0f, FADE_DATA));
+            }
             else if (appearTimer.IsDone)
             {
                 appearTimer.Start(hoverTimeBeforeAppearing);
@@ -134,7 +151,10 @@ namespace Shears.UI
             appearTimer.Completed -= OnAppearTimerCompleted;
 
             if (!IsHovered || !staysOpenOnHover)
-                FadeOut();
+            {
+                DisposeTweens();
+                StoreTween(image.DoFadeTween(0.0f, FADE_DATA));
+            }
         }
 
         private void OnHoverExit(HoverExitEvent evt)
@@ -145,7 +165,8 @@ namespace Shears.UI
             appearTimer.Stop();
             appearTimer.Completed -= OnAppearTimerCompleted;
 
-            FadeOut();
+            DisposeTweens();
+            StoreTween(image.DoFadeTween(0.0f, FADE_DATA));
         }
 
         private void OnAppearTimerCompleted()
@@ -153,7 +174,8 @@ namespace Shears.UI
             BeforeFadeIn?.Invoke();
             appearTimer.Completed -= OnAppearTimerCompleted;
 
-            FadeIn();
+            DisposeTweens();
+            StoreTween(image.DoFadeTween(1.0f, FADE_DATA));
         }
     }
 }

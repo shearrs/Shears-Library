@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace Shears.UI
 {
     [RequireComponent(typeof(Image))]
-    public class UIImage : UIElement, IColorTweenable
+    public class UIImage : UIElement
     {
         [SerializeField]
         private Color baseColor = Color.white;
@@ -26,7 +26,7 @@ namespace Shears.UI
             }
         }
 
-        public Color BaseColor
+        public override Color BaseColor
         {
             get => baseColor;
             set
@@ -37,7 +37,7 @@ namespace Shears.UI
             }
         }
 
-        public Color Modulate
+        public override Color Modulate
         {
             get => modulate;
             set
