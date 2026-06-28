@@ -11,7 +11,7 @@ namespace Shears.UI
 
         [Header("UI Button")]
         [SerializeField]
-        private UIImage image;
+        private ButtonGraphic graphic;
 
         [SerializeField]
         private bool selectable = true;
@@ -36,51 +36,19 @@ namespace Shears.UI
         private readonly Timer colorTimer = new(COLOR_MOVE_TIME);
         private Color startColor;
         private Color targetColor;
-        private Color modulate = Color.white;
-        private Color interactModulate = Color.white;
-        private bool modulateInitialized;
         private bool isDragged;
         private bool isPressed;
 
-        private Color InteractModulate
-        {
-            get => interactModulate;
-            set
-            {
-                interactModulate = value;
-                image.Modulate = interactModulate * Modulate;
-            }
-        }
-
-        public UIImage Image
-        {
-            get => image;
-            set => image = value;
-        }
         public bool IsHovered { get; private set; }
         public override Color BaseColor
         {
-            get => image.BaseColor;
-            set => image.BaseColor = value;
+            get => graphic.BaseColor;
+            set => graphic.BaseColor = value;
         }
         public override Color Modulate
         {
-            get
-            {
-                if (!modulateInitialized)
-                {
-                    modulate = image.Modulate;
-                    modulateInitialized = true;
-                }
-
-                return modulate;
-            }
-            set
-            {
-                modulate = value;
-
-                image.Modulate = modulate * interactModulate;
-            }
+            get => graphic.Modulate;
+            set => graphic.Modulate = value;
         }
         public bool Selectable
         {
@@ -90,12 +58,122 @@ namespace Shears.UI
 
         public event Action Clicked;
 
+        [Serializable]
+        private class ButtonGraphic
+        {
+            [SerializeField, ShowIf(nameof(renderer), null)]
+            private UIImage image;
+
+            [SerializeField, ShowIf(nameof(image), null)]
+            private Renderer renderer;
+
+            private bool baseColorInitialized;
+            private bool modulateInitialized;
+            private Color baseColor;
+            private Color modulate;
+            private Color interactModulate = Color.white;
+
+            public Color BaseColor
+            {
+                get
+                {
+                    if (image == null && renderer == null)
+                        return baseColor;
+
+                    if (!baseColorInitialized)
+                    {
+                        baseColorInitialized = true;
+
+                        if (image != null)
+                            baseColor = image.BaseColor;
+                        else if (renderer != null)
+                            baseColor = renderer.material.color;
+                    }
+
+                    return baseColor;
+                }
+                set
+                {
+                    baseColor = value;
+
+                    if (!modulateInitialized)
+                    {
+                        modulateInitialized = true;
+
+                        if (image != null)
+                            modulate = image.Modulate;
+                        else
+                            modulate = Color.white;
+                    }
+
+                    UpdateGraphicColor();
+                }
+            }
+            public Color Modulate
+            {
+                get
+                {
+                    if (image == null && renderer == null)
+                        return modulate;
+
+                    if (!modulateInitialized)
+                    {
+                        modulateInitialized = true;
+
+                        if (image != null)
+                            modulate = image.Modulate;
+                        else
+                            modulate = Color.white;
+                    }
+
+                    return modulate;
+                }
+                set
+                {
+                    modulate = value;
+
+                    UpdateGraphicColor();
+                }
+            }
+            public Color InteractModulate
+            {
+                get => interactModulate;
+                set
+                {
+                    interactModulate = value;
+
+                    UpdateGraphicColor();
+                }
+            }
+
+            public ButtonGraphic(UIImage image)
+            {
+                this.image = image;
+            }
+
+            public ButtonGraphic(Renderer renderer)
+            {
+                this.renderer = renderer;
+            }
+
+            private void UpdateGraphicColor()
+            {
+                if (image != null)
+                {
+                    image.BaseColor = BaseColor;
+                    image.Modulate = InteractModulate * Modulate;
+                }
+                else if (renderer != null)
+                    renderer.material.color = InteractModulate * Modulate * BaseColor;
+            }
+        }
+
         protected override void Awake()
         {
             base.Awake();
 
             if (!selectable)
-                InteractModulate = notSelectableColor.With(a: Modulate.a);
+                graphic.InteractModulate = notSelectableColor.With(a: Modulate.a);
         }
 
         private void Update()
@@ -118,6 +196,16 @@ namespace Shears.UI
             RegisterEvent<ClickEvent>(OnClicked);
             RegisterEvent<DragBeginEvent>(OnDragBegin);
             RegisterEvent<DragEndEvent>(OnDragEnd);
+        }
+
+        public void SetGraphic(UIImage image)
+        {
+            graphic = new(image);
+        }
+
+        public void SetGraphic(Renderer renderer)
+        {
+            graphic = new(renderer);
         }
 
         private void OnHoverEnter(HoverEnterEvent evt)
@@ -211,16 +299,16 @@ namespace Shears.UI
             }
 
             // If we are already this color, do nothing
-            if (InteractModulate.CompareRGB(newColor))
+            if (graphic.InteractModulate.CompareRGB(newColor))
                 return;
             else if (targetColor != newColor || colorTimer.IsDone) // If this is a new color, or we aren't moving towards it, start moving toward it
             {
                 colorTimer.Restart();
                 targetColor = newColor;
-                startColor = InteractModulate;
+                startColor = graphic.InteractModulate;
             }
 
-            InteractModulate = Color
+            graphic.InteractModulate = Color
                 .Lerp(startColor, targetColor, colorTimer.Percentage)
                 .With(a: Modulate.a);
         }
