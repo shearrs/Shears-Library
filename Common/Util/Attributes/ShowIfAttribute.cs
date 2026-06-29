@@ -7,7 +7,6 @@ namespace Shears
     /// <summary>
     /// An attribute for serializing a field only when a condition is met.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
     public class ShowIfAttribute : PropertyAttribute
     {
         private readonly List<Condition> conditions = new();
@@ -21,7 +20,7 @@ namespace Shears
 
             public readonly string ConditionName => conditionName;
             public readonly object CompareValue => compareValue;
-            
+
             public Condition(string conditionName, object compareValue)
             {
                 this.conditionName = conditionName;
@@ -48,7 +47,12 @@ namespace Shears
             conditions.Add(new(conditionName, compareValue));
         }
 
-        public ShowIfAttribute(string conditionName1, object compareValue1, string conditionName2, object compareValue2)
+        public ShowIfAttribute(
+            string conditionName1,
+            object compareValue1,
+            string conditionName2,
+            object compareValue2
+        )
         {
             conditions.Add(new(conditionName1, compareValue1));
             conditions.Add(new(conditionName2, compareValue2));

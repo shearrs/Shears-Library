@@ -103,6 +103,32 @@ namespace Shears.Editor
         }
 
         /// <summary>
+        /// Shorthand function for setting all border colors on a <see cref="VisualElement"/>.
+        /// </summary>
+        /// <param name="element">The element to set border colors for.</param>
+        /// <param name="color">The color to make the border.</param>
+        public static void SetAllBorderColors(this VisualElement element, Color color)
+        {
+            element.style.borderTopColor = color;
+            element.style.borderBottomColor = color;
+            element.style.borderLeftColor = color;
+            element.style.borderRightColor = color;
+        }
+
+        /// <summary>
+        /// Shorthand function for setting all border radius on a <see cref="VisualElement"/>.
+        /// </summary>
+        /// <param name="element">The element to set border radius for.</param>
+        /// <param name="radius">The radius to make the border.</param>
+        public static void SetAllBorderRadius(this VisualElement element, float radius)
+        {
+            element.style.borderTopLeftRadius = radius;
+            element.style.borderTopRightRadius = radius;
+            element.style.borderBottomLeftRadius = radius;
+            element.style.borderBottomRightRadius = radius;
+        }
+
+        /// <summary>
         /// Shorthand function for setting all margin values on a <see cref="VisualElement"/>.
         /// </summary>
         /// <param name="element">The element to set margins for.</param>
@@ -132,19 +158,6 @@ namespace Shears.Editor
             element.style.marginRight = marginRight;
             element.style.marginBottom = marginBottom;
             element.style.marginLeft = marginLeft;
-        }
-
-        /// <summary>
-        /// Shorthand function for setting all border colors on a <see cref="VisualElement"/>.
-        /// </summary>
-        /// <param name="element">The element to set border colors for.</param>
-        /// <param name="color">The color to make the border.</param>
-        public static void SetAllBorderColors(this VisualElement element, Color color)
-        {
-            element.style.borderTopColor = color;
-            element.style.borderBottomColor = color;
-            element.style.borderLeftColor = color;
-            element.style.borderRightColor = color;
         }
 
         /// <summary>

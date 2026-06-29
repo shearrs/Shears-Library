@@ -38,8 +38,6 @@ namespace Shears.UI
         private static readonly List<UIElement> sortedResults = new(MAX_RAYCAST_HITS);
         private static readonly HashSet<UIElementCanvas> registeredCanvases = new();
         private static readonly HashSet<UIElement> registeredElements = new();
-        private static readonly List<UIElement> hoveredElements = new();
-        private static readonly List<UIElement> newHoveredElements = new();
         private static readonly List<Graphic> hitGraphics = new();
         private static bool applicationIsQuitting = false;
         private static ManagedInputMap inputMap;

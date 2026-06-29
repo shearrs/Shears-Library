@@ -10,7 +10,7 @@ namespace Shears.UI
         private const float COLOR_MOVE_TIME = 0.1f;
 
         [Header("UI Button")]
-        [SerializeField]
+        [SerializeField, Required]
         private ButtonGraphic graphic;
 
         [SerializeField]
@@ -61,17 +61,27 @@ namespace Shears.UI
         [Serializable]
         private class ButtonGraphic
         {
-            [SerializeField, ShowIf(nameof(renderer), null)]
+            [
+                SerializeField,
+                Required(nameof(renderer)),
+                ShowIf(nameof(renderer), compareValue: null)
+            ]
             private UIImage image;
 
-            [SerializeField, ShowIf(nameof(image), null)]
+            [SerializeField, Required(nameof(image)), ShowIf(nameof(image), compareValue: null)]
             private Renderer renderer;
+
+            [SerializeField, ReadOnly]
+            private Color baseColor = Color.white;
+
+            [SerializeField, ReadOnly]
+            private Color modulate = Color.white;
+
+            [SerializeField, ReadOnly]
+            private Color interactModulate = Color.white;
 
             private bool baseColorInitialized;
             private bool modulateInitialized;
-            private Color baseColor;
-            private Color modulate;
-            private Color interactModulate = Color.white;
 
             public Color BaseColor
             {
@@ -87,7 +97,12 @@ namespace Shears.UI
                         if (image != null)
                             baseColor = image.BaseColor;
                         else if (renderer != null)
-                            baseColor = renderer.material.color;
+                        {
+                            if (renderer is SpriteRenderer sprite)
+                                baseColor = sprite.color;
+                            else
+                                baseColor = renderer.material.color;
+                        }
                     }
 
                     return baseColor;
@@ -146,6 +161,11 @@ namespace Shears.UI
                 }
             }
 
+            public ButtonGraphic()
+            {
+                interactModulate = Color.white;
+            }
+
             public ButtonGraphic(UIImage image)
             {
                 this.image = image;
@@ -164,7 +184,12 @@ namespace Shears.UI
                     image.Modulate = InteractModulate * Modulate;
                 }
                 else if (renderer != null)
-                    renderer.material.color = InteractModulate * Modulate * BaseColor;
+                {
+                    if (renderer is SpriteRenderer sprite)
+                        sprite.color = InteractModulate * Modulate * BaseColor;
+                    else
+                        renderer.material.color = InteractModulate * Modulate * BaseColor;
+                }
             }
         }
 
@@ -219,7 +244,6 @@ namespace Shears.UI
         {
             evt.PreventBubbleUp();
 
-            Log("exit");
             IsHovered = false;
         }
 

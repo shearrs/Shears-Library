@@ -63,6 +63,12 @@ namespace Shears.UI.Editor
             image.Sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
             image.RawImage.type = Image.Type.Sliced;
 
+            var imageRect = image.GetComponent<RectTransform>();
+            imageRect.anchorMin = Vector2.zero;
+            imageRect.anchorMax = Vector2.one;
+            imageRect.offsetMin = Vector2.zero;
+            imageRect.offsetMax = Vector2.zero;
+
             var parent = GetOrCreateParent();
             if (parent.GetComponentInParent<UIElementCanvas>())
             {
