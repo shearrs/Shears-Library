@@ -15,19 +15,19 @@ namespace Shears.StateMachineGraphs
         private string defaultStateID;
 
         [SerializeField]
-        private SerializableSystemType stateType;
+        private SerializableType stateType;
 
         public event Action SetAsLayerDefault;
         public event Action RemovedAsLayerDefault;
 
         public string DefaultStateID => defaultStateID;
-        public SerializableSystemType StateType
+        public SerializableType StateType
         {
             get => stateType;
             set => stateType = value;
         }
 
-        public StateMachineNodeData(SerializableSystemType stateType)
+        public StateMachineNodeData(SerializableType stateType)
         {
             this.stateType = stateType;
         }
@@ -36,7 +36,7 @@ namespace Shears.StateMachineGraphs
             string name,
             Vector2 position,
             string parentID,
-            SerializableSystemType stateType
+            SerializableType stateType
         )
         {
             this.name = name;

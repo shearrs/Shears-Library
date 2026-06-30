@@ -5,13 +5,14 @@ namespace Shears
 {
     public static class StringUtil
     {
+        private static readonly StringBuilder builder = new();
+
         // sourced from Binary Worrier @ https://stackoverflow.com/questions/272633/add-spaces-before-capital-letters
         public static string PascalSpace(this string text)
         {
             if (string.IsNullOrWhiteSpace(text))
-                return "";
+                return string.Empty;
 
-            var builder = new StringBuilder(text.Length * 2);
             builder.Append(text[0]);
 
             for (int i = 1; i < text.Length; i++)

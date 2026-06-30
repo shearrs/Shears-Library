@@ -6,9 +6,12 @@ namespace Shears.Signals
 {
     public static class SignalShuttle
     {
-        private static readonly Dictionary<Type, object> signals = new();
+        private static readonly Dictionary<Type, ISignalBindings> signals = new();
 
-        private sealed class SignalBindings<TSignal> where TSignal : struct, ISignal
+        private interface ISignalBindings { }
+
+        private sealed class SignalBindings<TSignal> : ISignalBindings
+            where TSignal : struct, ISignal
         {
             private readonly List<Action<TSignal>> listeners = new();
 
@@ -35,7 +38,8 @@ namespace Shears.Signals
             signals.Clear();
         }
 
-        public static void Register<TSignal>(Action<TSignal> listener) where TSignal: struct, ISignal
+        public static void Register<TSignal>(Action<TSignal> listener)
+            where TSignal : struct, ISignal
         {
             var type = typeof(TSignal);
 
@@ -48,7 +52,8 @@ namespace Shears.Signals
             ((SignalBindings<TSignal>)bindings).AddListener(listener);
         }
 
-        public static void Deregister<TSignal>(Action<TSignal> listener) where TSignal: struct, ISignal
+        public static void Deregister<TSignal>(Action<TSignal> listener)
+            where TSignal : struct, ISignal
         {
             if (signals.TryGetValue(typeof(TSignal), out var bindings))
             {
@@ -56,7 +61,8 @@ namespace Shears.Signals
             }
         }
 
-        public static void Emit<TSignal>(TSignal signal) where TSignal : struct, ISignal
+        public static void Emit<TSignal>(TSignal signal)
+            where TSignal : struct, ISignal
         {
             if (signals.TryGetValue(typeof(TSignal), out var bindings))
                 ((SignalBindings<TSignal>)bindings).Invoke(signal);

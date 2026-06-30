@@ -1,6 +1,6 @@
-using Shears.Editor;
 using System;
 using System.Collections.Generic;
+using Shears.Editor;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -30,14 +30,11 @@ namespace Shears.StateMachineGraphs.Editor
         private VisualElement warningIcon;
 
         private StateInjectReferenceDictionary injectedReferences;
-        private readonly List<SerializableSystemType> referencesToRemove = new();
+        private readonly List<SerializableType> referencesToRemove = new();
 
         public override VisualElement CreateInspectorGUI()
         {
-            root = new VisualElement()
-            {
-                name = "State Machine Editor"
-            };
+            root = new VisualElement() { name = "State Machine Editor" };
 
             root.AddStyleSheet(ShearsStyles.InspectorStyles);
             warningTexture = ShearsSymbols.WarningIcon;
@@ -50,7 +47,9 @@ namespace Shears.StateMachineGraphs.Editor
             var logField = new PropertyField(serializedObject.FindProperty("logLevels"));
             var useGraphDataField = new PropertyField(useGraphDataProp);
             var pollField = new PropertyField(serializedObject.FindProperty("pollTransitions"));
-            var manualUpdateField = new PropertyField(serializedObject.FindProperty("manualUpdate"));
+            var manualUpdateField = new PropertyField(
+                serializedObject.FindProperty("manualUpdate")
+            );
             CreateInjectionContainer();
             CreateRuntimeContainer();
 
@@ -62,7 +61,15 @@ namespace Shears.StateMachineGraphs.Editor
             useGraphDataField.RegisterValueChangeCallback(OnUseGraphDataChanged);
 
             root.TrackPropertyValue(graphDataProp, (prop) => UpdateGraphFields());
-            root.AddAll(logField, useGraphDataField, pollField, manualUpdateField, graphDataField, injectedEntryContainer, runtimeContainer);
+            root.AddAll(
+                logField,
+                useGraphDataField,
+                pollField,
+                manualUpdateField,
+                graphDataField,
+                injectedEntryContainer,
+                runtimeContainer
+            );
 
             return root;
         }
@@ -85,7 +92,7 @@ namespace Shears.StateMachineGraphs.Editor
             {
                 text = "Injected References",
                 name = "Injected Entry Container",
-                value = referencesExpandedProp.boolValue
+                value = referencesExpandedProp.boolValue,
             };
 
             injectedEntryContainer.AddToClassList(ShearsStyles.DarkFoldoutClass);
@@ -99,7 +106,7 @@ namespace Shears.StateMachineGraphs.Editor
             {
                 text = "Runtime Info",
                 name = "Runtime Container",
-                value = runtimeInfoExpandedProp.boolValue
+                value = runtimeInfoExpandedProp.boolValue,
             };
 
             runtimeContainer.AddToClassList(ShearsStyles.DarkFoldoutClass);
@@ -119,7 +126,8 @@ namespace Shears.StateMachineGraphs.Editor
             warningIcon = new Image()
             {
                 image = warningTexture,
-                tooltip = "Some injected references are missing. Please ensure all required references are assigned."
+                tooltip =
+                    "Some injected references are missing. Please ensure all required references are assigned.",
             };
 
             warningIcon.style.width = 24;
@@ -185,7 +193,10 @@ namespace Shears.StateMachineGraphs.Editor
             else
             {
                 injectedEntryContainer.style.display = DisplayStyle.Flex;
-                injectedEntryContainer.TrackPropertyValue(injectedReferencesProp, (prop) => WarnIfMissingReferences());
+                injectedEntryContainer.TrackPropertyValue(
+                    injectedReferencesProp,
+                    (prop) => WarnIfMissingReferences()
+                );
                 injectedEntryContainer.RegisterValueChangedCallback((evt) => toggle(evt.newValue));
 
                 void toggle(bool value)
@@ -204,7 +215,8 @@ namespace Shears.StateMachineGraphs.Editor
         private void UpdateInjectReferences(StateMachineGraph graph)
         {
             var stateNodes = graph.GetStateNodes();
-            injectedReferences = injectedReferencesProp.boxedValue as StateInjectReferenceDictionary;
+            injectedReferences =
+                injectedReferencesProp.boxedValue as StateInjectReferenceDictionary;
 
             ClearOldReferences(graph);
             CreateNewReferences(graph.ID, graph.ID, stateNodes);
@@ -220,23 +232,32 @@ namespace Shears.StateMachineGraphs.Editor
          *      - specific list of states (stored by ID, but UI for selection shows their path in the graph)
          */
 
-        private void CreateNewReferences(string parentGraphID, string graphID, IReadOnlyList<IStateNodeData> stateNodes)
+        private void CreateNewReferences(
+            string parentGraphID,
+            string graphID,
+            IReadOnlyList<IStateNodeData> stateNodes
+        )
         {
             foreach (var stateNode in stateNodes)
             {
                 if (stateNode is ExternalStateMachineNodeData externalNode)
                 {
-                    CreateNewReferences(parentGraphID, externalNode.ExternalGraphData.ID, externalNode.ExternalGraphData.GetStateNodes());
+                    CreateNewReferences(
+                        parentGraphID,
+                        externalNode.ExternalGraphData.ID,
+                        externalNode.ExternalGraphData.GetStateNodes()
+                    );
                     continue;
                 }
-                
-                if (stateNode.StateType == SerializableSystemType.Empty)
+
+                if (stateNode.StateType is null || !stateNode.StateType.IsValid())
                     continue;
 
                 if (!typeof(IStateInjectable).IsAssignableFrom(stateNode.StateType))
                     continue;
 
-                var stateInstance = Activator.CreateInstance(stateNode.StateType) as IStateInjectable;
+                var stateInstance =
+                    Activator.CreateInstance(stateNode.StateType) as IStateInjectable;
                 var injectableTypes = stateInstance.GetInjectableTypes();
 
                 foreach (var type in injectableTypes)
@@ -247,9 +268,9 @@ namespace Shears.StateMachineGraphs.Editor
                         continue;
                     }
 
-                    reference = new StateInjectReference(parentGraphID, new SerializableSystemType(type))
+                    reference = new StateInjectReference(parentGraphID, new SerializableType(type))
                     {
-                        GraphID = graphID
+                        GraphID = graphID,
                     };
 
                     reference.AddTarget(stateNode.ID);
@@ -258,7 +279,7 @@ namespace Shears.StateMachineGraphs.Editor
                 }
             }
         }
-    
+
         private void CreateInjectReferenceFields()
         {
             injectedEntryContainer.Clear();
@@ -283,7 +304,7 @@ namespace Shears.StateMachineGraphs.Editor
 
             WarnIfMissingReferences();
         }
-    
+
         private void WarnIfMissingReferences()
         {
             var entriesProp = injectedReferencesProp.FindPropertyRelative("entries");
@@ -317,21 +338,25 @@ namespace Shears.StateMachineGraphs.Editor
             else if (warningIcon.parent != null)
                 warningIcon.RemoveFromHierarchy();
         }
-    
+
         private void ClearOldReferences(StateMachineGraph parentGraph)
         {
             referencesToRemove.Clear();
 
             foreach (var reference in injectedReferences.Values)
             {
-                if (reference.TargetIDs.Count == 0 || reference.ParentGraphID != parentGraph.ID || !reference.FieldType.IsValid())
+                if (
+                    reference.TargetIDs.Count == 0
+                    || reference.ParentGraphID != parentGraph.ID
+                    || !reference.FieldType.IsValid()
+                )
                     referencesToRemove.Add(reference.FieldType);
             }
 
             foreach (var reference in referencesToRemove)
                 injectedReferences.Remove(reference);
         }
-    
+
         private void OnUseGraphDataChanged(SerializedPropertyChangeEvent evt)
         {
             UpdateGraphFields();

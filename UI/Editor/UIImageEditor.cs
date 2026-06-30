@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 namespace Shears.UI.Editor
 {
     [CustomEditor(typeof(UIImage))]
-    public class ManagedImageEditor : UnityEditor.Editor
+    public class UIImageEditor : UnityEditor.Editor
     {
         private UnityEngine.UI.Image image;
 
@@ -74,6 +74,7 @@ namespace Shears.UI.Editor
             var baseColorProp = serializedObject.FindProperty("baseColor");
             var modulateProp = serializedObject.FindProperty("modulate");
 
+            var scriptField = VisualElementEditorUtil.CreateScriptField(serializedObject);
             var spriteField = new ObjectField("Sprite") { objectType = typeof(Sprite) };
             spriteField.BindProperty(spriteProp);
 
@@ -96,7 +97,7 @@ namespace Shears.UI.Editor
 
             imageContainer.Add(VisualElementEditorUtil.CreateDefaultFields(imageSO));
 
-            root.AddAll(spriteField, colorField, modulateField, imageContainer);
+            root.AddAll(scriptField, spriteField, colorField, modulateField, imageContainer);
 
             return root;
         }

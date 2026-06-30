@@ -1,21 +1,22 @@
 /*
  * Created by C.J. Kimberlin
  * Refactored by Mane Function
- * 
+ * Further refactored by Shearrs
+ *
  * The MIT License (MIT)
- * 
+ *
  * Copyright (c) 2019-2023
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,8 +24,8 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- * 
- * 
+ *
+ *
  * TERMS OF USE - EASING EQUATIONS
  * Open source under the BSD License.
  * Copyright (c)2001 Robert Penner
@@ -33,11 +34,11 @@
  * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  * Neither the name of the author nor the names of contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE 
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
@@ -86,13 +87,18 @@ namespace Shears.Tweens
     {
         private const float NaturalLogOf2 = 0.693147181f;
 
-        public static float Linear(float start, float end, float value) => Mathf.Lerp(start, end, value);
+        public static float Linear(float start, float end, float value) =>
+            Mathf.Lerp(start, end, value);
 
         public static float Spring(float start, float end, float value)
         {
             value = Mathf.Clamp01(value);
-            value = (Mathf.Sin(value * Mathf.PI * (0.2f + 2.5f * value * value * value)) *
-                Mathf.Pow(1f - value, 2.2f) + value) * (1f + (1.2f * (1f - value)));
+            value =
+                (
+                    Mathf.Sin(value * Mathf.PI * (0.2f + 2.5f * value * value * value))
+                        * Mathf.Pow(1f - value, 2.2f)
+                    + value
+                ) * (1f + (1.2f * (1f - value)));
 
             return start + (end - start) * value;
         }
@@ -395,7 +401,11 @@ namespace Shears.Tweens
             else
                 s = p / (2 * Mathf.PI) * Mathf.Asin(end / a);
 
-            return -(a * Mathf.Pow(2, 10 * (value -= 1)) * Mathf.Sin((value * d - s) * (2 * Mathf.PI) / p)) + start;
+            return -(
+                    a
+                    * Mathf.Pow(2, 10 * (value -= 1))
+                    * Mathf.Sin((value * d - s) * (2 * Mathf.PI) / p)
+                ) + start;
         }
 
         public static float EaseOutElastic(float start, float end, float value)
@@ -422,7 +432,9 @@ namespace Shears.Tweens
             else
                 s = p / (2 * Mathf.PI) * Mathf.Asin(end / a);
 
-            return a * Mathf.Pow(2, -10 * value) * Mathf.Sin((value * d - s) * (2 * Mathf.PI) / p) + end + start;
+            return a * Mathf.Pow(2, -10 * value) * Mathf.Sin((value * d - s) * (2 * Mathf.PI) / p)
+                + end
+                + start;
         }
 
         public static float EaseInOutElastic(float start, float end, float value)
@@ -450,11 +462,20 @@ namespace Shears.Tweens
                 s = p / (2 * Mathf.PI) * Mathf.Asin(end / a);
 
             if (value < 1)
-                return -0.5f * (a * Mathf.Pow(2, 10 * (value -= 1)) * Mathf.Sin((value * d - s) *
-                    (2 * Mathf.PI) / p)) + start;
+                return -0.5f
+                        * (
+                            a
+                            * Mathf.Pow(2, 10 * (value -= 1))
+                            * Mathf.Sin((value * d - s) * (2 * Mathf.PI) / p)
+                        )
+                    + start;
 
-            return a * Mathf.Pow(2, -10 * (value -= 1)) * Mathf.Sin((value * d - s) *
-                    (2 * Mathf.PI) / p) * .5f + end + start;
+            return a
+                    * Mathf.Pow(2, -10 * (value -= 1))
+                    * Mathf.Sin((value * d - s) * (2 * Mathf.PI) / p)
+                    * .5f
+                + end
+                + start;
         }
 
         //
@@ -468,7 +489,8 @@ namespace Shears.Tweens
 
         public static float LinearD(float start, float end, float value) => end - start;
 
-        public static float EaseInQuadD(float start, float end, float value) => 2f * (end - start) * value;
+        public static float EaseInQuadD(float start, float end, float value) =>
+            2f * (end - start) * value;
 
         public static float EaseOutQuadD(float start, float end, float value)
         {
@@ -731,9 +753,17 @@ namespace Shears.Tweens
             else
                 s = p / (2 * Mathf.PI) * Mathf.Asin(end / a);
 
-            return a * Mathf.PI * d * Mathf.Pow(2f, 1f - 10f * value) *
-                Mathf.Cos((2f * Mathf.PI * (d * value - s)) / p) / p - 5f * NaturalLogOf2 * a *
-                Mathf.Pow(2f, 1f - 10f * value) * Mathf.Sin(2f * Mathf.PI * (d * value - s) / p);
+            return a
+                    * Mathf.PI
+                    * d
+                    * Mathf.Pow(2f, 1f - 10f * value)
+                    * Mathf.Cos((2f * Mathf.PI * (d * value - s)) / p)
+                    / p
+                - 5f
+                    * NaturalLogOf2
+                    * a
+                    * Mathf.Pow(2f, 1f - 10f * value)
+                    * Mathf.Sin(2f * Mathf.PI * (d * value - s) / p);
         }
 
         public static float EaseInOutElasticD(float start, float end, float value)
@@ -758,14 +788,31 @@ namespace Shears.Tweens
             {
                 value -= 1;
 
-                return -5f * NaturalLogOf2 * a * Mathf.Pow(2f, 10f * value) * Mathf.Sin(2 * Mathf.PI * (d * value - 2f) / p) -
-                    a * Mathf.PI * d * Mathf.Pow(2f, 10f * value) * Mathf.Cos(2 * Mathf.PI * (d * value - s) / p) / p;
+                return -5f
+                        * NaturalLogOf2
+                        * a
+                        * Mathf.Pow(2f, 10f * value)
+                        * Mathf.Sin(2 * Mathf.PI * (d * value - 2f) / p)
+                    - a
+                        * Mathf.PI
+                        * d
+                        * Mathf.Pow(2f, 10f * value)
+                        * Mathf.Cos(2 * Mathf.PI * (d * value - s) / p)
+                        / p;
             }
 
             value -= 1;
 
-            return a * Mathf.PI * d * Mathf.Cos(2f * Mathf.PI * (d * value - s) / p) / (p * Mathf.Pow(2f, 10f * value)) -
-                5f * NaturalLogOf2 * a * Mathf.Sin(2f * Mathf.PI * (d * value - s) / p) / (Mathf.Pow(2f, 10f * value));
+            return a
+                    * Mathf.PI
+                    * d
+                    * Mathf.Cos(2f * Mathf.PI * (d * value - s) / p)
+                    / (p * Mathf.Pow(2f, 10f * value))
+                - 5f
+                    * NaturalLogOf2
+                    * a
+                    * Mathf.Sin(2f * Mathf.PI * (d * value - s) / p)
+                    / (Mathf.Pow(2f, 10f * value));
         }
 
         public static float SpringD(float start, float end, float value)
@@ -775,13 +822,27 @@ namespace Shears.Tweens
 
             // Damn... Thanks http://www.derivative-calculator.net/
             // TODO: And it's a little bit wrong
-            return end * (6f * (1f - value) / 5f + 1f) * (-2.2f * Mathf.Pow(1f - value, 1.2f) *
-                Mathf.Sin(Mathf.PI * value * (2.5f * value * value * value + 0.2f)) + Mathf.Pow(1f - value, 2.2f) *
-                (Mathf.PI * (2.5f * value * value * value + 0.2f) + 7.5f * Mathf.PI * value * value * value) *
-                Mathf.Cos(Mathf.PI * value * (2.5f * value * value * value + 0.2f)) + 1f) -
-                6f * end * (Mathf.Pow(1 - value, 2.2f) * Mathf.Sin(Mathf.PI * value * (2.5f * value * value * value + 0.2f)) + value
-                / 5f);
-
+            return end
+                    * (6f * (1f - value) / 5f + 1f)
+                    * (
+                        -2.2f
+                            * Mathf.Pow(1f - value, 1.2f)
+                            * Mathf.Sin(Mathf.PI * value * (2.5f * value * value * value + 0.2f))
+                        + Mathf.Pow(1f - value, 2.2f)
+                            * (
+                                Mathf.PI * (2.5f * value * value * value + 0.2f)
+                                + 7.5f * Mathf.PI * value * value * value
+                            )
+                            * Mathf.Cos(Mathf.PI * value * (2.5f * value * value * value + 0.2f))
+                        + 1f
+                    )
+                - 6f
+                    * end
+                    * (
+                        Mathf.Pow(1 - value, 2.2f)
+                            * Mathf.Sin(Mathf.PI * value * (2.5f * value * value * value + 0.2f))
+                        + value / 5f
+                    );
         }
 
         public delegate float Function(float s, float e, float v);
@@ -827,7 +888,7 @@ namespace Shears.Tweens
                 TweenEase.InElastic => EaseInElastic,
                 TweenEase.OutElastic => EaseOutElastic,
                 TweenEase.InOutElastic => EaseInOutElastic,
-                _ => null
+                _ => null,
             };
 
         /// <summary>
@@ -871,7 +932,7 @@ namespace Shears.Tweens
                 TweenEase.InElastic => EaseInElasticD,
                 TweenEase.OutElastic => EaseOutElasticD,
                 TweenEase.InOutElastic => EaseInOutElasticD,
-                _ => null
+                _ => null,
             };
     }
 }

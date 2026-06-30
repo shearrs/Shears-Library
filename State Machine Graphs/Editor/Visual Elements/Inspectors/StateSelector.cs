@@ -77,14 +77,14 @@ namespace Shears.StateMachineGraphs.Editor
 
         private void SetEmptyState()
         {
-            stateTypeProp.boxedValue = new SerializableSystemType(EMPTY_STATE_TYPE);
+            stateTypeProp.boxedValue = new SerializableType(EMPTY_STATE_TYPE);
 
             stateTypeProp.serializedObject.ApplyModifiedProperties();
         }
 
         private void SetState(Type type)
         {
-            stateTypeProp.boxedValue = new SerializableSystemType(type);
+            stateTypeProp.boxedValue = new SerializableType(type);
 
             stateTypeProp.serializedObject.ApplyModifiedProperties();
         }

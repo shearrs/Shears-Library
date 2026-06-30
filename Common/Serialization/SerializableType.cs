@@ -1,19 +1,16 @@
 using System;
 using UnityEngine;
+using UnityEngine.Scripting.APIUpdating;
 
 namespace Shears
 {
     /// <summary>
     /// A serializable wrapper of <see cref="Type"/>.
     /// </summary>
+    [MovedFrom(true, "Shears", "Assembly-CSharp", "SerializableSystemType")]
     [Serializable]
-    public struct SerializableSystemType
+    public class SerializableType
     {
-        /// <summary>
-        /// An empty <see cref="SerializableSystemType"/> instance. Represents no type.
-        /// </summary>
-        public static readonly SerializableSystemType Empty = new();
-        
         [SerializeField]
         private string name;
 
@@ -28,10 +25,10 @@ namespace Shears
 
         private Type systemType;
 
-        public readonly string Name => name;
-        public readonly string AssemblyQualifiedName => assemblyQualifiedName;
-        public readonly string AssemblyName => assemblyName;
-        public readonly string PrettyName => prettyName;
+        public string Name => name;
+        public string AssemblyQualifiedName => assemblyQualifiedName;
+        public string AssemblyName => assemblyName;
+        public string PrettyName => prettyName;
         public Type SystemType
         {
             get
@@ -43,7 +40,7 @@ namespace Shears
             }
         }
 
-        public SerializableSystemType(Type type)
+        public SerializableType(Type type)
         {
             if (type == null)
             {
@@ -63,9 +60,11 @@ namespace Shears
             prettyName = StringUtil.PascalSpace(name);
         }
 
-        public SerializableSystemType(string assemblyQualifiedName)
+        public SerializableType(string assemblyQualifiedName)
         {
-            Type type = Type.GetType(assemblyQualifiedName) ?? throw new Exception($"Invalid type {assemblyQualifiedName}!");
+            Type type =
+                Type.GetType(assemblyQualifiedName)
+                ?? throw new Exception($"Invalid type {assemblyQualifiedName}!");
 
             systemType = type;
             name = type.Name;
@@ -83,7 +82,7 @@ namespace Shears
         }
 
         /// <summary>
-        /// Returns whether this <see cref="SerializableSystemType"/> is valid (i.e. wraps a non-null <see cref="Type"/>).
+        /// Returns whether this <see cref="SerializableType"/> is valid (i.e. wraps a non-null <see cref="Type"/>).
         /// </summary>
         /// <returns>Whether or not this type is valid.</returns>
         public bool IsValid()
@@ -97,13 +96,13 @@ namespace Shears
             if (obj is Type type)
                 return SystemType.Equals(type);
 
-            if (obj is not SerializableSystemType sType)
+            if (obj is not SerializableType sType)
                 return false;
 
             return Equals(sType);
         }
 
-        public bool Equals(SerializableSystemType type) 
+        public bool Equals(SerializableType type)
         {
             return SystemType == type.SystemType;
         }
@@ -118,12 +117,12 @@ namespace Shears
             return HashCode.Combine(Name, AssemblyQualifiedName, AssemblyName, SystemType);
         }
 
-        public readonly override string ToString()
+        public override string ToString()
         {
             return name;
         }
 
-        public static bool operator==(SerializableSystemType a, SerializableSystemType b)
+        public static bool operator ==(SerializableType a, SerializableType b)
         {
             if (ReferenceEquals(a, b))
                 return true;
@@ -131,27 +130,27 @@ namespace Shears
             return a.Equals(b);
         }
 
-        public static bool operator==(SerializableSystemType a, Type b)
+        public static bool operator ==(SerializableType a, Type b)
         {
             return a.Equals(b);
         }
 
-        public static bool operator!=(SerializableSystemType a, SerializableSystemType b)
+        public static bool operator !=(SerializableType a, SerializableType b)
         {
             return !(a == b);
         }
 
-        public static bool operator!=(SerializableSystemType a, Type b)
+        public static bool operator !=(SerializableType a, Type b)
         {
             return !(a == b);
         }
 
-        public static implicit operator Type(SerializableSystemType t)
+        public static implicit operator Type(SerializableType t)
         {
             return t.SystemType;
         }
 
-        public static implicit operator SerializableSystemType(Type t)
+        public static implicit operator SerializableType(Type t)
         {
             return new(t);
         }

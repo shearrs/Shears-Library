@@ -1,24 +1,33 @@
-using Shears.GraphViews;
 using System;
 using System.Collections.Generic;
+using Shears.GraphViews;
 using UnityEngine;
 
 namespace Shears.StateMachineGraphs
 {
-    public class ExternalStateMachineNodeData : GraphNodeData, IStateNodeData, ICopyable<ExternalStateMachineNodeClipboardData>
+    public class ExternalStateMachineNodeData
+        : GraphNodeData,
+            IStateNodeData,
+            ICopyable<ExternalStateMachineNodeClipboardData>
     {
-        [SerializeField] private StateMachineGraph externalGraphData;
+        [SerializeField]
+        private StateMachineGraph externalGraphData;
 
         public StateMachineGraph ExternalGraphData => externalGraphData;
 
-        SerializableSystemType IStateNodeData.StateType => SerializableSystemType.Empty;
+        SerializableType IStateNodeData.StateType => null;
 
         public event Action SetAsLayerDefault;
         public event Action RemovedAsLayerDefault;
 
         public ExternalStateMachineNodeData() { }
 
-        public ExternalStateMachineNodeData(string name, Vector2 position, string parentID, StateMachineGraph externalGraphData)
+        public ExternalStateMachineNodeData(
+            string name,
+            Vector2 position,
+            string parentID,
+            StateMachineGraph externalGraphData
+        )
         {
             this.name = name;
             this.position = position;
@@ -34,7 +43,8 @@ namespace Shears.StateMachineGraphs
 
         void ILayerElement.OnRemoveLayerDefault() => RemovedAsLayerDefault?.Invoke();
 
-        public ExternalStateMachineNodeClipboardData CopyToClipboard(CopyData data) => new(ID, Name, Position, externalGraphData);
+        public ExternalStateMachineNodeClipboardData CopyToClipboard(CopyData data) =>
+            new(ID, Name, Position, externalGraphData);
 
         GraphElementClipboardData ICopyable.CopyToClipboard(CopyData data)
         {

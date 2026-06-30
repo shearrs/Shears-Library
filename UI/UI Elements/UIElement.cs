@@ -16,12 +16,12 @@ namespace Shears.UI
         private readonly List<UIElement> childElements = new();
         private readonly TweenStorage tweenStorage = new();
         private UIElementCanvas canvas;
-        private UIElement parent;
+        private UIElement uiParent;
         private float dragBeginTime = 0.1f;
 
         protected IReadOnlyList<Tween> Tweens => tweenStorage.Tweens;
         public UIElementCanvas Canvas => canvas;
-        public UIElement Parent => parent;
+        public UIElement Parent => uiParent;
         public bool IsEnabled => isActiveAndEnabled;
         public bool IsFocused { get; internal set; }
         public float DragBeginTime
@@ -190,7 +190,7 @@ namespace Shears.UI
         #region Tweens
         protected Tween GetFirstValidTween() => tweenStorage.GetFirstValid();
 
-        protected Tween StoreTween(Tween tween) => tweenStorage.Store(tween);
+        protected Tween StoreTween(in Tween tween) => tweenStorage.Store(tween);
 
         protected void DisposeTweens() => tweenStorage.Dispose();
 
@@ -252,9 +252,9 @@ namespace Shears.UI
             canvas = GetComponentInParent<UIElementCanvas>();
 
             if (transform.parent != null)
-                transform.parent.TryGetComponent(out parent);
+                transform.parent.TryGetComponent(out uiParent);
             else
-                parent = null;
+                uiParent = null;
         }
 
         private void UpdateChildList()

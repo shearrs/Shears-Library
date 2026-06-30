@@ -15,7 +15,7 @@ namespace Shears.DataManagement
         private T blueprint;
 
         [SerializeField, HideInInspector]
-        private SerializableSystemType selectedType;
+        private SerializableType selectedType;
 
         public Type DataType => selectedType;
 

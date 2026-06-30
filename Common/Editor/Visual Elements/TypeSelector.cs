@@ -15,28 +15,27 @@ namespace Shears.Editor
             Inheritance,
         }
 
-        private readonly SerializableSystemType defaultType;
-        private readonly SerializableSystemType searchType;
+        private readonly SerializableType defaultType;
+        private readonly SerializableType searchType;
         private readonly SelectionType selectionType;
         private readonly Label label;
         private readonly Button button;
         private readonly bool isSearchable;
+        private readonly GenericMenu genericMenu;
+        private readonly TypeDropdown typeDropdown;
         private SerializedProperty boundProperty;
 
-        public event Action<SerializableSystemType> TypeChanged;
+        public event Action<SerializableType> TypeChanged;
 
         public static TypeSelector CreateAttributeSelector<T>(
-            SerializableSystemType? defaultType = null,
+            SerializableType defaultType = null,
             bool isSearchable = false
         )
             where T : Attribute
         {
-            if (!defaultType.HasValue)
-                defaultType = SerializableSystemType.Empty;
-
             var selector = new TypeSelector(
                 SelectionType.Attribute,
-                defaultType.Value,
+                defaultType,
                 typeof(T),
                 isSearchable
             );
@@ -45,22 +44,19 @@ namespace Shears.Editor
         }
 
         public static TypeSelector CreateInheritanceSelector<T>(
-            SerializableSystemType? defaultType = null,
+            SerializableType defaultType = null,
             bool isSearchable = false
         ) => CreateInheritanceSelector(typeof(T), defaultType, isSearchable);
 
         public static TypeSelector CreateInheritanceSelector(
             Type type,
-            SerializableSystemType? defaultType = null,
+            SerializableType defaultType = null,
             bool isSearchable = false
         )
         {
-            if (!defaultType.HasValue)
-                defaultType = SerializableSystemType.Empty;
-
             var selector = new TypeSelector(
                 SelectionType.Inheritance,
-                defaultType.Value,
+                defaultType,
                 type,
                 isSearchable
             );
@@ -70,20 +66,19 @@ namespace Shears.Editor
 
         private TypeSelector(
             SelectionType selectionType,
-            SerializableSystemType defaultType,
-            SerializableSystemType searchType,
+            SerializableType defaultType,
+            SerializableType searchType,
             bool isSearchable
         )
         {
+            this.selectionType = selectionType;
             this.defaultType = defaultType;
             this.searchType = searchType;
-            this.selectionType = selectionType;
             this.isSearchable = isSearchable;
 
             var container = new VisualElement();
             container.style.flexDirection = FlexDirection.Row;
-            container.SetAllMargins(1, -2, 1, 3);
-            container.style.marginTop = 2;
+            container.SetAllMargins(2, -2, 1, 3);
             container.style.overflow = Overflow.Hidden;
             container.style.fontSize = 12;
 
@@ -95,49 +90,79 @@ namespace Shears.Editor
             button = new Button(ShowContextMenu)
             {
                 text =
-                    defaultType == SerializableSystemType.Empty ? "None" : defaultType.PrettyName,
+                    (defaultType is null || !defaultType.IsValid())
+                        ? "None"
+                        : defaultType.PrettyName,
             };
             button.style.flexGrow = 1;
             button.style.marginLeft = StyleKeyword.Auto;
 
-            container.AddAll(label, button);
+            if (isSearchable)
+                genericMenu = CreateUnsearchableMenu();
+            else
+                container.AddAll(label, button);
             Add(container);
         }
 
         public void BindProperty(SerializedProperty prop, bool initializeType = false)
         {
-            if (prop.boxedValue is not SerializableSystemType propValue)
+            if (prop.boxedValue is not SerializableType propValue)
             {
-                Debug.LogError($"Property is not of type {nameof(SerializableSystemType)}!");
+                Debug.LogError($"Property is not of type {nameof(SerializableType)}!");
                 return;
             }
 
             boundProperty = prop;
 
-            if (initializeType && propValue == SerializableSystemType.Empty)
+            if (initializeType && (propValue is null || !propValue.IsValid()))
             {
                 prop.boxedValue = defaultType;
                 prop.serializedObject.ApplyModifiedProperties();
             }
 
-            button.text = propValue == SerializableSystemType.Empty ? "None" : propValue.PrettyName;
+            button.text =
+                (propValue is null || !propValue.IsValid()) ? "None" : propValue.PrettyName;
             label.text = prop.displayName;
         }
 
         private void ShowContextMenu()
         {
             if (!isSearchable)
-                ShowUnsearchableMenu();
+                genericMenu.ShowAsContext();
             else
-                ShowSearchableMenu();
+                typeDropdown.Show(button.worldBound, 300);
         }
 
-        private void ShowUnsearchableMenu()
+        private void ShowSearchableMenu() { }
+
+        private void TryAddMenuItem(GenericMenu menu, Type type)
         {
-            GenericMenu menu = new();
+            var attribute = type.GetCustomAttribute<TypeSelectorItemAttribute>();
+            string path =
+                attribute != null ? attribute.MenuPath : StringUtil.PascalSpace(type.Name);
+
+            menu.AddItem(new GUIContent(path), false, () => SetType(type));
+        }
+
+        private void SetType(SerializableType type)
+        {
+            if (boundProperty != null)
+            {
+                boundProperty.boxedValue = type;
+                boundProperty.serializedObject.ApplyModifiedProperties();
+            }
+
+            button.text = (type is null || !type.IsValid()) ? "None" : type.PrettyName;
+
+            TypeChanged?.Invoke(type);
+        }
+
+        private GenericMenu CreateUnsearchableMenu()
+        {
+            var menu = new GenericMenu();
 
             string defaultText =
-                defaultType == SerializableSystemType.Empty ? "None" : defaultType.PrettyName;
+                (defaultType is null || !defaultType.IsValid()) ? "None" : defaultType.PrettyName;
 
             menu.AddItem(new GUIContent(defaultText), false, () => SetType(defaultType));
             TypeCache.TypeCollection types;
@@ -155,10 +180,10 @@ namespace Shears.Editor
                 TryAddMenuItem(menu, type);
             }
 
-            menu.ShowAsContext();
+            return menu;
         }
 
-        private void ShowSearchableMenu()
+        private TypeDropdown CreateSearchableMenu()
         {
             var menu = new TypeDropdown(
                 selectionType,
@@ -168,43 +193,21 @@ namespace Shears.Editor
                 new AdvancedDropdownState()
             );
 
-            menu.Show(button.worldBound, 300);
-        }
-
-        private void TryAddMenuItem(GenericMenu menu, Type type)
-        {
-            var attribute = type.GetCustomAttribute<TypeSelectorItemAttribute>();
-            string path =
-                attribute != null ? attribute.MenuPath : StringUtil.PascalSpace(type.Name);
-
-            menu.AddItem(new GUIContent(path), false, () => SetType(type));
-        }
-
-        private void SetType(SerializableSystemType type)
-        {
-            if (boundProperty != null)
-            {
-                boundProperty.boxedValue = type;
-                boundProperty.serializedObject.ApplyModifiedProperties();
-            }
-
-            button.text = type == SerializableSystemType.Empty ? "None" : type.PrettyName;
-
-            TypeChanged?.Invoke(type);
+            return menu;
         }
 
         private class TypeDropdown : AdvancedDropdown
         {
             private readonly SelectionType selectionType;
-            private readonly SerializableSystemType searchType;
-            private readonly SerializableSystemType defaultType;
-            private readonly Action<SerializableSystemType> setType;
+            private readonly SerializableType searchType;
+            private readonly SerializableType defaultType;
+            private readonly Action<SerializableType> setType;
 
             public TypeDropdown(
                 SelectionType selectionType,
-                SerializableSystemType searchType,
-                SerializableSystemType defaultType,
-                Action<SerializableSystemType> setType,
+                SerializableType searchType,
+                SerializableType defaultType,
+                Action<SerializableType> setType,
                 AdvancedDropdownState state
             )
                 : base(state)
@@ -221,7 +224,9 @@ namespace Shears.Editor
                 TypeCache.TypeCollection types;
 
                 string defaultText =
-                    defaultType == SerializableSystemType.Empty ? "None" : defaultType.PrettyName;
+                    (defaultType is null || !defaultType.IsValid())
+                        ? "None"
+                        : defaultType.PrettyName;
 
                 root.AddChild(new TypeItem(defaultText, () => setType(defaultType)));
 

@@ -1,6 +1,6 @@
-using Shears.GraphViews;
 using System;
 using System.Collections.Generic;
+using Shears.GraphViews;
 using UnityEngine;
 
 namespace Shears.StateMachineGraphs
@@ -8,12 +8,19 @@ namespace Shears.StateMachineGraphs
     [Serializable]
     public class StateNodeClipboardData : GraphNodeClipboardData
     {
-        [SerializeField] private SerializableSystemType stateType;
-        [SerializeField] private List<TransitionEdgeClipboardData> transitions;
+        [SerializeField]
+        private SerializableType stateType;
 
-        public SerializableSystemType StateType => stateType;
+        [SerializeField]
+        private List<TransitionEdgeClipboardData> transitions;
 
-        public StateNodeClipboardData(StateNodeData data, List<TransitionEdgeClipboardData> transitions) : base(data.ID, data.Name, data.Position)
+        public SerializableType StateType => stateType;
+
+        public StateNodeClipboardData(
+            StateNodeData data,
+            List<TransitionEdgeClipboardData> transitions
+        )
+            : base(data.ID, data.Name, data.Position)
         {
             stateType = data.StateType;
             this.transitions = transitions;

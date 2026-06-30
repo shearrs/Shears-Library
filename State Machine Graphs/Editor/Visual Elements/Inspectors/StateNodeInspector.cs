@@ -1,5 +1,5 @@
-using Shears.GraphViews;
 using System;
+using Shears.GraphViews;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -10,12 +10,10 @@ namespace Shears.StateMachineGraphs.Editor
     {
         private readonly VisualElement referenceHintContainer;
 
-        public StateNodeInspector(GraphData graphData) : base(graphData)
+        public StateNodeInspector(GraphData graphData)
+            : base(graphData)
         {
-            referenceHintContainer = new VisualElement()
-            {
-                name = "Reference Hint Container"
-            };
+            referenceHintContainer = new VisualElement() { name = "Reference Hint Container" };
         }
 
         protected override void BuildInspector(VisualElement nameField, VisualElement transitions)
@@ -37,7 +35,7 @@ namespace Shears.StateMachineGraphs.Editor
             referenceHintContainer.Clear();
             nodeData.SignalStateChanged();
 
-            if (nodeData.StateType == SerializableSystemType.Empty)
+            if (nodeData.StateType is null || !nodeData.StateType.IsValid())
                 return;
 
             if (!typeof(IStateInjectable).IsAssignableFrom(nodeData.StateType))

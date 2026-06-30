@@ -9,12 +9,12 @@ namespace Shears.StateMachineGraphs
     public class StateNodeData : GraphNodeData, IStateNodeData, ICopyable<StateNodeClipboardData>
     {
         [SerializeField]
-        private SerializableSystemType stateType;
+        private SerializableType stateType;
 
         public event Action SetAsLayerDefault;
         public event Action RemovedAsLayerDefault;
 
-        public SerializableSystemType StateType
+        public SerializableType StateType
         {
             get => stateType;
             set => stateType = value;
@@ -22,7 +22,7 @@ namespace Shears.StateMachineGraphs
 
         public event Action StateTypeChanged;
 
-        public StateNodeData(SerializableSystemType stateType)
+        public StateNodeData(SerializableType stateType)
         {
             this.stateType = stateType;
         }
@@ -31,7 +31,7 @@ namespace Shears.StateMachineGraphs
             string name,
             Vector2 position,
             string parentID,
-            SerializableSystemType stateType
+            SerializableType stateType
         )
         {
             this.name = name;

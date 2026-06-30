@@ -65,6 +65,8 @@ namespace Shears.Editor
             EditorApplication.hierarchyWindowItemOnGUI += DrawHierarchyItem;
             ObjectChangeEvents.changesPublished += OnObjectsChanged;
             EditorSceneManager.activeSceneChangedInEditMode += OnSceneLoaded;
+            PrefabStage.prefabStageOpened += OnPrefabOpened;
+            PrefabStage.prefabStageClosing += OnPrefabClosed;
 
             InitializeAllObjects();
         }
@@ -74,6 +76,8 @@ namespace Shears.Editor
             EditorApplication.hierarchyWindowItemOnGUI -= DrawHierarchyItem;
             ObjectChangeEvents.changesPublished -= OnObjectsChanged;
             EditorSceneManager.activeSceneChangedInEditMode -= OnSceneLoaded;
+            PrefabStage.prefabStageOpened -= OnPrefabOpened;
+            PrefabStage.prefabStageClosing -= OnPrefabClosed;
         }
 
         // game object specifically changed: just refresh the components for that object
@@ -97,11 +101,11 @@ namespace Shears.Editor
                         gameObject = EditorUtility.EntityIdToObject(d1.instanceId) as GameObject;
                         break;
                     case ObjectChangeKind.ChangeGameObjectStructureHierarchy:
-                        stream.GetCreateGameObjectHierarchyEvent(i, out var d2);
+                        stream.GetChangeGameObjectStructureHierarchyEvent(i, out var d2);
                         gameObject = EditorUtility.EntityIdToObject(d2.instanceId) as GameObject;
                         break;
                     case ObjectChangeKind.ChangeGameObjectStructure:
-                        stream.GetCreateGameObjectHierarchyEvent(i, out var d3);
+                        stream.GetChangeGameObjectStructureEvent(i, out var d3);
                         gameObject = EditorUtility.EntityIdToObject(d3.instanceId) as GameObject;
                         break;
                     case ObjectChangeKind.ChangeGameObjectParent:
@@ -141,17 +145,41 @@ namespace Shears.Editor
             InitializeAllObjects();
         }
 
+        private static void OnPrefabOpened(PrefabStage stage)
+        {
+            targetComponents.Clear();
+            rootObjects.Clear();
+
+            InitializeObject(stage.prefabContentsRoot);
+        }
+
+        private static void OnPrefabClosed(PrefabStage stage)
+        {
+            InitializeAllObjects();
+        }
+
         private static void InitializeAllObjects()
         {
             targetComponents.Clear();
             rootObjects.Clear();
 
-            for (int i = 0; i < EditorSceneManager.sceneCount; i++)
-            {
-                var scene = EditorSceneManager.GetSceneAt(i);
-                var objects = scene.GetRootGameObjects();
+            var prefab = PrefabStageUtility.GetCurrentPrefabStage();
 
-                rootObjects.AddRange(objects);
+            if (prefab != null)
+            {
+                var root = prefab.prefabContentsRoot;
+
+                rootObjects.Add(root);
+            }
+            else
+            {
+                for (int i = 0; i < EditorSceneManager.sceneCount; i++)
+                {
+                    var scene = EditorSceneManager.GetSceneAt(i);
+                    var objects = scene.GetRootGameObjects();
+
+                    rootObjects.AddRange(objects);
+                }
             }
 
             foreach (var obj in rootObjects)
@@ -279,6 +307,9 @@ namespace Shears.Editor
                     Debug.LogError($"Could not find property {field} in type {type.Name}!");
                     continue;
                 }
+
+                if (prop.isArray)
+                    continue;
 
                 if (field.attribute.AlternativeValue != null)
                 {

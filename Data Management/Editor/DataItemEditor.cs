@@ -30,11 +30,11 @@ namespace Shears.DataManagement.Editor
             return root;
         }
 
-        private void OnTypeChanged(SerializableSystemType type)
+        private void OnTypeChanged(SerializableType type)
         {
             var blueprintProp = serializedObject.FindProperty("blueprint");
 
-            if (type == SerializableSystemType.Empty)
+            if ((type is null || !type.IsValid()))
                 blueprintProp.boxedValue = null;
             else
                 blueprintProp.boxedValue = Activator.CreateInstance(type);

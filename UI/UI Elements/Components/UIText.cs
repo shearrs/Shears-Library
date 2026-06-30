@@ -46,5 +46,19 @@ namespace Shears.UI
             get => textMesh.text;
             set => textMesh.text = value;
         }
+
+        private void Reset()
+        {
+            var text = GetComponent<TextMeshPro>();
+            baseColor = text.color;
+        }
+
+        private void OnValidate()
+        {
+            var text = GetComponent<TextMeshPro>();
+
+            if (text.color != modulate * baseColor)
+                text.color = modulate * baseColor;
+        }
     }
 }

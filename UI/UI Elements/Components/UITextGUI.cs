@@ -48,6 +48,13 @@ namespace Shears.UI
             set => TextMesh.text = value;
         }
 
+        private void Reset()
+        {
+            var text = GetComponent<TextMeshProUGUI>();
+
+            baseColor = text.color;
+        }
+
         private void OnValidate()
         {
             var text = GetComponent<TextMeshProUGUI>();

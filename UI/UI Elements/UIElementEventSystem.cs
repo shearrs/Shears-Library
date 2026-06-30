@@ -80,7 +80,7 @@ namespace Shears.UI
 
             if (inputMap == null)
                 inputMap = Resources.Load<ManagedInputMap>(
-                    "ManagedElements/Shears_DefaultEventSystemInputMap"
+                    "UIElements/Shears_DefaultEventSystemInputMap"
                 );
 
             clickInput = inputMap.GetInput("Click");

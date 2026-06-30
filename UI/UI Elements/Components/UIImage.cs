@@ -55,5 +55,10 @@ namespace Shears.UI
             get => RawImage.sprite;
             set => RawImage.sprite = value;
         }
+
+        private void Reset()
+        {
+            BaseColor = RawImage.color;
+        }
     }
 }
