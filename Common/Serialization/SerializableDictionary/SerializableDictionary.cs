@@ -65,8 +65,21 @@ namespace Shears
                 {
                     if (typeof(TKey) == typeof(string))
                         key = (TKey)(Guid.NewGuid().ToString() as object);
+                    else if (default(TKey) == null)
+                    {
+                        Debug.LogWarning(
+                            $"Dictionary already contains key '{key}'. Skipping entry."
+                        );
+                        continue;
+                    }
                     else
                         key = default;
+                }
+
+                if (ContainsKey(key))
+                {
+                    Debug.LogWarning($"Dictionary already contains key '{key}'. Skipping entry.");
+                    continue;
                 }
 
                 Add(key, entry.Value);

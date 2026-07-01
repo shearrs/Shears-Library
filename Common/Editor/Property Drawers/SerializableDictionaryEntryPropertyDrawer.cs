@@ -11,7 +11,7 @@ namespace Shears.Editor
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             var root = new VisualElement();
-            root.SetAllPadding(0, 4, 0, 4);
+            root.SetAllPadding(0, 4, 0, 16);
 
             var keyProp = property.FindPropertyRelative("key");
             var valueProp = property.FindPropertyRelative("value");
