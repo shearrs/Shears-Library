@@ -1,5 +1,6 @@
 using System;
-using TMPro;
+using System.Collections.Generic;
+using Shears.Tweens;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -7,11 +8,22 @@ namespace Shears.UI
 {
     public class UIButton : UIElement
     {
-        private const float COLOR_MOVE_TIME = 0.1f;
+        private static readonly TweenData COLOR_TWEEN = new(0.1f);
+        private static readonly Color HOVER_COLOR = new(0.6f, 0.6f, 0.6f, 1.0f);
+        private static readonly Color PRESS_COLOR = new(0.4f, 0.4f, 0.4f, 1.0f);
+        private static readonly Color NOT_SELECTABLE_COLOR = new(0.15f, 0.15f, 0.15f);
+
+        private enum InteractColor
+        {
+            None,
+            Hover,
+            Press,
+            NotSelectable,
+        }
 
         [Header("UI Button")]
-        [SerializeField, Required]
-        private ButtonGraphic graphic;
+        [SerializeField, Required(targetCollectionSize: 1)]
+        private List<ButtonGraphic> graphics = new();
 
         [SerializeField]
         private bool selectable = true;
@@ -19,36 +31,25 @@ namespace Shears.UI
         [SerializeField]
         private bool clickOnMouseDown = false;
 
-        [Header("Colors")]
-        [SerializeField]
-        private Color hoverColor = new(0.6f, 0.6f, 0.6f, 1.0f);
-
-        [SerializeField]
-        private Color pressColor = new(0.4f, 0.4f, 0.4f, 1.0f);
-
-        [SerializeField]
-        private Color notSelectableColor = new(0.15f, 0.15f, 0.15f);
-
         [Header("Events")]
         [SerializeField]
         private UnityEvent clicked;
 
-        private readonly Timer colorTimer = new(COLOR_MOVE_TIME);
-        private Color startColor;
-        private Color targetColor;
+        private Color baseColor = Color.white;
+        private Color modulate = Color.white;
         private bool isDragged;
         private bool isPressed;
 
         public bool IsHovered { get; private set; }
         public override Color BaseColor
         {
-            get => graphic.BaseColor;
-            set => graphic.BaseColor = value;
+            get => baseColor;
+            set => SetBaseColor(value);
         }
         public override Color Modulate
         {
-            get => graphic.Modulate;
-            set => graphic.Modulate = value;
+            get => modulate;
+            set => SetModulate(value);
         }
         public bool Selectable
         {
@@ -71,6 +72,7 @@ namespace Shears.UI
             [SerializeField, Required(nameof(image)), ShowIf(nameof(image), compareValue: null)]
             private Renderer renderer;
 
+            [Header("State Colors")]
             [SerializeField, ReadOnly]
             private Color baseColor = Color.white;
 
@@ -80,6 +82,17 @@ namespace Shears.UI
             [SerializeField, ReadOnly]
             private Color interactModulate = Color.white;
 
+            [Header("Colors")]
+            [SerializeField]
+            private Color hoverColor = HOVER_COLOR;
+
+            [SerializeField]
+            private Color pressColor = PRESS_COLOR;
+
+            [SerializeField]
+            private Color notSelectableColor = NOT_SELECTABLE_COLOR;
+
+            private Tween colorTween;
             private bool baseColorInitialized;
             private bool modulateInitialized;
 
@@ -160,6 +173,23 @@ namespace Shears.UI
                     UpdateGraphicColor();
                 }
             }
+            public Color HoverColor
+            {
+                get => hoverColor;
+                set => hoverColor = value;
+            }
+            public Color PressColor
+            {
+                get => pressColor;
+                set => pressColor = value;
+            }
+            public Color NotSelectableColor
+            {
+                get => notSelectableColor;
+                set => notSelectableColor = value;
+            }
+            public InteractColor TargetColor { get; private set; }
+            public bool IsMovingTowardsColor => colorTween.IsPlaying;
 
             public ButtonGraphic()
             {
@@ -174,6 +204,54 @@ namespace Shears.UI
             public ButtonGraphic(Renderer renderer)
             {
                 this.renderer = renderer;
+            }
+
+            ~ButtonGraphic()
+            {
+                colorTween.Dispose();
+            }
+
+            public void Reset()
+            {
+                baseColorInitialized = false;
+                modulateInitialized = false;
+            }
+
+            public bool IsInteractColor(InteractColor color) =>
+                InteractModulate == GetColorForInteract(color);
+
+            public void MoveTowardsColor(InteractColor color)
+            {
+                colorTween.Dispose();
+
+                TargetColor = color;
+                var startColor = InteractModulate;
+                var realColor = GetColorForInteract(color);
+                UnityEngine.Object lifetime = image != null ? image : renderer;
+
+                colorTween = TweenManager
+                    .CreateTween(
+                        t =>
+                        {
+                            InteractModulate = Color.LerpUnclamped(startColor, realColor, t);
+                        },
+                        COLOR_TWEEN
+                    )
+                    .WithLifetime(lifetime);
+
+                colorTween.Play();
+            }
+
+            private Color GetColorForInteract(InteractColor color)
+            {
+                return color switch
+                {
+                    InteractColor.None => Color.white,
+                    InteractColor.Hover => hoverColor,
+                    InteractColor.Press => pressColor,
+                    InteractColor.NotSelectable => notSelectableColor,
+                    _ => Color.clear,
+                };
             }
 
             private void UpdateGraphicColor()
@@ -198,12 +276,35 @@ namespace Shears.UI
             base.Awake();
 
             if (!selectable)
-                graphic.InteractModulate = notSelectableColor.With(a: Modulate.a);
+            {
+                foreach (var graphic in graphics)
+                    graphic.InteractModulate = graphic.NotSelectableColor.With(
+                        a: graphic.Modulate.a
+                    );
+            }
         }
 
         private void Update()
         {
             UpdateTargetColor();
+        }
+
+        private void OnValidate()
+        {
+            foreach (var graphic in graphics)
+            {
+                if (graphic.HoverColor == Color.clear)
+                {
+                    graphic.BaseColor = Color.white;
+                    graphic.Modulate = Color.white;
+                    graphic.InteractModulate = Color.white;
+                    graphic.HoverColor = HOVER_COLOR;
+                    graphic.PressColor = PRESS_COLOR;
+                    graphic.NotSelectableColor = NOT_SELECTABLE_COLOR;
+
+                    graphic.Reset();
+                }
+            }
         }
 
         [ContextMenu("Click")]
@@ -223,14 +324,14 @@ namespace Shears.UI
             RegisterEvent<DragEndEvent>(OnDragEnd);
         }
 
-        public void SetGraphic(UIImage image)
+        public void AddGraphic(UIImage image)
         {
-            graphic = new(image);
+            graphics.Add(new(image));
         }
 
-        public void SetGraphic(Renderer renderer)
+        public void AddGraphic(Renderer renderer)
         {
-            graphic = new(renderer);
+            graphics.Add(new(renderer));
         }
 
         private void OnHoverEnter(HoverEnterEvent evt)
@@ -304,37 +405,49 @@ namespace Shears.UI
 
         private void UpdateTargetColor()
         {
-            Color newColor;
+            InteractColor newColor;
 
             if (!selectable)
-                newColor = notSelectableColor;
+                newColor = InteractColor.NotSelectable;
             else
             {
                 if (isDragged)
-                    newColor = IsHovered ? pressColor : hoverColor;
+                    newColor = IsHovered ? InteractColor.Press : InteractColor.Hover;
                 else if (isPressed)
-                    newColor = pressColor;
+                    newColor = InteractColor.Press;
                 else if (IsHovered)
-                    newColor = hoverColor;
+                    newColor = InteractColor.Hover;
                 else if (IsFocused)
-                    newColor = hoverColor;
+                    newColor = InteractColor.Hover;
                 else
-                    newColor = Color.white;
+                    newColor = InteractColor.None;
             }
 
-            // If we are already this color, do nothing
-            if (graphic.InteractModulate.CompareRGB(newColor))
-                return;
-            else if (targetColor != newColor || colorTimer.IsDone) // If this is a new color, or we aren't moving towards it, start moving toward it
+            foreach (var graphic in graphics)
             {
-                colorTimer.Restart();
-                targetColor = newColor;
-                startColor = graphic.InteractModulate;
-            }
+                if (graphic.IsInteractColor(newColor))
+                    continue;
+                else if (graphic.TargetColor == newColor && graphic.IsMovingTowardsColor)
+                    continue;
 
-            graphic.InteractModulate = Color
-                .Lerp(startColor, targetColor, colorTimer.Percentage)
-                .With(a: Modulate.a);
+                graphic.MoveTowardsColor(newColor);
+            }
+        }
+
+        private void SetBaseColor(Color value)
+        {
+            baseColor = value;
+
+            foreach (var graphic in graphics)
+                graphic.BaseColor = baseColor;
+        }
+
+        private void SetModulate(Color value)
+        {
+            modulate = value;
+
+            foreach (var graphic in graphics)
+                graphic.Modulate = modulate;
         }
     }
 }

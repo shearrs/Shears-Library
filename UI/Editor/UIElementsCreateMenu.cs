@@ -59,7 +59,7 @@ namespace Shears.UI.Editor
             var image = new GameObject("Image").AddComponent<UIImage>();
             image.transform.SetParent(gameObject.transform);
 
-            button.SetGraphic(image);
+            button.AddGraphic(image);
             image.Sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
             image.RawImage.type = Image.Type.Sliced;
 

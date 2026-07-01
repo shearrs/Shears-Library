@@ -146,6 +146,8 @@ namespace Shears.UI
 
         private void UpdateHoveredElement()
         {
+            Debug.Log("hover: " + hoveredElement);
+
             if (draggedElement != null)
             {
                 if (hoveredElement == draggedElement)

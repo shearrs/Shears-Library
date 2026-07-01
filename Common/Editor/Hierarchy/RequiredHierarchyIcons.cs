@@ -286,6 +286,8 @@ namespace Shears.Editor
                     );
 
                     GUI.Box(rect, tooltip, GUIStyle.none);
+
+                    break;
                 }
             }
         }
@@ -295,7 +297,8 @@ namespace Shears.Editor
             Func<string, SerializedProperty> propertyGetter
         )
         {
-            var fields = targetTypes[type];
+            if (!targetTypes.TryGetValue(type, out var fields))
+                return (false, "");
 
             foreach (var field in fields)
             {
@@ -309,7 +312,33 @@ namespace Shears.Editor
                 }
 
                 if (prop.isArray)
-                    continue;
+                {
+                    var targetSize = field.attribute.TargetCollectionSize;
+
+                    if (targetSize == -1)
+                        continue;
+                    else if (prop.arraySize >= targetSize)
+                    {
+                        var fieldType = prop.GetCollectionElementType();
+
+                        for (int i = 0; i < prop.arraySize; i++)
+                        {
+                            var element = prop.GetArrayElementAtIndex(i);
+
+                            var (shouldShow, path) = ShouldShowError(
+                                fieldType,
+                                (s) => element.FindPropertyRelative(s)
+                            );
+
+                            if (shouldShow)
+                                return (shouldShow, path);
+                        }
+
+                        return (false, "");
+                    }
+                    else
+                        return (true, prop.propertyPath);
+                }
 
                 if (field.attribute.AlternativeValue != null)
                 {
@@ -364,11 +393,30 @@ namespace Shears.Editor
                 return false;
 
             var windowInstance = lastInteractedProperty.GetValue(null);
+
             if (windowInstance == null)
                 return false;
 
-            return getExpandedIDs.Invoke(windowInstance, null) is EntityId[] expandedIDs
-                && expandedIDs.Contains(gameObject.GetInstanceID());
+            if (getExpandedIDs.Invoke(windowInstance, null) is not EntityId[] expandedIDs)
+                return false;
+
+            if (!expandedIDs.Contains(gameObject.GetEntityId()))
+                return false;
+
+            var transform = gameObject.transform;
+
+            while (transform.parent != null)
+            {
+                var parent = transform.parent;
+                int parentID = parent.gameObject.GetEntityId();
+
+                if (!expandedIDs.Contains(parentID))
+                    return false;
+
+                transform = parent;
+            }
+
+            return true;
         }
     }
 }

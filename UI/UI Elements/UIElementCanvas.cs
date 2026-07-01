@@ -72,18 +72,20 @@ namespace Shears.UI
 
         private int UpdateSortingOrderRecursive(Transform transform, int weight = 0)
         {
+            int start = weight;
+
             for (int i = 0; i < transform.childCount; i++)
             {
-                weight += i;
                 var child = transform.GetChild(i);
 
                 if (child.TryGetComponent(out UIElement element))
                     childrenSortingOrder.Add(element, weight);
+                weight++;
 
-                weight += UpdateSortingOrderRecursive(child);
+                weight += UpdateSortingOrderRecursive(child, weight);
             }
 
-            return weight;
+            return weight - start;
         }
     }
 }
