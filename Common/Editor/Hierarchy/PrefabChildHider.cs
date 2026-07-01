@@ -1,4 +1,4 @@
-using System.IO;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -9,6 +9,8 @@ namespace Shears.Editor
     [InitializeOnLoad]
     public class PrefabChildHider
     {
+        private static readonly Dictionary<GameObject, List<GameObject>> hiddenChildren = new();
+
         static PrefabChildHider()
         {
             EditorApplication.hierarchyWindowItemOnGUI += HideChildren;
@@ -42,6 +44,27 @@ namespace Shears.Editor
 
         private static void HideChildren(int entityID, Rect selectionRect)
         {
+            if (!ShearsSettings.instance.HidePrefabChildren)
+            {
+                if (hiddenChildren.Count == 0)
+                    return;
+
+                foreach (var key in hiddenChildren.Keys)
+                {
+                    var list = hiddenChildren[key];
+
+                    foreach (var child in list)
+                    {
+                        if (child != null)
+                            child.hideFlags = HideFlags.None;
+                    }
+                }
+
+                hiddenChildren.Clear();
+
+                return;
+            }
+
             var gameObject = EditorUtility.EntityIdToObject(entityID) as GameObject;
 
             if (gameObject == null)
@@ -49,18 +72,15 @@ namespace Shears.Editor
 
             if (!PrefabUtility.IsPartOfPrefabInstance(gameObject))
             {
-                if (
-                    gameObject.transform.childCount > 0
-                    && gameObject.transform.GetChild(0).hideFlags == HideFlags.None
-                )
-                    return;
-
-                for (int i = 0; i < gameObject.transform.childCount; i++)
+                if (hiddenChildren.TryGetValue(gameObject, out var list))
                 {
-                    var child = gameObject.transform.GetChild(i).gameObject;
+                    foreach (var child in list)
+                    {
+                        if (child != null)
+                            child.hideFlags = HideFlags.None;
+                    }
 
-                    if (child != null)
-                        child.hideFlags = HideFlags.None;
+                    list.Clear();
                 }
 
                 return;
@@ -68,12 +88,22 @@ namespace Shears.Editor
 
             if (PrefabUtility.GetOutermostPrefabInstanceRoot(gameObject) == gameObject)
             {
+                if (!hiddenChildren.TryGetValue(gameObject, out var list))
+                {
+                    list = new List<GameObject>();
+                    hiddenChildren.Add(gameObject, list);
+                }
+
+                list.Clear();
+
                 for (int i = 0; i < gameObject.transform.childCount; i++)
                 {
                     var child = gameObject.transform.GetChild(i).gameObject;
 
                     if (child != null)
                         child.hideFlags = HideFlags.HideInHierarchy;
+
+                    list.Add(child);
                 }
             }
         }
