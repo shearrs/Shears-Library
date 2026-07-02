@@ -1,4 +1,5 @@
 using Shears.Editor;
+using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -15,7 +16,7 @@ namespace Shears.UI.Editor
         )]
         private static void MenuCreateUIElement()
         {
-            var gameObject = new GameObject("UI Element");
+            var gameObject = CreateGameObject("UI Element");
             gameObject.AddComponent<UIElement>();
 
             var parent = GetOrCreateParent();
@@ -34,7 +35,7 @@ namespace Shears.UI.Editor
         )]
         private static void MenuCreateManagedImage()
         {
-            var gameObject = new GameObject("Image");
+            var gameObject = CreateGameObject("Image");
             gameObject.AddComponent<UIImage>();
 
             var parent = GetOrCreateParent();
@@ -53,10 +54,10 @@ namespace Shears.UI.Editor
         )]
         private static void MenuCreateButton()
         {
-            var gameObject = new GameObject("Button");
+            var gameObject = CreateGameObject("Button");
             var button = gameObject.AddComponent<UIButton>();
 
-            var image = new GameObject("Image").AddComponent<UIImage>();
+            var image = CreateGameObject("Image").AddComponent<UIImage>();
             image.transform.SetParent(gameObject.transform);
 
             button.AddGraphic(image);
@@ -91,7 +92,7 @@ namespace Shears.UI.Editor
         )]
         private static void MenuCreateTextMesh()
         {
-            var gameObject = new GameObject("Text");
+            var gameObject = CreateGameObject("Text");
             var text = gameObject.AddComponent<UIText>();
 
             text.Text = "Text";
@@ -104,7 +105,6 @@ namespace Shears.UI.Editor
             }
 
             gameObject.transform.SetParent(parent.transform);
-
             gameObject.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             gameObject.transform.localScale = Vector3.one;
 
@@ -118,7 +118,7 @@ namespace Shears.UI.Editor
         )]
         private static void MenuCreateTextMeshUGUI()
         {
-            var gameObject = new GameObject("Text");
+            var gameObject = CreateGameObject("Text");
             var text = gameObject.AddComponent<UITextGUI>();
 
             text.Text = "Text";
@@ -131,7 +131,6 @@ namespace Shears.UI.Editor
             }
 
             gameObject.transform.SetParent(parent.transform);
-
             gameObject.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             gameObject.transform.localScale = Vector3.one;
 
@@ -162,6 +161,49 @@ namespace Shears.UI.Editor
             Selection.activeGameObject = eventSystem.gameObject;
         }
 
+        [MenuItem(
+            CreateMenuUtility.LIBRARY_PATH + "/UI Elements/Convert to UI Hierarchy",
+            priority = CreateMenuUtility.LIBRARY_PRIORITY,
+            secondaryPriority = 110
+        )]
+        private static void MenuConvertToUIHierarchy()
+        {
+            var selection = Selection.activeGameObject;
+
+            if (selection == null)
+                return;
+
+            ConvertToUIHierarchyRecursive(selection.transform);
+        }
+
+        private static void ConvertToUIHierarchyRecursive(Transform transform)
+        {
+            ConvertToUIElement(transform.gameObject);
+
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                var child = transform.GetChild(i);
+
+                ConvertToUIHierarchyRecursive(child);
+            }
+        }
+
+        private static void ConvertToUIElement(GameObject gameObject)
+        {
+            if (gameObject.TryGetComponent(out UIElement _))
+                return;
+            else if (gameObject.TryGetComponent(out SpriteRenderer _))
+                gameObject.AddComponent<UISprite>();
+            else if (gameObject.TryGetComponent(out Image _))
+                gameObject.AddComponent<UIImage>();
+            else if (gameObject.TryGetComponent(out TextMeshPro _))
+                gameObject.AddComponent<UIText>();
+            else if (gameObject.TryGetComponent(out TextMeshProUGUI _))
+                gameObject.AddComponent<UITextGUI>();
+            else
+                gameObject.AddComponent<UIElement>();
+        }
+
         private static void CreateEventSystemIfNecessary(UIElementEventSystem.DetectionTypes type)
         {
             var eventSystems = Object.FindObjectsByType<UIElementEventSystem>(
@@ -183,6 +225,14 @@ namespace Shears.UI.Editor
                 CreateEventSystem();
         }
 
+        private static GameObject CreateGameObject(string name)
+        {
+            var gameObject = new GameObject(name);
+            Undo.RegisterCreatedObjectUndo(gameObject, "Create " + name);
+
+            return gameObject;
+        }
+
         private static GameObject GetOrCreateParent()
         {
             var stage = PrefabStageUtility.GetCurrentPrefabStage();
@@ -199,6 +249,7 @@ namespace Shears.UI.Editor
             if (selection != null)
             {
                 var canvas = selection.GetComponentInParent<UIElementCanvas>(true);
+                Undo.RegisterCreatedObjectUndo(canvas, "Create UI Element Canvas");
 
                 if (canvas != null)
                     return selection;
@@ -209,7 +260,7 @@ namespace Shears.UI.Editor
 
         private static UIElementEventSystem CreateEventSystem()
         {
-            var gameObject = new GameObject("UI Element Event System");
+            var gameObject = CreateGameObject("UI Element Event System");
             var eventSystem = gameObject.AddComponent<UIElementEventSystem>();
 
             return eventSystem;
@@ -217,10 +268,8 @@ namespace Shears.UI.Editor
 
         private static UIElementCanvas CreateUICanvas()
         {
-            var gameObject = new GameObject("UI Element Canvas")
-            {
-                layer = LayerMask.NameToLayer("UI"),
-            };
+            var gameObject = CreateGameObject("UI Element Canvas");
+            gameObject.layer = LayerMask.NameToLayer("UI");
 
             var canvas = gameObject.AddComponent<Canvas>();
             var scaler = gameObject.AddComponent<CanvasScaler>();

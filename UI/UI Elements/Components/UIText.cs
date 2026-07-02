@@ -6,9 +6,13 @@ namespace Shears.UI
     [RequireComponent(typeof(TextMeshPro))]
     public class UIText : UIElement
     {
+        [SerializeField]
+        private Color baseColor = Color.white;
+
+        [SerializeField]
+        private Color modulate = Color.white;
+
         private TextMeshPro textMesh;
-        private Color baseColor;
-        private Color modulate;
 
         public TextMeshPro TextMesh
         {

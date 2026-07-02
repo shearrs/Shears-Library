@@ -70,7 +70,10 @@ namespace Shears.Editor
             if (gameObject == null)
                 return;
 
-            if (!PrefabUtility.IsPartOfPrefabInstance(gameObject))
+            if (
+                !PrefabUtility.IsPartOfPrefabInstance(gameObject)
+                || PrefabUtility.IsPartOfModelPrefab(gameObject)
+            )
             {
                 if (hiddenChildren.TryGetValue(gameObject, out var list))
                 {
