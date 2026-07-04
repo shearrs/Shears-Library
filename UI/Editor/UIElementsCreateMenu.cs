@@ -202,6 +202,8 @@ namespace Shears.UI.Editor
                 gameObject.AddComponent<UITextGUI>();
             else
                 gameObject.AddComponent<UIElement>();
+
+            EditorUtility.SetDirty(gameObject);
         }
 
         private static void CreateEventSystemIfNecessary(UIElementEventSystem.DetectionTypes type)

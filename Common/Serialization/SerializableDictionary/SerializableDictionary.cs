@@ -13,7 +13,7 @@ namespace Shears
     [Serializable]
     public struct SerializableDictionaryEntry<TKey, TValue>
     {
-        [SerializeField, Delayed]
+        [SerializeField]
         private TKey key;
 
         [SerializeField]

@@ -14,7 +14,7 @@ namespace Shears.UI
         );
 
         [Header("Components")]
-        [SerializeField]
+        [SerializeField, Required]
         private UIImage image;
 
         [SerializeField, RuntimeReadOnly]
@@ -38,7 +38,7 @@ namespace Shears.UI
 
         [Header("Elements")]
         [SerializeField]
-        private SerializableDictionary<string, TextMeshProUGUI> textElements = new();
+        private SerializableDictionary<string, UITextGUI> textElements = new();
 
         private readonly Timer appearTimer = new();
         private UIElement parent;
@@ -104,10 +104,10 @@ namespace Shears.UI
 
         public void SetText(string key, string text)
         {
-            if (!TryGetElement(key, out TextMeshProUGUI textElement))
+            if (!TryGetElement(key, out UITextGUI textElement))
                 return;
 
-            textElement.text = text;
+            textElement.Text = text;
         }
 
         public bool TryGetElement<T>(string key, out T element)
@@ -115,7 +115,7 @@ namespace Shears.UI
         {
             element = null;
 
-            if (typeof(T) == typeof(TextMeshProUGUI))
+            if (typeof(T) == typeof(UITextGUI))
             {
                 if (textElements.TryGetValue(key, out var value))
                 {

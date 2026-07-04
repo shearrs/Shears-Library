@@ -1,3 +1,4 @@
+using Shears.Tweens;
 using TMPro;
 using UnityEngine;
 
@@ -61,6 +62,28 @@ namespace Shears.UI
 
             if (text.color != modulate * baseColor)
                 text.color = modulate * baseColor;
+        }
+
+        public Tween DoCounterTween(
+            int targetNumber,
+            int startNumber = 0,
+            string prefix = "",
+            string suffix = "",
+            ITweenData data = null
+        )
+        {
+            return textMesh.DoCounterTween(targetNumber, startNumber, prefix, suffix, data);
+        }
+
+        public Tween GetCounterTween(
+            int targetNumber,
+            int startNumber = 0,
+            string prefix = "",
+            string suffix = "",
+            ITweenData data = null
+        )
+        {
+            return textMesh.GetCounterTween(targetNumber, startNumber, prefix, suffix, data);
         }
     }
 }

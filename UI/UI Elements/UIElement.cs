@@ -9,19 +9,29 @@ namespace Shears.UI
     [DisallowMultipleComponent]
     public class UIElement : SHMonoBehaviourLogger, IColorTweenable
     {
+        private delegate int GetSortOrderCallback();
+        private delegate void GetChildrenCallback(List<UIElement> children);
+
         #region Variables
         private readonly Dictionary<Type, object> registrations = new();
         private readonly Dictionary<IRef, object> refBindings = new();
         private readonly Dictionary<IRef, object> rawRefBindings = new();
-        private readonly List<UIElement> childElements = new();
+        private readonly List<UIElement> tempElements = new();
         private readonly TweenStorage tweenStorage = new();
-        private UIElementCanvas canvas;
-        private UIElement uiParent;
+
+        [NonSerialized]
+        private List<UIElement> flattenedHierarchy;
+
+        [NonSerialized]
+        private List<GameObject> rootObjects;
+
+        private Dictionary<UIElement, int> hierarchyIndex;
         private float dragBeginTime = 0.1f;
 
+        private UIElement Parent { get; set; }
+        private GetChildrenCallback GetChildren { get; set; }
+        private GetSortOrderCallback GetSortOrder { get; set; }
         protected IReadOnlyList<Tween> Tweens => tweenStorage.Tweens;
-        public UIElementCanvas Canvas => canvas;
-        public UIElement Parent => uiParent;
         public bool IsEnabled => isActiveAndEnabled;
         public bool IsFocused { get; internal set; }
         public float DragBeginTime
@@ -29,15 +39,10 @@ namespace Shears.UI
             get => dragBeginTime;
             set => dragBeginTime = value;
         }
+        public int RootSortOrder { get; private set; }
         public int SortOrder
         {
-            get
-            {
-                if (Canvas == null)
-                    return -1;
-
-                return Canvas.GetSortOrder(this);
-            }
+            get { return GetSortOrder(); }
         }
         public float Alpha
         {
@@ -48,15 +53,16 @@ namespace Shears.UI
         public virtual Color Modulate { get; set; }
 
         public event Action Disabled;
+        private event Action Destroyed;
+        private event Action ParentChanged;
         #endregion
 
         #region Unity Methods
         protected virtual void Awake()
         {
-            canvas = GetComponentInParent<UIElementCanvas>();
+            if (transform.parent == null || !transform.parent.TryGetComponent(out UIElement _))
+                UpdateHierarchy();
 
-            UpdateParent();
-            UpdateChildList();
             RegisterEvents();
             BindRefs();
         }
@@ -70,6 +76,8 @@ namespace Shears.UI
 
         protected virtual void OnDestroy()
         {
+            Destroyed?.Invoke();
+
             Unbind();
         }
 
@@ -83,12 +91,12 @@ namespace Shears.UI
 
         private void OnTransformParentChanged()
         {
-            UpdateParent();
-        }
+            if (transform.parent == null || !transform.TryGetComponent(out UIElement _))
+                UpdateHierarchy();
+            else if (flattenedHierarchy != null && flattenedHierarchy.Count > 0)
+                flattenedHierarchy.Clear();
 
-        private void OnTransformChildrenChanged()
-        {
-            UpdateChildList();
+            ParentChanged?.Invoke();
         }
         #endregion
 
@@ -156,8 +164,9 @@ namespace Shears.UI
             if (!evt.IsBubblingUp && evt.TrickleDown)
             {
                 evt.IsTricklingDown = true;
+                GetChildren(tempElements);
 
-                foreach (var child in childElements)
+                foreach (var child in tempElements)
                 {
                     if (child == this)
                         continue;
@@ -172,15 +181,10 @@ namespace Shears.UI
             {
                 evt.IsBubblingUp = true;
 
-                var parent = transform.parent;
-
-                if (parent == null)
+                if (Parent == null)
                     return;
 
-                var parentElement = parent.GetComponentInParent<UIElement>();
-
-                if (parentElement != null)
-                    parentElement.InvokeEvent(evt);
+                Parent.InvokeEvent(evt);
 
                 evt.IsBubblingUp = false;
             }
@@ -214,8 +218,6 @@ namespace Shears.UI
         #endregion
 
         #region Children
-        internal bool IsChildOfCanvas() => canvas != null;
-
         internal UIElement GetDeepestChild()
         {
             GetDeepestChildRecursive(0, out var child);
@@ -247,20 +249,128 @@ namespace Shears.UI
             return deepestDepth;
         }
 
-        private void UpdateParent()
+        private void UpdateHierarchy()
         {
-            canvas = GetComponentInParent<UIElementCanvas>();
+            if (ApplicationUtil.IsQuitting)
+                return;
 
-            if (transform.parent != null)
-                transform.parent.TryGetComponent(out uiParent);
+            if (flattenedHierarchy != null)
+            {
+                foreach (var element in flattenedHierarchy)
+                {
+                    element.ParentChanged -= UpdateHierarchy;
+                    element.Destroyed -= UpdateHierarchy;
+                }
+
+                flattenedHierarchy.Clear();
+                hierarchyIndex.Clear();
+            }
             else
-                uiParent = null;
+            {
+                flattenedHierarchy = new();
+                hierarchyIndex = new();
+            }
+
+            if (transform.parent == null)
+            {
+                rootObjects ??= new();
+                gameObject.scene.GetRootGameObjects(rootObjects);
+
+                RootSortOrder = rootObjects.IndexOf(gameObject);
+            }
+            else
+            {
+                int depth = 0;
+                var parent = transform.parent;
+
+                while (parent != null)
+                {
+                    depth++;
+                    parent = parent.parent;
+                }
+
+                depth += transform.GetSiblingIndex();
+
+                RootSortOrder = depth;
+            }
+
+            AddHierarchyElement(this);
+            UpdateHierarchy(this);
         }
 
-        private void UpdateChildList()
+        private void UpdateHierarchy(UIElement element)
         {
-            GetComponentsInChildren(childElements);
-            childElements.Remove(this);
+            for (int i = 0; i < element.transform.childCount; i++)
+            {
+                var child = element.transform.GetChild(i);
+
+                if (!child.TryGetComponent(out UIElement childElement))
+                    continue;
+
+                AddHierarchyElement(childElement, element);
+                UpdateHierarchy(childElement);
+            }
+        }
+
+        private void AddHierarchyElement(UIElement element, UIElement parent = null)
+        {
+            flattenedHierarchy.Add(element);
+            hierarchyIndex.Add(element, flattenedHierarchy.Count - 1);
+            element.GetSortOrder = () => GetHierarchySortOrder(element);
+            element.GetChildren = (list) => GetHierarchyChildren(element, list);
+            element.Parent = parent;
+            element.RootSortOrder = RootSortOrder;
+
+            if (element != this)
+            {
+                element.ParentChanged += UpdateHierarchy;
+                element.Destroyed += UpdateHierarchy;
+            }
+        }
+
+        private int GetHierarchySortOrder(UIElement element)
+        {
+            if (hierarchyIndex.TryGetValue(element, out int order))
+                return order;
+            else
+            {
+                Log($"{nameof(UIElement)} {name} failed to fetch sort order.", SHLogLevels.Error);
+                return 0;
+            }
+        }
+
+        private void GetHierarchyChildren(UIElement element, List<UIElement> children)
+        {
+            children.Clear();
+
+            if (!hierarchyIndex.TryGetValue(element, out var index))
+            {
+                Log(
+                    $"{nameof(UIElement)} {name} failed to fetch hierarchy index.",
+                    SHLogLevels.Error
+                );
+                return;
+            }
+
+            if (index == 0)
+            {
+                for (int i = 1; i < flattenedHierarchy.Count; i++)
+                    children.Add(flattenedHierarchy[i]);
+            }
+            else
+            {
+                var parent = element.transform.parent;
+
+                for (int i = index + 1; i < flattenedHierarchy.Count; i++)
+                {
+                    var child = flattenedHierarchy[i];
+
+                    if (child.transform.parent == parent) // We are on a sibling
+                        break;
+
+                    children.Add(child);
+                }
+            }
         }
         #endregion
 

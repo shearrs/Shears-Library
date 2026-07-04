@@ -1,43 +1,32 @@
-using System.Collections.Generic;
-using Shears.Logging;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Shears.UI
 {
     [CustomWrapper(DisplayFields = new string[] { "m_RenderMode", "m_Camera", "m_PlaneDistance" })]
-    [RequireComponent(typeof(GraphicRaycaster))]
-    public class UIElementCanvas : ManagedWrapper<Canvas>
+    [RequireComponent(typeof(GraphicRaycaster), typeof(Canvas))]
+    public class UIElementCanvas : UIElement
     {
-        [SerializeField]
-        private int sortOrder = 0;
-
-        private readonly Dictionary<UIElement, int> childrenSortingOrder = new();
+        private Canvas unityCanvas;
         private GraphicRaycaster raycaster;
 
-        public int SortOrder
+        internal GraphicRaycaster Raycaster => raycaster;
+        public Canvas UnityCanvas
         {
-            get => sortOrder;
-            set => sortOrder = value;
-        }
-        public Canvas UnityCanvas => TypedWrappedValue;
-        public GraphicRaycaster Raycaster => raycaster;
+            get
+            {
+                if (unityCanvas == null)
+                    unityCanvas = GetComponent<Canvas>();
 
-        private void OnValidate()
-        {
-            TypedWrappedValue.sortingOrder = sortOrder;
+                return unityCanvas;
+            }
         }
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
+
             raycaster = GetComponent<GraphicRaycaster>();
-
-            UpdateSortingOrder();
-        }
-
-        private void OnTransformChildrenChanged()
-        {
-            UpdateSortingOrder();
         }
 
         private void OnEnable()
@@ -45,47 +34,11 @@ namespace Shears.UI
             UIElementEventSystem.RegisterCanvas(this);
         }
 
-        private void OnDisable()
+        protected override void OnDisable()
         {
+            base.OnDisable();
+
             UIElementEventSystem.DeregisterCanvas(this);
-        }
-
-        public int GetSortOrder(UIElement element)
-        {
-            if (childrenSortingOrder.TryGetValue(element, out var value))
-                return value;
-
-            SHLogger.Log(
-                $"{nameof(UIElementCanvas)} does not contain child {element}!",
-                SHLogLevels.Error,
-                context: this
-            );
-            return -1;
-        }
-
-        private void UpdateSortingOrder()
-        {
-            childrenSortingOrder.Clear();
-
-            UpdateSortingOrderRecursive(transform, 0);
-        }
-
-        private int UpdateSortingOrderRecursive(Transform transform, int weight = 0)
-        {
-            int start = weight;
-
-            for (int i = 0; i < transform.childCount; i++)
-            {
-                var child = transform.GetChild(i);
-
-                if (child.TryGetComponent(out UIElement element))
-                    childrenSortingOrder.Add(element, weight);
-                weight++;
-
-                weight += UpdateSortingOrderRecursive(child, weight);
-            }
-
-            return weight - start;
         }
     }
 }

@@ -16,12 +16,40 @@ namespace Shears.Editor
             var keyProp = property.FindPropertyRelative("key");
             var valueProp = property.FindPropertyRelative("value");
 
-            var keyField = new PropertyField(keyProp);
+            var keyField = CreateExplicitField(keyProp);
+
             var valueField = new PropertyField(valueProp);
 
             root.AddAll(keyField, valueField);
 
             return root;
+        }
+
+        private VisualElement CreateExplicitField(SerializedProperty prop)
+        {
+            switch (prop.propertyType)
+            {
+                case SerializedPropertyType.Float:
+                    var floatField = new FloatField(prop.displayName) { isDelayed = true };
+                    floatField.BindProperty(prop);
+                    return floatField;
+
+                case SerializedPropertyType.Integer:
+                    var intField = new IntegerField(prop.displayName) { isDelayed = true };
+                    intField.BindProperty(prop);
+                    return intField;
+
+                case SerializedPropertyType.String:
+                    var textField = new TextField(prop.displayName) { isDelayed = true };
+                    textField.BindProperty(prop);
+                    return textField;
+
+                default:
+                    // Fallback for Objects, Vectors, Enums, and everything else
+                    var defaultField = new PropertyField(prop);
+                    defaultField.BindProperty(prop);
+                    return defaultField;
+            }
         }
     }
 }

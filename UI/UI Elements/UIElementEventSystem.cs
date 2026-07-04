@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace Shears.UI
 {
-    [DefaultExecutionOrder(-1000)]
+    [DefaultExecutionOrder(-1000), DisallowMultipleComponent]
     public partial class UIElementEventSystem : PersistentProtectedSingleton<UIElementEventSystem>
     {
         #region Variables
@@ -146,8 +146,6 @@ namespace Shears.UI
 
         private void UpdateHoveredElement()
         {
-            Debug.Log("hover: " + hoveredElement);
-
             if (draggedElement != null)
             {
                 if (hoveredElement == draggedElement)
@@ -162,7 +160,7 @@ namespace Shears.UI
 
             UIElement canvasTarget = null;
             UIElement target3D = null;
-            UIElement newHoverTarget = null;
+            UIElement newHoverTarget;
 
             if ((detectionTypes & DetectionTypes.Canvas) != 0)
                 canvasTarget = RaycastCanvas();
@@ -172,32 +170,22 @@ namespace Shears.UI
                 target3D = FindFirstUIElement(sortedHits);
             }
 
-            hoveredCanvasTarget = false;
-
             if (canvasTarget == null && target3D == null)
                 newHoverTarget = null;
             else if (canvasTarget != null && target3D == null)
-            {
                 newHoverTarget = canvasTarget;
-                hoveredCanvasTarget = true;
-            }
             else if (canvasTarget == null && target3D != null)
                 newHoverTarget = target3D;
             else
             {
-                if (target3D.IsChildOfCanvas())
-                {
-                    if (canvasTarget.Canvas.SortOrder > target3D.Canvas.SortOrder)
-                        newHoverTarget = canvasTarget;
-                    else if (target3D.Canvas.SortOrder > canvasTarget.Canvas.SortOrder)
-                        newHoverTarget = target3D;
-                    else if (canvasTarget.SortOrder > target3D.SortOrder)
-                        newHoverTarget = canvasTarget;
-                    else
-                        newHoverTarget = target3D;
-
-                    hoveredCanvasTarget = true;
-                }
+                if (canvasTarget.RootSortOrder > target3D.RootSortOrder)
+                    newHoverTarget = canvasTarget;
+                else if (canvasTarget.RootSortOrder < target3D.RootSortOrder)
+                    newHoverTarget = target3D;
+                else if (canvasTarget.SortOrder > target3D.SortOrder)
+                    newHoverTarget = canvasTarget;
+                else
+                    newHoverTarget = target3D;
             }
 
             if (newHoverTarget == hoveredElement)

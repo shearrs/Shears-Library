@@ -363,6 +363,8 @@ namespace Shears.UI
 
         private void OnPointerUp(PointerUpEvent evt)
         {
+            evt.PreventTrickleDown();
+
             isPressed = false;
         }
 
