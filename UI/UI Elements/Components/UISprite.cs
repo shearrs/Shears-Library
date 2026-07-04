@@ -36,7 +36,7 @@ namespace Shears.UI
             set
             {
                 baseColor = value;
-                spriteRenderer.color = Modulate * baseColor;
+                SpriteRenderer.color = Modulate * baseColor;
             }
         }
 
@@ -46,7 +46,7 @@ namespace Shears.UI
             set
             {
                 modulate = value;
-                spriteRenderer.color = Modulate * baseColor;
+                SpriteRenderer.color = Modulate * baseColor;
             }
         }
 
@@ -60,7 +60,10 @@ namespace Shears.UI
         {
             var sprite = GetComponent<SpriteRenderer>();
             if (sprite.color != modulate * baseColor)
+            {
+                Debug.Log("change color");
                 sprite.color = modulate * baseColor;
+            }
         }
     }
 }

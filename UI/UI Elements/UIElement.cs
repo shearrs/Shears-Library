@@ -27,11 +27,23 @@ namespace Shears.UI
 
         private Dictionary<UIElement, int> hierarchyIndex;
         private float dragBeginTime = 0.1f;
+        private bool isHierarchyInitialized;
 
         private UIElement Parent { get; set; }
         private GetChildrenCallback GetChildren { get; set; }
         private GetSortOrderCallback GetSortOrder { get; set; }
         protected IReadOnlyList<Tween> Tweens => tweenStorage.Tweens;
+        public IReadOnlyList<UIElement> Children
+        {
+            get
+            {
+                if (!isHierarchyInitialized)
+                    ForceInitializeHierarchy();
+
+                GetChildren(tempElements);
+                return tempElements;
+            }
+        }
         public bool IsEnabled => isActiveAndEnabled;
         public bool IsFocused { get; internal set; }
         public float DragBeginTime
@@ -42,7 +54,13 @@ namespace Shears.UI
         public int RootSortOrder { get; private set; }
         public int SortOrder
         {
-            get { return GetSortOrder(); }
+            get
+            {
+                if (!isHierarchyInitialized)
+                    ForceInitializeHierarchy();
+
+                return GetSortOrder();
+            }
         }
         public float Alpha
         {
@@ -55,12 +73,16 @@ namespace Shears.UI
         public event Action Disabled;
         private event Action Destroyed;
         private event Action ParentChanged;
+        private event Action ChildrenChanged;
         #endregion
 
         #region Unity Methods
         protected virtual void Awake()
         {
-            if (transform.parent == null || !transform.parent.TryGetComponent(out UIElement _))
+            if (
+                !isHierarchyInitialized
+                && (transform.parent == null || !transform.parent.TryGetComponent(out UIElement _))
+            )
                 UpdateHierarchy();
 
             RegisterEvents();
@@ -97,6 +119,11 @@ namespace Shears.UI
                 flattenedHierarchy.Clear();
 
             ParentChanged?.Invoke();
+        }
+
+        private void OnTransformChildrenChanged()
+        {
+            ChildrenChanged?.Invoke();
         }
         #endregion
 
@@ -249,6 +276,26 @@ namespace Shears.UI
             return deepestDepth;
         }
 
+        private void ForceInitializeHierarchy()
+        {
+            if (ApplicationUtil.IsQuitting || isHierarchyInitialized)
+                return;
+
+            var targetTransform = transform;
+            var targetElement = this;
+
+            while (
+                targetTransform.parent != null
+                && targetTransform.parent.TryGetComponent(out UIElement element)
+            )
+            {
+                targetTransform = targetTransform.parent;
+                targetElement = element;
+            }
+
+            targetElement.UpdateHierarchy();
+        }
+
         private void UpdateHierarchy()
         {
             if (ApplicationUtil.IsQuitting)
@@ -259,6 +306,7 @@ namespace Shears.UI
                 foreach (var element in flattenedHierarchy)
                 {
                     element.ParentChanged -= UpdateHierarchy;
+                    element.ChildrenChanged -= UpdateHierarchy;
                     element.Destroyed -= UpdateHierarchy;
                 }
 
@@ -320,10 +368,12 @@ namespace Shears.UI
             element.GetChildren = (list) => GetHierarchyChildren(element, list);
             element.Parent = parent;
             element.RootSortOrder = RootSortOrder;
+            element.isHierarchyInitialized = true;
 
             if (element != this)
             {
                 element.ParentChanged += UpdateHierarchy;
+                element.ChildrenChanged += UpdateHierarchy;
                 element.Destroyed += UpdateHierarchy;
             }
         }

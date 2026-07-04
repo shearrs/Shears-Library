@@ -340,10 +340,20 @@ namespace Shears.Editor
                         return (true, prop.propertyPath);
                 }
 
-                if (field.attribute.AlternativeValue != null)
+                var altValues = field.attribute.AlternativeValues;
+
+                if (altValues != null && altValues.Length > 0)
                 {
-                    var altProp = propertyGetter(field.attribute.AlternativeValue);
-                    hasAlternativeValue = altProp.boxedValue != null;
+                    foreach (var altValue in altValues)
+                    {
+                        var altProp = propertyGetter(altValue);
+
+                        if (altProp != null && altProp.boxedValue != null)
+                        {
+                            hasAlternativeValue = true;
+                            break;
+                        }
+                    }
                 }
 
                 if (prop.propertyType == SerializedPropertyType.Generic)

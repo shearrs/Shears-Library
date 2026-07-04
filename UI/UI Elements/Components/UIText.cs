@@ -31,7 +31,7 @@ namespace Shears.UI
             set
             {
                 baseColor = value;
-                textMesh.color = Modulate * baseColor;
+                TextMesh.color = Modulate * baseColor;
             }
         }
 
@@ -41,14 +41,14 @@ namespace Shears.UI
             set
             {
                 modulate = value;
-                textMesh.color = Modulate * baseColor;
+                TextMesh.color = Modulate * baseColor;
             }
         }
 
         public string Text
         {
-            get => textMesh.text;
-            set => textMesh.text = value;
+            get => TextMesh.text;
+            set => TextMesh.text = value;
         }
 
         private void Reset()

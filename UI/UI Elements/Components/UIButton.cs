@@ -64,13 +64,59 @@ namespace Shears.UI
         {
             [
                 SerializeField,
-                Required(nameof(renderer)),
-                ShowIf(nameof(renderer), compareValue: null)
+                Required(nameof(renderer), nameof(text), nameof(textGUI)),
+                ShowIf(
+                    nameof(renderer),
+                    compareValue1: null,
+                    nameof(text),
+                    null,
+                    nameof(textGUI),
+                    null
+                )
             ]
             private UIImage image;
 
-            [SerializeField, Required(nameof(image)), ShowIf(nameof(image), compareValue: null)]
+            [
+                SerializeField,
+                Required(nameof(image), nameof(text), nameof(textGUI)),
+                ShowIf(
+                    nameof(image),
+                    compareValue1: null,
+                    nameof(text),
+                    null,
+                    nameof(textGUI),
+                    null
+                )
+            ]
             private Renderer renderer;
+
+            [
+                SerializeField,
+                Required(nameof(image), nameof(renderer), nameof(textGUI)),
+                ShowIf(
+                    nameof(image),
+                    compareValue1: null,
+                    nameof(renderer),
+                    null,
+                    nameof(textGUI),
+                    null
+                )
+            ]
+            private UIText text;
+
+            [
+                SerializeField,
+                Required(nameof(image), nameof(renderer), nameof(text)),
+                ShowIf(
+                    nameof(image),
+                    compareValue1: null,
+                    nameof(renderer),
+                    null,
+                    nameof(text),
+                    null
+                )
+            ]
+            private UITextGUI textGUI;
 
             [Header("State Colors")]
             [SerializeField, ReadOnly]
@@ -104,35 +150,14 @@ namespace Shears.UI
                         return baseColor;
 
                     if (!baseColorInitialized)
-                    {
-                        baseColorInitialized = true;
-
-                        if (image != null)
-                            baseColor = image.BaseColor;
-                        else if (renderer != null)
-                        {
-                            if (renderer is SpriteRenderer sprite)
-                                baseColor = sprite.color;
-                            else
-                                baseColor = renderer.material.color;
-                        }
-                    }
+                        InitializeBaseColor();
 
                     return baseColor;
                 }
                 set
                 {
+                    baseColorInitialized = true;
                     baseColor = value;
-
-                    if (!modulateInitialized)
-                    {
-                        modulateInitialized = true;
-
-                        if (image != null)
-                            modulate = image.Modulate;
-                        else
-                            modulate = Color.white;
-                    }
 
                     UpdateGraphicColor();
                 }
@@ -145,19 +170,13 @@ namespace Shears.UI
                         return modulate;
 
                     if (!modulateInitialized)
-                    {
-                        modulateInitialized = true;
-
-                        if (image != null)
-                            modulate = image.Modulate;
-                        else
-                            modulate = Color.white;
-                    }
+                        InitializeModulate();
 
                     return modulate;
                 }
                 set
                 {
+                    modulateInitialized = true;
                     modulate = value;
 
                     UpdateGraphicColor();
@@ -256,6 +275,12 @@ namespace Shears.UI
 
             private void UpdateGraphicColor()
             {
+                if (!baseColorInitialized)
+                    InitializeBaseColor();
+
+                if (!modulateInitialized)
+                    InitializeModulate();
+
                 if (image != null)
                 {
                     image.BaseColor = BaseColor;
@@ -268,6 +293,49 @@ namespace Shears.UI
                     else
                         renderer.material.color = InteractModulate * Modulate * BaseColor;
                 }
+                else if (text != null)
+                {
+                    text.BaseColor = BaseColor;
+                    text.Modulate = InteractModulate * Modulate;
+                }
+                else if (textGUI != null)
+                {
+                    textGUI.BaseColor = BaseColor;
+                    textGUI.Modulate = InteractModulate * Modulate;
+                }
+            }
+
+            private void InitializeBaseColor()
+            {
+                baseColorInitialized = true;
+
+                if (image != null)
+                    baseColor = image.BaseColor;
+                else if (renderer != null)
+                {
+                    if (renderer is SpriteRenderer sprite)
+                        baseColor = sprite.color;
+                    else
+                        baseColor = renderer.material.color;
+                }
+                else if (text != null)
+                    baseColor = text.BaseColor;
+                else if (textGUI != null)
+                    baseColor = textGUI.BaseColor;
+            }
+
+            private void InitializeModulate()
+            {
+                modulateInitialized = true;
+
+                if (image != null)
+                    modulate = image.Modulate;
+                else if (renderer != null)
+                    modulate = Color.white;
+                else if (text != null)
+                    modulate = text.Modulate;
+                else if (textGUI != null)
+                    modulate = textGUI.Modulate;
             }
         }
 

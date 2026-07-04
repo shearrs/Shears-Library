@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -25,36 +26,42 @@ namespace Shears.Editor
             )
                 return root;
 
-            SerializedProperty altProp = null;
-            if (reqAttribute.AlternativeValue != null)
+            var altProps = new List<SerializedProperty>();
+            if (reqAttribute.AlternativeValues.Length > 0)
             {
                 var parentProp = property.FindParentProperty();
 
                 if (parentProp != null)
-                    altProp = parentProp.FindPropertyRelative(reqAttribute.AlternativeValue);
+                {
+                    foreach (var alt in reqAttribute.AlternativeValues)
+                        altProps.Add(parentProp.FindPropertyRelative(alt));
+                }
                 else
                 {
                     var parentSO = property.serializedObject;
-                    altProp = parentSO.FindProperty(reqAttribute.AlternativeValue);
+                    foreach (var alt in reqAttribute.AlternativeValues)
+                        altProps.Add(parentSO.FindProperty(alt));
                 }
             }
 
             void initializeField(GeometryChangedEvent evt)
             {
                 propertyField.UnregisterCallback<GeometryChangedEvent>(initializeField);
-                OnPropertyValueChanged(property, propertyField, altProp, targetSize);
+                OnPropertyValueChanged(property, propertyField, altProps, targetSize);
             }
 
             propertyField.RegisterCallback<GeometryChangedEvent>(initializeField);
             propertyField.RegisterValueChangeCallback(
-                (evt) => OnPropertyValueChanged(property, propertyField, altProp, targetSize)
+                (evt) => OnPropertyValueChanged(property, propertyField, altProps, targetSize)
             );
 
-            if (altProp != null)
+            foreach (var altProp in altProps)
+            {
                 propertyField.TrackPropertyValue(
                     altProp,
-                    (evt) => OnPropertyValueChanged(property, propertyField, altProp, targetSize)
+                    (evt) => OnPropertyValueChanged(property, propertyField, altProps, targetSize)
                 );
+            }
 
             return root;
         }
@@ -62,12 +69,21 @@ namespace Shears.Editor
         private void OnPropertyValueChanged(
             SerializedProperty property,
             VisualElement field,
-            SerializedProperty altProp,
+            IReadOnlyList<SerializedProperty> altProps,
             int targetSize
         )
         {
             var labels = field.Query<Label>().ToList();
-            bool hasAltProp = altProp != null && altProp.boxedValue != null;
+            bool hasValidAltProp = false;
+
+            foreach (var altProp in altProps)
+            {
+                if (altProp != null && altProp.boxedValue != null)
+                {
+                    hasValidAltProp = true;
+                    break;
+                }
+            }
 
             if (property.isArray)
             {
@@ -88,7 +104,7 @@ namespace Shears.Editor
 
                     continue;
                 }
-                else if (property.boxedValue == null && (!hasAltProp || altProp.boxedValue == null))
+                else if (property.boxedValue == null && !hasValidAltProp)
                     label.style.color = RED;
                 else
                     label.style.color = StyleKeyword.Null;

@@ -57,5 +57,19 @@ namespace Shears
             conditions.Add(new(conditionName1, compareValue1));
             conditions.Add(new(conditionName2, compareValue2));
         }
+
+        public ShowIfAttribute(
+            string conditionName1,
+            object compareValue1,
+            string conditionName2,
+            object compareValue2,
+            string conditionName3,
+            object compareValue3
+        )
+        {
+            conditions.Add(new(conditionName1, compareValue1));
+            conditions.Add(new(conditionName2, compareValue2));
+            conditions.Add(new(conditionName3, compareValue3));
+        }
     }
 }
