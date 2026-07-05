@@ -7,10 +7,13 @@ namespace Shears.UI
 {
     public class DraggableElement : UIManipulator
     {
-        private readonly int dragSortOrder = 100;
         private readonly List<SpriteRenderer> renderers = new();
+        private readonly int dragSortOrder = 100;
         private readonly int[] originalSortOrders;
+        private readonly Ref<bool> isDragged = new();
         private Vector3 offset;
+
+        public IReadOnlyRef<bool> IsDragged => isDragged;
 
         public event Action DragBegan;
         public event Action DragEnded;
@@ -43,7 +46,7 @@ namespace Shears.UI
         {
             evt.PreventDefault();
 
-            UIElementEventSystem.OverrideDraggedElement(Element);
+            UIElementEventSystem.SetDraggedElement(Element);
             offset = evt.PointerWorldOffset;
 
             if (renderers != null)
@@ -54,6 +57,8 @@ namespace Shears.UI
                     renderers[i].sortingOrder = originalSortOrders[i] + dragSortOrder + i;
                 }
             }
+
+            isDragged.Value = true;
 
             DragBegan?.Invoke();
         }
@@ -82,6 +87,8 @@ namespace Shears.UI
                 for (int i = 0; i < renderers.Count; i++)
                     renderers[i].sortingOrder = originalSortOrders[i];
             }
+
+            isDragged.Value = false;
 
             DragEnded?.Invoke();
         }

@@ -124,7 +124,7 @@ namespace Shears.UI
             }
         }
 
-        public static void OverrideDraggedElement(UIElement overrideElement)
+        public static void SetDraggedElement(UIElement overrideElement)
         {
             draggedElement = overrideElement;
         }
@@ -238,8 +238,8 @@ namespace Shears.UI
 
             if (draggedElement == null)
             {
-                draggedElement = pointerDownElement.GetDeepestChild();
-                draggedElement.InvokeEvent(new DragBeginEvent(camera, pointerPos, offset));
+                var possibleTarget = pointerDownElement.GetDeepestChild();
+                possibleTarget.InvokeEvent(new DragBeginEvent(camera, pointerPos, offset));
                 dragInitialZ = targetElement.transform.position.z;
             }
             else if (pointerDownElement == null)
@@ -269,7 +269,8 @@ namespace Shears.UI
                 return;
             }
 
-            draggedElement.InvokeEvent(new DragEvent(camera, pointerPos, planePosition));
+            if (draggedElement != null)
+                draggedElement.InvokeEvent(new DragEvent(camera, pointerPos, planePosition));
         }
 
         #region Raycasts

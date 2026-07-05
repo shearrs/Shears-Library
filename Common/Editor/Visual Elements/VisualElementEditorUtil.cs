@@ -211,9 +211,16 @@ namespace Shears.Editor
             if (!isNext)
                 return container;
 
+            int pathIndex = iterator.Copy().propertyPath.Count(c => c == '.');
+
             do
             {
                 var prop = iterator.Copy();
+                int currentPathIndex = prop.propertyPath.Count(c => c == '.');
+
+                if (currentPathIndex != pathIndex)
+                    break;
+
                 var field = new PropertyField(prop) { name = prop.name };
                 field.Bind(prop.serializedObject);
 

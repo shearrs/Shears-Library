@@ -10,7 +10,7 @@ namespace Shears.UI
         [SerializeField, Required(targetCollectionSize: 1)]
         private List<InteractableGraphic> graphics = new();
 
-        private IReadOnlyRef<bool> selectable = new Ref<bool>(false);
+        private IReadOnlyRef<bool> selectable = new Ref<bool>(true);
         private IReadOnlyRef<bool> isHovered = new Ref<bool>(false);
         private IReadOnlyRef<bool> isFocused = new Ref<bool>(false);
         private IReadOnlyRef<bool> isDragged = new Ref<bool>(false);
@@ -94,9 +94,9 @@ namespace Shears.UI
             else
             {
                 if (isDragged.Value)
-                    newColor = isHovered.Value ? InteractColor.Press : InteractColor.Hover;
+                    newColor = InteractColor.Hover;
                 else if (isPressed.Value)
-                    newColor = InteractColor.Press;
+                    newColor = isHovered.Value ? InteractColor.Press : InteractColor.None;
                 else if (isHovered.Value)
                     newColor = InteractColor.Hover;
                 else if (isFocused.Value)

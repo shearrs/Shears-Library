@@ -22,7 +22,6 @@ namespace Shears.UI
 
         private readonly Ref<bool> isHovered = new();
         private readonly Ref<bool> isPressed = new();
-        private readonly Ref<bool> isDragged = new();
         private Color baseColor = Color.white;
         private Color modulate = Color.white;
 
@@ -52,7 +51,6 @@ namespace Shears.UI
             graphicHandler.BindIsHovered(isHovered);
             graphicHandler.BindIsPressed(isPressed);
             graphicHandler.BindSelectable(selectable);
-            graphicHandler.BindIsDragged(isDragged);
             graphicHandler.BindIsFocused(IsFocusedRef);
 
             if (!selectable)
@@ -82,8 +80,6 @@ namespace Shears.UI
             RegisterEvent<PointerDownEvent>(OnPointerDown);
             RegisterEvent<PointerUpEvent>(OnPointerUp);
             RegisterEvent<ClickEvent>(OnClicked);
-            RegisterEvent<DragBeginEvent>(OnDragBegin);
-            RegisterEvent<DragEndEvent>(OnDragEnd);
         }
 
         public void AddGraphic(UIImage image)
@@ -93,21 +89,21 @@ namespace Shears.UI
 
         private void OnHoverEnter(HoverEnterEvent evt)
         {
-            evt.PreventBubbleUp();
+            evt.PreventDefault();
 
             isHovered.Value = true;
         }
 
         private void OnHoverExit(HoverExitEvent evt)
         {
-            evt.PreventBubbleUp();
+            evt.PreventDefault();
 
             isHovered.Value = false;
         }
 
         private void OnPointerDown(PointerDownEvent evt)
         {
-            evt.PreventTrickleDown();
+            evt.PreventDefault();
 
             if (!selectable)
                 return;
@@ -120,14 +116,14 @@ namespace Shears.UI
 
         private void OnPointerUp(PointerUpEvent evt)
         {
-            evt.PreventTrickleDown();
+            evt.PreventDefault();
 
             isPressed.Value = false;
         }
 
         private void OnClicked(ClickEvent evt)
         {
-            evt.PreventTrickleDown();
+            evt.PreventDefault();
 
             if (!selectable)
                 return;
@@ -141,25 +137,12 @@ namespace Shears.UI
             clicked.Invoke();
         }
 
-        private void OnDragBegin(DragBeginEvent evt)
-        {
-            isDragged.Value = true;
-        }
-
-        private void OnDragEnd(DragEndEvent evt)
-        {
-            isDragged.Value = false;
-        }
-
         private void SetSelectable(bool value)
         {
             selectable.Value = value;
 
             if (!value)
-            {
                 isPressed.Value = false;
-                isDragged.Value = false;
-            }
         }
 
         private void SetBaseColor(Color value)

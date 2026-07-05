@@ -30,6 +30,7 @@ namespace Shears.UI
         private bool isHierarchyInitialized;
         private float dragBeginTime = 0.1f;
 
+        private int Depth { get; set; }
         private UIElement Parent { get; set; }
         private UIElementCanvas UICanvas { get; set; }
         private GetChildrenCallback GetChildren { get; set; }
@@ -393,6 +394,11 @@ namespace Shears.UI
             element.RootSortOrder = RootSortOrder;
             element.isHierarchyInitialized = true;
 
+            if (element.Parent != null)
+                element.Depth = element.Parent.Depth + 1;
+            else
+                element.Depth = 0;
+
             if (element != this)
             {
                 element.ParentChanged += UpdateHierarchy;
@@ -432,13 +438,11 @@ namespace Shears.UI
             }
             else
             {
-                var parent = element.transform.parent;
-
                 for (int i = index + 1; i < flattenedHierarchy.Count; i++)
                 {
                     var child = flattenedHierarchy[i];
 
-                    if (child.transform.parent == parent) // We are on a sibling
+                    if (child.Depth <= element.Depth) // We are on a sibling or parent
                         break;
 
                     children.Add(child);

@@ -25,35 +25,28 @@ namespace Shears.UI
         [
             SerializeField,
             Required(nameof(renderer), nameof(text), nameof(textGUI)),
-            ShowIf(nameof(renderer), compareValue1: null, nameof(text), null, nameof(textGUI), null)
+            ShowIf(compareValue: null, nameof(renderer), nameof(text), nameof(textGUI))
         ]
         private UIImage image;
 
         [
             SerializeField,
             Required(nameof(image), nameof(text), nameof(textGUI)),
-            ShowIf(nameof(image), compareValue1: null, nameof(text), null, nameof(textGUI), null)
+            ShowIf(compareValue: null, nameof(image), nameof(text), nameof(textGUI))
         ]
         private Renderer renderer;
 
         [
             SerializeField,
             Required(nameof(image), nameof(renderer), nameof(textGUI)),
-            ShowIf(
-                nameof(image),
-                compareValue1: null,
-                nameof(renderer),
-                null,
-                nameof(textGUI),
-                null
-            )
+            ShowIf(compareValue: null, nameof(image), nameof(renderer), nameof(textGUI))
         ]
         private UIText text;
 
         [
             SerializeField,
             Required(nameof(image), nameof(renderer), nameof(text)),
-            ShowIf(nameof(image), compareValue1: null, nameof(renderer), null, nameof(text), null)
+            ShowIf(compareValue: null, nameof(image), nameof(renderer), nameof(text))
         ]
         private UITextGUI textGUI;
 
@@ -77,7 +70,9 @@ namespace Shears.UI
         [SerializeField]
         private Color notSelectableColor = DefaultNotSelectableColor;
 
+        private UISprite uiSprite;
         private Tween colorTween;
+        private bool spriteInitialized = false;
         private bool baseColorInitialized;
         private bool modulateInitialized;
 
@@ -85,9 +80,6 @@ namespace Shears.UI
         {
             get
             {
-                if (image == null && renderer == null)
-                    return baseColor;
-
                 if (!baseColorInitialized)
                     InitializeBaseColor();
 
@@ -105,9 +97,6 @@ namespace Shears.UI
         {
             get
             {
-                if (image == null && renderer == null)
-                    return modulate;
-
                 if (!modulateInitialized)
                     InitializeModulate();
 
@@ -195,7 +184,12 @@ namespace Shears.UI
                 baseColor = image.BaseColor;
             else if (renderer != null)
             {
-                if (renderer is SpriteRenderer sprite)
+                if (!spriteInitialized)
+                    renderer.TryGetComponent(out uiSprite);
+
+                if (uiSprite != null)
+                    baseColor = uiSprite.BaseColor;
+                else if (renderer is SpriteRenderer sprite)
                     baseColor = sprite.color;
                 else
                     baseColor = renderer.material.color;
@@ -213,7 +207,15 @@ namespace Shears.UI
             if (image != null)
                 modulate = image.Modulate;
             else if (renderer != null)
-                modulate = Color.white;
+            {
+                if (!spriteInitialized)
+                    renderer.TryGetComponent(out uiSprite);
+
+                if (uiSprite != null)
+                    modulate = uiSprite.Modulate;
+                else
+                    modulate = Color.white;
+            }
             else if (text != null)
                 modulate = text.Modulate;
             else if (textGUI != null)
@@ -224,6 +226,9 @@ namespace Shears.UI
         #region Colors
         public void ValidateColors()
         {
+            if (baseColor != Color.clear)
+                return;
+
             baseColor = Color.white;
             modulate = Color.white;
             interactModulate = Color.white;
@@ -286,7 +291,15 @@ namespace Shears.UI
             }
             else if (renderer != null)
             {
-                if (renderer is SpriteRenderer sprite)
+                if (!spriteInitialized)
+                    renderer.TryGetComponent(out uiSprite);
+
+                if (uiSprite != null)
+                {
+                    uiSprite.BaseColor = BaseColor;
+                    uiSprite.Modulate = InteractModulate * Modulate;
+                }
+                else if (renderer is SpriteRenderer sprite)
                     sprite.color = InteractModulate * Modulate * BaseColor;
                 else
                     renderer.material.color = InteractModulate * Modulate * BaseColor;
