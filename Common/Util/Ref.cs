@@ -39,6 +39,16 @@ namespace Shears
         public event RefChangeEvent<T> Changed;
         public event Action<T> ChangedRaw;
 
+        public Ref()
+        {
+            value = default;
+        }
+
+        public Ref(T value)
+        {
+            this.value = value;
+        }
+
         public void Bind(RefChangeEvent<T> action)
         {
             Changed += action;

@@ -1,24 +1,14 @@
-using System;
 using UnityEngine;
 
 namespace Shears
 {
-    [AttributeUsage(AttributeTargets.Field, Inherited = true)]
-    public class FoldoutGroupAttribute : Attribute
+    public class FoldoutAttribute : PropertyAttribute
     {
-        private readonly string name;
-        private readonly int fieldCount;
-        private readonly bool expanded;
+        public bool Show { get; }
 
-        public string Name => name;
-        public int FieldCount => fieldCount;
-        public bool Expanded => expanded;
-
-        public FoldoutGroupAttribute(string name, int fieldCount = 0, bool expanded = false)
+        public FoldoutAttribute(bool show = true)
         {
-            this.name = name;
-            this.fieldCount = fieldCount;
-            this.expanded = expanded;
+            Show = show;
         }
     }
 }

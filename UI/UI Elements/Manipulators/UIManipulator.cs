@@ -1,50 +1,39 @@
+using Shears.Logging;
 using UnityEngine;
 
 namespace Shears.UI
 {
-    [RequireComponent(typeof(UIElement))]
-    public abstract class UIManipulator : MonoBehaviour
+    public abstract class UIManipulator : IUIManipulator, ISHLoggable
     {
-        [Header("UI Manipulator")]
-        [SerializeField, RuntimeReadOnly]
-        private bool enableOnStart = true;
-
-        private UIElement element;
-
-        private bool isEnabled = false;
-
-        protected UIElement Element => element;
-        public bool IsEnabled => isEnabled;
-
-        protected virtual void Awake()
+        public SHLogLevels LogLevels
         {
-            element = GetComponent<UIElement>();
+            get => Element.LogLevels;
+            set => Element.LogLevels = value;
         }
+        protected UIElement Element { get; private set; }
+        public bool IsEnabled { get; private set; }
 
-        protected virtual void Start()
+        public UIManipulator(UIElement element)
         {
-            if (enableOnStart)
-                Enable();
+            Element = element;
         }
 
         public void Enable()
         {
-            if (isEnabled)
+            if (IsEnabled)
                 return;
 
             RegisterEvents();
-
-            isEnabled = true;
+            IsEnabled = true;
         }
 
         public void Disable()
         {
-            if (!isEnabled)
+            if (!IsEnabled)
                 return;
 
             DeregisterEvents();
-
-            isEnabled = false;
+            IsEnabled = false;
         }
 
         protected abstract void RegisterEvents();

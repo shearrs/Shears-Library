@@ -1,33 +1,26 @@
 using System;
+using System.Collections.Generic;
+using Shears.Logging;
 using UnityEngine;
 
 namespace Shears.UI
 {
     public class DraggableElement : UIManipulator
     {
-        [Header("Dragger")]
-        [SerializeField]
-        private SpriteRenderer[] renderers;
-
-        [SerializeField]
-        private int dragSortOrder = 100;
-
-        private int[] originalSortOrders;
+        private readonly int dragSortOrder = 100;
+        private readonly List<SpriteRenderer> renderers = new();
+        private readonly int[] originalSortOrders;
         private Vector3 offset;
-        private DragReceiver detectedReceiver;
-
-        public DragReceiver DetectedReceiver => detectedReceiver;
 
         public event Action DragBegan;
         public event Action DragEnded;
-        public event Action<DragReceiver> DragReceiverDetected;
+        public event Action<UIElement> DragReleased;
 
-        protected override void Awake()
+        public DraggableElement(UIElement element)
+            : base(element)
         {
-            base.Awake();
-
-            if (renderers != null)
-                originalSortOrders = new int[renderers.Length];
+            element.GetComponentsInChildren(renderers);
+            originalSortOrders = new int[renderers.Count];
         }
 
         protected override void RegisterEvents()
@@ -35,6 +28,7 @@ namespace Shears.UI
             Element.RegisterEvent<DragBeginEvent>(OnDragBegin);
             Element.RegisterEvent<DragEvent>(OnDrag);
             Element.RegisterEvent<DragEndEvent>(OnDragEnd);
+            Element.RegisterEvent<DragReleaseEvent>(OnDragRelease);
         }
 
         protected override void DeregisterEvents()
@@ -42,17 +36,19 @@ namespace Shears.UI
             Element.DeregisterEvent<DragBeginEvent>(OnDragBegin);
             Element.DeregisterEvent<DragEvent>(OnDrag);
             Element.DeregisterEvent<DragEndEvent>(OnDragEnd);
+            Element.DeregisterEvent<DragReleaseEvent>(OnDragRelease);
         }
 
         private void OnDragBegin(DragBeginEvent evt)
         {
-            evt.PreventBubbleUp();
+            evt.PreventDefault();
 
+            UIElementEventSystem.OverrideDraggedElement(Element);
             offset = evt.PointerWorldOffset;
 
             if (renderers != null)
             {
-                for (int i = 0; i < renderers.Length; i++)
+                for (int i = 0; i < renderers.Count; i++)
                 {
                     originalSortOrders[i] = renderers[i].sortingOrder;
                     renderers[i].sortingOrder = originalSortOrders[i] + dragSortOrder + i;
@@ -64,35 +60,37 @@ namespace Shears.UI
 
         private void OnDrag(DragEvent evt)
         {
-            evt.PreventBubbleUp();
+            evt.PreventDefault();
 
-            const float MOVE_SPEED = 8.0f;
+            const float MOVE_SPEED = 4.0f;
 
             Vector3 pointerWorld = evt.PointerWorldPosition;
             Vector3 targetPosition = pointerWorld + offset;
-            Element.transform.position = Vector3.MoveTowards(Element.transform.position, targetPosition, MOVE_SPEED * Time.deltaTime);
+            Element.transform.position = Vector3.MoveTowards(
+                Element.transform.position,
+                targetPosition,
+                MOVE_SPEED * Time.deltaTime
+            );
         }
 
         private void OnDragEnd(DragEndEvent evt)
         {
-            evt.PreventBubbleUp();
-
-            if (UIElementEventSystem.TryRaycastElement(out DragReceiver receiver))
-            {
-                detectedReceiver = receiver;
-                receiver.ReceiveDrag(this);
-                DragReceiverDetected?.Invoke(receiver);
-            }
-            else
-                detectedReceiver = null;
+            evt.PreventDefault();
 
             if (renderers != null)
             {
-                for (int i = 0; i < renderers.Length; i++)
+                for (int i = 0; i < renderers.Count; i++)
                     renderers[i].sortingOrder = originalSortOrders[i];
             }
 
             DragEnded?.Invoke();
+        }
+
+        private void OnDragRelease(DragReleaseEvent evt)
+        {
+            evt.PreventDefault();
+
+            DragReleased?.Invoke(evt.ReleaseTarget);
         }
     }
 }

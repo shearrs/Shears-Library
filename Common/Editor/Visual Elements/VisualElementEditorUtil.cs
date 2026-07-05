@@ -211,7 +211,7 @@ namespace Shears.Editor
             if (!isNext)
                 return container;
 
-            while (iterator.NextVisible(false))
+            do
             {
                 var prop = iterator.Copy();
                 var field = new PropertyField(prop) { name = prop.name };
@@ -221,7 +221,7 @@ namespace Shears.Editor
                     field.SetEnabled(false);
 
                 container.Add(field);
-            }
+            } while (iterator.NextVisible(false));
 
             return container;
         }

@@ -13,23 +13,25 @@ namespace Shears.UI
         private delegate void GetChildrenCallback(List<UIElement> children);
 
         #region Variables
-        private readonly Dictionary<Type, object> registrations = new();
-        private readonly Dictionary<IRef, object> refBindings = new();
-        private readonly Dictionary<IRef, object> rawRefBindings = new();
-        private readonly List<UIElement> tempElements = new();
-        private readonly TweenStorage tweenStorage = new();
-
         [NonSerialized]
         private List<UIElement> flattenedHierarchy;
 
         [NonSerialized]
         private List<GameObject> rootObjects;
 
+        private readonly Dictionary<Type, object> registrations = new();
+        private readonly Dictionary<IRef, object> refBindings = new();
+        private readonly Dictionary<IRef, object> rawRefBindings = new();
+        private readonly List<UIElement> children = new();
+        private readonly List<UIElement> tempElements = new();
+        private readonly TweenStorage tweenStorage = new();
+        private readonly Ref<bool> isFocused = new();
         private Dictionary<UIElement, int> hierarchyIndex;
-        private float dragBeginTime = 0.1f;
         private bool isHierarchyInitialized;
+        private float dragBeginTime = 0.1f;
 
         private UIElement Parent { get; set; }
+        private UIElementCanvas UICanvas { get; set; }
         private GetChildrenCallback GetChildren { get; set; }
         private GetSortOrderCallback GetSortOrder { get; set; }
         protected IReadOnlyList<Tween> Tweens => tweenStorage.Tweens;
@@ -40,12 +42,18 @@ namespace Shears.UI
                 if (!isHierarchyInitialized)
                     ForceInitializeHierarchy();
 
-                GetChildren(tempElements);
-                return tempElements;
+                GetChildren(children);
+                return children;
             }
         }
         public bool IsEnabled => isActiveAndEnabled;
-        public bool IsFocused { get; internal set; }
+        public bool IsFocused
+        {
+            get => isFocused;
+            internal set => isFocused.Value = value;
+        }
+        public IReadOnlyRef<bool> IsFocusedRef => isFocused;
+        public bool HasCanvasParent => UICanvas != null;
         public float DragBeginTime
         {
             get => dragBeginTime;
@@ -188,7 +196,10 @@ namespace Shears.UI
                     registration.Invoke(evt);
             }
 
-            if (!evt.IsBubblingUp && evt.TrickleDown)
+            if (evt.IsTricklingDown)
+                return;
+
+            if (evt.TrickleDown && !evt.IsBubblingUp)
             {
                 evt.IsTricklingDown = true;
                 GetChildren(tempElements);
@@ -204,7 +215,7 @@ namespace Shears.UI
                 evt.IsTricklingDown = false;
             }
 
-            if (!evt.IsTricklingDown && evt.BubbleUp)
+            if (evt.BubbleUp)
             {
                 evt.IsBubblingUp = true;
 
@@ -343,11 +354,18 @@ namespace Shears.UI
             }
 
             AddHierarchyElement(this);
+
+            if (TryGetComponent(out UIElementCanvas canvas))
+                UICanvas = canvas;
+
             UpdateHierarchy(this);
         }
 
-        private void UpdateHierarchy(UIElement element)
+        private void UpdateHierarchy(UIElement element, UIElementCanvas canvas = null)
         {
+            if (TryGetComponent(out UIElementCanvas possibleCanvas))
+                canvas = possibleCanvas;
+
             for (int i = 0; i < element.transform.childCount; i++)
             {
                 var child = element.transform.GetChild(i);
@@ -355,18 +373,23 @@ namespace Shears.UI
                 if (!child.TryGetComponent(out UIElement childElement))
                     continue;
 
-                AddHierarchyElement(childElement, element);
-                UpdateHierarchy(childElement);
+                AddHierarchyElement(childElement, element, canvas);
+                UpdateHierarchy(childElement, canvas);
             }
         }
 
-        private void AddHierarchyElement(UIElement element, UIElement parent = null)
+        private void AddHierarchyElement(
+            UIElement element,
+            UIElement parent = null,
+            UIElementCanvas canvas = null
+        )
         {
             flattenedHierarchy.Add(element);
             hierarchyIndex.Add(element, flattenedHierarchy.Count - 1);
             element.GetSortOrder = () => GetHierarchySortOrder(element);
             element.GetChildren = (list) => GetHierarchyChildren(element, list);
             element.Parent = parent;
+            element.UICanvas = canvas;
             element.RootSortOrder = RootSortOrder;
             element.isHierarchyInitialized = true;
 

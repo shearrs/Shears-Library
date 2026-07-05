@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Shears.Input;
 using Shears.Logging;
 using UnityEngine;
@@ -37,8 +38,8 @@ namespace Shears.UI
         private static readonly List<RaycastHit> sortedHits = new(MAX_RAYCAST_HITS);
         private static readonly List<UIElement> sortedResults = new(MAX_RAYCAST_HITS);
         private static readonly HashSet<UIElementCanvas> registeredCanvases = new();
-        private static readonly HashSet<UIElement> registeredElements = new();
         private static readonly List<Graphic> hitGraphics = new();
+        private static readonly List<Transform> ignoreTargets = new();
         private static bool applicationIsQuitting = false;
         private static ManagedInputMap inputMap;
         private static LayerMask detectionMask;
@@ -74,7 +75,6 @@ namespace Shears.UI
         {
             base.Awake();
             registeredCanvases.Clear();
-            registeredElements.Clear();
 
             detectionMask = LayerMask.GetMask("UI");
 
@@ -105,15 +105,6 @@ namespace Shears.UI
         {
             registeredCanvases.Remove(canvas);
         }
-
-        public static void RegisterElement(UIElement element)
-        {
-            if (!registeredElements.Contains(element))
-                registeredElements.Add(element);
-        }
-
-        public static void DeregisterElement(UIElement element) =>
-            registeredElements.Remove(element);
         #endregion
 
         public static void Focus(UIElement element)
@@ -131,6 +122,11 @@ namespace Shears.UI
                 focusedElement.InvokeEvent(new FocusEnterEvent());
                 focusedElement.Disabled += ClearFocus;
             }
+        }
+
+        public static void OverrideDraggedElement(UIElement overrideElement)
+        {
+            draggedElement = overrideElement;
         }
 
         private static void ClearFocus()
@@ -176,7 +172,7 @@ namespace Shears.UI
                 newHoverTarget = canvasTarget;
             else if (canvasTarget == null && target3D != null)
                 newHoverTarget = target3D;
-            else
+            else if (target3D.HasCanvasParent)
             {
                 if (canvasTarget.RootSortOrder > target3D.RootSortOrder)
                     newHoverTarget = canvasTarget;
@@ -187,6 +183,11 @@ namespace Shears.UI
                 else
                     newHoverTarget = target3D;
             }
+            else
+                newHoverTarget = canvasTarget;
+
+            if (newHoverTarget != null && newHoverTarget == canvasTarget)
+                hoveredCanvasTarget = true;
 
             if (newHoverTarget == hoveredElement)
                 return;
@@ -244,6 +245,25 @@ namespace Shears.UI
             else if (pointerDownElement == null)
             {
                 draggedElement.InvokeEvent(new DragEndEvent(camera, pointerPos, planePosition));
+                ignoreTargets.Clear();
+
+                var children = draggedElement.Children;
+                ignoreTargets.Add(draggedElement.transform);
+
+                foreach (var child in children)
+                    ignoreTargets.Add(child.transform);
+
+                if (TryRaycastElement(out UIElement releaseTarget, ignoreTargets))
+                {
+                    releaseTarget.InvokeEvent(
+                        new DragReleaseTargetEvent(pointerPos, planePosition, draggedElement)
+                    );
+                }
+
+                draggedElement.InvokeEvent(
+                    new DragReleaseEvent(pointerPos, planePosition, releaseTarget)
+                );
+
                 draggedElement = null;
 
                 return;
@@ -253,7 +273,11 @@ namespace Shears.UI
         }
 
         #region Raycasts
-        public static void Raycast3D(List<RaycastHit> sortedHits, List<UIElement> hitElements)
+        public static void Raycast3D(
+            List<RaycastHit> sortedHits,
+            List<UIElement> hitElements,
+            IReadOnlyList<Transform> ignoreTargets
+        )
         {
             hitElements.Clear();
 
@@ -263,15 +287,21 @@ namespace Shears.UI
             {
                 var hit = sortedHits[i];
 
+                if (ignoreTargets != null && ignoreTargets.Contains(hit.transform))
+                    continue;
+
                 if (TryGetUIElement(hit.collider.gameObject, out var element))
                     hitElements.Add(element);
             }
         }
 
-        public static bool TryRaycastElement<T>(out T component)
+        public static bool TryRaycastElement<T>(
+            out T component,
+            IReadOnlyList<Transform> ignoreTargets = null
+        )
             where T : Component
         {
-            Raycast3D(sortedHits, sortedResults);
+            Raycast3D(sortedHits, sortedResults, ignoreTargets);
 
             for (int i = 0; i < sortedResults.Count; i++)
             {
@@ -355,6 +385,7 @@ namespace Shears.UI
 
         private static void Raycast3DInternal(RaycastHit[] raycastHits, List<RaycastHit> sortedHits)
         {
+            sortedHits.Clear();
             var camera = Camera.main;
 
             if (camera == null)
@@ -377,6 +408,8 @@ namespace Shears.UI
 
             var ray = camera.ScreenPointToRay(pointerPos);
 
+            Debug.DrawRay(ray.origin, ray.direction, Color.blue);
+
             int hits = Physics.RaycastNonAlloc(
                 ray,
                 raycastHits,
@@ -384,8 +417,6 @@ namespace Shears.UI
                 detectionMask,
                 QueryTriggerInteraction.Collide
             );
-
-            sortedHits.Clear();
 
             for (int i = 0; i < hits; i++)
                 sortedHits.Add(raycastHits[i]);

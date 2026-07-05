@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using Shears.Tweens;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -8,25 +6,12 @@ namespace Shears.UI
 {
     public class UIButton : UIElement
     {
-        private static readonly TweenData COLOR_TWEEN = new(0.1f);
-        private static readonly Color HOVER_COLOR = new(0.6f, 0.6f, 0.6f, 1.0f);
-        private static readonly Color PRESS_COLOR = new(0.4f, 0.4f, 0.4f, 1.0f);
-        private static readonly Color NOT_SELECTABLE_COLOR = new(0.15f, 0.15f, 0.15f);
-
-        private enum InteractColor
-        {
-            None,
-            Hover,
-            Press,
-            NotSelectable,
-        }
-
         [Header("UI Button")]
-        [SerializeField, Required(targetCollectionSize: 1)]
-        private List<ButtonGraphic> graphics = new();
+        [SerializeField, Required, RuntimeReadOnly, Foldout(false)]
+        private InteractableGraphicHandler graphicHandler = new();
 
         [SerializeField]
-        private bool selectable = true;
+        private Ref<bool> selectable = new(true);
 
         [SerializeField]
         private bool clickOnMouseDown = false;
@@ -35,12 +20,13 @@ namespace Shears.UI
         [SerializeField]
         private UnityEvent clicked;
 
+        private readonly Ref<bool> isHovered = new();
+        private readonly Ref<bool> isPressed = new();
+        private readonly Ref<bool> isDragged = new();
         private Color baseColor = Color.white;
         private Color modulate = Color.white;
-        private bool isDragged;
-        private bool isPressed;
 
-        public bool IsHovered { get; private set; }
+        public bool IsHovered => isHovered.Value;
         public override Color BaseColor
         {
             get => baseColor;
@@ -59,320 +45,28 @@ namespace Shears.UI
 
         public event Action Clicked;
 
-        [Serializable]
-        private class ButtonGraphic
-        {
-            [
-                SerializeField,
-                Required(nameof(renderer), nameof(text), nameof(textGUI)),
-                ShowIf(
-                    nameof(renderer),
-                    compareValue1: null,
-                    nameof(text),
-                    null,
-                    nameof(textGUI),
-                    null
-                )
-            ]
-            private UIImage image;
-
-            [
-                SerializeField,
-                Required(nameof(image), nameof(text), nameof(textGUI)),
-                ShowIf(
-                    nameof(image),
-                    compareValue1: null,
-                    nameof(text),
-                    null,
-                    nameof(textGUI),
-                    null
-                )
-            ]
-            private Renderer renderer;
-
-            [
-                SerializeField,
-                Required(nameof(image), nameof(renderer), nameof(textGUI)),
-                ShowIf(
-                    nameof(image),
-                    compareValue1: null,
-                    nameof(renderer),
-                    null,
-                    nameof(textGUI),
-                    null
-                )
-            ]
-            private UIText text;
-
-            [
-                SerializeField,
-                Required(nameof(image), nameof(renderer), nameof(text)),
-                ShowIf(
-                    nameof(image),
-                    compareValue1: null,
-                    nameof(renderer),
-                    null,
-                    nameof(text),
-                    null
-                )
-            ]
-            private UITextGUI textGUI;
-
-            [Header("State Colors")]
-            [SerializeField, ReadOnly]
-            private Color baseColor = Color.white;
-
-            [SerializeField, ReadOnly]
-            private Color modulate = Color.white;
-
-            [SerializeField, ReadOnly]
-            private Color interactModulate = Color.white;
-
-            [Header("Colors")]
-            [SerializeField]
-            private Color hoverColor = HOVER_COLOR;
-
-            [SerializeField]
-            private Color pressColor = PRESS_COLOR;
-
-            [SerializeField]
-            private Color notSelectableColor = NOT_SELECTABLE_COLOR;
-
-            private Tween colorTween;
-            private bool baseColorInitialized;
-            private bool modulateInitialized;
-
-            public Color BaseColor
-            {
-                get
-                {
-                    if (image == null && renderer == null)
-                        return baseColor;
-
-                    if (!baseColorInitialized)
-                        InitializeBaseColor();
-
-                    return baseColor;
-                }
-                set
-                {
-                    baseColorInitialized = true;
-                    baseColor = value;
-
-                    UpdateGraphicColor();
-                }
-            }
-            public Color Modulate
-            {
-                get
-                {
-                    if (image == null && renderer == null)
-                        return modulate;
-
-                    if (!modulateInitialized)
-                        InitializeModulate();
-
-                    return modulate;
-                }
-                set
-                {
-                    modulateInitialized = true;
-                    modulate = value;
-
-                    UpdateGraphicColor();
-                }
-            }
-            public Color InteractModulate
-            {
-                get => interactModulate;
-                set
-                {
-                    interactModulate = value;
-
-                    UpdateGraphicColor();
-                }
-            }
-            public Color HoverColor
-            {
-                get => hoverColor;
-                set => hoverColor = value;
-            }
-            public Color PressColor
-            {
-                get => pressColor;
-                set => pressColor = value;
-            }
-            public Color NotSelectableColor
-            {
-                get => notSelectableColor;
-                set => notSelectableColor = value;
-            }
-            public InteractColor TargetColor { get; private set; }
-            public bool IsMovingTowardsColor => colorTween.IsPlaying;
-
-            public ButtonGraphic()
-            {
-                interactModulate = Color.white;
-            }
-
-            public ButtonGraphic(UIImage image)
-            {
-                this.image = image;
-            }
-
-            public ButtonGraphic(Renderer renderer)
-            {
-                this.renderer = renderer;
-            }
-
-            ~ButtonGraphic()
-            {
-                colorTween.Dispose();
-            }
-
-            public void Reset()
-            {
-                baseColorInitialized = false;
-                modulateInitialized = false;
-            }
-
-            public bool IsInteractColor(InteractColor color) =>
-                InteractModulate == GetColorForInteract(color);
-
-            public void MoveTowardsColor(InteractColor color)
-            {
-                colorTween.Dispose();
-
-                TargetColor = color;
-                var startColor = InteractModulate;
-                var realColor = GetColorForInteract(color);
-                UnityEngine.Object lifetime = image != null ? image : renderer;
-
-                colorTween = TweenManager
-                    .CreateTween(
-                        t =>
-                        {
-                            InteractModulate = Color.LerpUnclamped(startColor, realColor, t);
-                        },
-                        COLOR_TWEEN
-                    )
-                    .WithLifetime(lifetime);
-
-                colorTween.Play();
-            }
-
-            private Color GetColorForInteract(InteractColor color)
-            {
-                return color switch
-                {
-                    InteractColor.None => Color.white,
-                    InteractColor.Hover => hoverColor,
-                    InteractColor.Press => pressColor,
-                    InteractColor.NotSelectable => notSelectableColor,
-                    _ => Color.clear,
-                };
-            }
-
-            private void UpdateGraphicColor()
-            {
-                if (!baseColorInitialized)
-                    InitializeBaseColor();
-
-                if (!modulateInitialized)
-                    InitializeModulate();
-
-                if (image != null)
-                {
-                    image.BaseColor = BaseColor;
-                    image.Modulate = InteractModulate * Modulate;
-                }
-                else if (renderer != null)
-                {
-                    if (renderer is SpriteRenderer sprite)
-                        sprite.color = InteractModulate * Modulate * BaseColor;
-                    else
-                        renderer.material.color = InteractModulate * Modulate * BaseColor;
-                }
-                else if (text != null)
-                {
-                    text.BaseColor = BaseColor;
-                    text.Modulate = InteractModulate * Modulate;
-                }
-                else if (textGUI != null)
-                {
-                    textGUI.BaseColor = BaseColor;
-                    textGUI.Modulate = InteractModulate * Modulate;
-                }
-            }
-
-            private void InitializeBaseColor()
-            {
-                baseColorInitialized = true;
-
-                if (image != null)
-                    baseColor = image.BaseColor;
-                else if (renderer != null)
-                {
-                    if (renderer is SpriteRenderer sprite)
-                        baseColor = sprite.color;
-                    else
-                        baseColor = renderer.material.color;
-                }
-                else if (text != null)
-                    baseColor = text.BaseColor;
-                else if (textGUI != null)
-                    baseColor = textGUI.BaseColor;
-            }
-
-            private void InitializeModulate()
-            {
-                modulateInitialized = true;
-
-                if (image != null)
-                    modulate = image.Modulate;
-                else if (renderer != null)
-                    modulate = Color.white;
-                else if (text != null)
-                    modulate = text.Modulate;
-                else if (textGUI != null)
-                    modulate = textGUI.Modulate;
-            }
-        }
-
         protected override void Awake()
         {
             base.Awake();
 
+            graphicHandler.BindIsHovered(isHovered);
+            graphicHandler.BindIsPressed(isPressed);
+            graphicHandler.BindSelectable(selectable);
+            graphicHandler.BindIsDragged(isDragged);
+            graphicHandler.BindIsFocused(IsFocusedRef);
+
             if (!selectable)
-            {
-                foreach (var graphic in graphics)
-                    graphic.InteractModulate = graphic.NotSelectableColor.With(
-                        a: graphic.Modulate.a
-                    );
-            }
+                graphicHandler.InitializeNotSelectable();
         }
 
         private void Update()
         {
-            UpdateTargetColor();
+            graphicHandler.Update();
         }
 
         private void OnValidate()
         {
-            foreach (var graphic in graphics)
-            {
-                if (graphic.HoverColor == Color.clear)
-                {
-                    graphic.BaseColor = Color.white;
-                    graphic.Modulate = Color.white;
-                    graphic.InteractModulate = Color.white;
-                    graphic.HoverColor = HOVER_COLOR;
-                    graphic.PressColor = PRESS_COLOR;
-                    graphic.NotSelectableColor = NOT_SELECTABLE_COLOR;
-
-                    graphic.Reset();
-                }
-            }
+            graphicHandler.Validate();
         }
 
         [ContextMenu("Click")]
@@ -394,26 +88,21 @@ namespace Shears.UI
 
         public void AddGraphic(UIImage image)
         {
-            graphics.Add(new(image));
-        }
-
-        public void AddGraphic(Renderer renderer)
-        {
-            graphics.Add(new(renderer));
+            graphicHandler.AddGraphic(image);
         }
 
         private void OnHoverEnter(HoverEnterEvent evt)
         {
             evt.PreventBubbleUp();
 
-            IsHovered = true;
+            isHovered.Value = true;
         }
 
         private void OnHoverExit(HoverExitEvent evt)
         {
             evt.PreventBubbleUp();
 
-            IsHovered = false;
+            isHovered.Value = false;
         }
 
         private void OnPointerDown(PointerDownEvent evt)
@@ -423,7 +112,7 @@ namespace Shears.UI
             if (!selectable)
                 return;
 
-            isPressed = true;
+            isPressed.Value = true;
 
             if (clickOnMouseDown)
                 OnClickedImplementation();
@@ -433,7 +122,7 @@ namespace Shears.UI
         {
             evt.PreventTrickleDown();
 
-            isPressed = false;
+            isPressed.Value = false;
         }
 
         private void OnClicked(ClickEvent evt)
@@ -454,53 +143,22 @@ namespace Shears.UI
 
         private void OnDragBegin(DragBeginEvent evt)
         {
-            isDragged = true;
+            isDragged.Value = true;
         }
 
         private void OnDragEnd(DragEndEvent evt)
         {
-            isDragged = false;
+            isDragged.Value = false;
         }
 
         private void SetSelectable(bool value)
         {
-            selectable = value;
+            selectable.Value = value;
 
             if (!value)
             {
-                isPressed = false;
-                isDragged = false;
-            }
-        }
-
-        private void UpdateTargetColor()
-        {
-            InteractColor newColor;
-
-            if (!selectable)
-                newColor = InteractColor.NotSelectable;
-            else
-            {
-                if (isDragged)
-                    newColor = IsHovered ? InteractColor.Press : InteractColor.Hover;
-                else if (isPressed)
-                    newColor = InteractColor.Press;
-                else if (IsHovered)
-                    newColor = InteractColor.Hover;
-                else if (IsFocused)
-                    newColor = InteractColor.Hover;
-                else
-                    newColor = InteractColor.None;
-            }
-
-            foreach (var graphic in graphics)
-            {
-                if (graphic.IsInteractColor(newColor))
-                    continue;
-                else if (graphic.TargetColor == newColor && graphic.IsMovingTowardsColor)
-                    continue;
-
-                graphic.MoveTowardsColor(newColor);
+                isPressed.Value = false;
+                isDragged.Value = false;
             }
         }
 
@@ -508,16 +166,13 @@ namespace Shears.UI
         {
             baseColor = value;
 
-            foreach (var graphic in graphics)
-                graphic.BaseColor = baseColor;
+            graphicHandler.SetBaseColor(value);
         }
 
         private void SetModulate(Color value)
         {
             modulate = value;
-
-            foreach (var graphic in graphics)
-                graphic.Modulate = modulate;
+            graphicHandler.SetModulate(value);
         }
     }
 }

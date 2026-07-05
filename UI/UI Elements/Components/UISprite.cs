@@ -60,10 +60,7 @@ namespace Shears.UI
         {
             var sprite = GetComponent<SpriteRenderer>();
             if (sprite.color != modulate * baseColor)
-            {
-                Debug.Log("change color");
                 sprite.color = modulate * baseColor;
-            }
         }
     }
 }

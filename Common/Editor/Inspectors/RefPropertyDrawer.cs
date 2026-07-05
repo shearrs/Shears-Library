@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 namespace Shears.Editor
 {
     [CustomPropertyDrawer(typeof(Ref<>), true)]
-    public sealed class RefEditor : PropertyDrawer
+    public sealed class RefPropertyDrawer : PropertyDrawer
     {
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
@@ -15,7 +15,8 @@ namespace Shears.Editor
             var valueProp = property.FindPropertyRelative("value");
             var valueField = new PropertyField(valueProp)
             {
-                label = $"*{valueProp.displayName}"
+                label = $"*{property.displayName}",
+                tooltip = $"{property.displayName} is a Ref variable.",
             };
 
             root.Add(valueField);

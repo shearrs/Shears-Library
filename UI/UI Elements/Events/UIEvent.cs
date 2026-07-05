@@ -12,5 +12,11 @@ namespace Shears.UI
         public void PreventTrickleDown() => TrickleDown = false;
 
         public void PreventBubbleUp() => BubbleUp = false;
+
+        public void PreventDefault()
+        {
+            TrickleDown = false;
+            BubbleUp = false;
+        }
     }
 }
