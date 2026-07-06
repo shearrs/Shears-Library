@@ -22,6 +22,12 @@ namespace Shears.UI
                 graphic.ValidateColors();
         }
 
+        public void Initialize()
+        {
+            foreach (var graphic in graphics)
+                graphic.SetManaged(true);
+        }
+
         public void InitializeNotSelectable()
         {
             foreach (var graphic in graphics)

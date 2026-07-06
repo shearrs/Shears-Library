@@ -7,9 +7,10 @@ namespace Shears.UI
     public class UIButton : UIElement
     {
         [Header("UI Button")]
-        [SerializeField, Required, RuntimeReadOnly, Foldout(false)]
+        [SerializeField, Required, RuntimeReadOnly]
         private InteractableGraphicHandler graphicHandler = new();
 
+        [Header("Settings")]
         [SerializeField]
         private Ref<bool> selectable = new(true);
 
@@ -26,16 +27,6 @@ namespace Shears.UI
         private Color modulate = Color.white;
 
         public bool IsHovered => isHovered.Value;
-        public override Color BaseColor
-        {
-            get => baseColor;
-            set => SetBaseColor(value);
-        }
-        public override Color Modulate
-        {
-            get => modulate;
-            set => SetModulate(value);
-        }
         public bool Selectable
         {
             get => selectable;
@@ -48,6 +39,7 @@ namespace Shears.UI
         {
             base.Awake();
 
+            graphicHandler.Initialize();
             graphicHandler.BindIsHovered(isHovered);
             graphicHandler.BindIsPressed(isPressed);
             graphicHandler.BindSelectable(selectable);
@@ -60,6 +52,11 @@ namespace Shears.UI
         private void Update()
         {
             graphicHandler.Update();
+        }
+
+        private void Reset()
+        {
+            InitializeDefaultGraphics();
         }
 
         private void OnValidate()
@@ -145,17 +142,51 @@ namespace Shears.UI
                 isPressed.Value = false;
         }
 
-        private void SetBaseColor(Color value)
+        protected override Color GetBaseColor()
+        {
+            return baseColor;
+        }
+
+        protected override void SetBaseColor(Color value)
         {
             baseColor = value;
 
             graphicHandler.SetBaseColor(value);
         }
 
-        private void SetModulate(Color value)
+        protected override Color GetModulate()
+        {
+            return modulate;
+        }
+
+        protected override void SetModulate(Color value)
         {
             modulate = value;
             graphicHandler.SetModulate(value);
+        }
+
+        private void InitializeDefaultGraphics()
+        {
+            InitializeDefaultGraphics(transform);
+        }
+
+        private void InitializeDefaultGraphics(Transform transform)
+        {
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                var child = transform.GetChild(i);
+
+                if (child.TryGetComponent(out UIImage image))
+                    graphicHandler.AddGraphic(image);
+                else if (child.TryGetComponent(out UIText text))
+                    graphicHandler.AddGraphic(text);
+                else if (child.TryGetComponent(out UITextGUI textGUI))
+                    graphicHandler.AddGraphic(textGUI);
+                else if (child.TryGetComponent(out Renderer renderer))
+                    graphicHandler.AddGraphic(renderer);
+
+                InitializeDefaultGraphics(child);
+            }
         }
     }
 }

@@ -1,3 +1,5 @@
+using Unity.Plastic.Newtonsoft.Json.Linq;
+using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEngine;
 
 namespace Shears.UI
@@ -30,26 +32,6 @@ namespace Shears.UI
             set => SpriteRenderer.sprite = value;
         }
 
-        public override Color BaseColor
-        {
-            get => baseColor;
-            set
-            {
-                baseColor = value;
-                SpriteRenderer.color = Modulate * baseColor;
-            }
-        }
-
-        public override Color Modulate
-        {
-            get => modulate;
-            set
-            {
-                modulate = value;
-                SpriteRenderer.color = Modulate * baseColor;
-            }
-        }
-
         private void Reset()
         {
             var sprite = GetComponent<SpriteRenderer>();
@@ -61,6 +43,28 @@ namespace Shears.UI
             var sprite = GetComponent<SpriteRenderer>();
             if (sprite.color != modulate * baseColor)
                 sprite.color = modulate * baseColor;
+        }
+
+        protected override Color GetBaseColor()
+        {
+            return baseColor;
+        }
+
+        protected override void SetBaseColor(Color color)
+        {
+            baseColor = color;
+            SpriteRenderer.color = Modulate * baseColor;
+        }
+
+        protected override Color GetModulate()
+        {
+            return modulate;
+        }
+
+        protected override void SetModulate(Color color)
+        {
+            modulate = color;
+            SpriteRenderer.color = Modulate * baseColor;
         }
     }
 }

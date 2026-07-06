@@ -48,16 +48,6 @@ namespace Shears.UI
             get => usesUnscaledTime;
             set => usesUnscaledTime = value;
         }
-        public override Color BaseColor
-        {
-            get => image.BaseColor;
-            set => image.BaseColor = value;
-        }
-        public override Color Modulate
-        {
-            get => image.Modulate;
-            set => image.Modulate = value;
-        }
         public bool IsHovered { get; private set; }
 
         public event Action BeforeFadeIn;
@@ -131,6 +121,26 @@ namespace Shears.UI
                 SHLogLevels.Error
             );
             return false;
+        }
+
+        protected override Color GetBaseColor()
+        {
+            return image.BaseColor;
+        }
+
+        protected override void SetBaseColor(Color color)
+        {
+            image.BaseColor = color;
+        }
+
+        protected override Color GetModulate()
+        {
+            return image.Modulate;
+        }
+
+        protected override void SetModulate(Color color)
+        {
+            image.Modulate = color;
         }
 
         private void OnParentHoverEnter(HoverEnterEvent evt)

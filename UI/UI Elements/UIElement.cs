@@ -36,6 +36,9 @@ namespace Shears.UI
         private GetChildrenCallback GetChildren { get; set; }
         private GetSortOrderCallback GetSortOrder { get; set; }
         protected IReadOnlyList<Tween> Tweens => tweenStorage.Tweens;
+        public bool IsAlphaManaged { get; set; }
+        public bool IsBaseColorManaged { get; set; }
+        public bool IsModulateManaged { get; set; }
         public IReadOnlyList<UIElement> Children
         {
             get
@@ -74,10 +77,30 @@ namespace Shears.UI
         public float Alpha
         {
             get => Modulate.a;
-            set => SetAlpha(value);
+            set
+            {
+                if (!IsAlphaManaged)
+                    SetAlpha(value);
+            }
         }
-        public virtual Color BaseColor { get; set; }
-        public virtual Color Modulate { get; set; }
+        public Color BaseColor
+        {
+            get => GetBaseColor();
+            set
+            {
+                if (!IsBaseColorManaged)
+                    SetBaseColor(value);
+            }
+        }
+        public Color Modulate
+        {
+            get => GetModulate();
+            set
+            {
+                if (!IsModulateManaged)
+                    SetModulate(value);
+            }
+        }
 
         public event Action Disabled;
         private event Action Destroyed;
@@ -153,10 +176,30 @@ namespace Shears.UI
 
         protected virtual void BindRefs() { }
 
-        public virtual void SetAlpha(float alpha)
+        #region Colors
+        protected virtual void SetAlpha(float alpha)
         {
             Modulate = Modulate.With(a: alpha);
         }
+
+        protected virtual Color GetBaseColor()
+        {
+            return Color.white;
+        }
+
+        public void SetBaseColorManaged(Color color) => SetBaseColor(color);
+
+        protected virtual void SetBaseColor(Color color) { }
+
+        protected virtual Color GetModulate()
+        {
+            return Color.white;
+        }
+
+        public void SetModulateManaged(Color color) => SetModulate(color);
+
+        protected virtual void SetModulate(Color color) { }
+        #endregion
 
         #region Event Registration
         public void RegisterEvent<EventType>(Action<EventType> callback)

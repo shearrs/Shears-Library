@@ -205,7 +205,7 @@ namespace Shears.Editor
         {
             var container = new VisualElement { name = "Default Fields" };
 
-            var iterator = serializedProperty;
+            var iterator = serializedProperty.Copy();
             bool isNext = iterator.Next(true);
 
             if (!isNext)

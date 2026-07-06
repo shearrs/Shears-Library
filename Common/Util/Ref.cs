@@ -66,6 +66,11 @@ namespace Shears
             Changed -= action;
         }
 
+        public void UnbindRaw(Action<T> action)
+        {
+            ChangedRaw -= action;
+        }
+
         void IRef.Unbind(object changeEvent)
         {
             if (changeEvent is not RefChangeEvent<T> typedEvent)
@@ -74,7 +79,7 @@ namespace Shears
             Changed -= typedEvent;
         }
 
-        public void UnbindRaw(object changeEvent)
+        void IRef.UnbindRaw(object changeEvent)
         {
             if (changeEvent is not Action<T> typedEvent)
                 return;
@@ -111,6 +116,9 @@ namespace Shears
 
         public void Bind(RefChangeEvent<T> action);
         public void BindRaw(Action<T> action);
+
+        public void Unbind(RefChangeEvent<T> action);
+        public void UnbindRaw(Action<T> action);
     }
 
     public interface IRef

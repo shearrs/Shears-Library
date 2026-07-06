@@ -25,26 +25,6 @@ namespace Shears.UI
             }
         }
 
-        public override Color BaseColor
-        {
-            get => baseColor;
-            set
-            {
-                baseColor = value;
-                TextMesh.color = Modulate * baseColor;
-            }
-        }
-
-        public override Color Modulate
-        {
-            get => modulate;
-            set
-            {
-                modulate = value;
-                TextMesh.color = Modulate * baseColor;
-            }
-        }
-
         public string Text
         {
             get => TextMesh.text;
@@ -63,6 +43,28 @@ namespace Shears.UI
 
             if (text.color != modulate * baseColor)
                 text.color = modulate * baseColor;
+        }
+
+        protected override Color GetBaseColor()
+        {
+            return baseColor;
+        }
+
+        protected override void SetBaseColor(Color color)
+        {
+            baseColor = color;
+            TextMesh.color = Modulate * baseColor;
+        }
+
+        protected override Color GetModulate()
+        {
+            return modulate;
+        }
+
+        protected override void SetModulate(Color color)
+        {
+            modulate = color;
+            TextMesh.color = Modulate * baseColor;
         }
     }
 }

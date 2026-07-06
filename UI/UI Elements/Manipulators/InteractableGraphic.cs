@@ -158,11 +158,19 @@ namespace Shears.UI
         public InteractableGraphic(UIText text)
         {
             this.text = text;
+
+            hoverColor = Color.white;
+            pressColor = Color.white;
+            notSelectableColor = Color.white;
         }
 
         public InteractableGraphic(UITextGUI text)
         {
             textGUI = text;
+
+            hoverColor = Color.white;
+            pressColor = Color.white;
+            notSelectableColor = Color.white;
         }
 
         ~InteractableGraphic()
@@ -176,6 +184,37 @@ namespace Shears.UI
             modulateInitialized = false;
         }
 
+        public void SetManaged(bool value)
+        {
+            if (renderer != null && !spriteInitialized)
+                InitializeSprite();
+
+            if (image != null)
+            {
+                image.IsAlphaManaged = value;
+                image.IsBaseColorManaged = value;
+                image.IsModulateManaged = value;
+            }
+            else if (uiSprite != null)
+            {
+                uiSprite.IsAlphaManaged = value;
+                uiSprite.IsBaseColorManaged = value;
+                uiSprite.IsModulateManaged = value;
+            }
+            else if (text != null)
+            {
+                text.IsAlphaManaged = value;
+                text.IsBaseColorManaged = value;
+                text.IsModulateManaged = value;
+            }
+            else if (textGUI != null)
+            {
+                textGUI.IsAlphaManaged = value;
+                textGUI.IsBaseColorManaged = value;
+                textGUI.IsModulateManaged = value;
+            }
+        }
+
         private void InitializeBaseColor()
         {
             baseColorInitialized = true;
@@ -185,7 +224,7 @@ namespace Shears.UI
             else if (renderer != null)
             {
                 if (!spriteInitialized)
-                    renderer.TryGetComponent(out uiSprite);
+                    InitializeSprite();
 
                 if (uiSprite != null)
                     baseColor = uiSprite.BaseColor;
@@ -209,7 +248,7 @@ namespace Shears.UI
             else if (renderer != null)
             {
                 if (!spriteInitialized)
-                    renderer.TryGetComponent(out uiSprite);
+                    InitializeSprite();
 
                 if (uiSprite != null)
                     modulate = uiSprite.Modulate;
@@ -220,6 +259,12 @@ namespace Shears.UI
                 modulate = text.Modulate;
             else if (textGUI != null)
                 modulate = textGUI.Modulate;
+        }
+
+        private void InitializeSprite()
+        {
+            renderer.TryGetComponent(out uiSprite);
+            spriteInitialized = true;
         }
         #endregion
 
@@ -286,18 +331,18 @@ namespace Shears.UI
 
             if (image != null)
             {
-                image.BaseColor = BaseColor;
-                image.Modulate = InteractModulate * Modulate;
+                image.SetBaseColorManaged(BaseColor);
+                image.SetModulateManaged(InteractModulate * Modulate);
             }
             else if (renderer != null)
             {
                 if (!spriteInitialized)
-                    renderer.TryGetComponent(out uiSprite);
+                    InitializeSprite();
 
                 if (uiSprite != null)
                 {
-                    uiSprite.BaseColor = BaseColor;
-                    uiSprite.Modulate = InteractModulate * Modulate;
+                    uiSprite.SetBaseColorManaged(BaseColor);
+                    uiSprite.SetModulateManaged(InteractModulate * Modulate);
                 }
                 else if (renderer is SpriteRenderer sprite)
                     sprite.color = InteractModulate * Modulate * BaseColor;
@@ -306,13 +351,13 @@ namespace Shears.UI
             }
             else if (text != null)
             {
-                text.BaseColor = BaseColor;
-                text.Modulate = InteractModulate * Modulate;
+                text.SetBaseColorManaged(BaseColor);
+                text.SetModulateManaged(InteractModulate * Modulate);
             }
             else if (textGUI != null)
             {
-                textGUI.BaseColor = BaseColor;
-                textGUI.Modulate = InteractModulate * Modulate;
+                textGUI.SetBaseColorManaged(BaseColor);
+                textGUI.SetModulateManaged(InteractModulate * Modulate);
             }
         }
         #endregion
