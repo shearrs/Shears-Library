@@ -31,7 +31,6 @@ namespace Shears.UI
             PointerPosition = pointerPosition;
             PointerWorldPosition = pointerWorldPosition;
 
-            TrickleDown = false;
             BubbleUp = true;
         }
     }
@@ -48,7 +47,6 @@ namespace Shears.UI
             PointerPosition = pointerPosition;
             PointerWorldPosition = pointerWorldPosition;
 
-            TrickleDown = false;
             BubbleUp = true;
         }
     }

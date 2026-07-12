@@ -14,6 +14,16 @@ namespace Shears.UI
 
         private TextMeshPro textMesh;
 
+        public override Color BaseColor
+        {
+            get => baseColor;
+            set => baseColor = value;
+        }
+        public override Color Modulate
+        {
+            get => modulate;
+            set => modulate = value;
+        }
         public TextMeshPro TextMesh
         {
             get
@@ -40,31 +50,15 @@ namespace Shears.UI
         private void OnValidate()
         {
             var text = GetComponent<TextMeshPro>();
+            var targetColor = (modulate * baseColor).With(a: Alpha);
 
-            if (text.color != modulate * baseColor)
-                text.color = modulate * baseColor;
+            if (text.color != targetColor)
+                text.color = targetColor;
         }
 
-        protected override Color GetBaseColor()
+        protected override void ApplyResolvedStyle(StyleData data)
         {
-            return baseColor;
-        }
-
-        protected override void SetBaseColor(Color color)
-        {
-            baseColor = color;
-            TextMesh.color = Modulate * baseColor;
-        }
-
-        protected override Color GetModulate()
-        {
-            return modulate;
-        }
-
-        protected override void SetModulate(Color color)
-        {
-            modulate = color;
-            TextMesh.color = Modulate * baseColor;
+            TextMesh.color = data.Color;
         }
     }
 }

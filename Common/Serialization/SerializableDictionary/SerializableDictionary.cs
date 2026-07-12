@@ -44,10 +44,36 @@ namespace Shears
 
         void ISerializationCallbackReceiver.OnBeforeSerialize()
         {
-            entries.Clear();
+            for (int i = 0; i < entries.Count; i++)
+            {
+                var entry = entries[i];
 
-            foreach (KeyValuePair<TKey, TValue> pair in this)
-                entries.Add(new(pair.Key, pair.Value));
+                if (entry.Key != null && !ContainsKey(entry.Key))
+                {
+                    entries.Remove(entry);
+                    i--;
+                }
+            }
+
+            foreach (var pair in this)
+            {
+                bool hasEntry = false;
+
+                foreach (var entryPair in entries)
+                {
+                    if (EqualityComparer<TKey>.Default.Equals(pair.Key, entryPair.Key))
+                    {
+                        hasEntry = true;
+                        break;
+                    }
+                }
+
+                if (hasEntry)
+                    continue;
+
+                var entry = new SerializableDictionaryEntry<TKey, TValue>(pair.Key, pair.Value);
+                entries.Add(entry);
+            }
         }
 
         void ISerializationCallbackReceiver.OnAfterDeserialize()
@@ -61,24 +87,33 @@ namespace Shears
                 var entry = entries[i];
                 var key = entry.Key;
 
-                if (ContainsKey(key))
-                {
-                    if (typeof(TKey) == typeof(string))
-                        key = (TKey)(Guid.NewGuid().ToString() as object);
-                    else if (default(TKey) == null)
-                    {
-                        Debug.LogWarning(
-                            $"Dictionary already contains key '{key}'. Skipping entry."
-                        );
-                        continue;
-                    }
-                    else
-                        key = default;
-                }
+                if (key == null)
+                    continue;
 
                 if (ContainsKey(key))
                 {
-                    Debug.LogWarning($"Dictionary already contains key '{key}'. Skipping entry.");
+                    if (typeof(TKey) == typeof(string))
+                    {
+                        key = (TKey)(Guid.NewGuid().ToString() as object);
+                        entries[i] = new(key, entry.Value);
+                    }
+                    else
+                    {
+                        key = default;
+                        entries[i] = new(key, entry.Value);
+                    }
+                }
+
+                if (key == null)
+                    continue;
+
+                if (ContainsKey(key))
+                {
+                    string keyName = typeof(UnityEngine.Object).IsAssignableFrom(typeof(TKey))
+                        ? "Unity Object"
+                        : key.ToString();
+
+                    Debug.LogWarning($"Dictionary already contains key: {keyName}");
                     continue;
                 }
 

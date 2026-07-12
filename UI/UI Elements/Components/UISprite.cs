@@ -15,6 +15,18 @@ namespace Shears.UI
 
         private SpriteRenderer spriteRenderer;
 
+        public override Color BaseColor
+        {
+            get => baseColor;
+            set => baseColor = value;
+        }
+
+        public override Color Modulate
+        {
+            get => modulate;
+            set => modulate = value;
+        }
+
         public SpriteRenderer SpriteRenderer
         {
             get
@@ -45,26 +57,9 @@ namespace Shears.UI
                 sprite.color = modulate * baseColor;
         }
 
-        protected override Color GetBaseColor()
+        protected override void ApplyResolvedStyle(StyleData data)
         {
-            return baseColor;
-        }
-
-        protected override void SetBaseColor(Color color)
-        {
-            baseColor = color;
-            SpriteRenderer.color = Modulate * baseColor;
-        }
-
-        protected override Color GetModulate()
-        {
-            return modulate;
-        }
-
-        protected override void SetModulate(Color color)
-        {
-            modulate = color;
-            SpriteRenderer.color = Modulate * baseColor;
+            SpriteRenderer.color = data.Color;
         }
     }
 }

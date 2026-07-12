@@ -7,6 +7,7 @@ namespace Shears.Tweens
     public class TweenStorage
     {
         private readonly List<Tween> tweens = new();
+        private readonly HashSet<TweenStorage> subStorage = new();
 
         public IReadOnlyList<Tween> Tweens => tweens;
 
@@ -19,6 +20,14 @@ namespace Shears.Tweens
         {
             foreach (var tween in tweens)
             {
+                if (tween.IsValid)
+                    return tween;
+            }
+
+            foreach (var storage in subStorage)
+            {
+                var tween = storage.GetFirstValid();
+
                 if (tween.IsValid)
                     return tween;
             }
@@ -43,7 +52,23 @@ namespace Shears.Tweens
             foreach (var tween in tweens)
                 tween.Dispose();
 
+            foreach (var storage in subStorage)
+                storage.Dispose();
+
             tweens.Clear();
+        }
+
+        public void AddSubStorage(TweenStorage storage)
+        {
+            if (subStorage.Contains(storage))
+                return;
+
+            subStorage.Add(storage);
+        }
+
+        public void RemoveSubStorage(TweenStorage storage)
+        {
+            subStorage.Remove(storage);
         }
 
         public Tween this[int index] => tweens[index];

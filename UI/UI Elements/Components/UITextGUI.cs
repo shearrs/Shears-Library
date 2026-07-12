@@ -1,6 +1,5 @@
 using Shears.Tweens;
 using TMPro;
-using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEngine;
 
 namespace Shears.UI
@@ -16,6 +15,16 @@ namespace Shears.UI
 
         private TextMeshProUGUI textMesh;
 
+        public override Color BaseColor
+        {
+            get => baseColor;
+            set => baseColor = value;
+        }
+        public override Color Modulate
+        {
+            get => modulate;
+            set => modulate = value;
+        }
         public TextMeshProUGUI TextMesh
         {
             get
@@ -42,9 +51,10 @@ namespace Shears.UI
         private void OnValidate()
         {
             var text = GetComponent<TextMeshProUGUI>();
+            var targetColor = (modulate * baseColor).With(a: Alpha);
 
-            if (text.color != modulate * baseColor)
-                text.color = modulate * baseColor;
+            if (text.color != targetColor)
+                text.color = targetColor;
         }
 
         public Tween DoCounterTween(
@@ -69,26 +79,9 @@ namespace Shears.UI
             return textMesh.GetCounterTween(targetNumber, startNumber, prefix, suffix, data);
         }
 
-        protected override Color GetBaseColor()
+        protected override void ApplyResolvedStyle(StyleData data)
         {
-            return baseColor;
-        }
-
-        protected override void SetBaseColor(Color color)
-        {
-            baseColor = color;
-            TextMesh.color = Modulate * baseColor;
-        }
-
-        protected override Color GetModulate()
-        {
-            return modulate;
-        }
-
-        protected override void SetModulate(Color color)
-        {
-            modulate = color;
-            TextMesh.color = Modulate * baseColor;
+            TextMesh.color = data.Color;
         }
     }
 }

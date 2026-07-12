@@ -10,7 +10,11 @@ namespace Shears
     {
         private static readonly StringBuilder stringBuilder = new();
 
-        public static string ToCollectionString<T>(this IReadOnlyCollection<T> collection, Func<T, string> toString = null, string separator = ", ")
+        public static string ToCollectionString<T>(
+            this IReadOnlyCollection<T> collection,
+            Func<T, string> toString = null,
+            string separator = ", "
+        )
         {
             stringBuilder.Clear();
 
@@ -31,6 +35,41 @@ namespace Shears
             }
 
             return stringBuilder.ToString();
+        }
+
+        public static void Remove<T>(this List<T> list, Ref<T> refVariable)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (EqualityComparer<T>.Default.Equals(list[i], refVariable.Value))
+                {
+                    list.RemoveAt(i);
+                    return;
+                }
+            }
+        }
+
+        public static void Remove<T>(this List<Ref<T>> list, T var)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (EqualityComparer<T>.Default.Equals(list[i].Value, var))
+                {
+                    list.RemoveAt(i);
+                    return;
+                }
+            }
+        }
+
+        public static int IndexOf<T>(this List<Ref<T>> list, T var)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (EqualityComparer<T>.Default.Equals(list[i].Value, var))
+                    return i;
+            }
+
+            return -1;
         }
     }
 }

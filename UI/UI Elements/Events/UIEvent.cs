@@ -6,7 +6,7 @@ namespace Shears.UI
     {
         public bool IsTricklingDown { get; internal set; } = false;
         public bool IsBubblingUp { get; internal set; } = false;
-        public bool TrickleDown { get; protected set; } = true;
+        public bool TrickleDown { get; protected set; } = false;
         public bool BubbleUp { get; protected set; } = true;
 
         public void PreventTrickleDown() => TrickleDown = false;

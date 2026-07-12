@@ -22,28 +22,10 @@ namespace Shears.UI
                 graphic.ValidateColors();
         }
 
-        public void Initialize()
-        {
-            foreach (var graphic in graphics)
-                graphic.SetManaged(true);
-        }
-
         public void InitializeNotSelectable()
         {
             foreach (var graphic in graphics)
                 graphic.InteractModulate = graphic.NotSelectableColor;
-        }
-
-        public void SetBaseColor(Color value)
-        {
-            foreach (var graphic in graphics)
-                graphic.BaseColor = value;
-        }
-
-        public void SetModulate(Color value)
-        {
-            foreach (var graphic in graphics)
-                graphic.Modulate = value;
         }
 
         public void AddGraphic(UIImage image)

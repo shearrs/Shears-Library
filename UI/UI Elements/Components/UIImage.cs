@@ -31,35 +31,33 @@ namespace Shears.UI
             set => RawImage.sprite = value;
         }
 
+        public override Color BaseColor
+        {
+            get => baseColor;
+            set => baseColor = value;
+        }
+        public override Color Modulate
+        {
+            get => modulate;
+            set => modulate = value;
+        }
+
         private void Reset()
         {
             BaseColor = RawImage.color;
         }
 
-        protected override Color GetBaseColor()
+        private void OnValidate()
         {
-            return baseColor;
+            if (Application.isPlaying)
+                return;
+
+            RawImage.color = modulate * baseColor;
         }
 
-        protected override void SetBaseColor(Color color)
+        protected override void ApplyResolvedStyle(StyleData data)
         {
-            baseColor = color;
-
-            RawImage.color = baseColor * modulate;
-        }
-
-        protected override Color GetModulate()
-        {
-            return modulate;
-        }
-
-        protected override void SetModulate(Color color)
-        {
-            modulate = color;
-
-            var finalColor = baseColor * modulate;
-            finalColor.a = baseColor.a * modulate.a;
-            RawImage.color = finalColor;
+            RawImage.color = data.Color;
         }
     }
 }

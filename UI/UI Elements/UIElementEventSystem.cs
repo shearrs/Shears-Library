@@ -40,10 +40,11 @@ namespace Shears.UI
         private static readonly HashSet<UIElementCanvas> registeredCanvases = new();
         private static readonly List<Graphic> hitGraphics = new();
         private static readonly List<Transform> ignoreTargets = new();
+        private static readonly List<UIElement> hoveredElements = new();
+        private static readonly List<UIElement> newHoveredElements = new();
         private static bool applicationIsQuitting = false;
         private static ManagedInputMap inputMap;
         private static LayerMask detectionMask;
-        private static UIElement hoveredElement;
         private static UIElement draggedElement;
         private static UIElement pointerDownElement;
         private static UIElement focusedElement;
@@ -52,7 +53,9 @@ namespace Shears.UI
         private static Vector2 pointerDownPosition;
         private static float dragInitialZ;
 
-        public static bool IsHovering => hoveredElement != null;
+        private static UIElement HoveredElement =>
+            hoveredElements.Count > 0 ? hoveredElements[0] : null;
+        public static bool IsHovering => HoveredElement != null;
         public static bool IsHoveringCanvasTarget => IsHovering && hoveredCanvasTarget;
         #endregion
 
@@ -75,6 +78,10 @@ namespace Shears.UI
         {
             base.Awake();
             registeredCanvases.Clear();
+            hoveredElements.Clear();
+            newHoveredElements.Clear();
+            ignoreTargets.Clear();
+            hitGraphics.Clear();
 
             detectionMask = LayerMask.GetMask("UI");
 
@@ -119,7 +126,7 @@ namespace Shears.UI
 
             if (focusedElement != null)
             {
-                focusedElement.InvokeEvent(new FocusEnterEvent());
+                InvokeEvent(new FocusEnterEvent(), focusedElement);
                 focusedElement.Disabled += ClearFocus;
             }
         }
@@ -136,7 +143,7 @@ namespace Shears.UI
 
             focusedElement.IsFocused = false;
             focusedElement.Disabled -= ClearFocus;
-            focusedElement.InvokeEvent(new FocusExitEvent());
+            InvokeEvent(new FocusExitEvent(), focusedElement);
             focusedElement = null;
         }
 
@@ -144,13 +151,31 @@ namespace Shears.UI
         {
             if (draggedElement != null)
             {
-                if (hoveredElement == draggedElement)
+                if (HoveredElement == draggedElement)
                     return;
-                else if (hoveredElement != null)
-                    hoveredElement.InvokeEvent(new HoverExitEvent());
+                else if (HoveredElement != null)
+                {
+                    InvokeEvent(new HoverExitEvent(), HoveredElement, draggedElement);
 
-                hoveredElement = draggedElement;
-                hoveredElement.InvokeEvent(new HoverEnterEvent());
+                    var index = hoveredElements.IndexOf(draggedElement);
+                    if (index != -1)
+                        hoveredElements.RemoveRange(index, hoveredElements.Count - index);
+                    else
+                        hoveredElements.Clear();
+                }
+
+                if (hoveredElements.Count == 0)
+                {
+                    var current = draggedElement;
+                    while (current != null)
+                    {
+                        hoveredElements.Add(current);
+                        current = current.Parent;
+                    }
+
+                    InvokeEvent(new HoverEnterEvent(), HoveredElement);
+                }
+
                 return;
             }
 
@@ -188,17 +213,82 @@ namespace Shears.UI
 
             if (newHoverTarget != null && newHoverTarget == canvasTarget)
                 hoveredCanvasTarget = true;
+            else
+                hoveredCanvasTarget = false;
 
-            if (newHoverTarget == hoveredElement)
+            if (newHoverTarget == HoveredElement)
                 return;
 
-            if (hoveredElement != null)
-                hoveredElement.InvokeEvent(new HoverExitEvent());
+            newHoveredElements.Clear();
 
-            hoveredElement = newHoverTarget;
+            var element = newHoverTarget;
 
-            if (hoveredElement != null)
-                hoveredElement.InvokeEvent(new HoverEnterEvent());
+            while (element != null)
+            {
+                newHoveredElements.Add(element);
+                element = element.Parent;
+            }
+
+            int removeIndex = -1;
+            int addIndex = newHoveredElements.Count - 1;
+            int maxCount = Mathf.Max(hoveredElements.Count, newHoveredElements.Count);
+
+            for (int i = 1; i <= maxCount; i++)
+            {
+                var currentIndex = hoveredElements.Count - i;
+                var newIndex = newHoveredElements.Count - i;
+
+                if (currentIndex < 0)
+                {
+                    removeIndex = -1;
+                    addIndex = newIndex;
+                    break;
+                }
+                else if (newIndex < 0)
+                {
+                    removeIndex = hoveredElements.Count - 1;
+                    addIndex = -1;
+                    break;
+                }
+                else if (hoveredElements[currentIndex] != newHoveredElements[newIndex])
+                {
+                    removeIndex = currentIndex;
+                    addIndex = newIndex;
+                    break;
+                }
+            }
+
+            if (removeIndex != -1)
+            {
+                if (hoveredElements.Count > removeIndex + 1)
+                    InvokeEvent(
+                        new HoverExitEvent(),
+                        HoveredElement,
+                        hoveredElements[removeIndex + 1]
+                    );
+                else
+                    InvokeEvent(new HoverExitEvent(), HoveredElement);
+
+                hoveredElements.RemoveRange(0, removeIndex + 1);
+            }
+
+            if (addIndex != -1)
+            {
+                for (int i = 0; i <= addIndex; i++)
+                {
+                    var newElement = newHoveredElements[i];
+                    hoveredElements.Insert(i, newElement);
+                }
+
+                if (hoveredElements.Count > addIndex + 1)
+                    InvokeEvent(
+                        new HoverEnterEvent(),
+                        HoveredElement,
+                        hoveredElements[addIndex + 1]
+                    );
+                else
+                    InvokeEvent(new HoverEnterEvent(), HoveredElement);
+            }
         }
 
         private void UpdateDraggedElement()
@@ -239,12 +329,12 @@ namespace Shears.UI
             if (draggedElement == null)
             {
                 var possibleTarget = pointerDownElement.GetDeepestChild();
-                possibleTarget.InvokeEvent(new DragBeginEvent(camera, pointerPos, offset));
+                InvokeEvent(new DragBeginEvent(camera, pointerPos, offset), possibleTarget);
                 dragInitialZ = targetElement.transform.position.z;
             }
             else if (pointerDownElement == null)
             {
-                draggedElement.InvokeEvent(new DragEndEvent(camera, pointerPos, planePosition));
+                InvokeEvent(new DragEndEvent(camera, pointerPos, planePosition), draggedElement);
                 ignoreTargets.Clear();
 
                 var children = draggedElement.Children;
@@ -255,13 +345,15 @@ namespace Shears.UI
 
                 if (TryRaycastElement(out UIElement releaseTarget, ignoreTargets))
                 {
-                    releaseTarget.InvokeEvent(
-                        new DragReleaseTargetEvent(pointerPos, planePosition, draggedElement)
+                    InvokeEvent(
+                        new DragReleaseTargetEvent(pointerPos, planePosition, draggedElement),
+                        releaseTarget
                     );
                 }
 
-                draggedElement.InvokeEvent(
-                    new DragReleaseEvent(pointerPos, planePosition, releaseTarget)
+                InvokeEvent(
+                    new DragReleaseEvent(pointerPos, planePosition, releaseTarget),
+                    draggedElement
                 );
 
                 draggedElement = null;
@@ -270,7 +362,7 @@ namespace Shears.UI
             }
 
             if (draggedElement != null)
-                draggedElement.InvokeEvent(new DragEvent(camera, pointerPos, planePosition));
+                InvokeEvent(new DragEvent(camera, pointerPos, planePosition), draggedElement);
         }
 
         #region Raycasts
@@ -451,11 +543,11 @@ namespace Shears.UI
 
         private void OnPointerDown()
         {
-            if (hoveredElement == null)
+            if (HoveredElement == null)
                 return;
 
-            pointerDownElement = hoveredElement;
-            pointerDownElement.InvokeEvent(new PointerDownEvent());
+            pointerDownElement = HoveredElement;
+            InvokeEvent(new PointerDownEvent(), pointerDownElement);
 
             pointerDownTime = Time.time;
             pointerDownPosition = ManagedPointer.Current.Position;
@@ -463,12 +555,12 @@ namespace Shears.UI
 
         private void OnPointerUp()
         {
-            if (hoveredElement != null)
+            if (HoveredElement != null)
             {
-                hoveredElement.InvokeEvent(new PointerUpEvent());
+                InvokeEvent(new PointerUpEvent(), HoveredElement);
 
-                if (hoveredElement == pointerDownElement)
-                    hoveredElement.InvokeEvent(new ClickEvent());
+                if (HoveredElement == pointerDownElement)
+                    InvokeEvent(new ClickEvent(), HoveredElement);
             }
 
             pointerDownElement = null;
@@ -477,15 +569,58 @@ namespace Shears.UI
         private void OnSelectDown()
         {
             if (focusedElement != null)
-                focusedElement.InvokeEvent(new PointerDownEvent());
+                InvokeEvent(new PointerDownEvent(), focusedElement);
         }
 
         private void OnSelectUp()
         {
             if (focusedElement != null)
             {
-                focusedElement.InvokeEvent(new PointerUpEvent());
-                focusedElement.InvokeEvent(new ClickEvent());
+                InvokeEvent(new PointerUpEvent(), focusedElement);
+                InvokeEvent(new ClickEvent(), focusedElement);
+            }
+        }
+
+        private static void InvokeEvent<EventType>(
+            EventType evt,
+            UIElement element,
+            UIElement boundElement = null
+        )
+            where EventType : UIEvent
+        {
+            if (element == boundElement)
+                return;
+
+            element.InvokeEvent(evt);
+
+            if (evt.TrickleDown)
+            {
+                evt.IsTricklingDown = true;
+                var children = element.Children;
+
+                for (int i = 0; i < children.Count; i++)
+                {
+                    if (children[i] == boundElement)
+                        break;
+
+                    children[i].InvokeEvent(evt);
+                }
+
+                evt.IsTricklingDown = false;
+            }
+
+            if (evt.BubbleUp)
+            {
+                evt.IsBubblingUp = true;
+
+                var parent = element.Parent;
+                while (parent != null && parent != boundElement)
+                {
+                    parent.InvokeEvent(evt);
+                    parent = parent.Parent;
+                }
+
+                evt.IsBubblingUp = false;
             }
         }
     }

@@ -13,6 +13,10 @@ namespace Shears.UI
         private delegate void GetChildrenCallback(List<UIElement> children);
 
         #region Variables
+        [Header("UIElement")]
+        [SerializeField, Range(0, 1)]
+        private float alpha = 1.0f;
+
         [NonSerialized]
         private List<UIElement> flattenedHierarchy;
 
@@ -31,14 +35,11 @@ namespace Shears.UI
         private float dragBeginTime = 0.1f;
 
         private int Depth { get; set; }
-        private UIElement Parent { get; set; }
         private UIElementCanvas UICanvas { get; set; }
         private GetChildrenCallback GetChildren { get; set; }
         private GetSortOrderCallback GetSortOrder { get; set; }
         protected IReadOnlyList<Tween> Tweens => tweenStorage.Tweens;
-        public bool IsAlphaManaged { get; set; }
-        public bool IsBaseColorManaged { get; set; }
-        public bool IsModulateManaged { get; set; }
+        public UIElement Parent { get; set; }
         public IReadOnlyList<UIElement> Children
         {
             get
@@ -74,32 +75,12 @@ namespace Shears.UI
                 return GetSortOrder();
             }
         }
-        public float Alpha
+        public virtual Color BaseColor { get; set; } = Color.white;
+        public virtual Color Modulate { get; set; } = Color.white;
+        public virtual float Alpha
         {
-            get => Modulate.a;
-            set
-            {
-                if (!IsAlphaManaged)
-                    SetAlpha(value);
-            }
-        }
-        public Color BaseColor
-        {
-            get => GetBaseColor();
-            set
-            {
-                if (!IsBaseColorManaged)
-                    SetBaseColor(value);
-            }
-        }
-        public Color Modulate
-        {
-            get => GetModulate();
-            set
-            {
-                if (!IsModulateManaged)
-                    SetModulate(value);
-            }
+            get => alpha;
+            set => alpha = value;
         }
 
         public event Action Disabled;
@@ -124,6 +105,7 @@ namespace Shears.UI
         protected virtual void OnDisable()
         {
             DisposeTweens();
+            CalculateAndApplyStyle();
 
             Disabled?.Invoke();
         }
@@ -157,6 +139,11 @@ namespace Shears.UI
         {
             ChildrenChanged?.Invoke();
         }
+
+        private void LateUpdate()
+        {
+            CalculateAndApplyStyle();
+        }
         #endregion
 
         public void Enable()
@@ -176,30 +163,26 @@ namespace Shears.UI
 
         protected virtual void BindRefs() { }
 
-        #region Colors
-        protected virtual void SetAlpha(float alpha)
+        private void CalculateAndApplyStyle()
         {
-            Modulate = Modulate.With(a: alpha);
+            var baseColor = BaseColor;
+            var modulate = Modulate;
+            float alpha = Alpha;
+
+            var parent = Parent;
+            while (parent != null)
+            {
+                alpha *= parent.Alpha;
+
+                parent = parent.Parent;
+            }
+
+            var resolvedColor = (modulate * baseColor).With(a: alpha);
+
+            ApplyResolvedStyle(new(resolvedColor));
         }
 
-        protected virtual Color GetBaseColor()
-        {
-            return Color.white;
-        }
-
-        public void SetBaseColorManaged(Color color) => SetBaseColor(color);
-
-        protected virtual void SetBaseColor(Color color) { }
-
-        protected virtual Color GetModulate()
-        {
-            return Color.white;
-        }
-
-        public void SetModulateManaged(Color color) => SetModulate(color);
-
-        protected virtual void SetModulate(Color color) { }
-        #endregion
+        protected virtual void ApplyResolvedStyle(StyleData data) { }
 
         #region Event Registration
         public void RegisterEvent<EventType>(Action<EventType> callback)
@@ -239,37 +222,6 @@ namespace Shears.UI
                 foreach (var registration in (List<IEventRegistration<EventType>>)list)
                     registration.Invoke(evt);
             }
-
-            if (evt.IsTricklingDown)
-                return;
-
-            if (evt.TrickleDown && !evt.IsBubblingUp)
-            {
-                evt.IsTricklingDown = true;
-                GetChildren(tempElements);
-
-                foreach (var child in tempElements)
-                {
-                    if (child == this)
-                        continue;
-
-                    child.InvokeEvent(evt);
-                }
-
-                evt.IsTricklingDown = false;
-            }
-
-            if (evt.BubbleUp)
-            {
-                evt.IsBubblingUp = true;
-
-                if (Parent == null)
-                    return;
-
-                Parent.InvokeEvent(evt);
-
-                evt.IsBubblingUp = false;
-            }
         }
         #endregion
 
@@ -279,6 +231,11 @@ namespace Shears.UI
         protected Tween StoreTween(in Tween tween) => tweenStorage.Store(tween);
 
         protected void DisposeTweens() => tweenStorage.Dispose();
+
+        protected void AddTweenStorage(TweenStorage storage) => tweenStorage.AddSubStorage(storage);
+
+        protected void RemoveTweenStorage(TweenStorage storage) =>
+            tweenStorage.RemoveSubStorage(storage);
 
         public Tween DoColorTween(
             Color targetColor,

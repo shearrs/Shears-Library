@@ -123,26 +123,6 @@ namespace Shears.UI
             return false;
         }
 
-        protected override Color GetBaseColor()
-        {
-            return image.BaseColor;
-        }
-
-        protected override void SetBaseColor(Color color)
-        {
-            image.BaseColor = color;
-        }
-
-        protected override Color GetModulate()
-        {
-            return image.Modulate;
-        }
-
-        protected override void SetModulate(Color color)
-        {
-            image.Modulate = color;
-        }
-
         private void OnParentHoverEnter(HoverEnterEvent evt)
         {
             if (hoverTimeBeforeAppearing == 0.0f)

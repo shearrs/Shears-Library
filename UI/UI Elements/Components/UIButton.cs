@@ -23,8 +23,6 @@ namespace Shears.UI
 
         private readonly Ref<bool> isHovered = new();
         private readonly Ref<bool> isPressed = new();
-        private Color baseColor = Color.white;
-        private Color modulate = Color.white;
 
         public bool IsHovered => isHovered.Value;
         public bool Selectable
@@ -39,7 +37,6 @@ namespace Shears.UI
         {
             base.Awake();
 
-            graphicHandler.Initialize();
             graphicHandler.BindIsHovered(isHovered);
             graphicHandler.BindIsPressed(isPressed);
             graphicHandler.BindSelectable(selectable);
@@ -87,14 +84,12 @@ namespace Shears.UI
         private void OnHoverEnter(HoverEnterEvent evt)
         {
             evt.PreventDefault();
-
             isHovered.Value = true;
         }
 
         private void OnHoverExit(HoverExitEvent evt)
         {
             evt.PreventDefault();
-
             isHovered.Value = false;
         }
 
@@ -142,40 +137,11 @@ namespace Shears.UI
                 isPressed.Value = false;
         }
 
-        protected override Color GetBaseColor()
-        {
-            return baseColor;
-        }
-
-        protected override void SetBaseColor(Color value)
-        {
-            baseColor = value;
-
-            graphicHandler.SetBaseColor(value);
-        }
-
-        protected override Color GetModulate()
-        {
-            return modulate;
-        }
-
-        protected override void SetModulate(Color value)
-        {
-            modulate = value;
-            graphicHandler.SetModulate(value);
-        }
-
         private void InitializeDefaultGraphics()
         {
-            InitializeDefaultGraphics(transform);
-        }
-
-        private void InitializeDefaultGraphics(Transform transform)
-        {
-            for (int i = 0; i < transform.childCount; i++)
+            var children = GetComponentsInChildren<UIElement>();
+            foreach (var child in children)
             {
-                var child = transform.GetChild(i);
-
                 if (child.TryGetComponent(out UIImage image))
                     graphicHandler.AddGraphic(image);
                 else if (child.TryGetComponent(out UIText text))
@@ -184,8 +150,6 @@ namespace Shears.UI
                     graphicHandler.AddGraphic(textGUI);
                 else if (child.TryGetComponent(out Renderer renderer))
                     graphicHandler.AddGraphic(renderer);
-
-                InitializeDefaultGraphics(child);
             }
         }
     }

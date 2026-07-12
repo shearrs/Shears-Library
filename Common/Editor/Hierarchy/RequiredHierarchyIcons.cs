@@ -325,6 +325,9 @@ namespace Shears.Editor
                         {
                             var element = prop.GetArrayElementAtIndex(i);
 
+                            if (element.propertyType != SerializedPropertyType.Generic)
+                                break;
+
                             var (shouldShow, path) = ShouldShowError(
                                 fieldType,
                                 (s) => element.FindPropertyRelative(s)
@@ -334,7 +337,7 @@ namespace Shears.Editor
                                 return (shouldShow, path);
                         }
 
-                        return (false, "");
+                        continue;
                     }
                     else
                         return (true, prop.propertyPath);
