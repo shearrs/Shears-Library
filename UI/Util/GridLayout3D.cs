@@ -6,6 +6,9 @@ namespace Shears.UI
     public class GridLayout3D : MonoBehaviour
     {
         [SerializeField]
+        private bool isStatic = false;
+
+        [SerializeField]
         private Vector3Int dimensions = Vector3Int.one;
 
         [SerializeField]
@@ -29,6 +32,9 @@ namespace Shears.UI
 
         private void Update()
         {
+            if (Application.isPlaying && isStatic)
+                return;
+
             for (int i = 0; i < transform.childCount; i++)
             {
                 var child = transform.GetChild(i);

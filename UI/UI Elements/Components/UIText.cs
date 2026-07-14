@@ -12,17 +12,25 @@ namespace Shears.UI
         [SerializeField]
         private Color modulate = Color.white;
 
+        [SerializeField]
+        private bool additiveModulate;
+
         private TextMeshPro textMesh;
 
-        public override Color BaseColor
+        protected override Color BaseColorValue
         {
             get => baseColor;
             set => baseColor = value;
         }
-        public override Color Modulate
+        protected override Color ModulateValue
         {
             get => modulate;
             set => modulate = value;
+        }
+        protected override bool AdditiveModulateValue
+        {
+            get => additiveModulate;
+            set => additiveModulate = value;
         }
         public TextMeshPro TextMesh
         {
@@ -49,14 +57,19 @@ namespace Shears.UI
 
         private void OnValidate()
         {
+            if (Application.isPlaying)
+                return;
+
             var text = GetComponent<TextMeshPro>();
-            var targetColor = (modulate * baseColor).With(a: Alpha);
+            var targetColor = AdditiveModulate
+                ? (modulate + baseColor).With(a: Alpha)
+                : (modulate * baseColor).With(a: Alpha);
 
             if (text.color != targetColor)
                 text.color = targetColor;
         }
 
-        protected override void ApplyResolvedStyle(StyleData data)
+        protected override void Repaint(StyleData data)
         {
             TextMesh.color = data.Color;
         }

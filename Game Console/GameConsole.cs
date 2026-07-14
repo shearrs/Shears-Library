@@ -1,8 +1,8 @@
+using System;
+using System.Collections.Generic;
 using Shears.Input;
 using Shears.Logging;
 using Shears.Signals;
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Shears.GameConsole
@@ -16,10 +16,7 @@ namespace Shears.GameConsole
         private static readonly Color ERROR_COLOR = new(0.8f, 0.1f, 0.1f);
         private static readonly List<string> previousInputs = new();
         private static readonly Dictionary<Type, object> storedSingletons = new();
-        private static readonly List<IConsoleCommand> commands = new()
-        {
-            new HelpCommand(),
-        };
+        private static readonly List<IConsoleCommand> commands = new() { new HelpCommand() };
 
         private bool isEnabled = false;
         private int previousInputIndex = 0;
@@ -107,6 +104,7 @@ namespace Shears.GameConsole
 
         #region Singletons
         public static void SubmitInput(string inputText) => Instance.InstSubmitInput(inputText);
+
         private void InstSubmitInput(string inputText)
         {
             if (inputText.Length == 0)
@@ -127,13 +125,16 @@ namespace Shears.GameConsole
             }
 
             if (!foundValidCommand)
-                ConsoleError($"Could not parse command '{inputText}'. Use 'help' to see a list of commands.");
+                ConsoleError(
+                    $"Could not parse command '{inputText}'. Use 'help' to see a list of commands."
+                );
 
             previousInputs.Add(inputText);
             previousInputIndex = previousInputs.Count;
         }
 
         public static void StoreSingleton<T>(T instance) => Instance.InstStoreSingleton(instance);
+
         private void InstStoreSingleton<T>(T instance)
         {
             var type = typeof(T);
@@ -142,11 +143,15 @@ namespace Shears.GameConsole
         }
 
         public static T GetSingleton<T>() => Instance.InstGetSingleton<T>();
+
         private T InstGetSingleton<T>()
         {
             if (!storedSingletons.TryGetValue(typeof(T), out var singleton))
             {
-                SHLogger.Log($"Could not retrieve singleton of type: {typeof(T).Name}!", SHLogLevels.Error);
+                SHLogger.Log(
+                    $"Could not retrieve singleton of type: {typeof(T).Name}!",
+                    SHLogLevels.Error
+                );
                 return default;
             }
 
@@ -154,6 +159,7 @@ namespace Shears.GameConsole
         }
 
         public static void ClearSingleton<T>() => Instance.InstClearSingleton<T>();
+
         private void InstClearSingleton<T>()
         {
             storedSingletons.Remove(typeof(T));
@@ -161,7 +167,13 @@ namespace Shears.GameConsole
         #endregion
 
         #region Commands
-        public static void AddCommand(IConsoleCommand command) => commands.Add(command); 
+        public static void AddCommand(IConsoleCommand command) => commands.Add(command);
+
+        public static void AddCommands(params IConsoleCommand[] commands)
+        {
+            foreach (var command in commands)
+                AddCommand(command);
+        }
 
         public static void RemoveCommand(IConsoleCommand command) => commands.Remove(command);
         #endregion
@@ -218,7 +230,7 @@ namespace Shears.GameConsole
         private void ConsoleMessage(string text, Color color)
         {
             string colorString = ColorUtility.ToHtmlStringRGB(color);
-            
+
             ConsoleTextChanged?.Invoke($"<color=#{colorString}>{text}</color>");
         }
         #endregion

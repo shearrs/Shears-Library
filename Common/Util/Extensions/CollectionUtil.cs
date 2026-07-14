@@ -71,5 +71,13 @@ namespace Shears
 
             return -1;
         }
+
+        public static T Random<T>(this List<T> list)
+        {
+            if (list.Count == 0)
+                return default;
+            else
+                return list[UnityEngine.Random.Range(0, list.Count)];
+        }
     }
 }

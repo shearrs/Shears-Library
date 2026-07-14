@@ -1,5 +1,3 @@
-using Unity.Plastic.Newtonsoft.Json.Linq;
-using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEngine;
 
 namespace Shears.UI
@@ -13,18 +11,25 @@ namespace Shears.UI
         [SerializeField]
         private Color modulate = Color.white;
 
+        [SerializeField]
+        private bool additiveModulate;
+
         private SpriteRenderer spriteRenderer;
 
-        public override Color BaseColor
+        protected override Color BaseColorValue
         {
             get => baseColor;
             set => baseColor = value;
         }
-
-        public override Color Modulate
+        protected override Color ModulateValue
         {
             get => modulate;
             set => modulate = value;
+        }
+        protected override bool AdditiveModulateValue
+        {
+            get => additiveModulate;
+            set => additiveModulate = value;
         }
 
         public SpriteRenderer SpriteRenderer
@@ -52,12 +57,19 @@ namespace Shears.UI
 
         private void OnValidate()
         {
+            if (Application.isPlaying)
+                return;
+
             var sprite = GetComponent<SpriteRenderer>();
-            if (sprite.color != modulate * baseColor)
-                sprite.color = modulate * baseColor;
+            var targetColor = AdditiveModulate
+                ? (modulate + baseColor).With(a: Alpha)
+                : (modulate * baseColor).With(a: Alpha);
+
+            if (sprite.color != targetColor)
+                sprite.color = targetColor;
         }
 
-        protected override void ApplyResolvedStyle(StyleData data)
+        protected override void Repaint(StyleData data)
         {
             SpriteRenderer.color = data.Color;
         }

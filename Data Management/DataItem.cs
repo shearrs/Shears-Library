@@ -19,6 +19,11 @@ namespace Shears.DataManagement
 
         public Type DataType => selectedType;
 
-        public T CreateInstance(DataMap data) => blueprint.Create(data);
+        public T CreateInstance(DataMap data) => ProcessInstance(blueprint.Create(data));
+
+        protected virtual T ProcessInstance(T instance)
+        {
+            return instance;
+        }
     }
 }

@@ -15,12 +15,12 @@ namespace Shears.UI
 
         private TextMeshProUGUI textMesh;
 
-        public override Color BaseColor
+        protected override Color BaseColorValue
         {
             get => baseColor;
             set => baseColor = value;
         }
-        public override Color Modulate
+        protected override Color ModulateValue
         {
             get => modulate;
             set => modulate = value;
@@ -79,7 +79,7 @@ namespace Shears.UI
             return textMesh.GetCounterTween(targetNumber, startNumber, prefix, suffix, data);
         }
 
-        protected override void ApplyResolvedStyle(StyleData data)
+        protected override void Repaint(StyleData data)
         {
             TextMesh.color = data.Color;
         }

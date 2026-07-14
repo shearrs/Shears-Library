@@ -27,11 +27,11 @@ namespace Shears.UI
         private readonly Dictionary<IRef, object> refBindings = new();
         private readonly Dictionary<IRef, object> rawRefBindings = new();
         private readonly List<UIElement> children = new();
-        private readonly List<UIElement> tempElements = new();
         private readonly TweenStorage tweenStorage = new();
         private readonly Ref<bool> isFocused = new();
         private Dictionary<UIElement, int> hierarchyIndex;
         private bool isHierarchyInitialized;
+        private bool isDirty = false;
         private float dragBeginTime = 0.1f;
 
         private int Depth { get; set; }
@@ -47,7 +47,11 @@ namespace Shears.UI
                 if (!isHierarchyInitialized)
                     ForceInitializeHierarchy();
 
-                GetChildren(children);
+                if (GetChildren != null)
+                    GetChildren(children);
+                else
+                    children.Clear();
+
                 return children;
             }
         }
@@ -75,13 +79,62 @@ namespace Shears.UI
                 return GetSortOrder();
             }
         }
-        public virtual Color BaseColor { get; set; } = Color.white;
-        public virtual Color Modulate { get; set; } = Color.white;
-        public virtual float Alpha
+        public Color BaseColor
+        {
+            get => BaseColorValue;
+            set
+            {
+                if (BaseColorValue == value)
+                    return;
+
+                MarkDirty();
+                BaseColorValue = value;
+            }
+        }
+        public Color Modulate
+        {
+            get => ModulateValue;
+            set
+            {
+                if (ModulateValue == value)
+                    return;
+
+                MarkDirty();
+                ModulateValue = value;
+            }
+        }
+        public float Alpha
+        {
+            get => AlphaValue;
+            set
+            {
+                if (AlphaValue == value)
+                    return;
+
+                MarkDirty();
+                AlphaValue = value;
+            }
+        }
+        public bool AdditiveModulate
+        {
+            get => AdditiveModulateValue;
+            set
+            {
+                if (AdditiveModulateValue == value)
+                    return;
+
+                MarkDirty();
+                AdditiveModulateValue = value;
+            }
+        }
+        protected virtual Color BaseColorValue { get; set; } = Color.white;
+        protected virtual Color ModulateValue { get; set; } = Color.white;
+        protected virtual float AlphaValue
         {
             get => alpha;
             set => alpha = value;
         }
+        protected virtual bool AdditiveModulateValue { get; set; } = false;
 
         public event Action Disabled;
         private event Action Destroyed;
@@ -100,6 +153,7 @@ namespace Shears.UI
 
             RegisterEvents();
             BindRefs();
+            MarkDirty();
         }
 
         protected virtual void OnDisable()
@@ -132,6 +186,7 @@ namespace Shears.UI
             else if (flattenedHierarchy != null && flattenedHierarchy.Count > 0)
                 flattenedHierarchy.Clear();
 
+            MarkDirty();
             ParentChanged?.Invoke();
         }
 
@@ -142,7 +197,8 @@ namespace Shears.UI
 
         private void LateUpdate()
         {
-            CalculateAndApplyStyle();
+            if (isDirty)
+                CalculateAndApplyStyle();
         }
         #endregion
 
@@ -177,12 +233,25 @@ namespace Shears.UI
                 parent = parent.Parent;
             }
 
-            var resolvedColor = (modulate * baseColor).With(a: alpha);
+            Color modColor;
+            if (AdditiveModulate)
+                modColor = baseColor + modulate;
+            else
+                modColor = modulate * baseColor;
 
-            ApplyResolvedStyle(new(resolvedColor));
+            var resolvedColor = modColor.With(a: alpha);
+
+            isDirty = false;
+            Repaint(new(resolvedColor));
+
+            foreach (var child in Children)
+            {
+                if (child.isDirty)
+                    child.CalculateAndApplyStyle();
+            }
         }
 
-        protected virtual void ApplyResolvedStyle(StyleData data) { }
+        protected virtual void Repaint(StyleData data) { }
 
         #region Event Registration
         public void RegisterEvent<EventType>(Action<EventType> callback)
@@ -512,6 +581,14 @@ namespace Shears.UI
         private void SetLayer()
         {
             gameObject.layer = LayerMask.NameToLayer("UI");
+        }
+
+        private void MarkDirty()
+        {
+            isDirty = true;
+
+            foreach (var child in Children)
+                child.isDirty = true;
         }
     }
 }

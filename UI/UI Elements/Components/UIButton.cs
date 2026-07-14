@@ -24,6 +24,7 @@ namespace Shears.UI
         private readonly Ref<bool> isHovered = new();
         private readonly Ref<bool> isPressed = new();
 
+        public InteractableGraphicHandler GraphicHandler => graphicHandler;
         public bool IsHovered => isHovered.Value;
         public bool Selectable
         {

@@ -12,6 +12,9 @@ namespace Shears.UI
         [SerializeField]
         private Color modulate = Color.white;
 
+        [SerializeField]
+        private bool additiveModulate = false;
+
         private Image image;
 
         public Image RawImage
@@ -31,15 +34,20 @@ namespace Shears.UI
             set => RawImage.sprite = value;
         }
 
-        public override Color BaseColor
+        protected override Color BaseColorValue
         {
             get => baseColor;
             set => baseColor = value;
         }
-        public override Color Modulate
+        protected override Color ModulateValue
         {
             get => modulate;
             set => modulate = value;
+        }
+        protected override bool AdditiveModulateValue
+        {
+            get => additiveModulate;
+            set => additiveModulate = value;
         }
 
         private void Reset()
@@ -52,10 +60,16 @@ namespace Shears.UI
             if (Application.isPlaying)
                 return;
 
-            RawImage.color = modulate * baseColor;
+            var image = GetComponent<Image>();
+            var targetColor = AdditiveModulate
+                ? (modulate + baseColor).With(a: Alpha)
+                : (modulate * baseColor).With(a: Alpha);
+
+            if (image.color != targetColor)
+                image.color = targetColor;
         }
 
-        protected override void ApplyResolvedStyle(StyleData data)
+        protected override void Repaint(StyleData data)
         {
             RawImage.color = data.Color;
         }
