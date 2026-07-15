@@ -1,5 +1,4 @@
 using UnityEngine;
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -32,7 +31,13 @@ namespace Shears
             DrawWireCapsule(p1, p2, radius, rightOffset, forwardOffset);
         }
 
-        private static void DrawWireCapsule(Vector3 p1, Vector3 p2, float radius, Vector3 rightOffset, Vector3 forwardOffset)
+        private static void DrawWireCapsule(
+            Vector3 p1,
+            Vector3 p2,
+            float radius,
+            Vector3 rightOffset,
+            Vector3 forwardOffset
+        )
         {
             Gizmos.DrawWireSphere(p1, radius);
             Gizmos.DrawWireSphere(p2, radius);
@@ -43,7 +48,14 @@ namespace Shears
             Gizmos.DrawLine(p1 - forwardOffset, p2 - forwardOffset);
         }
 
-        public static void DrawArrow(Vector3 from, Vector3 direction, Vector3 headAxis, float headOffset = 0.1f, float headLength = 0.1f, Color headColor = default)
+        public static void DrawArrow(
+            Vector3 from,
+            Vector3 direction,
+            Vector3 headAxis,
+            float headOffset = 0.1f,
+            float headLength = 0.1f,
+            Color? headColor = null
+        )
         {
             float magnitude = direction.magnitude;
             Vector3 normalizedDirection = direction / magnitude;
@@ -56,8 +68,8 @@ namespace Shears
 
             Color currentColor = Gizmos.color;
 
-            if (headColor != default)
-                Gizmos.color = headColor;
+            if (headColor.HasValue)
+                Gizmos.color = headColor.Value;
 
             Gizmos.DrawLine(from + direction, head1End);
             Gizmos.DrawLine(from + direction, head2End);
