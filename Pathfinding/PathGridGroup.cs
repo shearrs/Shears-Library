@@ -6,8 +6,11 @@ using UnityEngine;
 
 namespace Shears.Pathfinding
 {
-    public class PathGridGroup : MonoBehaviour, IPathGrid
+    public class PathGridGroup : MonoBehaviour, IPathGrid, ISHLoggable
     {
+        [field: SerializeField]
+        public SHLogLevels LogLevels { get; set; } = SHLogUtil.Default;
+
         [SerializeField]
         private List<PathNode> nodes = new();
 
@@ -16,6 +19,8 @@ namespace Shears.Pathfinding
 
         [SerializeField, ReadOnly]
         private Vector3Int gridSize;
+
+        private readonly List<PathNode> newNodes = new();
 
         public IReadOnlyList<PathNode> Nodes => nodes;
         public Vector3Int GridSize => gridSize;
@@ -184,7 +189,12 @@ namespace Shears.Pathfinding
             return transform.position + (0.5f * nodeSize * ((Vector3)GridSize - Vector3.one));
         }
 
-        // should be refactored to not rebuild whole grid if we can already fit the new one
+        public void Clear()
+        {
+            nodes.Clear();
+            gridSize = Vector3Int.one;
+        }
+
         public void Add(PathGrid grid, List<PathNode> clonedNodes = null)
         {
             clonedNodes?.Clear();
@@ -194,8 +204,10 @@ namespace Shears.Pathfinding
                 SHLogger.Log("Grid has no nodes to add!", SHLogLevels.Warning);
                 return;
             }
+            else if (Nodes.Count == 0)
+                transform.position = grid.transform.position;
 
-            var newNodes = new List<PathNode>();
+            newNodes.Clear();
 
             VectorUtil.Min(
                 out var xMin,
@@ -205,7 +217,7 @@ namespace Shears.Pathfinding
                 grid.transform.position
             );
 
-            Vector3 maxPos = Nodes.Count > 0 ? Nodes[^1].WorldPosition : transform.position;
+            var maxPos = Nodes.Count > 0 ? Nodes[^1].WorldPosition : transform.position;
 
             VectorUtil.Max(
                 out var xMax,
@@ -229,11 +241,17 @@ namespace Shears.Pathfinding
                 {
                     for (int x = 0; x < newGridSize.x; x++)
                     {
-                        var worldPosition = new Vector3(xMin + x, yMin + y, zMin + z);
-                        var node = grid.GetNodeInBounds(worldPosition);
+                        var worldPosition = new Vector3(
+                            xMin + x * NodeSize,
+                            yMin + y * NodeSize,
+                            zMin + z * NodeSize
+                        );
+                        PathNode node;
                         bool currentGridNode = false;
 
-                        if (node == null || node.Data == null)
+                        node = grid.GetNodeInBounds(worldPosition);
+
+                        if (GridSize.sqrMagnitude > 0 && (node == null || node.Data == null))
                         {
                             node = GetNodeInBounds(worldPosition + offset);
                             currentGridNode = node != null;
@@ -250,6 +268,7 @@ namespace Shears.Pathfinding
                             }
 
                             node.GridPosition = new Vector3Int(x, y, z);
+                            node.WorldPosition = worldPosition;
                         }
 
                         if (node.NodeObject != null)
@@ -263,7 +282,78 @@ namespace Shears.Pathfinding
                 }
             }
 
-            nodes = newNodes;
+            nodes.Clear();
+            nodes.AddRange(newNodes);
+            gridSize = newGridSize;
+        }
+
+        public void Shift(
+            Vector3Int rangeStart,
+            Vector3Int rangeEnd,
+            Direction direction,
+            int distance
+        )
+        {
+            if (Nodes.Count == 0)
+            {
+                this.Log("Grid has no nodes to shift.", SHLogLevels.Warning);
+                return;
+            }
+
+            newNodes.Clear();
+
+            var directionOffset = distance * direction.ToVectorInt();
+            var offsetStart = rangeStart + directionOffset;
+            var offsetEnd = rangeEnd + Vector3Int.one + directionOffset;
+
+            VectorUtil.Min(out var xMin, out var yMin, out var zMin, Vector3Int.zero, offsetStart);
+            VectorUtil.Max(out var xMax, out var yMax, out var zMax, GridSize, offsetEnd);
+
+            var newGridSize = new Vector3Int(xMax - xMin, yMax - yMin, zMax - zMin);
+            var minOffset = new Vector3Int(xMin, yMin, zMin);
+            var targetMin = rangeStart - minOffset;
+            var targetMax = rangeEnd - minOffset;
+            var affectedMin = targetMin + directionOffset;
+            var affectedMax = targetMax + directionOffset;
+
+            transform.position += NodeSize * (Vector3)minOffset;
+
+            for (int z = 0; z < newGridSize.z; z++)
+            {
+                for (int y = 0; y < newGridSize.y; y++)
+                {
+                    for (int x = 0; x < newGridSize.x; x++)
+                    {
+                        var gridPosition = new Vector3Int(x, y, z);
+                        var worldPosition = transform.position + (NodeSize * new Vector3(x, y, z));
+                        PathNode node;
+
+                        if (VectorUtil.WithinRange(gridPosition, affectedMin, affectedMax))
+                        {
+                            var offset = gridPosition - affectedMin;
+                            var originalPos = rangeStart + offset;
+                            var originalNode = GetNode(originalPos);
+                            node = originalNode;
+                        }
+                        else if (VectorUtil.WithinRange(gridPosition, targetMin, targetMax))
+                            node = new PathNode(gridPosition, worldPosition, nodeSize);
+                        else
+                        {
+                            node = GetNodeInBounds(worldPosition);
+
+                            node ??= new PathNode(gridPosition, worldPosition, nodeSize);
+                        }
+
+                        node.GridPosition = gridPosition;
+                        node.WorldPosition = worldPosition;
+
+                        newNodes.Add(node);
+                    }
+                }
+            }
+
+            nodes.Clear();
+            nodes.AddRange(newNodes);
             gridSize = newGridSize;
         }
 

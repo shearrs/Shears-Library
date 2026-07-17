@@ -38,7 +38,16 @@ namespace Shears.Pathfinding
         public Vector3 WorldPosition
         {
             get => worldPosition;
-            internal set => worldPosition = value;
+            internal set
+            {
+                if (value == worldPosition)
+                    return;
+
+                worldPosition = value;
+
+                if (nodeObject != null)
+                    nodeObject.transform.position = worldPosition;
+            }
         }
         public float Size
         {

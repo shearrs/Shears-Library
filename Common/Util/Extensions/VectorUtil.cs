@@ -180,6 +180,107 @@ namespace Shears
             );
         }
 
+        public static bool WithinRange(Vector3Int value, Vector3Int min, Vector3Int max)
+        {
+            return value.x >= min.x
+                && value.x <= max.x
+                && value.y >= min.y
+                && value.y <= max.y
+                && value.z >= min.z
+                && value.z <= max.z;
+        }
+
+        public static void Min(
+            out int xMin,
+            out int yMin,
+            out int zMin,
+            params Vector3Int[] vectors
+        )
+        {
+            xMin = MathUtil.MinSelector(vectors, v => v.x);
+            yMin = MathUtil.MinSelector(vectors, v => v.y);
+            zMin = MathUtil.MinSelector(vectors, v => v.z);
+        }
+
+        public static void Max(
+            out int xMax,
+            out int yMax,
+            out int zMax,
+            params Vector3Int[] vectors
+        )
+        {
+            xMax = MathUtil.MaxSelector(vectors, v => v.x);
+            yMax = MathUtil.MaxSelector(vectors, v => v.y);
+            zMax = MathUtil.MaxSelector(vectors, v => v.z);
+        }
+
+        public static void MinMax(
+            out int xMin,
+            out int xMax,
+            out int yMin,
+            out int yMax,
+            out int zMin,
+            out int zMax,
+            params Vector3Int[] vectors
+        )
+        {
+            MathUtil.MinMax(out xMin, out xMax, vectors, v => v.x, v => v.x);
+            MathUtil.MinMax(out yMin, out yMax, vectors, v => v.y, v => v.y);
+            MathUtil.MinMax(out zMin, out zMax, vectors, v => v.z, v => v.z);
+        }
+
+        public static void MinMax<T>(
+            out int xMin,
+            out int xMax,
+            out int yMin,
+            out int yMax,
+            out int zMin,
+            out int zMax,
+            IReadOnlyList<T> list,
+            Func<T, Vector3Int> minSelector,
+            Func<T, Vector3Int> maxSelector
+        )
+        {
+            if (list.Count == 0)
+            {
+                xMin = xMax = yMin = yMax = zMin = zMax = -1;
+
+                return;
+            }
+
+            xMin = minSelector(list[0]).x;
+            xMax = maxSelector(list[0]).x;
+            yMin = minSelector(list[0]).y;
+            yMax = maxSelector(list[0]).y;
+            zMin = minSelector(list[0]).z;
+            zMax = maxSelector(list[0]).z;
+
+            for (int i = 1; i < list.Count; i++)
+            {
+                int xMinCandidate = minSelector(list[i]).x;
+                int xMaxCandidate = maxSelector(list[i]).x;
+                int yMinCandidate = minSelector(list[i]).y;
+                int yMaxCandidate = maxSelector(list[i]).y;
+                int zMinCandidate = minSelector(list[i]).z;
+                int zMaxCandidate = maxSelector(list[i]).z;
+
+                if (xMinCandidate < xMin)
+                    xMin = xMinCandidate;
+                if (xMaxCandidate > xMax)
+                    xMax = xMaxCandidate;
+
+                if (yMinCandidate < yMin)
+                    yMin = yMinCandidate;
+                if (yMaxCandidate > yMax)
+                    yMax = yMaxCandidate;
+
+                if (zMinCandidate < zMin)
+                    zMin = zMinCandidate;
+                if (zMaxCandidate > zMax)
+                    zMax = zMaxCandidate;
+            }
+        }
+
         public static Vector3 EulerMap(this Vector3 v)
         {
             if (v.x > 180f)
