@@ -82,6 +82,16 @@ namespace Shears.UI
             graphicHandler.AddGraphic(image);
         }
 
+        public void BindSelectable(Ref<bool> value)
+        {
+            BindRaw(value, SetSelectable);
+        }
+
+        public void UnbindSelectable(Ref<bool> value)
+        {
+            UnbindRaw(value, SetSelectable);
+        }
+
         private void OnHoverEnter(HoverEnterEvent evt)
         {
             evt.PreventDefault();
