@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Shears.Editor;
 using UnityEditor;
 using UnityEngine;

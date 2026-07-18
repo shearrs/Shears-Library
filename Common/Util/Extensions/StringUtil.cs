@@ -13,6 +13,7 @@ namespace Shears
             if (string.IsNullOrWhiteSpace(text))
                 return string.Empty;
 
+            builder.Clear();
             builder.Append(text[0]);
 
             for (int i = 1; i < text.Length; i++)
