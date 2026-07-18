@@ -82,7 +82,6 @@ namespace Shears.Pathfinding
                     nodeSize * node.GridPosition.z
                 );
 
-                node.Size = nodeSize;
                 node.WorldPosition = transform.TransformPoint(localPosition);
 
                 if (node.NodeObject != null)

@@ -42,7 +42,6 @@ namespace Shears.Pathfinding
                     nodeSize * node.GridPosition.z
                 );
 
-                node.Size = nodeSize;
                 node.WorldPosition = transform.TransformPoint(localPosition);
 
                 if (node.NodeObject != null)
@@ -258,7 +257,7 @@ namespace Shears.Pathfinding
                         }
 
                         if (node == null)
-                            node = new PathNode(new Vector3Int(x, y, z), worldPosition, nodeSize);
+                            node = new PathNode(new Vector3Int(x, y, z), worldPosition);
                         else
                         {
                             if (!currentGridNode) // if the node was already belonging to this grid, we don't need to clone a new one
@@ -336,12 +335,12 @@ namespace Shears.Pathfinding
                             node = originalNode;
                         }
                         else if (VectorUtil.WithinRange(gridPosition, targetMin, targetMax))
-                            node = new PathNode(gridPosition, worldPosition, nodeSize);
+                            node = new PathNode(gridPosition, worldPosition);
                         else
                         {
                             node = GetNodeInBounds(worldPosition);
 
-                            node ??= new PathNode(gridPosition, worldPosition, nodeSize);
+                            node ??= new PathNode(gridPosition, worldPosition);
                         }
 
                         node.GridPosition = gridPosition;

@@ -12,9 +12,6 @@ namespace Shears.Pathfinding
         [SerializeField]
         private Vector3 worldPosition;
 
-        [SerializeField]
-        private float size;
-
         [SerializeReference]
         private PathNodeData data;
 
@@ -48,11 +45,6 @@ namespace Shears.Pathfinding
                 if (nodeObject != null)
                     nodeObject.transform.position = worldPosition;
             }
-        }
-        public float Size
-        {
-            get => size;
-            internal set => size = value;
         }
         public PathNodeData Data
         {
@@ -93,11 +85,10 @@ namespace Shears.Pathfinding
 
         public PathNode() { }
 
-        public PathNode(Vector3Int gridPosition, Vector3 worldPosition, float size = 1.0f)
+        public PathNode(Vector3Int gridPosition, Vector3 worldPosition)
         {
             this.gridPosition = gridPosition;
             this.worldPosition = worldPosition;
-            this.size = size;
         }
 
         public bool TryGetData<T>(out T nodeData)
@@ -129,7 +120,7 @@ namespace Shears.Pathfinding
 
         public PathNode Clone()
         {
-            var clone = new PathNode(gridPosition, worldPosition, size)
+            var clone = new PathNode(gridPosition, worldPosition)
             {
                 data = data,
                 nodeObject = nodeObject,
