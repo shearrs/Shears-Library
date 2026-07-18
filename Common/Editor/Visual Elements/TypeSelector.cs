@@ -76,7 +76,7 @@ namespace Shears.Editor
             this.searchType = searchType;
             this.isSearchable = isSearchable;
 
-            var container = new VisualElement();
+            var container = new VisualElement() { name = "Type Selector Container" };
             container.style.flexDirection = FlexDirection.Row;
             container.SetAllMargins(2, -2, 1, 3);
             container.style.overflow = Overflow.Hidden;
@@ -97,10 +97,12 @@ namespace Shears.Editor
             button.style.flexGrow = 1;
             button.style.marginLeft = StyleKeyword.Auto;
 
-            if (isSearchable)
+            if (!isSearchable)
                 genericMenu = CreateUnsearchableMenu();
             else
-                container.AddAll(label, button);
+                typeDropdown = CreateSearchableMenu();
+
+            container.AddAll(label, button);
             Add(container);
         }
 
@@ -132,8 +134,6 @@ namespace Shears.Editor
             else
                 typeDropdown.Show(button.worldBound, 300);
         }
-
-        private void ShowSearchableMenu() { }
 
         private void TryAddMenuItem(GenericMenu menu, Type type)
         {
