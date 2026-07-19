@@ -145,7 +145,9 @@ namespace Shears.UI
             if (!IsHovered || !staysOpenOnHover)
             {
                 DisposeTweens();
-                StoreTween(image.DoFadeTween(0.0f, FADE_DATA));
+                var fadeOut = StoreTween(image.DoFadeTween(0.0f, FADE_DATA));
+
+                fadeOut.Completed += () => image.Disable();
             }
         }
 
@@ -158,14 +160,16 @@ namespace Shears.UI
         {
             IsHovered = false;
 
-            if (evt.IsTricklingDown || evt.IsBubblingUp)
+            if (evt.IsTricklingDown)
                 return;
 
             appearTimer.Stop();
             appearTimer.Completed -= OnAppearTimerCompleted;
 
             DisposeTweens();
-            StoreTween(image.DoFadeTween(0.0f, FADE_DATA));
+            var fadeOut = StoreTween(image.DoFadeTween(0.0f, FADE_DATA));
+
+            fadeOut.Completed += () => image.Disable();
         }
 
         private void OnAppearTimerCompleted()
@@ -174,6 +178,7 @@ namespace Shears.UI
             appearTimer.Completed -= OnAppearTimerCompleted;
 
             DisposeTweens();
+            image.Enable();
             StoreTween(image.DoFadeTween(1.0f, FADE_DATA));
         }
     }

@@ -2,7 +2,6 @@ using Shears.Editor;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 namespace Shears.UI.Editor
@@ -71,6 +70,7 @@ namespace Shears.UI.Editor
 
             var spriteProp = imageSO.FindProperty("m_Sprite");
             var colorProp = imageSO.FindProperty("m_Color");
+            var alphaProp = serializedObject.FindProperty("alpha");
             var baseColorProp = serializedObject.FindProperty("baseColor");
             var modulateProp = serializedObject.FindProperty("modulate");
 
@@ -85,6 +85,8 @@ namespace Shears.UI.Editor
                 imageSO.ApplyModifiedProperties();
             }
 
+            var alphaField = new PropertyField(alphaProp);
+
             var colorField = new PropertyField(baseColorProp);
             colorField.RegisterValueChangeCallback(updateColor);
 
@@ -97,7 +99,14 @@ namespace Shears.UI.Editor
 
             imageContainer.Add(VisualElementEditorUtil.CreateDefaultFields(imageSO));
 
-            root.AddAll(scriptField, spriteField, colorField, modulateField, imageContainer);
+            root.AddAll(
+                scriptField,
+                spriteField,
+                alphaField,
+                colorField,
+                modulateField,
+                imageContainer
+            );
 
             return root;
         }
