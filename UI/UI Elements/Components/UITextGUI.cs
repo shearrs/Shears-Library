@@ -48,8 +48,10 @@ namespace Shears.UI
             baseColor = text.color;
         }
 
-        private void OnValidate()
+        protected override void OnValidate()
         {
+            base.OnValidate();
+
             var text = GetComponent<TextMeshProUGUI>();
             var targetColor = (modulate * baseColor).With(a: Alpha);
 

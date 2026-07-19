@@ -55,8 +55,10 @@ namespace Shears.UI
             BaseColor = RawImage.color;
         }
 
-        private void OnValidate()
+        protected override void OnValidate()
         {
+            base.OnValidate();
+
             if (Application.isPlaying)
                 return;
 

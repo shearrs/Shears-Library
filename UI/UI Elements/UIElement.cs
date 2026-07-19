@@ -171,7 +171,7 @@ namespace Shears.UI
             Unbind();
         }
 
-        private void OnValidate()
+        protected virtual void OnValidate()
         {
             if (Application.isPlaying)
                 return;

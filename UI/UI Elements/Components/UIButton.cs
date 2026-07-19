@@ -57,7 +57,7 @@ namespace Shears.UI
             InitializeDefaultGraphics();
         }
 
-        private void OnValidate()
+        protected override void OnValidate()
         {
             graphicHandler.Validate();
         }

@@ -604,6 +604,9 @@ namespace Shears.UI
                         break;
 
                     children[i].InvokeEvent(evt);
+
+                    if (!evt.TrickleDown)
+                        break;
                 }
 
                 evt.IsTricklingDown = false;
@@ -618,6 +621,9 @@ namespace Shears.UI
                 {
                     parent.InvokeEvent(evt);
                     parent = parent.Parent;
+
+                    if (!evt.BubbleUp)
+                        break;
                 }
 
                 evt.IsBubblingUp = false;
