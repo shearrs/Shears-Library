@@ -71,6 +71,11 @@ namespace Shears.UI
         {
             applicationIsQuitting = true;
         }
+
+        protected override void OnInstanceCreated()
+        {
+            Instance.detectionTypes = (DetectionTypes)(-1);
+        }
         #endregion
 
         #region Unity Methods

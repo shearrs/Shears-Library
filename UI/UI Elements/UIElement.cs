@@ -145,6 +145,8 @@ namespace Shears.UI
         #region Unity Methods
         protected virtual void Awake()
         {
+            UIElementEventSystem.CreateInstanceIfNoneExists();
+
             if (
                 !isHierarchyInitialized
                 && (transform.parent == null || !transform.parent.TryGetComponent(out UIElement _))

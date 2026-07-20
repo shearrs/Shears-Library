@@ -1,6 +1,6 @@
-using Shears.Tweens;
 using System;
 using System.Collections;
+using Shears.Tweens;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,24 +8,25 @@ namespace Shears.Loading
 {
     public class DefaultLoadingScreen : LoadingScreen
     {
-        [SerializeField] private Canvas canvas;
-        [SerializeField] private Image backgroundImage;
-        [SerializeField] private RectTransform container;
-        [SerializeField] private Slider loadingBar;
+        [SerializeField]
+        private Canvas canvas;
+
+        [SerializeField]
+        private Image backgroundImage;
+
+        [SerializeField]
+        private RectTransform container;
+
+        [SerializeField]
+        private Slider loadingBar;
 
         private readonly TweenData tweenData = new(unscaledTime: true);
-        private CoroutineChain coroutineChain;
 
         public Canvas Canvas => canvas;
 
         public event Action Enabled;
         public event Action PreDisabled;
         public event Action Disabled;
-
-        private void Awake()
-        {
-            coroutineChain = CoroutineChain.Create().WithLifetime(this);
-        }
 
         public override Coroutine Enable()
         {
@@ -44,12 +45,9 @@ namespace Shears.Loading
             canvas.enabled = true;
             IsDelaying = true;
 
-            var color = backgroundImage.color.With(a: 1.0f);
-            var transparentColor = color.With(a: 0.0f);
+            backgroundImage.color = backgroundImage.color.With(a: 0.0f);
 
-            backgroundImage.color = transparentColor;
-
-            var tween = backgroundImage.DoColorTween(color, tweenData);
+            var tween = backgroundImage.DoFadeTween(1.0f, tweenData);
 
             while (tween.IsPlaying)
                 yield return null;
@@ -81,8 +79,7 @@ namespace Shears.Loading
             PreDisabled?.Invoke();
             container.gameObject.SetActive(false);
 
-            var transparentColor = backgroundImage.color.With(a:0.0f);
-            var tween = backgroundImage.DoColorTween(transparentColor, tweenData);
+            var tween = backgroundImage.DoFadeTween(0.0f, tweenData);
 
             while (tween.IsPlaying)
                 yield return null;

@@ -1,9 +1,9 @@
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Pool;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.ResourceManagement.ResourceLocations;
 
 namespace Shears
 {
@@ -23,14 +23,14 @@ namespace Shears
             }
         }
 
-        public static void LoadLabelGroup<T>(
+        public static async Task LoadLabelGroup<T>(
             string label,
             Action<LabelGroupData<T>> processCallback
         )
         {
             var locationHandle = Addressables.LoadResourceLocationsAsync(label, typeof(T));
 
-            locationHandle.WaitForCompletion();
+            await locationHandle.Task;
 
             if (locationHandle.Status == AsyncOperationStatus.Failed)
             {
@@ -53,7 +53,7 @@ namespace Shears
             }
 
             var groupHandle = Addressables.ResourceManager.CreateGenericGroupOperation(opList);
-            groupHandle.WaitForCompletion();
+            await groupHandle.Task;
 
             locationHandle.Release();
             groupHandle.Release();

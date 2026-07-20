@@ -19,7 +19,8 @@ namespace Shears
     /// </summary>
     /// <typeparam name="T">The type of class that inherits from this.</typeparam>
     [DefaultExecutionOrder(-100)]
-    public abstract class ProtectedSingleton<T> : SingletonBase where T : SingletonBase
+    public abstract class ProtectedSingleton<T> : SingletonBase
+        where T : SingletonBase
     {
         protected static T instance;
 
@@ -32,10 +33,7 @@ namespace Shears
 
                 return instance;
             }
-            private set
-            {
-                instance = value;
-            }
+            private set { instance = value; }
         }
 
         protected virtual void Awake()
@@ -98,9 +96,7 @@ namespace Shears
             }
         }
 
-        protected virtual void OnInstanceCreated()
-        {
-        }
+        protected virtual void OnInstanceCreated() { }
     }
 
     /// <summary>
@@ -108,7 +104,8 @@ namespace Shears
     /// </summary>
     /// <typeparam name="T">The type of class that inherits from this.</typeparam>
     [DefaultExecutionOrder(-100)]
-    public abstract class PersistentProtectedSingleton<T> : ProtectedSingleton<T> where T : SingletonBase
+    public abstract class PersistentProtectedSingleton<T> : ProtectedSingleton<T>
+        where T : SingletonBase
     {
         protected override void Awake()
         {
@@ -121,9 +118,7 @@ namespace Shears
                 DontDestroyOnLoad(gameObject);
             }
             else if (instance != this)
-            {
                 Destroy(gameObject);
-            }
         }
     }
 }
