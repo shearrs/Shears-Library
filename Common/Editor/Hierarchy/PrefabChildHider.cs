@@ -13,7 +13,7 @@ namespace Shears.Editor
 
         static PrefabChildHider()
         {
-            EditorApplication.hierarchyWindowItemOnGUI += HideChildren;
+            EditorApplication.hierarchyWindowItemByEntityIdOnGUI += HideChildren;
             EditorSceneManager.activeSceneChangedInEditMode += OnSceneLoaded;
             PrefabStage.prefabStageOpened += OnPrefabOpened;
             PrefabStage.prefabStageClosing += OnPrefabClosed;
@@ -21,7 +21,7 @@ namespace Shears.Editor
 
         ~PrefabChildHider()
         {
-            EditorApplication.hierarchyWindowItemOnGUI -= HideChildren;
+            EditorApplication.hierarchyWindowItemByEntityIdOnGUI -= HideChildren;
             EditorSceneManager.activeSceneChangedInEditMode -= OnSceneLoaded;
             PrefabStage.prefabStageOpened -= OnPrefabOpened;
             PrefabStage.prefabStageClosing -= OnPrefabClosed;
@@ -42,7 +42,7 @@ namespace Shears.Editor
             EditorApplication.RepaintHierarchyWindow();
         }
 
-        private static void HideChildren(int entityID, Rect selectionRect)
+        private static void HideChildren(EntityId entityID, Rect selectionRect)
         {
             if (!ShearsSettings.instance.HidePrefabChildren)
             {

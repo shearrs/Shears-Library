@@ -185,42 +185,39 @@ namespace Shears.Logging
         /// <param name="callerLineNumber">The line number of the class who called this. Should not be set manually.</param>
         [HideInCallstack]
         public static void Log(
-            string message,
+            object message,
             SHLogLevels level = SHLogLevels.Log,
-            Color color = default,
+            Color? color = null,
             Object context = null,
             string prefix = "",
-            ISHLogFormatter formatter = default,
+            ISHLogFormatter formatter = null,
             [CallerFilePath] string callerFilePath = "",
             [CallerLineNumber] long callerLineNumber = 0
-        ) =>
-            Log(
-                new SHLog(message, context, prefix, level, color),
-                formatter,
+        )
+        {
+            var log = new SHLog(
+                message.ToString(),
+                context,
+                prefix,
+                level,
+                color,
                 callerFilePath,
                 callerLineNumber
             );
+
+            Log(log, formatter);
+        }
 
         /// <summary>
         /// Logs a message to the current logger.
         /// </summary>
         /// <param name="log">The log to send.</param>
         /// <param name="formatter">The formatter for this log. Defaults to the current <see cref="ISHLogger.Formatter"/>.</param>
-        /// <param name="callerFilePath">The file path of the class who called this. Should not be set manually.</param>
-        /// <param name="callerLineNumber">The line number of the class who called this. Should not be set manually.</param>
         [HideInCallstack]
-        public static void Log(
-            SHLog log,
-            ISHLogFormatter formatter = null,
-            [CallerFilePath] string callerFilePath = "",
-            [CallerLineNumber] long callerLineNumber = 0
-        )
+        public static void Log(SHLog log, ISHLogFormatter formatter = null)
         {
             if (!Enabled || (LogLevels & log.Level) == 0)
                 return;
-
-            log.CallerFilePath = callerFilePath;
-            log.CallerLineNumber = callerLineNumber;
 
             if (CurrentLogger == null)
             {
@@ -292,7 +289,7 @@ namespace Shears.Logging
         {
             const string uiConsoleFilePath = "SHLogging/UIConsole";
 
-            var foundConsole = Object.FindFirstObjectByType<SHUIConsoleLogger>();
+            var foundConsole = Object.FindAnyObjectByType<SHUIConsoleLogger>();
 
             if (foundConsole != null)
             {

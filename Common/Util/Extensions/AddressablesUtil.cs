@@ -46,8 +46,10 @@ namespace Shears
             {
                 var location = locations[i];
                 var handle = Addressables.LoadAssetAsync<T>(location);
+
+                int id = i;
                 handle.Completed += handleResult =>
-                    processCallback(new(location.PrimaryKey, handleResult.Result, i));
+                    processCallback(new(location.PrimaryKey, handleResult.Result, id));
 
                 opList.Add(handle);
             }

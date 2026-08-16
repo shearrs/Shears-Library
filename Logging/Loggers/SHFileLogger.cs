@@ -23,18 +23,21 @@ namespace Shears.Logging
         #endregion
 
 #if !UNITY_WEBGL
-        private readonly List<byte> logCache = new();
+        private static readonly List<byte> logCache = new();
 #endif
 
-        private readonly string _runtimeGUID;
+        private static readonly ISHLogFormatter formatter = new SHLogFormatter(
+            formatPrefix: SHLogFormats.LongTimestampPrefix,
+            setColor: SHLogFormats.NoColor
+        );
+        private readonly string runtimeGUID;
 
-        public string RuntimeGUID => _runtimeGUID;
-
-        public ISHLogFormatter Formatter => new SHLogFormatter(formatPrefix: SHLogFormats.LongTimestampPrefix, setColor: SHLogFormats.NoColor);
+        public string RuntimeGUID => runtimeGUID;
+        public ISHLogFormatter Formatter => formatter;
 
         public SHFileLogger()
         {
-            _runtimeGUID = Guid.NewGuid().ToString();
+            runtimeGUID = Guid.NewGuid().ToString();
         }
 
         [HideInCallstack]
@@ -100,9 +103,15 @@ namespace Shears.Logging
             string filePath = string.Empty;
 
 #if UNITY_EDITOR
-            filePath = Path.Combine(Application.persistentDataPath, $"{FILE_PATH}{EDITOR_LOG}{FILE_EXTENSION}");
+            filePath = Path.Combine(
+                Application.persistentDataPath,
+                $"{FILE_PATH}{EDITOR_LOG}{FILE_EXTENSION}"
+            );
 #else
-            filePath = Path.Combine(Application.persistentDataPath, $"{FILE_PATH}{RUNTIME_LOG}{_runtimeGUID}{FILE_EXTENSION}");
+            filePath = Path.Combine(
+                Application.persistentDataPath,
+                $"{FILE_PATH}{RUNTIME_LOG}{_runtimeGUID}{FILE_EXTENSION}"
+            );
 #endif
 
             return filePath;

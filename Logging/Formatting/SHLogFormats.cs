@@ -26,7 +26,7 @@ namespace Shears.Logging
         ///     Output: "[ClassName] - Hello World!"
         /// </para>
         /// </summary>
-        public static SHLogFormatter Default => new(DefaultPrefix);
+        public static readonly SHLogFormatter Default = new(DefaultPrefix);
 
         /// <summary>
         /// The default log formatter with a time stamp in the prefix.
@@ -39,8 +39,9 @@ namespace Shears.Logging
         ///     Output: "[Hour:Minute:Second] [ClassName] - Hello World!"
         /// </para>
         /// </summary>
-        public static SHLogFormatter DefaultWithTimestamp =>
-            new(CombinePrefixes(" ", TimestampPrefix, DefaultPrefix));
+        public static readonly SHLogFormatter DefaultWithTimestamp = new(
+            CombinePrefixes(" ", TimestampPrefix, DefaultPrefix)
+        );
 
         /// <summary>
         /// The default log formatter with a long time stamp in the prefix.
@@ -53,8 +54,9 @@ namespace Shears.Logging
         ///     Output: "[Day/Month - Hour:Minute:Second] [ClassName] - Hello World!"
         /// </para>
         /// </summary>
-        public static SHLogFormatter DefaultWithLongTimestamp =>
-            new(CombinePrefixes(" ", LongTimestampPrefix, DefaultPrefix));
+        public static readonly SHLogFormatter DefaultWithLongTimestamp = new(
+            CombinePrefixes(" ", LongTimestampPrefix, DefaultPrefix)
+        );
 
         /// <summary>
         /// The default log formatter with the context name in the prefix.
@@ -67,8 +69,9 @@ namespace Shears.Logging
         ///     Output: "[Context: {contextName}] [ClassName] - Hello World!"
         /// </para>
         /// </summary>
-        public static SHLogFormatter DefaultWithContext =>
-            new(CombinePrefixes(" ", ContextPrefix, DefaultPrefix));
+        public static readonly SHLogFormatter DefaultWithContext = new(
+            CombinePrefixes(" ", ContextPrefix, DefaultPrefix)
+        );
 
         /// <summary>
         /// A formatter that outputs a raw message.
@@ -81,8 +84,12 @@ namespace Shears.Logging
         ///     Output: "Hello World!"
         /// </para>
         /// </summary>
-        public static SHLogFormatter RawMessage =>
-            new(NoPrefix, DefaultMessage, NoColor, NoCompositor);
+        public static readonly SHLogFormatter RawMessage = new(
+            NoPrefix,
+            DefaultMessage,
+            NoColor,
+            NoCompositor
+        );
         #endregion
 
         public static PrefixFormatter CombinePrefixes(
@@ -130,7 +137,7 @@ namespace Shears.Logging
 
             prefixBuilder.Clear();
 
-            string verboseCustomPrefix(bool includeLogLevel)
+            string verboseCustomPrefix(SHLog log, bool includeLogLevel)
             {
                 if (includeLogLevel)
                 {
@@ -150,7 +157,7 @@ namespace Shears.Logging
                 return prefixBuilder.ToString();
             }
 
-            string defaultCustomPrefix()
+            string defaultCustomPrefix(SHLog log)
             {
                 prefixBuilder.Append('[');
                 prefixBuilder.Append(log.Prefix);
@@ -204,10 +211,10 @@ namespace Shears.Logging
             {
                 return log.Level switch
                 {
-                    SHLogLevels.Verbose => verboseCustomPrefix(false),
-                    SHLogLevels.Warning => verboseCustomPrefix(true),
-                    SHLogLevels.Error => verboseCustomPrefix(true),
-                    _ => defaultCustomPrefix(),
+                    SHLogLevels.Verbose => verboseCustomPrefix(log, false),
+                    SHLogLevels.Warning => verboseCustomPrefix(log, true),
+                    SHLogLevels.Error => verboseCustomPrefix(log, true),
+                    _ => defaultCustomPrefix(log),
                 };
             }
             else

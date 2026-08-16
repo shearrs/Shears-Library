@@ -179,7 +179,7 @@ namespace Shears
             );
         }
 
-        public static bool WithinRange(Vector3Int value, Vector3Int min, Vector3Int max)
+        public static bool WithinRange(this Vector3Int value, Vector3Int min, Vector3Int max)
         {
             return value.x >= min.x
                 && value.x <= max.x

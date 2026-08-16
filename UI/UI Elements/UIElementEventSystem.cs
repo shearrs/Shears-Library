@@ -81,15 +81,6 @@ namespace Shears.UI
         #region Unity Methods
         protected override void Awake()
         {
-            base.Awake();
-            registeredCanvases.Clear();
-            hoveredElements.Clear();
-            newHoveredElements.Clear();
-            ignoreTargets.Clear();
-            hitGraphics.Clear();
-
-            detectionMask = LayerMask.GetMask("UI");
-
             if (inputMap == null)
                 inputMap = Resources.Load<ManagedInputMap>(
                     "UIElements/Shears_DefaultEventSystemInputMap"
@@ -97,6 +88,16 @@ namespace Shears.UI
 
             clickInput = inputMap.GetInput("Click");
             selectInput = inputMap.GetInput("Select");
+
+            base.Awake();
+
+            registeredCanvases.Clear();
+            hoveredElements.Clear();
+            newHoveredElements.Clear();
+            ignoreTargets.Clear();
+            hitGraphics.Clear();
+
+            detectionMask = LayerMask.GetMask("UI");
         }
 
         private void Update()
@@ -333,7 +334,7 @@ namespace Shears.UI
 
             if (draggedElement == null)
             {
-                var possibleTarget = pointerDownElement.GetDeepestChild();
+                var possibleTarget = pointerDownElement.GetHighestSortOrderChild();
                 InvokeEvent(new DragBeginEvent(camera, pointerPos, offset), possibleTarget);
                 dragInitialZ = targetElement.transform.position.z;
             }
@@ -468,6 +469,8 @@ namespace Shears.UI
             {
                 if (
                     targetGraphic == null
+                    || graphic.canvas.renderMode == RenderMode.ScreenSpaceOverlay
+                        && targetGraphic.canvas.renderMode != RenderMode.ScreenSpaceOverlay
                     || graphic.canvas.renderOrder > targetGraphic.canvas.renderOrder
                     || graphic.canvas.renderOrder == targetGraphic.canvas.renderOrder
                         && graphic.depth > targetGraphic.depth

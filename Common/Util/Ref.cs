@@ -35,6 +35,7 @@ namespace Shears
                 ChangedRaw?.Invoke(value);
             }
         }
+        public bool HasValue => Value != null;
 
         public event RefChangeEvent<T> Changed;
         public event Action<T> ChangedRaw;
@@ -98,8 +99,13 @@ namespace Shears
             return base.GetHashCode();
         }
 
-        public static bool operator ==(Ref<T> a, T b) =>
-            a.value == null ? b == null : a.value.Equals(b);
+        public static bool operator ==(Ref<T> a, T b)
+        {
+            if (a == null || a.value == null)
+                return b == null;
+            else
+                return a.value.Equals(b);
+        }
 
         public static bool operator !=(Ref<T> a, T b) => !(a == b);
 
@@ -110,6 +116,7 @@ namespace Shears
     public interface IReadOnlyRef<T> : IRef
     {
         public T Value { get; }
+        public bool HasValue => Value != null;
 
         public event RefChangeEvent<T> Changed;
         public event Action<T> ChangedRaw;

@@ -3,7 +3,8 @@ using UnityEngine;
 
 namespace Shears
 {
-    public class Heap<T> where T : IHeapItem<T>
+    public class Heap<T>
+        where T : IHeapItem<T>
     {
         private readonly List<T> items;
         private int currentItemCount;
@@ -109,7 +110,9 @@ namespace Shears
             items[itemA.HeapIndex] = itemB;
             items[itemB.HeapIndex] = itemA;
 
-            (itemB.HeapIndex, itemA.HeapIndex) = (itemA.HeapIndex, itemB.HeapIndex);
+            int indexA = itemA.HeapIndex;
+            itemA.HeapIndex = itemB.HeapIndex;
+            itemB.HeapIndex = indexA;
         }
     }
 }

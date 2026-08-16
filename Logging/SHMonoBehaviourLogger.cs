@@ -30,50 +30,23 @@ namespace Shears.Logging
         public void Log(
             object message,
             SHLogLevels level = SHLogLevels.Log,
-            Color color = default,
             Object context = null,
+            Color? color = null,
             string prefix = "",
             ISHLogFormatter formatter = default,
             [CallerFilePath] string callerFilePath = "",
             [CallerLineNumber] long callerLineNumber = 0
-        )
-        {
-            if ((SHLogger.LogLevels & level) == 0)
-                return;
-
-            if (context == null)
-            {
-                if (gameObject == null)
-                    return;
-
-                context = gameObject;
-            }
-
-            if (prefix == string.Empty && context != null)
-                prefix =
-                    $"{SHLog.GetCallerClassName(SHLog.GetCallerFileName(callerFilePath))}({context.name})";
-
-            Log(
-                new SHLog(message.ToString(), context, prefix, level, color),
+        ) =>
+            ISHLoggableLogger.Log(
+                this,
+                message,
+                level,
+                context,
+                color,
+                prefix,
                 formatter,
                 callerFilePath,
                 callerLineNumber
             );
-        }
-
-        /// <summary>
-        /// Logs a message to the current logger.
-        /// </summary>
-        /// <param name="log">The log to send.</param>
-        /// <param name="formatter">The formatter for this log. Defaults to the current <see cref="ISHLogger.Formatter"/>.</param>
-        /// <param name="callerFilePath">The file path of the class who called this. Should not be set manually.</param>
-        /// <param name="callerLineNumber">The line number of the class who called this. Should not be set manually.</param>
-        [HideInCallstack]
-        public void Log(
-            SHLog log,
-            ISHLogFormatter formatter = null,
-            [CallerFilePath] string callerFilePath = "",
-            [CallerLineNumber] long callerLineNumber = 0
-        ) => ISHLoggableLogger.Log(this, log, formatter, callerFilePath, callerLineNumber);
     }
 }

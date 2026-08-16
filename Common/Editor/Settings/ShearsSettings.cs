@@ -9,11 +9,21 @@ namespace Shears.Editor
         [SerializeField]
         private bool hidePrefabChildren = true;
 
+        [SerializeField]
+        private bool hideRequiredIcons = false;
+
         public bool HidePrefabChildren => hidePrefabChildren;
+        public bool HideRequiredIcons => hideRequiredIcons;
 
         public void TogglePrefabHiding()
         {
             hidePrefabChildren = !hidePrefabChildren;
+            Save(true);
+        }
+
+        public void ToggleHideIcons()
+        {
+            hideRequiredIcons = !hideRequiredIcons;
             Save(true);
         }
     }
@@ -21,9 +31,15 @@ namespace Shears.Editor
     internal static class ShearsSettingsWindow
     {
         [MenuItem("Shears Library/Settings/Toggle Prefab Hiding")]
-        private static void Open()
+        private static void TogglePrefabHiding()
         {
             ShearsSettings.instance.TogglePrefabHiding();
+        }
+
+        [MenuItem("Shears Library/Settings/Toggle Required Icons")]
+        private static void ToggleRequiredIcons()
+        {
+            ShearsSettings.instance.ToggleHideIcons();
         }
     }
 }

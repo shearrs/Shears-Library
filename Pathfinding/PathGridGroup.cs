@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Shears.Logging;
@@ -53,11 +54,7 @@ namespace Shears.Pathfinding
 
         public Vector3 GetPositionForNode(PathNode node)
         {
-            Vector3 localPosition = new(
-                nodeSize * node.GridPosition.x,
-                nodeSize * node.GridPosition.y,
-                nodeSize * node.GridPosition.z
-            );
+            Vector3 localPosition = nodeSize * (Vector3)node.GridPosition;
 
             return transform.TransformPoint(localPosition);
         }
@@ -183,6 +180,34 @@ namespace Shears.Pathfinding
             return null;
         }
 
+        public void SetNode(PathNode node, Vector3Int gridPosition) =>
+            SetNode(node, gridPosition.x, gridPosition.y, gridPosition.z);
+
+        public void SetNode(PathNode node, int x, int y, int z)
+        {
+            int index = (z * GridSize.y * GridSize.x) + (y * GridSize.x) + x;
+
+            if (index >= Nodes.Count)
+            {
+                this.Log(
+                    $"Node position is outside of grid bounds: ({x}, {y}, {z}).",
+                    SHLogLevels.Error
+                );
+                return;
+            }
+
+            node.GridPosition = new(x, y, z);
+            node.WorldPosition = transform.TransformPoint(nodeSize * (Vector3)node.GridPosition);
+
+            if (node.NodeObject != null)
+            {
+                node.NodeObject.Grid = this;
+                node.NodeObject.Node = node;
+            }
+
+            nodes[index] = node;
+        }
+
         public Vector3 GetCenter()
         {
             return transform.position + (0.5f * nodeSize * ((Vector3)GridSize - Vector3.one));
@@ -290,7 +315,8 @@ namespace Shears.Pathfinding
             Vector3Int rangeStart,
             Vector3Int rangeEnd,
             Direction direction,
-            int distance
+            int distance,
+            HashSet<PathNode> ignoreNodes = null
         )
         {
             if (Nodes.Count == 0)
@@ -332,10 +358,28 @@ namespace Shears.Pathfinding
                             var offset = gridPosition - affectedMin;
                             var originalPos = rangeStart + offset;
                             var originalNode = GetNode(originalPos);
+
                             node = originalNode;
+
+                            if (ignoreNodes != null && ignoreNodes.Contains(node))
+                            {
+                                if (
+                                    gridPosition.WithinRange(
+                                        Vector3Int.zero,
+                                        gridSize - Vector3Int.one
+                                    )
+                                )
+                                    node = GetNode(gridPosition);
+                            }
                         }
                         else if (VectorUtil.WithinRange(gridPosition, targetMin, targetMax))
-                            node = new PathNode(gridPosition, worldPosition);
+                        {
+                            var originalNode = GetNode(gridPosition);
+                            if (ignoreNodes != null && ignoreNodes.Contains(originalNode))
+                                node = originalNode;
+                            else
+                                node = new PathNode(gridPosition, worldPosition);
+                        }
                         else
                         {
                             node = GetNodeInBounds(worldPosition);
@@ -347,6 +391,29 @@ namespace Shears.Pathfinding
                         node.WorldPosition = worldPosition;
 
                         newNodes.Add(node);
+                    }
+                }
+            }
+
+            nodes.Clear();
+            nodes.AddRange(newNodes);
+            gridSize = newGridSize;
+        }
+
+        public void Shorten(Direction direction, int distance)
+        {
+            newNodes.Clear();
+
+            var newGridSize = gridSize + (distance * direction.ToVectorInt());
+            newGridSize.ClampMin(0);
+
+            for (int z = 0; z < newGridSize.z; z++)
+            {
+                for (int y = 0; y < newGridSize.y; y++)
+                {
+                    for (int x = 0; x < newGridSize.x; x++)
+                    {
+                        newNodes.Add(GetNode(x, y, z));
                     }
                 }
             }

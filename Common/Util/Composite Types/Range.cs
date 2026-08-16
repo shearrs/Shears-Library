@@ -8,13 +8,25 @@ namespace Shears
     /// </summary>
     /// <typeparam name="T">The comparable value type.</typeparam>
     [Serializable]
-    public struct Range<T> : IComparable where T : IComparable
+    public struct Range<T> : IComparable
+        where T : IComparable
     {
-        [SerializeField, Delayed] private T min;
-        [SerializeField, Delayed] private T max;
+        [SerializeField, Delayed]
+        private T min;
 
-        public T Min { readonly get => min; set => min = value; }
-        public T Max { readonly get => max; set => max = value; }
+        [SerializeField, Delayed]
+        private T max;
+
+        public T Min
+        {
+            readonly get => min;
+            set => min = value;
+        }
+        public T Max
+        {
+            readonly get => max;
+            set => max = value;
+        }
 
         public Range(T min, T max)
         {
@@ -92,7 +104,8 @@ namespace Shears
             return Mathf.Clamp(value, range.Min, range.Max);
         }
 
-        public static Range<T> With<T>(this Range<T> range, T? min = null, T? max = null) where T : struct, IComparable
+        public static Range<T> With<T>(this Range<T> range, T? min = null, T? max = null)
+            where T : struct, IComparable
         {
             T finalMin = min == null ? range.Min : min.Value;
             T finalMax = max == null ? range.Max : max.Value;

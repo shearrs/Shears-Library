@@ -11,8 +11,9 @@ namespace Shears.Editor
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             var field = new PropertyField(property);
+            var target = property.serializedObject.targetObject as Component;
 
-            if (PrefabUtility.IsPartOfPrefabInstance(property.serializedObject.targetObject))
+            if (PrefabUtility.IsAnyPrefabInstanceRoot(target.gameObject))
                 field.style.display = DisplayStyle.None;
 
             return field;

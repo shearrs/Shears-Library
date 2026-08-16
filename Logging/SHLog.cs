@@ -5,141 +5,66 @@ namespace Shears.Logging
     /// <summary>
     /// Represents a formattable log for use by the <see cref="SHLogger"/>.
     /// </summary>
-    [System.Serializable]
-    public struct SHLog
+    public readonly ref struct SHLog
     {
-        #region Serialized Variables
-        [Header("Default Settings")]
-        [SerializeField, Tooltip("The main message of the log.")]
-        private string message;
+        private readonly string message;
+        private readonly Object context;
+        private readonly SHLogLevels level;
+        private readonly bool usesCustomPrefix;
+        private readonly string prefix;
+        private readonly bool usesCustomColor;
+        private readonly Color color;
 
-        [
-            SerializeField,
-            Tooltip(
-                "The context of the log. When logged to the Unity console, this log will highlight its context upon being clicked."
-            )
-        ]
-        private Object context;
-
-        [
-            SerializeField,
-            Tooltip(
-                "The level/severity of the log. By default, influences the prefix and the color of the log."
-            )
-        ]
-        private SHLogLevels level;
-
-        [Header("Prefix")]
-        [SerializeField, Tooltip("Whether or not to show the custom prefix textbox.")]
-        private bool usesCustomPrefix;
-
-        [
-            SerializeField,
-            ShowIf(nameof(usesCustomPrefix)),
-            Tooltip(
-                "The prefix of the log's message. If left blank, it defaults to the prefix for the current log level."
-            )
-        ]
-        private string prefix;
-
-        [Header("Color")]
-        [SerializeField, Tooltip("Whether or not to show the custom color selector.")]
-        private bool usesCustomColor;
-
-        [
-            SerializeField,
-            ShowIf(nameof(usesCustomColor)),
-            Tooltip("If a logger supports color, this determines the output color of this log.")
-        ]
-        private Color color;
-        #endregion
-
-        private string callerFilePath;
-        private long callerLineNumber;
+        private readonly string callerFilePath;
+        private readonly long callerLineNumber;
 
         #region Public Properties
         /// <summary>
         /// The main body message of the log.
         /// </summary>
-        public string Message
-        {
-            readonly get => message;
-            set => message = value;
-        }
+        public string Message => message;
 
         /// <summary>
         /// The context object of the log. When logged to the Unity console, this log will highlight its context upon being clicked.
         /// </summary>
-        public Object Context
-        {
-            readonly get => context;
-            set => context = value;
-        }
+        public Object Context => context;
 
         /// <summary>
         /// The prefix to the log's message.
         /// </summary>
-        public string Prefix
-        {
-            readonly get => prefix;
-            set => prefix = value;
-        }
+        public string Prefix => prefix;
 
         /// <summary>
         /// The level/severity of the log. By default, influences the prefix and the color of the log.
         /// </summary>
-        public SHLogLevels Level
-        {
-            readonly get => level;
-            set => level = value;
-        }
+        public SHLogLevels Level => level;
 
         /// <summary>
         /// The color of the log when displayed in a logger that supports color.
         /// </summary>
-        public Color Color
-        {
-            readonly get => color;
-            set => color = value;
-        }
+        public Color Color => color;
 
         /// <summary>
         /// Whether or not this log uses a custom prefix.
         /// </summary>
-        public bool UsesCustomPrefix
-        {
-            readonly get => usesCustomPrefix;
-            set => usesCustomPrefix = value;
-        }
+        public bool UsesCustomPrefix => usesCustomPrefix;
 
         /// <summary>
         /// Whether or not this log uses a custom color.
         /// </summary>
-        public bool UsesCustomColor
-        {
-            readonly get => usesCustomColor;
-            set => usesCustomColor = value;
-        }
+        public bool UsesCustomColor => usesCustomColor;
         #endregion
 
         #region Caller Info
         /// <summary>
         /// The file path of the caller who logged this log. For use by the <see cref="SHLogger"/>.
         /// </summary>
-        internal string CallerFilePath
-        {
-            readonly get => callerFilePath;
-            set => callerFilePath = value;
-        }
+        internal string CallerFilePath => callerFilePath;
 
         /// <summary>
         /// The line number of the caller who logged this log. For use by the <see cref="SHLogger"/>.
         /// </summary>
-        internal long CallerLineNumber
-        {
-            readonly get => callerLineNumber;
-            set => callerLineNumber = value;
-        }
+        internal long CallerLineNumber => callerLineNumber;
 
         /// <summary>
         /// The file name of the caller who logged this log. For use by the <see cref="SHLogger"/>.
@@ -165,20 +90,21 @@ namespace Shears.Logging
             Object context = null,
             string prefix = "",
             SHLogLevels level = SHLogLevels.Log,
-            Color color = default
+            Color? color = null,
+            string callerFilePath = null,
+            long callerLineNumber = -1
         )
         {
             this.message = message;
             this.context = context;
             this.prefix = prefix;
             this.level = level;
-            this.color = color;
+            this.color = color ?? Color.white;
+            this.callerFilePath = callerFilePath;
+            this.callerLineNumber = callerLineNumber;
 
-            callerFilePath = string.Empty;
-            callerLineNumber = -1;
-
-            usesCustomColor = (color != default);
-            usesCustomPrefix = (prefix != string.Empty);
+            usesCustomColor = color.HasValue;
+            usesCustomPrefix = prefix != string.Empty;
         }
 
         public static string GetCallerFileName(string callerFilePath)

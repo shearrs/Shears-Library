@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using System.Runtime.InteropServices;
 
 namespace Shears.Logging
 {
@@ -12,34 +9,48 @@ namespace Shears.Logging
         private static extern void UNITY_SAVE(string content, string name, string MIMEType);
 
         [DllImport("__Internal")]
-        private static extern void UNITY_SAVE_BYTEARRAY(byte[] array, int byteLength, string name, string MIMEType);
+        private static extern void UNITY_SAVE_BYTEARRAY(
+            byte[] array,
+            int byteLength,
+            string name,
+            string MIMEType
+        );
 
         [DllImport("__Internal")]
         private static extern void init();
 
         [DllImport("__Internal")]
         private static extern bool UNITY_IS_SUPPORTED();
-
 #endif
 
         static bool hasinit = false;
 
-        public static void SaveFile(string content, string fileName, string MIMEType = "text/plain;charset=utf-8")
+        public static void SaveFile(
+            string content,
+            string fileName,
+            string MIMEType = "text/plain;charset=utf-8"
+        )
         {
-            if (!CheckSupportAndInit()) return;
+            if (!CheckSupportAndInit())
+                return;
 #if UNITY_WEBGL && !UNITY_EDITOR
             UNITY_SAVE(content, fileName, MIMEType);
 #endif
         }
 
-        public static void SaveFile(byte[] content, string fileName, string MIMEType = "text/plain;charset=utf-8")
+        public static void SaveFile(
+            byte[] content,
+            string fileName,
+            string MIMEType = "text/plain;charset=utf-8"
+        )
         {
             if (content == null)
             {
                 Debug.LogError("null parameter passed for content byte array");
                 return;
             }
-            if (!CheckSupportAndInit()) return;
+            if (!CheckSupportAndInit())
+                return;
 #if UNITY_WEBGL && !UNITY_EDITOR
             UNITY_SAVE_BYTEARRAY(content, content.Length, fileName, MIMEType);
 #endif

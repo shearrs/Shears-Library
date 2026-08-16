@@ -8,7 +8,7 @@ namespace Shears.UI
     public partial class CellContent : MonoBehaviour
     {
         [SerializeField]
-        private new Renderer renderer;
+        private Renderer renderer;
 
         [SerializeField]
         private ElementCell cell;

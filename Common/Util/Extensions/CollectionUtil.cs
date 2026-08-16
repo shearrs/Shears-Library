@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace Shears
 {
@@ -72,12 +73,41 @@ namespace Shears
             return -1;
         }
 
+        public static int IndexOf<T>(this IReadOnlyList<T> list, T var)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (EqualityComparer<T>.Default.Equals(list[i], var))
+                    return i;
+            }
+
+            return -1;
+        }
+
         public static T Random<T>(this List<T> list)
         {
             if (list.Count == 0)
                 return default;
             else
                 return list[UnityEngine.Random.Range(0, list.Count)];
+        }
+
+        public static T Random<T>(this T[] array)
+        {
+            if (array.Length == 0)
+                return default;
+            else
+                return array[UnityEngine.Random.Range(0, array.Length)];
+        }
+
+        public static void GetPooled<T>(out List<T> list)
+        {
+            list = ListPool<T>.Get();
+        }
+
+        public static void ReleasePooled<T>(List<T> list)
+        {
+            ListPool<T>.Release(list);
         }
     }
 }

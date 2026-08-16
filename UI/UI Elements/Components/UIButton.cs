@@ -128,7 +128,7 @@ namespace Shears.UI
         {
             evt.PreventDefault();
 
-            if (!selectable)
+            if (!selectable || clickOnMouseDown)
                 return;
 
             OnClickedImplementation();

@@ -6,7 +6,8 @@ namespace Shears.ActionQueues
 {
     public class ActionManager : ProtectedSingleton<ActionManager>
     {
-        [SerializeField] private List<ActionQueue> actionQueues;
+        [SerializeField]
+        private List<ActionQueue> actionQueues;
         private readonly Dictionary<Component, ActionQueue> componentQueueDictionary = new();
         private readonly Dictionary<GameObject, ActionQueue> gameObjectQueueDictionary = new();
 
@@ -14,11 +15,14 @@ namespace Shears.ActionQueues
         {
             base.Awake();
 
-            actionQueues = FindObjectsByType<ActionQueue>(FindObjectsSortMode.None).ToList();
+            actionQueues = FindObjectsByType<ActionQueue>().ToList();
         }
 
-        internal static ActionQueue GetQueueFor(Component component) => Instance.InstGetQueueFor(component);
-        internal static ActionQueue GetQueueFor(GameObject gameObject) => Instance.InstGetQueueFor(gameObject);
+        internal static ActionQueue GetQueueFor(Component component) =>
+            Instance.InstGetQueueFor(component);
+
+        internal static ActionQueue GetQueueFor(GameObject gameObject) =>
+            Instance.InstGetQueueFor(gameObject);
 
         private ActionQueue InstGetQueueFor(Component component)
         {
@@ -27,6 +31,7 @@ namespace Shears.ActionQueues
 
             return InstGetQueueFor(component.gameObject);
         }
+
         private ActionQueue InstGetQueueFor(GameObject gameObject)
         {
             if (gameObjectQueueDictionary.TryGetValue(gameObject, out ActionQueue queue))
@@ -35,7 +40,9 @@ namespace Shears.ActionQueues
             return FindActionQueue(gameObject);
         }
 
-        internal static ActionQueue GetQueueWithTag(string name) => Instance.InstGetQueueWithName(name);
+        internal static ActionQueue GetQueueWithTag(string name) =>
+            Instance.InstGetQueueWithName(name);
+
         private ActionQueue InstGetQueueWithName(string tag)
         {
             foreach (var queue in actionQueues)

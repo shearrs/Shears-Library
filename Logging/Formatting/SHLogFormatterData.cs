@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using static Shears.Logging.SHLogFormatter;
 
@@ -11,10 +10,31 @@ namespace Shears.Logging
     public class SHLogFormatterData : ScriptableObject, ISHLogFormatter
     {
         #region Enum Definitions
-        public enum PrefixFormat { Default, None, Context, Timestamp, LongTimestamp }
-        public enum MessageFormat { Default }
-        public enum ColorFormat { Default, None }
-        public enum Compositor { Default, None }
+        public enum PrefixFormat
+        {
+            Default,
+            None,
+            Context,
+            Timestamp,
+            LongTimestamp,
+        }
+
+        public enum MessageFormat
+        {
+            Default,
+        }
+
+        public enum ColorFormat
+        {
+            Default,
+            None,
+        }
+
+        public enum Compositor
+        {
+            Default,
+            None,
+        }
         #endregion
 
         [SerializeField, Tooltip("Determines how the prefix of the log is formatted.")]
@@ -23,10 +43,18 @@ namespace Shears.Logging
         [SerializeField, Tooltip("Determines how the main body message of the log is formatted.")]
         private MessageFormat messageFormat;
 
-        [SerializeField, Tooltip("Determines how color is applied to the log. Default uses rich text tags.")]
+        [
+            SerializeField,
+            Tooltip("Determines how color is applied to the log. Default uses rich text tags.")
+        ]
         private ColorFormat colorFormat;
 
-        [SerializeField, Tooltip("Determines how the log is composed. Default is a colored message with the format: '[Prefix] - Message'")]
+        [
+            SerializeField,
+            Tooltip(
+                "Determines how the log is composed. Default is a colored message with the format: '[Prefix] - Message'"
+            )
+        ]
         private Compositor compositor;
 
         public PrefixFormatter PrefixFormatter { get; set; }
@@ -34,11 +62,11 @@ namespace Shears.Logging
         public ColorSetter ColorSetter { get; set; }
         public CompositorFunction CompositorFunction { get; set; }
 
-        public string Format(SHLog log, [CallerFilePath] string callerFilePath = "", [CallerLineNumber] long callerLineNumber = -1)
+        public string Format(in SHLog log)
         {
             var formatter = GetFormatter();
 
-            return formatter.Format(log, callerFilePath, callerLineNumber);
+            return formatter.Format(log);
         }
 
         public bool IsValid()
@@ -52,7 +80,12 @@ namespace Shears.Logging
         /// <returns>The underlying <see cref="SHLogFormatter"/>.</returns>
         public SHLogFormatter GetFormatter()
         {
-            return new(GetPrefixFormatter(), GetMessageFormatter(), GetColorSetter(), GetCompositor());
+            return new(
+                GetPrefixFormatter(),
+                GetMessageFormatter(),
+                GetColorSetter(),
+                GetCompositor()
+            );
         }
 
         private PrefixFormatter GetPrefixFormatter()
@@ -67,7 +100,7 @@ namespace Shears.Logging
                 PrefixFormat.Timestamp => SHLogFormats.TimestampPrefix,
                 PrefixFormat.LongTimestamp => SHLogFormats.LongTimestampPrefix,
                 PrefixFormat.None => SHLogFormats.NoPrefix,
-                _ => null
+                _ => null,
             };
         }
 
@@ -79,7 +112,7 @@ namespace Shears.Logging
             return messageFormat switch
             {
                 MessageFormat.Default => SHLogFormats.DefaultMessage,
-                _ => null
+                _ => null,
             };
         }
 
@@ -92,7 +125,7 @@ namespace Shears.Logging
             {
                 ColorFormat.Default => SHLogFormats.DefaultColor,
                 ColorFormat.None => SHLogFormats.NoColor,
-                _ => null
+                _ => null,
             };
         }
 
@@ -105,7 +138,7 @@ namespace Shears.Logging
             {
                 Compositor.Default => SHLogFormats.DefaultCompositor,
                 Compositor.None => SHLogFormats.NoCompositor,
-                _ => null
+                _ => null,
             };
         }
     }

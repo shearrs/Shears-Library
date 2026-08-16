@@ -3,25 +3,17 @@ using System.Collections.Generic;
 using Shears.Logging;
 using Shears.Tweens;
 using UnityEngine;
+using static UnityEngine.Audio.ProcessorInstance.AvailableData;
 
 namespace Shears.UI
 {
     [DisallowMultipleComponent]
     public class UIElement : SHMonoBehaviourLogger, IColorTweenable
     {
-        private delegate int GetSortOrderCallback();
-        private delegate void GetChildrenCallback(List<UIElement> children);
-
         #region Variables
         [Header("UIElement")]
         [SerializeField, Range(0, 1)]
         private float alpha = 1.0f;
-
-        [NonSerialized]
-        private List<UIElement> flattenedHierarchy;
-
-        [NonSerialized]
-        private List<GameObject> rootObjects;
 
         private readonly Dictionary<Type, object> registrations = new();
         private readonly Dictionary<IRef, object> refBindings = new();
@@ -29,28 +21,20 @@ namespace Shears.UI
         private readonly List<UIElement> children = new();
         private readonly TweenStorage tweenStorage = new();
         private readonly Ref<bool> isFocused = new();
-        private Dictionary<UIElement, int> hierarchyIndex;
-        private bool isHierarchyInitialized;
         private bool isDirty = false;
+        private int rootSortOrder;
         private float dragBeginTime = 0.1f;
 
-        private int Depth { get; set; }
+        private DataTree<UIElement> Hierarchy { get; set; }
         private UIElementCanvas UICanvas { get; set; }
-        private GetChildrenCallback GetChildren { get; set; }
-        private GetSortOrderCallback GetSortOrder { get; set; }
         protected IReadOnlyList<Tween> Tweens => tweenStorage.Tweens;
-        public UIElement Parent { get; set; }
+        public int Depth => GetDepth();
+        public UIElement Parent => GetParent();
         public IReadOnlyList<UIElement> Children
         {
             get
             {
-                if (!isHierarchyInitialized)
-                    ForceInitializeHierarchy();
-
-                if (GetChildren != null)
-                    GetChildren(children);
-                else
-                    children.Clear();
+                GetChildren();
 
                 return children;
             }
@@ -68,17 +52,8 @@ namespace Shears.UI
             get => dragBeginTime;
             set => dragBeginTime = value;
         }
-        public int RootSortOrder { get; private set; }
-        public int SortOrder
-        {
-            get
-            {
-                if (!isHierarchyInitialized)
-                    ForceInitializeHierarchy();
-
-                return GetSortOrder();
-            }
-        }
+        public int RootSortOrder => GetRootSortOrder();
+        public int SortOrder => GetSortOrder();
         public Color BaseColor
         {
             get => BaseColorValue;
@@ -137,9 +112,6 @@ namespace Shears.UI
         protected virtual bool AdditiveModulateValue { get; set; } = false;
 
         public event Action Disabled;
-        private event Action Destroyed;
-        private event Action ParentChanged;
-        private event Action ChildrenChanged;
         #endregion
 
         #region Unity Methods
@@ -148,19 +120,25 @@ namespace Shears.UI
             UIElementEventSystem.CreateInstanceIfNoneExists();
 
             if (
-                !isHierarchyInitialized
+                Hierarchy == null
                 && (transform.parent == null || !transform.parent.TryGetComponent(out UIElement _))
             )
-                UpdateHierarchy();
+                CreateHierarchy();
 
             RegisterEvents();
             BindRefs();
-            MarkDirty();
+
+            if (Hierarchy != null)
+                MarkDirty();
         }
 
         protected virtual void OnDisable()
         {
             DisposeTweens();
+
+            if (ApplicationUtil.IsQuitting)
+                return;
+
             CalculateAndApplyStyle();
 
             Disabled?.Invoke();
@@ -168,8 +146,7 @@ namespace Shears.UI
 
         protected virtual void OnDestroy()
         {
-            Destroyed?.Invoke();
-
+            OnHierarchyDestroyed();
             Unbind();
         }
 
@@ -178,23 +155,19 @@ namespace Shears.UI
             if (Application.isPlaying)
                 return;
 
-            Invoke(nameof(SetLayer), 0f);
+            if (gameObject.layer != LayerMask.NameToLayer("UI"))
+                Invoke(nameof(SetLayer), 0f);
         }
 
         private void OnTransformParentChanged()
         {
-            if (transform.parent == null || !transform.TryGetComponent(out UIElement _))
-                UpdateHierarchy();
-            else if (flattenedHierarchy != null && flattenedHierarchy.Count > 0)
-                flattenedHierarchy.Clear();
-
-            MarkDirty();
-            ParentChanged?.Invoke();
+            OnHierarchyParentChanged();
         }
 
         private void OnTransformChildrenChanged()
         {
-            ChildrenChanged?.Invoke();
+            OnHierarchyChildChanged();
+            MarkDirty();
         }
 
         private void LateUpdate()
@@ -328,196 +301,171 @@ namespace Shears.UI
         #endregion
 
         #region Children
-        internal UIElement GetDeepestChild()
+        internal UIElement GetHighestSortOrderChild()
         {
-            GetDeepestChildRecursive(0, out var child);
-
-            return child;
-        }
-
-        private int GetDeepestChildRecursive(int depth, out UIElement deepestChild)
-        {
-            int deepestDepth = depth;
-            deepestChild = this;
-
-            for (int i = 0; i < transform.childCount; i++)
-            {
-                var child = transform.GetChild(i);
-
-                if (!child.TryGetComponent(out UIElement element))
-                    continue;
-
-                int currentDepth = element.GetDeepestChildRecursive(
-                    depth + 1,
-                    out var currentChild
-                );
-
-                if (currentDepth > deepestDepth)
-                    deepestChild = currentChild;
-            }
-
-            return deepestDepth;
-        }
-
-        private void ForceInitializeHierarchy()
-        {
-            if (ApplicationUtil.IsQuitting || isHierarchyInitialized)
-                return;
-
-            var targetTransform = transform;
-            var targetElement = this;
-
-            while (
-                targetTransform.parent != null
-                && targetTransform.parent.TryGetComponent(out UIElement element)
-            )
-            {
-                targetTransform = targetTransform.parent;
-                targetElement = element;
-            }
-
-            targetElement.UpdateHierarchy();
-        }
-
-        private void UpdateHierarchy()
-        {
-            if (ApplicationUtil.IsQuitting)
-                return;
-
-            if (flattenedHierarchy != null)
-            {
-                foreach (var element in flattenedHierarchy)
-                {
-                    element.ParentChanged -= UpdateHierarchy;
-                    element.ChildrenChanged -= UpdateHierarchy;
-                    element.Destroyed -= UpdateHierarchy;
-                }
-
-                flattenedHierarchy.Clear();
-                hierarchyIndex.Clear();
-            }
+            if (Hierarchy == null)
+                return this;
             else
             {
-                flattenedHierarchy = new();
-                hierarchyIndex = new();
+                var children = Children;
+
+                if (children.Count == 0)
+                    return this;
+                else
+                {
+                    int maxOrder = 0;
+                    UIElement targetChild = this;
+
+                    foreach (var child in children)
+                    {
+                        if (child.SortOrder > maxOrder)
+                        {
+                            maxOrder = child.SortOrder;
+                            targetChild = child;
+                        }
+                    }
+
+                    return targetChild;
+                }
             }
+        }
+
+        private void CreateHierarchy()
+        {
+            Hierarchy = new();
+
+            CreateHierarchyRecursive(this, null);
 
             if (transform.parent == null)
             {
-                rootObjects ??= new();
+                CollectionUtil.GetPooled(out List<GameObject> rootObjects);
                 gameObject.scene.GetRootGameObjects(rootObjects);
 
-                RootSortOrder = rootObjects.IndexOf(gameObject);
+                rootSortOrder = rootObjects.IndexOf(gameObject);
+
+                CollectionUtil.ReleasePooled(rootObjects);
             }
             else
-            {
-                int depth = 0;
-                var parent = transform.parent;
-
-                while (parent != null)
-                {
-                    depth++;
-                    parent = parent.parent;
-                }
-
-                depth += transform.GetSiblingIndex();
-
-                RootSortOrder = depth;
-            }
-
-            AddHierarchyElement(this);
-
-            if (TryGetComponent(out UIElementCanvas canvas))
-                UICanvas = canvas;
-
-            UpdateHierarchy(this);
+                rootSortOrder = transform.GetSiblingIndex();
         }
 
-        private void UpdateHierarchy(UIElement element, UIElementCanvas canvas = null)
+        private void CreateHierarchyRecursive(UIElement element, UIElement parent)
         {
-            if (TryGetComponent(out UIElementCanvas possibleCanvas))
-                canvas = possibleCanvas;
+            if (element.TryGetComponent(out UIElementCanvas canvas))
+                element.UICanvas = canvas;
+            else if (parent != null)
+                element.UICanvas = parent.UICanvas;
+
+            element.Hierarchy = Hierarchy;
+            Hierarchy.Add(element, parent);
 
             for (int i = 0; i < element.transform.childCount; i++)
             {
                 var child = element.transform.GetChild(i);
+                var childElement = child.GetComponent<UIElement>();
 
-                if (!child.TryGetComponent(out UIElement childElement))
-                    continue;
-
-                AddHierarchyElement(childElement, element, canvas);
-                UpdateHierarchy(childElement, canvas);
+                CreateHierarchyRecursive(childElement, element);
             }
         }
 
-        private void AddHierarchyElement(
-            UIElement element,
-            UIElement parent = null,
-            UIElementCanvas canvas = null
-        )
+        private UIElement GetParent()
         {
-            flattenedHierarchy.Add(element);
-            hierarchyIndex.Add(element, flattenedHierarchy.Count - 1);
-            element.GetSortOrder = () => GetHierarchySortOrder(element);
-            element.GetChildren = (list) => GetHierarchyChildren(element, list);
-            element.Parent = parent;
-            element.UICanvas = canvas;
-            element.RootSortOrder = RootSortOrder;
-            element.isHierarchyInitialized = true;
-
-            if (element.Parent != null)
-                element.Depth = element.Parent.Depth + 1;
+            if (Hierarchy == null)
+                return null;
             else
-                element.Depth = 0;
-
-            if (element != this)
-            {
-                element.ParentChanged += UpdateHierarchy;
-                element.ChildrenChanged += UpdateHierarchy;
-                element.Destroyed += UpdateHierarchy;
-            }
+                return Hierarchy.GetParent(this);
         }
 
-        private int GetHierarchySortOrder(UIElement element)
-        {
-            if (hierarchyIndex.TryGetValue(element, out int order))
-                return order;
-            else
-            {
-                Log($"{nameof(UIElement)} {name} failed to fetch sort order.", SHLogLevels.Error);
-                return 0;
-            }
-        }
-
-        private void GetHierarchyChildren(UIElement element, List<UIElement> children)
+        private void GetChildren()
         {
             children.Clear();
 
-            if (!hierarchyIndex.TryGetValue(element, out var index))
-            {
-                Log(
-                    $"{nameof(UIElement)} {name} failed to fetch hierarchy index.",
-                    SHLogLevels.Error
-                );
+            if (Hierarchy == null)
                 return;
-            }
+            else
+                Hierarchy.GetChildren(this, children);
+        }
 
-            if (index == 0)
-            {
-                for (int i = 1; i < flattenedHierarchy.Count; i++)
-                    children.Add(flattenedHierarchy[i]);
-            }
+        private int GetDepth()
+        {
+            if (Hierarchy == null)
+                return 0;
+            else
+                return Hierarchy.GetDepth(this);
+        }
+
+        private int GetSortOrder()
+        {
+            if (Hierarchy == null)
+                return 0;
+            else
+                return Hierarchy.GetOrder(this);
+        }
+
+        private int GetRootSortOrder()
+        {
+            if (Hierarchy == null || Hierarchy.Root == null)
+                return 0;
             else
             {
-                for (int i = index + 1; i < flattenedHierarchy.Count; i++)
-                {
-                    var child = flattenedHierarchy[i];
+                if (Hierarchy.Root == this)
+                    return rootSortOrder;
+                else
+                    return Hierarchy.Root.SortOrder;
+            }
+        }
 
-                    if (child.Depth <= element.Depth) // We are on a sibling or parent
-                        break;
+        private void OnHierarchyParentChanged()
+        {
+            Hierarchy?.Remove(this);
+            Hierarchy = null;
 
-                    children.Add(child);
-                }
+            var parent = transform.parent;
+
+            if (parent == null || !parent.TryGetComponent(out UIElement _))
+                CreateHierarchy();
+        }
+
+        private void OnHierarchyChildChanged()
+        {
+            if (Hierarchy == null)
+                return;
+
+            Hierarchy.GetDirectChildren(this, children);
+
+            foreach (var child in children)
+                Hierarchy.Remove(child);
+
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                var child = transform.GetChild(i);
+                var childElement = child.GetComponent<UIElement>();
+
+                InsertChildRecursive(childElement, this, i);
+            }
+        }
+
+        private void OnHierarchyDestroyed()
+        {
+            Hierarchy?.Remove(this);
+        }
+
+        private void InsertChildRecursive(UIElement element, UIElement parent, int index)
+        {
+            if (element.TryGetComponent(out UIElementCanvas canvas))
+                element.UICanvas = canvas;
+            else if (parent != null)
+                element.UICanvas = parent.UICanvas;
+
+            element.Hierarchy = Hierarchy;
+            Hierarchy.Insert(element, parent, index);
+
+            for (int i = 0; i < element.transform.childCount; i++)
+            {
+                var child = element.transform.GetChild(i);
+                var childElement = child.GetComponent<UIElement>();
+
+                InsertChildRecursive(childElement, element, i);
             }
         }
         #endregion

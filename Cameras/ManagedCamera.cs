@@ -1,22 +1,32 @@
-using Shears.Input;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Shears.Cameras
 {
     [RequireComponent(typeof(Camera))]
     public class ManagedCamera : MonoBehaviour
     {
-        [SerializeField] private bool initializeOnAwake = true;
-        [SerializeField] private ManagedInputProvider inputMap;
-        [SerializeField] private List<CameraState> states = new();
+        [SerializeField]
+        private bool initializeOnAwake = true;
 
+        [SerializeField]
+        private InputActionReference defaultLookInput;
+
+        [SerializeField]
+        private List<CameraState> states = new();
+
+        private readonly CameraData globalData = new();
         private Camera rawCamera;
         private CameraState currentState;
 
-        public bool InitializeOnAwake { get => initializeOnAwake; set => initializeOnAwake = value; }
-        public ManagedInputProvider Input { get => inputMap; set => inputMap = value; }
+        public bool InitializeOnAwake
+        {
+            get => initializeOnAwake;
+            set => initializeOnAwake = value;
+        }
         public Camera RawCamera => rawCamera;
+        public CameraData GlobalData => globalData;
 
         private void Awake()
         {
@@ -46,9 +56,15 @@ namespace Shears.Cameras
         {
             rawCamera = GetComponent<Camera>();
 
+            if (defaultLookInput != null && GlobalData.LookInput == null)
+            {
+                defaultLookInput.action.Enable();
+                GlobalData.LookInput = () => defaultLookInput.action.ReadValue<Vector2>();
+            }
+
             foreach (var state in states)
             {
-                state.SetGlobalValues(transform, inputMap);
+                state.SetGlobalValues(transform, globalData);
                 state.Initialize();
             }
 
@@ -70,7 +86,8 @@ namespace Shears.Cameras
                 currentState.Enter();
         }
 
-        public void SetState<T>() where T : CameraState
+        public void SetState<T>()
+            where T : CameraState
         {
             var type = typeof(T);
 
@@ -83,13 +100,13 @@ namespace Shears.Cameras
                 {
                     SetState(state);
                     break;
-                }    
+                }
             }
         }
-    
+
         public void AddState(CameraState state)
         {
-            state.SetGlobalValues(transform, inputMap);
+            state.SetGlobalValues(transform, globalData);
             state.Initialize();
             states.Add(state);
         }

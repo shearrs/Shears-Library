@@ -1,5 +1,5 @@
-using Shears.Logging;
 using System.Runtime.CompilerServices;
+using Shears.Logging;
 using UnityEngine;
 
 namespace Shears.HitDetection
@@ -7,7 +7,8 @@ namespace Shears.HitDetection
     public abstract class HitShape3D : MonoBehaviour, ISHLoggable
     {
         [field: Header("Logging")]
-        [field: SerializeField] public SHLogLevels LogLevels { get; set; } = SHLogLevels.Log | SHLogUtil.Issues;
+        [field: SerializeField]
+        public SHLogLevels LogLevels { get; set; } = SHLogLevels.Log | SHLogUtil.Issues;
 
         public HitBody3D Body { get; internal set; }
 
@@ -25,8 +26,25 @@ namespace Shears.HitDetection
         /// <param name="callerFilePath">The file path of the class who called this. Should not be set manually.</param>
         /// <param name="callerLineNumber">The line number of the class who called this. Should not be set manually.</param>
         [HideInCallstack]
-        protected void Log(string message, SHLogLevels level = SHLogLevels.Log, Color color = default, UnityEngine.Object context = null, string prefix = "", ISHLogFormatter formatter = default,
-        [CallerFilePath] string callerFilePath = "", [CallerLineNumber] long callerLineNumber = 0)
-        => this.Log(new SHLog(message, context, prefix, level, color), formatter, callerFilePath, callerLineNumber);
+        protected void Log(
+            string message,
+            SHLogLevels level = SHLogLevels.Log,
+            Object context = null,
+            Color color = default,
+            string prefix = "",
+            ISHLogFormatter formatter = default,
+            [CallerFilePath] string callerFilePath = "",
+            [CallerLineNumber] long callerLineNumber = 0
+        ) =>
+            ((ISHLoggable)this).Log(
+                message,
+                level,
+                context,
+                color,
+                prefix,
+                formatter,
+                callerFilePath,
+                callerLineNumber
+            );
     }
 }

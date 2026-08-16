@@ -209,8 +209,7 @@ namespace Shears.UI.Editor
         private static void CreateEventSystemIfNecessary(UIElementEventSystem.DetectionTypes type)
         {
             var eventSystems = Object.FindObjectsByType<UIElementEventSystem>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None
+                FindObjectsInactive.Include
             );
             bool targetSystem = false;
 

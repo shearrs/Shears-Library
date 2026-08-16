@@ -8,6 +8,7 @@ namespace Shears.Detection
 {
     public class RayDetector3D : AreaDetector3D
     {
+        #region Variables
         private static readonly Comparer<RaycastHit> HIT_COMPARER = Comparer<RaycastHit>.Create(
             (h1, h2) =>
             {
@@ -29,6 +30,9 @@ namespace Shears.Detection
                     return h1.distance.CompareTo(h2.distance);
             }
         );
+
+        [SerializeField, Tooltip("Whether or not this detector's rays are blocked.")]
+        private bool isBlockable = false;
 
         [
             SerializeField,
@@ -88,6 +92,11 @@ namespace Shears.Detection
         private bool isFirstFrame = true;
         private Vector3 previousPosition;
 
+        public bool IsBlockable
+        {
+            get => isBlockable;
+            set => IsBlockable = value;
+        }
         public bool CastCameraToCursor
         {
             get => castCameraToCursor;
@@ -115,6 +124,7 @@ namespace Shears.Detection
         }
 
         public Func<RaycastHit, bool> ValidationCallback { get; set; }
+        #endregion
 
         protected override void Awake()
         {
@@ -225,9 +235,10 @@ namespace Shears.Detection
             );
 
             Array.Sort(raycastHits, 0, hits, HIT_COMPARER);
+            int maxDetections = isBlockable ? 1 : MaxDetections;
 
-            if (hits > MaxDetections)
-                hits = MaxDetections;
+            if (hits > maxDetections)
+                hits = maxDetections;
 
             int invalidOffset = 0;
 

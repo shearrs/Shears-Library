@@ -62,7 +62,7 @@ namespace Shears.Editor
                 BindingFlags.Public | BindingFlags.Static
             );
 
-            EditorApplication.hierarchyWindowItemOnGUI += DrawHierarchyItem;
+            EditorApplication.hierarchyWindowItemByEntityIdOnGUI += DrawHierarchyItem;
             ObjectChangeEvents.changesPublished += OnObjectsChanged;
             EditorSceneManager.activeSceneChangedInEditMode += OnSceneLoaded;
             PrefabStage.prefabStageOpened += OnPrefabOpened;
@@ -73,7 +73,7 @@ namespace Shears.Editor
 
         ~RequiredHierarchyIcons()
         {
-            EditorApplication.hierarchyWindowItemOnGUI -= DrawHierarchyItem;
+            EditorApplication.hierarchyWindowItemByEntityIdOnGUI -= DrawHierarchyItem;
             ObjectChangeEvents.changesPublished -= OnObjectsChanged;
             EditorSceneManager.activeSceneChangedInEditMode -= OnSceneLoaded;
             PrefabStage.prefabStageOpened -= OnPrefabOpened;
@@ -84,7 +84,7 @@ namespace Shears.Editor
         // everything changed: refresh everything, stop looping
         private static void OnObjectsChanged(ref ObjectChangeEventStream stream)
         {
-            if (Application.isPlaying)
+            if (Application.isPlaying || ShearsSettings.instance.HideRequiredIcons)
                 return;
 
             bool hierarchyChanged = false;
@@ -98,34 +98,32 @@ namespace Shears.Editor
                 {
                     case ObjectChangeKind.CreateGameObjectHierarchy:
                         stream.GetCreateGameObjectHierarchyEvent(i, out var d1);
-                        gameObject = EditorUtility.EntityIdToObject(d1.instanceId) as GameObject;
+                        gameObject = EditorUtility.EntityIdToObject(d1.entityId) as GameObject;
                         break;
                     case ObjectChangeKind.ChangeGameObjectStructureHierarchy:
                         stream.GetChangeGameObjectStructureHierarchyEvent(i, out var d2);
-                        gameObject = EditorUtility.EntityIdToObject(d2.instanceId) as GameObject;
+                        gameObject = EditorUtility.EntityIdToObject(d2.entityId) as GameObject;
                         break;
                     case ObjectChangeKind.ChangeGameObjectStructure:
                         stream.GetChangeGameObjectStructureEvent(i, out var d3);
-                        gameObject = EditorUtility.EntityIdToObject(d3.instanceId) as GameObject;
+                        gameObject = EditorUtility.EntityIdToObject(d3.entityId) as GameObject;
                         break;
                     case ObjectChangeKind.ChangeGameObjectParent:
                         stream.GetChangeGameObjectParentEvent(i, out var d4);
                         var previousParent =
-                            EditorUtility.EntityIdToObject(d4.previousParentInstanceId)
-                            as GameObject;
+                            EditorUtility.EntityIdToObject(d4.previousParentEntityId) as GameObject;
 
                         if (previousParent != null)
                             InitializeObject(previousParent);
 
-                        gameObject = EditorUtility.EntityIdToObject(d4.instanceId) as GameObject;
+                        gameObject = EditorUtility.EntityIdToObject(d4.entityId) as GameObject;
                         break;
                     case ObjectChangeKind.ChangeGameObjectOrComponentProperties:
                         hierarchyChanged = true;
                         break;
                     case ObjectChangeKind.DestroyGameObjectHierarchy:
                         stream.GetDestroyGameObjectHierarchyEvent(i, out var d6);
-                        gameObject =
-                            EditorUtility.EntityIdToObject(d6.parentInstanceId) as GameObject;
+                        gameObject = EditorUtility.EntityIdToObject(d6.entityId) as GameObject;
                         break;
                 }
 
@@ -160,6 +158,9 @@ namespace Shears.Editor
 
         private static void InitializeAllObjects()
         {
+            if (ShearsSettings.instance.HideRequiredIcons)
+                return;
+
             targetComponents.Clear();
             rootObjects.Clear();
 
@@ -188,6 +189,9 @@ namespace Shears.Editor
 
         private static void InitializeObject(GameObject obj)
         {
+            if (ShearsSettings.instance.HideRequiredIcons)
+                return;
+
             components.Clear();
             obj.GetComponentsInChildren(true, components);
 
@@ -238,9 +242,9 @@ namespace Shears.Editor
             }
         }
 
-        private static void DrawHierarchyItem(int entityID, Rect selectionRect)
+        private static void DrawHierarchyItem(EntityId entityID, Rect selectionRect)
         {
-            if (Application.isPlaying)
+            if (Application.isPlaying || ShearsSettings.instance.HideRequiredIcons)
                 return;
 
             var gameObject = EditorUtility.EntityIdToObject(entityID) as GameObject;
@@ -421,7 +425,7 @@ namespace Shears.Editor
             while (transform.parent != null)
             {
                 var parent = transform.parent;
-                int parentID = parent.gameObject.GetEntityId();
+                var parentID = parent.gameObject.GetEntityId();
 
                 if (!expandedIDs.Contains(parentID))
                     return false;

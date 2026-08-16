@@ -6,7 +6,12 @@ namespace Shears.Tweens
 {
     public readonly struct Tween
     {
-        public enum UpdateMode { Update, LateUpdate, FixedUpdate }
+        public enum UpdateMode
+        {
+            Update,
+            LateUpdate,
+            FixedUpdate,
+        }
 
         public static readonly Tween Empty = new();
 
@@ -20,9 +25,18 @@ namespace Shears.Tweens
         public readonly bool IsPlaying => IsTweenValid() && tween.IsPlaying;
         public readonly bool Paused => IsTweenValid() && tween.Paused;
         public readonly int Loops => IsTweenValid() ? tween.Loops : 0;
-        public readonly event Action Completed { add => AddOnComplete(value); remove => RemoveOnComplete(value); }
-        public readonly event Action Stopped { add => AddOnStopped(value); remove => RemoveOnStopped(value); }
-        public readonly Coroutine CoroutineHandle => IsTweenValid() ? tween.GetCoroutineHandle() : null;
+        public readonly event Action Completed
+        {
+            add => AddOnComplete(value);
+            remove => RemoveOnComplete(value);
+        }
+        public readonly event Action Stopped
+        {
+            add => AddOnStopped(value);
+            remove => RemoveOnStopped(value);
+        }
+        public readonly Coroutine CoroutineHandle =>
+            IsTweenValid() ? tween.GetCoroutineHandle() : null;
         #endregion
 
         public Tween(TweenInstance tween)
@@ -33,15 +47,21 @@ namespace Shears.Tweens
 
         #region Wrapped Tween Functions
         public readonly void Play() => DoIfValid(tween != null ? tween.Play : null);
-        public readonly void PlayAfter(float seconds)
+
+        public readonly Tween PlayAfter(float seconds)
         {
             if (IsTweenValid())
                 tween.PlayAfter(seconds);
             else
                 ErrorMessage();
+
+            return this;
         }
+
         public readonly void Stop() => DoIfValid(tween != null ? tween.Stop : null);
+
         public readonly void Pause() => DoIfValid(tween != null ? tween.Pause : null);
+
         public readonly void Dispose() => DoIfValid(tween != null ? tween.Dispose : null, false);
 
         public void AddOnComplete(Action onComplete)
@@ -138,7 +158,8 @@ namespace Shears.Tweens
                 ErrorMessage();
         }
 
-        public void ClearDisposeEvents() => DoIfValid(tween != null ? tween.ClearDisposeEvents : null);
+        public void ClearDisposeEvents() =>
+            DoIfValid(tween != null ? tween.ClearDisposeEvents : null);
         #endregion
 
         #region Utility Functions
@@ -183,21 +204,21 @@ namespace Shears.Tweens
         #endregion
 
         #region Operator Overloads
-        public static bool operator==(Tween a, Tween b)
+        public static bool operator ==(Tween a, Tween b)
         {
             return a.tween == b.tween && a.id == b.id;
         }
 
-        public static bool operator!=(Tween a, Tween b)
+        public static bool operator !=(Tween a, Tween b)
         {
             return !(a == b);
         }
 
         public override bool Equals(object obj)
         {
-            return obj is Tween tween &&
-                   EqualityComparer<TweenInstance>.Default.Equals(this.tween, tween.tween) &&
-                   id == tween.id;
+            return obj is Tween tween
+                && EqualityComparer<TweenInstance>.Default.Equals(this.tween, tween.tween)
+                && id == tween.id;
         }
 
         public override int GetHashCode()

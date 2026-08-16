@@ -12,11 +12,15 @@ namespace Shears.Beziers
         private const float DISTANCE_STEP = 0.001f;
 
         [Header("Gizmos")]
-        [SerializeField, Tooltip("Whether or not to draw gizmos.")] private bool drawGizmos = true;
+        [SerializeField, Tooltip("Whether or not to draw gizmos.")]
+        private bool drawGizmos = true;
 
         [Header("Data")]
-        [SerializeField, Tooltip("Whether or not the last point should connect back to the first.")] private bool closed = false;
-        [SerializeField, Tooltip("The points that define the curve.")] private List<BezierPoint> points = new();
+        [SerializeField, Tooltip("Whether or not the last point should connect back to the first.")]
+        private bool closed = false;
+
+        [SerializeField, Tooltip("The points that define the curve.")]
+        private List<BezierPoint> points = new();
 
         public bool DrawGizmos => drawGizmos;
         public IReadOnlyList<BezierPoint> Points => points;
@@ -43,7 +47,8 @@ namespace Shears.Beziers
         /// Adds a point to the end of the bezier curve at the given position with no rotation or tangents.
         /// </summary>
         /// <param name="position">The position to add a point at.</param>
-        public void AddPoint(Vector3 position) => AddPoint(new BezierPoint(position, Quaternion.identity, Vector3.zero));
+        public void AddPoint(Vector3 position) =>
+            AddPoint(new BezierPoint(position, Quaternion.identity, Vector3.zero));
 
         /// <summary>
         /// Adds a defined <see cref="BezierPoint"/> to the end of the bezier curve.
@@ -153,6 +158,68 @@ namespace Shears.Beziers
             return finalPosition;
         }
 
+        public void SampleWithRotation(float t, out Vector3 position, out Quaternion rotation)
+        {
+            position = Vector3.zero;
+            rotation = Quaternion.identity;
+
+            if (points.Count < 2)
+                return;
+
+            if (!Mathf.Approximately(t, 1))
+                t %= 1;
+
+            int pointCount = points.Count;
+
+            if (closed)
+                pointCount++;
+
+            int pointIndex = Mathf.Min(Mathf.FloorToInt(t * (pointCount - 1)), pointCount - 2);
+            float localT = t * (pointCount - 1) - pointIndex;
+
+            BezierPoint point1;
+            BezierPoint point2;
+
+            if (pointIndex >= points.Count - 1)
+            {
+                point1 = points[^1];
+                point2 = points[0];
+            }
+            else
+            {
+                point1 = points[pointIndex];
+                point2 = points[pointIndex + 1];
+            }
+
+            Vector3 t1 = Vector3.Lerp(point1.Position, point1.Tangent2, localT);
+            Vector3 t2 = Vector3.Lerp(point1.Tangent2, point2.Tangent1, localT);
+            Vector3 t3 = Vector3.Lerp(point2.Tangent1, point2.Position, localT);
+
+            Vector3 b1 = Vector3.Lerp(t1, t2, localT);
+            Vector3 b2 = Vector3.Lerp(t2, t3, localT);
+
+            position = Vector3.Lerp(b1, b2, localT);
+
+            var direction = b2 - b1;
+            if (direction == Vector3.zero)
+                rotation = Quaternion.identity;
+            else
+                rotation = Quaternion.LookRotation(b2 - b1);
+        }
+
+        public float GetPercentageForPoint(int index)
+        {
+            if (index > points.Count)
+                return -1.0f;
+
+            int pointCount = points.Count;
+
+            if (closed)
+                pointCount++;
+
+            return index / (pointCount - 1.0f);
+        }
+
         /// <summary>
         /// Samples the bezier curve at a given distance along the curve.
         /// </summary>
@@ -225,17 +292,56 @@ namespace Shears.Beziers
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
-
             if (!drawGizmos || points.Count < 2)
                 return;
 
-            Handles.color = Color.white;
-
+            Handles.zTest = UnityEngine.Rendering.CompareFunction.Greater;
+            Handles.color = new Color(1, 1, 1, 0.35f);
             for (int i = 0; i < points.Count - 1; i++)
-                Handles.DrawBezier(points[i].Position, points[i + 1].Position, points[i].Tangent2, points[i + 1].Tangent1, Color.white, Texture2D.whiteTexture, 2);
+                Handles.DrawBezier(
+                    points[i].Position,
+                    points[i + 1].Position,
+                    points[i].Tangent2,
+                    points[i + 1].Tangent1,
+                    Color.white,
+                    Texture2D.whiteTexture,
+                    2
+                );
 
             if (closed)
-                Handles.DrawBezier(points[^1].Position, points[0].Position, points[^1].Tangent2, points[0].Tangent1, Color.white, Texture2D.whiteTexture, 2);
+                Handles.DrawBezier(
+                    points[^1].Position,
+                    points[0].Position,
+                    points[^1].Tangent2,
+                    points[0].Tangent1,
+                    Color.white,
+                    Texture2D.whiteTexture,
+                    2
+                );
+
+            Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
+            Handles.color = new Color(1, 1, 1, 1);
+            for (int i = 0; i < points.Count - 1; i++)
+                Handles.DrawBezier(
+                    points[i].Position,
+                    points[i + 1].Position,
+                    points[i].Tangent2,
+                    points[i + 1].Tangent1,
+                    Color.white,
+                    Texture2D.whiteTexture,
+                    2
+                );
+
+            if (closed)
+                Handles.DrawBezier(
+                    points[^1].Position,
+                    points[0].Position,
+                    points[^1].Tangent2,
+                    points[0].Tangent1,
+                    Color.white,
+                    Texture2D.whiteTexture,
+                    2
+                );
         }
 #endif
     }

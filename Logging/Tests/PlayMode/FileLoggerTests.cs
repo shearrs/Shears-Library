@@ -41,7 +41,7 @@ namespace Shears.Logging.Tests
             string text;
 
 #if UNITY_WEBGL
-            byte[] textBytes = File.ReadAllBytes(KBLogger.LogFilePath);
+            byte[] textBytes = File.ReadAllBytes(SHLogger.LogFilePath);
             text = System.Text.Encoding.UTF8.GetString(textBytes);
 #else
             text = File.ReadAllText(SHLogger.LogFilePath);

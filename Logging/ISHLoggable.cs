@@ -28,24 +28,38 @@ namespace Shears.Logging
         /// <param name="callerFilePath">The file path of the class who called this. Should not be set manually.</param>
         /// <param name="callerLineNumber">The line number of the class who called this. Should not be set manually.</param>
         [HideInCallstack]
-        public static void Log(this ISHLoggable logger, string message, SHLogLevels level = SHLogLevels.Log, Color color = default, Object context = null, string prefix = "", ISHLogFormatter formatter = default,
-        [CallerFilePath] string callerFilePath = "", [CallerLineNumber] long callerLineNumber = 0)
-        => Log(logger, new SHLog(message, context, prefix, level, color), formatter, callerFilePath, callerLineNumber);
-
-        /// <summary>
-        /// Logs a message to the current logger.
-        /// </summary>
-        /// <param name="log">The log to send.</param>
-        /// <param name="formatter">The formatter for this log. Defaults to the current <see cref="ISHLogger.Formatter"/>.</param>
-        /// <param name="callerFilePath">The file path of the class who called this. Should not be set manually.</param>
-        /// <param name="callerLineNumber">The line number of the class who called this. Should not be set manually.</param>
-        [HideInCallstack]
-        public static void Log(this ISHLoggable logger, SHLog log, ISHLogFormatter formatter = null, [CallerFilePath] string callerFilePath = "", [CallerLineNumber] long callerLineNumber = 0)
+        public static void Log(
+            this ISHLoggable logger,
+            object message,
+            SHLogLevels level = SHLogLevels.Log,
+            Object context = null,
+            Color? color = null,
+            string prefix = "",
+            ISHLogFormatter formatter = null,
+            [CallerFilePath] string callerFilePath = "",
+            [CallerLineNumber] long callerLineNumber = 0
+        )
         {
-            if ((logger.LogLevels & log.Level) == 0)
+            if ((logger.LogLevels & level) == 0)
                 return;
 
-            SHLogger.Log(log, formatter, callerFilePath: callerFilePath, callerLineNumber: callerLineNumber);
+            if (context == null && logger is Component component)
+                context = component.gameObject;
+
+            if (prefix == string.Empty && logger is Object loggerObject)
+                prefix =
+                    $"{SHLog.GetCallerClassName(SHLog.GetCallerFileName(callerFilePath))}({loggerObject.name})";
+
+            SHLogger.Log(
+                message,
+                level,
+                color,
+                context,
+                prefix,
+                formatter,
+                callerFilePath,
+                callerLineNumber
+            );
         }
     }
 }

@@ -11,9 +11,9 @@ namespace Shears.StateMachineGraphs.Editor
         public static SMGraphView GraphView => graph;
 
         [UnityEditor.Callbacks.OnOpenAsset]
-        public static bool OnOpenAsset(int instanceID, int _)
+        public static bool OnOpenAsset(EntityId entityID, int _)
         {
-            var targetObject = EditorUtility.EntityIdToObject(instanceID);
+            var targetObject = EditorUtility.EntityIdToObject(entityID);
             var graph = targetObject as StateMachineGraph;
 
             if (graph == null)

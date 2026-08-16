@@ -1,0 +1,36 @@
+{
+    "version": 1,
+    "name": "Test Camera Input",
+    "maps": [
+        {
+            "name": "Camera",
+            "id": "7ab6155d-cebb-44aa-8bda-73a617efa2f7",
+            "actions": [
+                {
+                    "name": "Look",
+                    "type": "PassThrough",
+                    "id": "638eef6b-dad1-4690-a8a9-81697fb54484",
+                    "expectedControlType": "Delta",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "7d0dae28-93c4-4f2d-8873-699ac3817f0a",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

@@ -1,5 +1,5 @@
-using Shears.Input;
 using System.Collections;
+using Shears.Input;
 using UnityEngine;
 
 namespace Shears.Cameras
@@ -7,27 +7,53 @@ namespace Shears.Cameras
     public class ThirdPersonCameraState : CameraState
     {
         [Header("Target Settings")]
-        [SerializeField] private Transform target;
-        [SerializeField] private Vector3 lookAtOffset;
+        [SerializeField]
+        private Transform target;
+
+        [SerializeField]
+        private Vector3 lookAtOffset;
 
         [Header("Movement Settings")]
-        [SerializeField] private float sensitivity = 0.2f;
-        [SerializeField, Min(0)] private float smoothing = 25f;
-        [SerializeField, Range(-89f, 89f)] private float minXRotation = -89f;
-        [SerializeField, Range(-89f, 89f)] private float maxXRotation = 89f;
+        [SerializeField]
+        private float sensitivity = 0.2f;
+
+        [SerializeField, Min(0)]
+        private float smoothing = 25f;
+
+        [SerializeField, Range(-89f, 89f)]
+        private float minXRotation = -89f;
+
+        [SerializeField, Range(-89f, 89f)]
+        private float maxXRotation = 89f;
 
         [Header("Zoom Settings")]
-        [SerializeField] private float zoomSensitivity = 1f;
-        [SerializeField, Min(0)] private float zoomTime = 0.1f;
-        [SerializeField, Delayed, Min(0)] private float minZoom = 4f;
-        [SerializeField, Delayed, Min(0)] private float maxZoom = 16f;
+        [SerializeField]
+        private float zoomSensitivity = 1f;
+
+        [SerializeField, Min(0)]
+        private float zoomTime = 0.1f;
+
+        [SerializeField, Delayed, Min(0)]
+        private float minZoom = 4f;
+
+        [SerializeField, Delayed, Min(0)]
+        private float maxZoom = 16f;
 
         [Header("Occlusion Settings")]
-        [SerializeField] private bool occlusionEnabled = true;
-        [SerializeField] private float occlusionMoveSpeed = 1.0f;
-        [SerializeField, ShowIf("occlusionEnabled")] private LayerMask occlusionLayers = 1;
-        [SerializeField, ShowIf("occlusionEnabled"), Min(0)] private float occlusionRadius = 0.5f;
-        [SerializeField, ShowIf("occlusionEnabled"), Min(0)] private float occlusionPadding = 0.1f;
+        [SerializeField]
+        private bool occlusionEnabled = true;
+
+        [SerializeField]
+        private float occlusionMoveSpeed = 1.0f;
+
+        [SerializeField, ShowIf("occlusionEnabled")]
+        private LayerMask occlusionLayers = 1;
+
+        [SerializeField, ShowIf("occlusionEnabled"), Min(0)]
+        private float occlusionRadius = 0.5f;
+
+        [SerializeField, ShowIf("occlusionEnabled"), Min(0)]
+        private float occlusionPadding = 0.1f;
 
         private readonly CoroutineChain zoomChain = new();
         private Vector3 targetPosition;
@@ -36,16 +62,33 @@ namespace Shears.Cameras
         private float targetZoom;
         private float targetDistance;
 
-        private IManagedInput lookInput;
-        private IManagedInput zoomInput;
-
         private Vector3 FocusPosition => target.TransformPoint(lookAtOffset);
 
-        public Transform Target { get => target; set => target = value; }
-        public float Smoothing { get => smoothing; set => smoothing = value; } 
-        public float Zoom { get => zoom; set => zoom = value; }
-        public float MinZoom { get => minZoom; set => minZoom = value; }
-        public float MaxZoom { get => maxZoom; set => maxZoom = value; }
+        public Transform Target
+        {
+            get => target;
+            set => target = value;
+        }
+        public float Smoothing
+        {
+            get => smoothing;
+            set => smoothing = value;
+        }
+        public float Zoom
+        {
+            get => zoom;
+            set => zoom = value;
+        }
+        public float MinZoom
+        {
+            get => minZoom;
+            set => minZoom = value;
+        }
+        public float MaxZoom
+        {
+            get => maxZoom;
+            set => maxZoom = value;
+        }
 
         private void OnValidate()
         {
@@ -67,9 +110,6 @@ namespace Shears.Cameras
 
         public override void Initialize()
         {
-            lookInput = InputProvider.GetInput("Look");
-            zoomInput = InputProvider.GetInput("Zoom");
-
             zoom = 0.5f * (minZoom + maxZoom);
             targetZoom = zoom;
             targetDistance = zoom;
@@ -81,9 +121,7 @@ namespace Shears.Cameras
             CursorManager.SetCursorVisibility(false);
         }
 
-        protected override void OnExit()
-        {
-        }
+        protected override void OnExit() { }
 
         protected override void OnLateUpdate()
         {
@@ -111,11 +149,25 @@ namespace Shears.Cameras
         {
             Vector3 direction = (targetPosition - FocusPosition).normalized;
 
-            if (Physics.SphereCast(FocusPosition, occlusionRadius, direction, out var hit, zoom, occlusionLayers))
+            if (
+                Physics.SphereCast(
+                    FocusPosition,
+                    occlusionRadius,
+                    direction,
+                    out var hit,
+                    zoom,
+                    occlusionLayers
+                )
+            )
             {
-                float distance = (hit.distance - occlusionPadding >= 0) ? hit.distance - occlusionPadding : 0.1f;
+                float distance =
+                    (hit.distance - occlusionPadding >= 0) ? hit.distance - occlusionPadding : 0.1f;
 
-                targetDistance = Mathf.MoveTowards(targetDistance, distance, occlusionMoveSpeed * Time.fixedDeltaTime);
+                targetDistance = Mathf.MoveTowards(
+                    targetDistance,
+                    distance,
+                    occlusionMoveSpeed * Time.fixedDeltaTime
+                );
             }
             else
                 targetDistance = zoom;
@@ -123,7 +175,7 @@ namespace Shears.Cameras
 
         private void UpdateZoom()
         {
-            float scroll = zoomInput.ReadValue<Vector2>().y;
+            float scroll = GlobalData.ZoomInput();
 
             if (Mathf.Abs(scroll) < 0.1f)
                 return;
@@ -136,14 +188,12 @@ namespace Shears.Cameras
 
             zoomChain.Stop();
             zoomChain.Clear();
-            zoomChain
-                .Tween((t) => zoom = Mathf.Lerp(from, to, t), zoomTime)
-                .Start();
+            zoomChain.Tween((t) => zoom = Mathf.Lerp(from, to, t), zoomTime).Start();
         }
 
         private void UpdateTargetPosition()
         {
-            Vector2 input = lookInput.ReadValue<Vector2>();
+            Vector2 input = GlobalData.LookInput();
 
             orbit += sensitivity * new Vector2(-input.y, input.x);
             orbit.x = Mathf.Clamp(orbit.x, minXRotation, maxXRotation);
@@ -167,7 +217,11 @@ namespace Shears.Cameras
 
         private void UpdatePosition()
         {
-            transform.position = Vector3.Slerp(transform.position, targetPosition, smoothing * Time.deltaTime);
+            transform.position = Vector3.Slerp(
+                transform.position,
+                targetPosition,
+                smoothing * Time.deltaTime
+            );
         }
 
         private void OnDrawGizmosSelected()

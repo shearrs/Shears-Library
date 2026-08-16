@@ -19,13 +19,16 @@ namespace Shears.Editor
                 virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight,
                 showBoundCollectionSize = false,
                 showAddRemoveFooter = true,
+                reorderable = true,
+                showFoldoutHeader = true,
+                headerTitle = property.displayName,
             };
 
             listView.BindProperty(entriesProp);
 
-            var label = new Label(property.displayName);
+            //var label = new Label(property.displayName);
 
-            root.AddAll(label, listView);
+            root.AddAll(listView);
 
             return root;
         }

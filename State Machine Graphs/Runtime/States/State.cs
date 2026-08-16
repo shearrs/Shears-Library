@@ -1,7 +1,7 @@
-using Shears.Logging;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Shears.Logging;
 using UnityEngine;
 
 namespace Shears.StateMachineGraphs
@@ -9,20 +9,41 @@ namespace Shears.StateMachineGraphs
     [Serializable]
     public abstract class State : ISHLoggable
     {
-        [SerializeField, ReadOnly] private string name;
-        [SerializeField, ReadOnly] private SMID id;
-        [SerializeField] private List<Transition> transitions = new();
-        [SerializeReference] private State parentState;
-        [SerializeReference] private State defaultSubState;
+        [SerializeField, ReadOnly]
+        private string name;
+
+        [SerializeField, ReadOnly]
+        private SMID id;
+
+        [SerializeField]
+        private List<Transition> transitions = new();
+
+        [SerializeReference]
+        private State parentState;
+
+        [SerializeReference]
+        private State defaultSubState;
 
         private readonly List<Func<State>> manualTransitions = new();
         private IParameterProvider parameterProvider;
         private State subState;
         private bool isActive;
 
-        internal SMID ID { get => id; set => id = value; }
-        internal IParameterProvider ParameterProvider { get => parameterProvider; set => parameterProvider = value; }
-        public bool IsActive { get => isActive; internal set => isActive = value; }
+        internal SMID ID
+        {
+            get => id;
+            set => id = value;
+        }
+        internal IParameterProvider ParameterProvider
+        {
+            get => parameterProvider;
+            set => parameterProvider = value;
+        }
+        public bool IsActive
+        {
+            get => isActive;
+            internal set => isActive = value;
+        }
         public string Name
         {
             get
@@ -34,9 +55,21 @@ namespace Shears.StateMachineGraphs
             }
             set => name = value;
         }
-        public State ParentState { get => parentState; internal set => parentState = value; }
-        public State DefaultSubState { get => defaultSubState; set => defaultSubState = value; }
-        public State SubState { get => subState; internal set => subState = value; }
+        public State ParentState
+        {
+            get => parentState;
+            internal set => parentState = value;
+        }
+        public State DefaultSubState
+        {
+            get => defaultSubState;
+            set => defaultSubState = value;
+        }
+        public State SubState
+        {
+            get => subState;
+            internal set => subState = value;
+        }
         public int TransitionCount => transitions.Count;
 
         public SHLogLevels LogLevels { get; set; } = SHLogLevels.Log | SHLogUtil.Issues;
@@ -81,7 +114,7 @@ namespace Shears.StateMachineGraphs
                     return true;
                 }
             }
-            
+
             foreach (var transition in manualTransitions)
             {
                 var state = transition();
@@ -128,10 +161,16 @@ namespace Shears.StateMachineGraphs
         public virtual void DrawGizmos() { }
 
         protected SMID GetParameterID(string name) => parameterProvider.GetParameterID(name);
+
         protected T GetParameter<T>(string name) => parameterProvider.GetParameter<T>(name);
+
         protected T GetParameter<T>(SMID id) => parameterProvider.GetParameter<T>(id);
+
         protected void SetParameter(string name) => parameterProvider.SetParameter(name, true);
-        protected void SetParameter<T>(string name, T value) => parameterProvider.SetParameter(name, value);
+
+        protected void SetParameter<T>(string name, T value) =>
+            parameterProvider.SetParameter(name, value);
+
         protected void SetParameter<T>(SMID id, T value)
         {
             parameterProvider.SetParameter(id, value);
@@ -149,8 +188,25 @@ namespace Shears.StateMachineGraphs
         /// <param name="callerFilePath">The file path of the class who called this. Should not be set manually.</param>
         /// <param name="callerLineNumber">The line number of the class who called this. Should not be set manually.</param>
         [HideInCallstack]
-        protected void Log(string message, SHLogLevels level = SHLogLevels.Log, Color color = default, UnityEngine.Object context = null, string prefix = "", ISHLogFormatter formatter = default,
-        [CallerFilePath] string callerFilePath = "", [CallerLineNumber] long callerLineNumber = 0)
-        => this.Log(new SHLog(message, context, prefix, level, color), formatter, callerFilePath, callerLineNumber);
+        protected void Log(
+            string message,
+            SHLogLevels level = SHLogLevels.Log,
+            UnityEngine.Object context = null,
+            Color color = default,
+            string prefix = "",
+            ISHLogFormatter formatter = default,
+            [CallerFilePath] string callerFilePath = "",
+            [CallerLineNumber] long callerLineNumber = 0
+        ) =>
+            ((ISHLoggable)this).Log(
+                message,
+                level,
+                context,
+                color,
+                prefix,
+                formatter,
+                callerFilePath,
+                callerLineNumber
+            );
     }
 }

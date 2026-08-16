@@ -9,7 +9,7 @@ namespace Shears.UI
     public class InteractableGraphic
     {
         #region Variables
-        private static readonly TweenData COLOR_TWEEN = new(0.1f);
+        private static readonly TweenData COLOR_TWEEN = new(0.1f, unscaledTime: true);
         public static readonly Color DefaultHoverColor = new(0.6f, 0.6f, 0.6f, 1.0f);
         public static readonly Color DefaultPressColor = new(0.4f, 0.4f, 0.4f, 1.0f);
         public static readonly Color DefaultNotSelectableColor = Color.white;

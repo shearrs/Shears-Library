@@ -1,4 +1,3 @@
-using Shears.Input;
 using Shears.Logging;
 using UnityEngine;
 
@@ -7,12 +6,12 @@ namespace Shears.Cameras
     public abstract class CameraState : SHMonoBehaviourLogger
     {
         protected Transform CameraTransform { get; private set; }
-        protected ManagedInputProvider InputProvider { get; private set; }
+        protected CameraData GlobalData { get; private set; }
 
-        public void SetGlobalValues(Transform cameraTransform, ManagedInputProvider inputProvider)
+        public void SetGlobalValues(Transform cameraTransform, CameraData data)
         {
             CameraTransform = cameraTransform;
-            InputProvider = inputProvider;
+            GlobalData = data;
         }
 
         public void Enter()
@@ -36,9 +35,12 @@ namespace Shears.Cameras
         }
 
         public virtual void Initialize() { }
+
         protected abstract void OnEnter();
         protected abstract void OnLateUpdate();
+
         protected virtual void OnFixedUpdate() { }
+
         protected abstract void OnExit();
     }
 }

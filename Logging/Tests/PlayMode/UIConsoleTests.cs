@@ -26,7 +26,7 @@ namespace Shears.Logging.Tests
             Assert.IsNotNull(uiConsole);
 
             LogFancyText("\n");
-        }  
+        }
 
         protected override string GetMostRecentMessage(string targetMessage)
         {
@@ -46,7 +46,7 @@ namespace Shears.Logging.Tests
         [TearDown]
         public void TearDown()
         {
-            var consoles = Object.FindObjectsByType<SHUIConsoleLogger>(FindObjectsSortMode.None);
+            var consoles = Object.FindObjectsByType<SHUIConsoleLogger>();
 
             for (int i = 0; i < consoles.Length; i++)
                 Object.Destroy(consoles[i]);

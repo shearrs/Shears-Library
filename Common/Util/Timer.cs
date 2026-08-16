@@ -26,7 +26,6 @@ namespace Shears
         private bool isDone = true;
 
         private CancellationTokenSource tokenSource;
-        private bool isQuitting = false;
         private bool isPaused = false;
 
         public float Time
@@ -35,7 +34,16 @@ namespace Shears
             set => time = value;
         }
         public float CurrentTime => currentTime;
-        public float Percentage => CurrentTime / Time;
+        public float Percentage
+        {
+            get
+            {
+                if (Time == 0)
+                    return 1.0f;
+                else
+                    return CurrentTime / Time;
+            }
+        }
         public bool IsDone => isDone;
         public bool IsPaused => isPaused;
 
@@ -46,19 +54,6 @@ namespace Shears
         public Timer(float time)
         {
             this.time = time;
-
-            Application.quitting += OnApplicationQuit;
-        }
-
-        ~Timer()
-        {
-            Application.quitting -= OnApplicationQuit;
-        }
-
-        private void OnApplicationQuit()
-        {
-            isQuitting = true;
-            Application.quitting -= OnApplicationQuit;
         }
 
         /// <summary>
@@ -152,7 +147,7 @@ namespace Shears
             {
                 while (isPaused)
                 {
-                    if (isQuitting || token.IsCancellationRequested)
+                    if (ApplicationUtil.IsQuitting || token.IsCancellationRequested)
                         break;
 
                     await SafeAwaitable.NextFrameAsync(token);
@@ -160,7 +155,7 @@ namespace Shears
 
                 currentTime += UnityEngine.Time.deltaTime;
 
-                if (isQuitting || token.IsCancellationRequested)
+                if (ApplicationUtil.IsQuitting || token.IsCancellationRequested)
                     break;
 
                 await SafeAwaitable.NextFrameAsync(token);
