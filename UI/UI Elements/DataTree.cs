@@ -144,7 +144,7 @@ namespace Shears.UI
             RecalculateChildOrder(parentNode);
         }
 
-        public void Insert(T element, T parent, int index)
+        public void Insert(int index, T parent, T element)
         {
             if (!nodeMap.TryGetValue(parent, out var parentNode))
             {

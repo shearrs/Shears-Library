@@ -59,6 +59,8 @@ namespace Shears.UI
 
         protected override void OnValidate()
         {
+            base.OnValidate();
+
             graphicHandler.Validate();
         }
 

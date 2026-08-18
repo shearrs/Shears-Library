@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Shears.Logging;
 using Shears.Tweens;
 using UnityEngine;
-using static UnityEngine.Audio.ProcessorInstance.AvailableData;
 
 namespace Shears.UI
 {
@@ -300,7 +299,7 @@ namespace Shears.UI
             ((IAlphaTweenable)this).GetFadeTween(alpha, data);
         #endregion
 
-        #region Children
+        #region Hierarchy
         internal UIElement GetHighestSortOrderChild()
         {
             if (Hierarchy == null)
@@ -366,6 +365,17 @@ namespace Shears.UI
 
                 CreateHierarchyRecursive(childElement, element);
             }
+        }
+
+        private void Add(UIElement element)
+        {
+            Hierarchy.GetDirectChildren(this, children);
+            InsertChildRecursive(children.Count, this, element);
+        }
+
+        private void Insert(int index, UIElement element)
+        {
+            InsertChildRecursive(index, this, element);
         }
 
         private UIElement GetParent()
@@ -441,7 +451,7 @@ namespace Shears.UI
                 var child = transform.GetChild(i);
                 var childElement = child.GetComponent<UIElement>();
 
-                InsertChildRecursive(childElement, this, i);
+                Insert(i, childElement);
             }
         }
 
@@ -450,7 +460,7 @@ namespace Shears.UI
             Hierarchy?.Remove(this);
         }
 
-        private void InsertChildRecursive(UIElement element, UIElement parent, int index)
+        private void InsertChildRecursive(int index, UIElement parent, UIElement element)
         {
             if (element.TryGetComponent(out UIElementCanvas canvas))
                 element.UICanvas = canvas;
@@ -458,14 +468,14 @@ namespace Shears.UI
                 element.UICanvas = parent.UICanvas;
 
             element.Hierarchy = Hierarchy;
-            Hierarchy.Insert(element, parent, index);
+            Hierarchy.Insert(index, element, parent);
 
             for (int i = 0; i < element.transform.childCount; i++)
             {
                 var child = element.transform.GetChild(i);
                 var childElement = child.GetComponent<UIElement>();
 
-                InsertChildRecursive(childElement, element, i);
+                InsertChildRecursive(i, element, childElement);
             }
         }
         #endregion
