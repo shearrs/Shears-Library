@@ -321,7 +321,7 @@ namespace Shears.Pathfinding.Editor
             Handles.DrawWireCube(handlePosition, handleSize);
 
             if (settings.DrawNodeData)
-                node.Data?.DrawHandles(handlePosition, Grid.NodeSize);
+                node.Data?.DrawHandles(new(handlePosition, Grid.NodeSize));
         }
 
         private void RequestPaint(int controlID)

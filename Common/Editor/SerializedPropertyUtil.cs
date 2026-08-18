@@ -146,5 +146,22 @@ namespace Shears.Editor
             }
             return null;
         }
+
+        public static T ReflectProperty<T>(this SerializedProperty serializedProperty, string name)
+        {
+            if (serializedProperty == null || serializedProperty.boxedValue == null)
+                return default;
+
+            var type = serializedProperty.boxedValue.GetType();
+            var propInfo = type.GetProperty(
+                name,
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy
+            );
+
+            if (propInfo == null)
+                return default;
+
+            return (T)propInfo.GetValue(serializedProperty.boxedValue);
+        }
     }
 }
