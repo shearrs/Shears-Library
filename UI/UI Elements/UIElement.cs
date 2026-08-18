@@ -468,7 +468,7 @@ namespace Shears.UI
                 element.UICanvas = parent.UICanvas;
 
             element.Hierarchy = Hierarchy;
-            Hierarchy.Insert(index, element, parent);
+            Hierarchy.Insert(index, parent, element);
 
             for (int i = 0; i < element.transform.childCount; i++)
             {
