@@ -1,3 +1,4 @@
+using System.Reflection;
 using Shears.Editor;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -65,7 +66,6 @@ namespace Shears.UI.Editor
         public override VisualElement CreateInspectorGUI()
         {
             var root = new VisualElement();
-
             var imageSO = new SerializedObject(image);
 
             var spriteProp = imageSO.FindProperty("m_Sprite");
@@ -73,6 +73,7 @@ namespace Shears.UI.Editor
             var alphaProp = serializedObject.FindProperty("alpha");
             var baseColorProp = serializedObject.FindProperty("baseColor");
             var modulateProp = serializedObject.FindProperty("modulate");
+            var additiveProp = serializedObject.FindProperty("additiveModulate");
 
             var scriptField = VisualElementEditorUtil.CreateScriptField(serializedObject);
             var spriteField = new ObjectField("Sprite") { objectType = typeof(Sprite) };
@@ -80,18 +81,30 @@ namespace Shears.UI.Editor
 
             void updateColor(SerializedPropertyChangeEvent evt)
             {
-                colorProp.colorValue = baseColorProp.colorValue * modulateProp.colorValue;
+                var modulate = modulateProp.colorValue;
+                var baseColor = baseColorProp.colorValue;
+                float alpha = alphaProp.floatValue;
+
+                var targetColor = additiveProp.boolValue
+                    ? (modulate + baseColor).With(a: alpha)
+                    : (modulate * baseColor).With(a: alpha);
+
+                colorProp.colorValue = targetColor;
 
                 imageSO.ApplyModifiedProperties();
             }
 
             var alphaField = new PropertyField(alphaProp);
+            alphaField.RegisterValueChangeCallback(updateColor);
 
             var colorField = new PropertyField(baseColorProp);
             colorField.RegisterValueChangeCallback(updateColor);
 
             var modulateField = new PropertyField(modulateProp);
             modulateField.RegisterValueChangeCallback(updateColor);
+
+            var additiveModulateField = new PropertyField(additiveProp);
+            additiveModulateField.RegisterValueChangeCallback(updateColor);
 
             var imageContainer = new Foldout { text = "Wrapped Image Settings", value = false };
             imageContainer.AddStyleSheet(ShearsStyles.InspectorStyles);
@@ -105,6 +118,7 @@ namespace Shears.UI.Editor
                 alphaField,
                 colorField,
                 modulateField,
+                additiveModulateField,
                 imageContainer
             );
 

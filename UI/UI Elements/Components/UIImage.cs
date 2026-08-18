@@ -55,22 +55,6 @@ namespace Shears.UI
             BaseColor = RawImage.color;
         }
 
-        protected override void OnValidate()
-        {
-            base.OnValidate();
-
-            if (Application.isPlaying)
-                return;
-
-            var image = GetComponent<Image>();
-            var targetColor = AdditiveModulate
-                ? (modulate + baseColor).With(a: Alpha)
-                : (modulate * baseColor).With(a: Alpha);
-
-            if (image.color != targetColor)
-                image.color = targetColor;
-        }
-
         protected override void Repaint(StyleData data)
         {
             RawImage.color = data.Color;
