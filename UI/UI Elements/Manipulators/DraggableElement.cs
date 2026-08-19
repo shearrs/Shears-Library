@@ -36,10 +36,10 @@ namespace Shears.UI
 
         protected override void DeregisterEvents()
         {
-            Element.DeregisterEvent<DragBeginEvent>(OnDragBegin);
-            Element.DeregisterEvent<DragEvent>(OnDrag);
-            Element.DeregisterEvent<DragEndEvent>(OnDragEnd);
-            Element.DeregisterEvent<DragReleaseEvent>(OnDragRelease);
+            Element.UnregisterEvent<DragBeginEvent>(OnDragBegin);
+            Element.UnregisterEvent<DragEvent>(OnDrag);
+            Element.UnregisterEvent<DragEndEvent>(OnDragEnd);
+            Element.UnregisterEvent<DragReleaseEvent>(OnDragRelease);
         }
 
         private void OnDragBegin(DragBeginEvent evt)

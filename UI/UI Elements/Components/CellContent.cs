@@ -92,9 +92,9 @@ namespace Shears.UI
             if (!isDraggable)
                 return;
 
-            element.DeregisterEvent<DragBeginEvent>(OnDragBegin);
-            element.DeregisterEvent<DragEvent>(OnDrag);
-            element.DeregisterEvent<DragEndEvent>(OnDragEnd);
+            element.UnregisterEvent<DragBeginEvent>(OnDragBegin);
+            element.UnregisterEvent<DragEvent>(OnDrag);
+            element.UnregisterEvent<DragEndEvent>(OnDragEnd);
 
             isDraggable = false;
         }

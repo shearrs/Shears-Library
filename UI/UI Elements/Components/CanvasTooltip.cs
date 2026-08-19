@@ -88,8 +88,8 @@ namespace Shears.UI
             if (parent == null)
                 return;
 
-            parent.DeregisterEvent<HoverEnterEvent>(OnParentHoverEnter);
-            parent.DeregisterEvent<HoverExitEvent>(OnParentHoverExit);
+            parent.UnregisterEvent<HoverEnterEvent>(OnParentHoverEnter);
+            parent.UnregisterEvent<HoverExitEvent>(OnParentHoverExit);
         }
 
         public void SetText(string key, string text)

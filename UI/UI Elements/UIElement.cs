@@ -244,7 +244,7 @@ namespace Shears.UI
             );
         }
 
-        public void DeregisterEvent<EventType>(Action<EventType> callback)
+        public void UnregisterEvent<EventType>(Action<EventType> callback)
             where EventType : UIEvent
         {
             var eventType = typeof(EventType);

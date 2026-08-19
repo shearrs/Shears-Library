@@ -1,3 +1,4 @@
+using Shears.Logging;
 using Shears.Tweens;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
@@ -71,7 +72,6 @@ namespace Shears.UI
         private Tween colorTween;
         private bool baseMaterialColorInitialized = false;
         private bool spriteInitialized = false;
-
         public Color BaseMaterialColor
         {
             get

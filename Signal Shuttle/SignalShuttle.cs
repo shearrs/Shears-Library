@@ -52,7 +52,7 @@ namespace Shears.Signals
             ((SignalBindings<TSignal>)bindings).AddListener(listener);
         }
 
-        public static void Deregister<TSignal>(Action<TSignal> listener)
+        public static void Unregister<TSignal>(Action<TSignal> listener)
             where TSignal : struct, ISignal
         {
             if (signals.TryGetValue(typeof(TSignal), out var bindings))
