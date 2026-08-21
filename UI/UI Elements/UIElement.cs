@@ -197,7 +197,7 @@ namespace Shears.UI
         {
             var baseColor = BaseColor;
             var modulate = Modulate;
-            float alpha = Alpha;
+            float alpha = baseColor.a * modulate.a * Alpha;
 
             var parent = Parent;
             while (parent != null)
@@ -208,6 +208,7 @@ namespace Shears.UI
             }
 
             Color modColor;
+
             if (AdditiveModulate)
                 modColor = baseColor + modulate;
             else
