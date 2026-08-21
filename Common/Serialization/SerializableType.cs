@@ -11,24 +11,19 @@ namespace Shears
     [Serializable]
     public class SerializableType
     {
+        public static readonly SerializableType Empty = new(null);
+
         [SerializeField]
         private string name;
 
         [SerializeField]
         private string assemblyQualifiedName;
 
-        [SerializeField]
-        private string assemblyName;
-
-        [SerializeField]
-        private string prettyName;
-
         private Type systemType;
 
         public string Name => name;
         public string AssemblyQualifiedName => assemblyQualifiedName;
-        public string AssemblyName => assemblyName;
-        public string PrettyName => prettyName;
+        public string PrettyName => Name.PascalSpace();
         public Type SystemType
         {
             get
@@ -47,8 +42,6 @@ namespace Shears
                 systemType = null;
                 name = string.Empty;
                 assemblyQualifiedName = string.Empty;
-                assemblyName = string.Empty;
-                prettyName = string.Empty;
 
                 return;
             }
@@ -56,21 +49,6 @@ namespace Shears
             systemType = type;
             name = type.Name;
             assemblyQualifiedName = type.AssemblyQualifiedName;
-            assemblyName = type.Assembly.FullName;
-            prettyName = StringUtil.PascalSpace(name);
-        }
-
-        public SerializableType(string assemblyQualifiedName)
-        {
-            Type type =
-                Type.GetType(assemblyQualifiedName)
-                ?? throw new Exception($"Invalid type {assemblyQualifiedName}!");
-
-            systemType = type;
-            name = type.Name;
-            this.assemblyQualifiedName = assemblyQualifiedName;
-            assemblyName = type.Assembly.FullName;
-            prettyName = StringUtil.PascalSpace(name);
         }
 
         private void GetSystemType()
@@ -114,7 +92,7 @@ namespace Shears
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Name, AssemblyQualifiedName, AssemblyName, SystemType);
+            return HashCode.Combine(Name, AssemblyQualifiedName, SystemType);
         }
 
         public override string ToString()
