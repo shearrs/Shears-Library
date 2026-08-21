@@ -86,8 +86,10 @@ namespace Shears.UI.Editor
                 float alpha = alphaProp.floatValue;
 
                 var targetColor = additiveProp.boolValue
-                    ? (modulate + baseColor).With(a: alpha)
-                    : (modulate * baseColor).With(a: alpha);
+                    ? (modulate + baseColor)
+                    : (modulate * baseColor);
+
+                targetColor.a = Mathf.Min(1.0f, targetColor.a * alpha);
 
                 colorProp.colorValue = targetColor;
 
