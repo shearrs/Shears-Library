@@ -71,6 +71,8 @@ namespace Shears.Editor
             bool isSearchable
         )
         {
+            defaultType = defaultType ?? SerializableType.Empty;
+
             this.selectionType = selectionType;
             this.defaultType = defaultType;
             this.searchType = searchType;
