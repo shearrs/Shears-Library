@@ -92,6 +92,19 @@ namespace Shears.UI
             parent.UnregisterEvent<HoverExitEvent>(OnParentHoverExit);
         }
 
+        public void SetImageActive(bool active)
+        {
+            if (active)
+                image.Enable();
+            else
+                image.Disable();
+        }
+
+        public void SetImageAlpha(float alpha)
+        {
+            image.Alpha = alpha;
+        }
+
         public void SetText(string key, string text)
         {
             if (!TryGetElement(key, out UITextGUI textElement))
@@ -123,6 +136,20 @@ namespace Shears.UI
             return false;
         }
 
+        public Tween FadeOut(bool play = true)
+        {
+            Tween fadeOut;
+
+            if (play)
+                fadeOut = image.DoFadeTween(0.0f, FADE_DATA);
+            else
+                fadeOut = image.GetFadeTween(0.0f, FADE_DATA);
+
+            fadeOut.Completed += () => SetImageActive(false);
+
+            return fadeOut;
+        }
+
         private void OnParentHoverEnter(HoverEnterEvent evt)
         {
             if (hoverTimeBeforeAppearing == 0.0f)
@@ -145,9 +172,7 @@ namespace Shears.UI
             if (!IsHovered || !staysOpenOnHover)
             {
                 DisposeTweens();
-                var fadeOut = StoreTween(image.DoFadeTween(0.0f, FADE_DATA));
-
-                fadeOut.Completed += () => image.Disable();
+                StoreTween(FadeOut());
             }
         }
 
@@ -167,9 +192,7 @@ namespace Shears.UI
             appearTimer.Completed -= OnAppearTimerCompleted;
 
             DisposeTweens();
-            var fadeOut = StoreTween(image.DoFadeTween(0.0f, FADE_DATA));
-
-            fadeOut.Completed += () => image.Disable();
+            StoreTween(FadeOut());
         }
 
         private void OnAppearTimerCompleted()
