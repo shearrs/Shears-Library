@@ -46,9 +46,9 @@ namespace Shears.Tweens
         }
 
         #region Wrapped Tween Functions
-        public readonly void Play() => DoIfValid(tween != null ? tween.Play : null);
+        public void Play() => DoIfValid(tween != null ? tween.Play : null);
 
-        public readonly Tween PlayAfter(float seconds)
+        public Tween PlayAfter(float seconds)
         {
             if (IsTweenValid())
                 tween.PlayAfter(seconds);
@@ -58,11 +58,11 @@ namespace Shears.Tweens
             return this;
         }
 
-        public readonly void Stop() => DoIfValid(tween != null ? tween.Stop : null);
+        public void Stop() => DoIfValid(tween != null ? tween.Stop : null);
 
-        public readonly void Pause() => DoIfValid(tween != null ? tween.Pause : null);
+        public void Pause() => DoIfValid(tween != null ? tween.Pause : null);
 
-        public readonly void Dispose() => DoIfValid(tween != null ? tween.Dispose : null, false);
+        public void Dispose() => DoIfValid(tween != null ? tween.Dispose : null, false);
 
         public void AddOnComplete(Action onComplete)
         {
@@ -183,7 +183,7 @@ namespace Shears.Tweens
             return disposeEvent;
         }
 
-        private readonly void DoIfValid(Action action, bool errorMessage = true)
+        private void DoIfValid(Action action, bool errorMessage = true)
         {
             if (IsTweenValid())
                 action();
@@ -191,12 +191,12 @@ namespace Shears.Tweens
                 ErrorMessage();
         }
 
-        private readonly bool IsTweenValid()
+        private bool IsTweenValid()
         {
             return tween != null && tween.ID == id && tween.IsValid;
         }
 
-        private readonly void ErrorMessage()
+        private void ErrorMessage()
         {
             if (!ApplicationUtil.IsQuitting)
                 Debug.LogError($"Invalid tween handle: {id}");

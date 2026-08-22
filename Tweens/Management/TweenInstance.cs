@@ -116,7 +116,7 @@ namespace Shears.Tweens
             StopAllCoroutines();
 
             progress = 0;
-            playCoroutine = StartCoroutine(IEPlay());
+            StartCoroutine(IEPlay());
             coroutines.Add(playCoroutine);
         }
 
@@ -131,11 +131,12 @@ namespace Shears.Tweens
 
         public void Stop()
         {
+            StopAllCoroutines();
+
             if (!IsPlaying)
                 return;
 
             IsPlaying = false;
-            StopAllCoroutines();
             Stopped?.Invoke();
         }
 
@@ -170,8 +171,7 @@ namespace Shears.Tweens
             {
                 progress = 0;
 
-                Coroutine updateCoroutine = StartCoroutine(IEUpdate());
-                coroutines.Add(updateCoroutine);
+                var updateCoroutine = StartCoroutine(IEUpdate());
 
                 yield return updateCoroutine;
 
@@ -411,7 +411,13 @@ namespace Shears.Tweens
             }
         }
 
-        private Coroutine StartCoroutine(IEnumerator routine) => CoroutineRunner.Start(routine);
+        private Coroutine StartCoroutine(IEnumerator routine)
+        {
+            var coroutine = CoroutineRunner.Start(routine);
+            coroutines.Add(coroutine);
+
+            return coroutine;
+        }
 
         private float GetStartValue() => reversed ? 1 : 0;
 
