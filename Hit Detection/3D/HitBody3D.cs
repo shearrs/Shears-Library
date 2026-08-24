@@ -192,7 +192,7 @@ namespace Shears.HitDetection
         {
             if (shapes.Count == 0)
             {
-                this.Log("No shapes are assigned.", SHLogLevels.Warning);
+                this.LogWarning("No shapes are assigned.");
                 return;
             }
 
@@ -230,11 +230,7 @@ namespace Shears.HitDetection
 
                 if (hit.collider == null)
                 {
-                    this.Log(
-                        $"Hit had no collider: {hit.transform.name}.",
-                        SHLogLevels.Verbose,
-                        context: hit.transform
-                    );
+                    this.LogVerbose($"Hit had no collider: {hit.transform.name}.", hit.transform);
                     continue;
                 }
 
@@ -242,21 +238,13 @@ namespace Shears.HitDetection
 
                 if (hurtBody == null)
                 {
-                    this.Log(
-                        $"Hit had no HurtBody: {hit.transform.name}.",
-                        SHLogLevels.Verbose,
-                        context: hit.transform
-                    );
+                    this.LogVerbose($"Hit had no HurtBody: {hit.transform.name}.", hit.transform);
                     continue;
                 }
 
                 if (unclearedHits.Contains(hurtBody) && !multiHits)
                 {
-                    this.Log(
-                        $"Hit was uncleared: {hurtBody.name}.",
-                        SHLogLevels.Verbose,
-                        context: hurtBody
-                    );
+                    this.LogVerbose($"Hit was uncleared: {hurtBody.name}.", hurtBody);
                     continue;
                 }
 
@@ -276,11 +264,7 @@ namespace Shears.HitDetection
 
                     if (hurtBody.CanBlock(blockHitData))
                     {
-                        this.Log(
-                            $"Hit was blocked: {shape.name}.",
-                            SHLogLevels.Verbose,
-                            context: shape
-                        );
+                        this.LogVerbose($"Hit was blocked: {shape.name}.", shape);
                         blocked = true;
                         return;
                     }
@@ -336,10 +320,7 @@ namespace Shears.HitDetection
             {
                 if (ignoreList.Contains(hurtBody))
                 {
-                    this.Log(
-                        $"Ignoring HurtBody3D {hurtBody} due to ignore list.",
-                        SHLogLevels.Verbose
-                    );
+                    this.LogVerbose($"Ignoring HurtBody3D {hurtBody} due to ignore list.");
 
                     if (hurtBody.Colliders.Contains(collider))
                         return null;
@@ -356,7 +337,7 @@ namespace Shears.HitDetection
 
         internal void OnHitDelivered(HitData3D data)
         {
-            this.Log("HitBody3D delivered a hit.", SHLogLevels.Verbose);
+            this.LogVerbose("HitBody3D delivered a hit.");
             HitDelivered?.Invoke(data);
         }
     }

@@ -40,7 +40,7 @@ namespace Shears.UI
             {
                 if (index > children.Count)
                 {
-                    SHLogger.Log($"Index {index} is out of range.", SHLogLevels.Error);
+                    SHLogger.LogError($"Index {index} is out of range.");
                     return;
                 }
 
@@ -66,7 +66,7 @@ namespace Shears.UI
             {
                 if (index > children.Count)
                 {
-                    SHLogger.Log($"Index {index} is out of range.", SHLogLevels.Error);
+                    SHLogger.LogError($"Index {index} is out of range.");
                     return;
                 }
 
@@ -91,10 +91,7 @@ namespace Shears.UI
             {
                 if (!nodeMap.TryGetValue(parent, out parentNode))
                 {
-                    SHLogger.Log(
-                        $"Data Tree does not contain parent: {parent}.",
-                        SHLogLevels.Error
-                    );
+                    SHLogger.LogError($"Data Tree does not contain parent: {parent}.");
                     return;
                 }
 
@@ -136,7 +133,7 @@ namespace Shears.UI
 
             if (!nodeMap.TryGetValue(parent, out var parentNode))
             {
-                SHLogger.Log($"Data Tree does not contain parent: {parent}.", SHLogLevels.Error);
+                SHLogger.LogError($"Data Tree does not contain parent: {parent}.");
                 return;
             }
 
@@ -148,7 +145,7 @@ namespace Shears.UI
         {
             if (!nodeMap.TryGetValue(parent, out var parentNode))
             {
-                SHLogger.Log($"Data Tree does not contain parent: {parent}.", SHLogLevels.Error);
+                SHLogger.LogError($"Data Tree does not contain parent: {parent}.");
                 return;
             }
 
@@ -171,7 +168,7 @@ namespace Shears.UI
 
             if (parent == null)
             {
-                SHLogger.Log($"Tried to remove node with null parent!", SHLogLevels.Error);
+                SHLogger.LogError($"Tried to remove node with null parent!");
                 return false;
             }
 
@@ -190,13 +187,13 @@ namespace Shears.UI
         {
             if (!nodeMap.TryGetValue(element0, out var node0))
             {
-                SHLogger.Log($"Could not find node for element: {element0}.", SHLogLevels.Error);
+                SHLogger.LogError($"Could not find node for element: {element0}.");
                 return;
             }
 
             if (!nodeMap.TryGetValue(element1, out var node1))
             {
-                SHLogger.Log($"Could not find node for element: {element1}.", SHLogLevels.Error);
+                SHLogger.LogError($"Could not find node for element: {element1}.");
                 return;
             }
 
@@ -205,7 +202,7 @@ namespace Shears.UI
 
             if (node0Parent == null || node1Parent == null)
             {
-                SHLogger.Log($"Cannot swap as a node has a null parent.", SHLogLevels.Error);
+                SHLogger.LogError($"Cannot swap as a node has a null parent.");
                 return;
             }
 
@@ -236,7 +233,7 @@ namespace Shears.UI
         {
             if (!nodeMap.TryGetValue(element, out var node))
             {
-                SHLogger.Log($"Data Tree does not contain element: {element}.", SHLogLevels.Error);
+                SHLogger.LogError($"Data Tree does not contain element: {element}.");
                 return -1;
             }
 
@@ -247,7 +244,7 @@ namespace Shears.UI
         {
             if (!nodeMap.TryGetValue(element, out var node))
             {
-                SHLogger.Log($"Data Tree does not contain element: {element}.", SHLogLevels.Error);
+                SHLogger.LogError($"Data Tree does not contain element: {element}.");
                 return -1;
             }
 
@@ -258,7 +255,7 @@ namespace Shears.UI
         {
             if (!nodeMap.TryGetValue(element, out var node))
             {
-                SHLogger.Log($"Data Tree does not contain element: {element}.", SHLogLevels.Error);
+                SHLogger.LogError($"Data Tree does not contain element: {element}.");
                 return null;
             }
             else if (node == root)
@@ -273,7 +270,7 @@ namespace Shears.UI
 
             if (!nodeMap.TryGetValue(element, out var node))
             {
-                SHLogger.Log($"Data Tree does not contain element: {element}.", SHLogLevels.Error);
+                SHLogger.LogError($"Data Tree does not contain element: {element}.");
                 return;
             }
 
@@ -286,7 +283,7 @@ namespace Shears.UI
 
             if (!nodeMap.TryGetValue(element, out var node))
             {
-                SHLogger.Log($"Data Tree does not contain element: {element}.", SHLogLevels.Error);
+                SHLogger.LogError($"Data Tree does not contain element: {element}.");
                 return;
             }
 

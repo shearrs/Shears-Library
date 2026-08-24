@@ -1,6 +1,6 @@
-using Shears.Logging;
 using System;
 using System.Collections.Generic;
+using Shears.Logging;
 using UnityEngine;
 
 namespace Shears.StateMachineGraphs
@@ -29,10 +29,17 @@ namespace Shears.StateMachineGraphs
 
 #if UNITY_EDITOR
 #pragma warning disable 0414
-        [SerializeField] private bool runtimeInfoExpanded = false;
-        [SerializeField] private bool referencesExpanded = false;
-        [SerializeReference] private List<Parameter> parameterDisplay = new();
-        [SerializeField] private List<LocalParameterProvider> externalParameters = new();
+        [SerializeField]
+        private bool runtimeInfoExpanded = false;
+
+        [SerializeField]
+        private bool referencesExpanded = false;
+
+        [SerializeReference]
+        private List<Parameter> parameterDisplay = new();
+
+        [SerializeField]
+        private List<LocalParameterProvider> externalParameters = new();
 #pragma warning restore 0414
 #endif
 
@@ -44,9 +51,21 @@ namespace Shears.StateMachineGraphs
         private readonly Dictionary<SMID, Parameter> parameters = new();
         private int stateSwapID = 0;
 
-        public bool UseGraphData { get => useGraphData; set => useGraphData = value; }
-        public bool PollTransitions { get => pollTransitions; set => pollTransitions = value; }
-        public bool UseManualUpdate { get => manualUpdate; set => manualUpdate = value; }
+        public bool UseGraphData
+        {
+            get => useGraphData;
+            set => useGraphData = value;
+        }
+        public bool PollTransitions
+        {
+            get => pollTransitions;
+            set => pollTransitions = value;
+        }
+        public bool UseManualUpdate
+        {
+            get => manualUpdate;
+            set => manualUpdate = value;
+        }
         public IReadOnlyCollection<State> States => states.Values;
         public IReadOnlyCollection<Parameter> Parameters => parameters.Values;
         public string DataID => graphData.ID;
@@ -60,7 +79,7 @@ namespace Shears.StateMachineGraphs
                 return;
             else if (graphData == null)
             {
-                Log("No graph data assigned to the state machine.", SHLogLevels.Warning);
+                LogWarning("No graph data assigned to the state machine.");
                 return;
             }
 
@@ -190,7 +209,9 @@ namespace Shears.StateMachineGraphs
         {
             if (!stateTypeCache.TryGetValue(typeof(T), out var state))
             {
-                Log($"StateMachine on {gameObject.name} does not have state of type '{typeof(T).Name}'!", SHLogLevels.Error);
+                LogError(
+                    $"StateMachine on {gameObject.name} does not have state of type '{typeof(T).Name}'!"
+                );
                 return null;
             }
 
@@ -203,7 +224,7 @@ namespace Shears.StateMachineGraphs
         {
             if (state == null)
             {
-                Log("State cannot be null!", SHLogLevels.Error);
+                LogError("State cannot be null!");
                 return;
             }
 
@@ -232,9 +253,9 @@ namespace Shears.StateMachineGraphs
         public void EnterState(State newState)
         {
             if (newState != null)
-                Log("Enter state: " + newState.Name, SHLogLevels.Verbose);
+                LogVerbose("Enter state: " + newState.Name);
             else
-                Log("Enter null", SHLogLevels.Verbose);
+                LogVerbose("Enter null");
 
             swapStateTree.Clear();
             State currentState = newState;
@@ -255,7 +276,8 @@ namespace Shears.StateMachineGraphs
             EnterStateTree(swapStateTree);
         }
 
-        public bool IsInStateOfType<T>() where T : State
+        public bool IsInStateOfType<T>()
+            where T : State
         {
             foreach (var state in stateTree)
             {
@@ -326,7 +348,9 @@ namespace Shears.StateMachineGraphs
             while (currentSubState != null && !stateTree.Contains(currentSubState))
             {
                 if (currentSubState.ID == null || !states.ContainsKey(currentSubState.ID))
-                    Log($"StateMachine does not contain state {currentSubState}, did you forget to add it?", SHLogLevels.Warning);
+                    LogWarning(
+                        $"StateMachine does not contain state {currentSubState}, did you forget to add it?"
+                    );
 
                 stateTree.Add(currentSubState);
                 currentSubState.Enter();
@@ -335,7 +359,7 @@ namespace Shears.StateMachineGraphs
                 currentSubState = currentSubState.DefaultSubState;
             }
         }
-        #endregion 
+        #endregion
 
         #region Parameters
         public SMID GetParameterID(string name)
@@ -344,7 +368,7 @@ namespace Shears.StateMachineGraphs
                 return id;
             else
             {
-                Log($"Could not find parameter with name '{name}'.", SHLogLevels.Error);
+                LogError($"Could not find parameter with name '{name}'.");
                 return SMID.Empty;
             }
         }
@@ -356,7 +380,7 @@ namespace Shears.StateMachineGraphs
             if (parameters.TryGetValue(id, out var parameter))
                 return parameter;
             else
-                Log($"Could not find parameter with id '{id}' in the state machine.", SHLogLevels.Error);
+                LogError($"Could not find parameter with id '{id}' in the state machine.");
 
             return default;
         }
@@ -370,15 +394,16 @@ namespace Shears.StateMachineGraphs
                 if (parameter is Parameter<T> typedParameter)
                     return typedParameter.Value;
                 else
-                    Log($"Parameter '{parameter.Name}' is not of type {typeof(T)}.", SHLogLevels.Error);
+                    LogError($"Parameter '{parameter.Name}' is not of type {typeof(T)}.");
             }
             else
-                Log($"Could not find parameter with id '{id}' in the state machine.", SHLogLevels.Error);
+                LogError($"Could not find parameter with id '{id}' in the state machine.");
 
             return default;
         }
 
-        public void SetParameter<T>(string name, T value) => SetParameter(GetParameterID(name), value);
+        public void SetParameter<T>(string name, T value) =>
+            SetParameter(GetParameterID(name), value);
 
         public void SetParameter<T>(SMID id, T value)
         {
@@ -387,10 +412,10 @@ namespace Shears.StateMachineGraphs
                 if (parameter is Parameter<T> typedParameter)
                     typedParameter.Value = value;
                 else
-                    Log($"Parameter '{parameter.Name}' is not of type {typeof(T)}.", SHLogLevels.Error);
+                    LogError($"Parameter '{parameter.Name}' is not of type {typeof(T)}.");
             }
             else
-                Log($"Could not find parameter with id '{id}' in the state machine.", SHLogLevels.Error);
+                LogError($"Could not find parameter with id '{id}' in the state machine.");
         }
         #endregion
 

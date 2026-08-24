@@ -1,6 +1,6 @@
-using Shears.Logging;
 using System.Collections.Generic;
 using System.Linq;
+using Shears.Logging;
 using UnityEngine;
 
 namespace Shears.HitDetection
@@ -9,15 +9,27 @@ namespace Shears.HitDetection
     {
         #region Variables
         [field: Header("Logging")]
-        [field: SerializeField] public SHLogLevels LogLevels { get; set; } = SHLogLevels.Log | SHLogUtil.Issues;
+        [field: SerializeField]
+        public SHLogLevels LogLevels { get; set; } = SHLogLevels.Log | SHLogUtil.Issues;
 
         [Header("Hit Settings")]
-        [SerializeField] private bool fixedUpdate = false;
-        [SerializeField] private bool oneHitPerFrame = false;
-        [SerializeField] private bool multiHits = false;
-        [SerializeField] private bool unblockable = false;
-        [SerializeField] protected LayerMask collisionMask = 1;
-        [SerializeField] protected List<Collider2D> ignoreList;
+        [SerializeField]
+        private bool fixedUpdate = false;
+
+        [SerializeField]
+        private bool oneHitPerFrame = false;
+
+        [SerializeField]
+        private bool multiHits = false;
+
+        [SerializeField]
+        private bool unblockable = false;
+
+        [SerializeField]
+        protected LayerMask collisionMask = 1;
+
+        [SerializeField]
+        protected List<Collider2D> ignoreList;
 
         private IHitDeliverer2D deliverer;
         private readonly List<IHitReceiver2D> unclearedHits = new(16);
@@ -25,7 +37,11 @@ namespace Shears.HitDetection
 
         public IHitDeliverer2D Deliverer => deliverer;
         public int ValidHitCount { get; private set; }
-        public List<Collider2D> IgnoreList { get => ignoreList; set => ignoreList = value; }
+        public List<Collider2D> IgnoreList
+        {
+            get => ignoreList;
+            set => ignoreList = value;
+        }
 
         IHitDeliverer<HitData2D> IHitBody<HitData2D>.Deliverer => Deliverer;
         #endregion
@@ -65,7 +81,7 @@ namespace Shears.HitDetection
                 {
                     if (deliverer == null)
                     {
-                        this.Log($"No deliverer for {this}!", SHLogLevels.Warning);
+                        this.LogWarning($"No deliverer for {this}!");
                         return;
                     }
 
@@ -78,13 +94,20 @@ namespace Shears.HitDetection
 
                     if (receiver == null)
                     {
-                        this.Log("No receiver found!", SHLogLevels.Warning, context: hit.collider);
+                        this.LogWarning("No receiver found!", hit.collider);
                         return;
                     }
 
                     if (!unblockable && receiver is IHitBlocker2D blocker && blocker.IsBlocking)
                     {
-                        var hitData = new HitData2D(deliverer, receiver, this, hurtbody, new(hit), deliverer.GetCustomData());
+                        var hitData = new HitData2D(
+                            deliverer,
+                            receiver,
+                            this,
+                            hurtbody,
+                            new(hit),
+                            deliverer.GetCustomData()
+                        );
 
                         deliverer.OnHitBlocked(hitData);
                         blocker.OnHitBlocked(hitData);
@@ -96,7 +119,14 @@ namespace Shears.HitDetection
 
                     if (multiHits || !unclearedHits.Contains(receiver))
                     {
-                        var hitData = new HitData2D(deliverer, receiver, this, hurtbody, new(hit), deliverer.GetCustomData());
+                        var hitData = new HitData2D(
+                            deliverer,
+                            receiver,
+                            this,
+                            hurtbody,
+                            new(hit),
+                            deliverer.GetCustomData()
+                        );
 
                         deliverer.OnHitDelivered(hitData);
                         receiver.OnHitReceived(hitData);
@@ -111,7 +141,7 @@ namespace Shears.HitDetection
                         if (oneHitPerFrame)
                             break;
                     }
-                }    
+                }
             }
         }
 
@@ -128,7 +158,9 @@ namespace Shears.HitDetection
             {
                 if (ignoreList.Contains(hurtbody.Collider))
                 {
-                    this.Log("Ignore List object detected: " + hurtbody.Collider.transform.name, SHLogLevels.Verbose);
+                    this.LogVerbose(
+                        "Ignore List object detected: " + hurtbody.Collider.transform.name
+                    );
 
                     continue;
                 }

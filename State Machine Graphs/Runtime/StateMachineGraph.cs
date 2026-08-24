@@ -223,7 +223,7 @@ namespace Shears.StateMachineGraphs
             {
                 if (!TryGetData(id, out TransitionEdgeData transitionEdgeData))
                 {
-                    SHLogger.Log("Could not find transition with id: " + id, SHLogLevels.Error);
+                    SHLogger.LogError("Could not find transition with id: " + id);
                     continue;
                 }
 
@@ -232,9 +232,8 @@ namespace Shears.StateMachineGraphs
 
                 if (!states.TryGetValue(transitionEdgeData.ToID, out var toState))
                 {
-                    SHLogger.Log(
-                        "Could not find target State with id: " + transitionEdgeData.ToID,
-                        SHLogLevels.Error
+                    SHLogger.LogError(
+                        "Could not find target State with id: " + transitionEdgeData.ToID
                     );
                     continue;
                 }
@@ -252,24 +251,20 @@ namespace Shears.StateMachineGraphs
                             TryGetData(transitionEdgeData.ToID, out GraphNodeData toNode);
 
                             if (fromNode == null && toNode != null)
-                                SHLogger.Log(
-                                    $"Failed to get 'From' node for transition to {toNode.Name}.",
-                                    SHLogLevels.Error
+                                SHLogger.LogError(
+                                    $"Failed to get 'From' node for transition to {toNode.Name}."
                                 );
                             else if (toNode == null && fromNode != null)
-                                SHLogger.Log(
-                                    $"Failed to get 'To' node for transition from {fromNode.Name}.",
-                                    SHLogLevels.Error
+                                SHLogger.LogError(
+                                    $"Failed to get 'To' node for transition from {fromNode.Name}."
                                 );
                             else if (toNode == null && fromNode == null)
-                                SHLogger.Log(
-                                    $"Failed to resolve nodes for transition {transitionEdgeData.ID}.",
-                                    SHLogLevels.Error
+                                SHLogger.LogError(
+                                    $"Failed to resolve nodes for transition {transitionEdgeData.ID}."
                                 );
                             else
-                                SHLogger.Log(
-                                    $"No parameter is set for transition ({transitionEdgeData.ID}) from {fromNode.Name} to {toNode.Name}.",
-                                    SHLogLevels.Error
+                                SHLogger.LogError(
+                                    $"No parameter is set for transition ({transitionEdgeData.ID}) from {fromNode.Name} to {toNode.Name}."
                                 );
 
                             continue;
@@ -298,10 +293,7 @@ namespace Shears.StateMachineGraphs
                 return stateMachineData.DefaultStateID == layerNode.ID;
             else
             {
-                SHLogger.Log(
-                    "Could not find parent with ID: " + layerNode.ParentID,
-                    SHLogLevels.Error
-                );
+                SHLogger.LogError("Could not find parent with ID: " + layerNode.ParentID);
                 return false;
             }
         }
@@ -353,10 +345,7 @@ namespace Shears.StateMachineGraphs
                 layerNode.OnSetAsLayerDefault();
             }
             else
-                SHLogger.Log(
-                    "Could not find layer for node with ID: " + layerNode.ID,
-                    SHLogLevels.Error
-                );
+                SHLogger.LogError("Could not find layer for node with ID: " + layerNode.ID);
         }
 
         private void ClearLayerDefault(GraphLayer layer)
@@ -486,10 +475,7 @@ namespace Shears.StateMachineGraphs
             {
                 if (!TryGetData(layerNode.ParentID, out StateMachineNodeData stateMachine))
                 {
-                    SHLogger.Log(
-                        "Could not find parent with ID: " + layerNode.ParentID,
-                        SHLogLevels.Error
-                    );
+                    SHLogger.LogError("Could not find parent with ID: " + layerNode.ParentID);
                     return false;
                 }
 
@@ -509,10 +495,7 @@ namespace Shears.StateMachineGraphs
                 return CreateLayer(stateMachine);
             else
             {
-                SHLogger.Log(
-                    "Could not find layer with ID: " + element.ParentID,
-                    SHLogLevels.Error
-                );
+                SHLogger.LogError("Could not find layer with ID: " + element.ParentID);
                 return CreateRootLayer();
             }
         }

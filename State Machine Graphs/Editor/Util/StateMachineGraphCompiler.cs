@@ -11,10 +11,8 @@ namespace Shears.StateMachineGraphs.Editor
         private const bool LOGGING_ENABLED = false;
 
         public int callbackOrder => 0;
-        
-        static StateMachineGraphCompiler()
-        {
-        }
+
+        static StateMachineGraphCompiler() { }
 
         public static string[] OnWillSaveAssets(string[] paths)
         {
@@ -47,7 +45,7 @@ namespace Shears.StateMachineGraphs.Editor
         private static void CompileAllStateMachineGraphs()
         {
             var guids = AssetDatabase.FindAssets("t:StateMachineGraph");
-            
+
             foreach (var guid in guids)
             {
                 var path = AssetDatabase.GUIDToAssetPath(guid);
@@ -84,7 +82,7 @@ namespace Shears.StateMachineGraphs.Editor
             AssetDatabase.AddObjectToAsset(data, path);
         }
 
-        private static void Log(string message)
+        private static void Log(object message)
         {
 #pragma warning disable CS0162 // Unreachable code detected
             if (LOGGING_ENABLED)
@@ -92,11 +90,11 @@ namespace Shears.StateMachineGraphs.Editor
 #pragma warning restore CS0162 // Unreachable code detected
         }
 
-        private static void InternalLogError(string message)
+        private static void InternalLogError(object message)
         {
 #pragma warning disable CS0162 // Unreachable code detected
             if (LOGGING_ENABLED)
-                SHLogger.Log(message, SHLogLevels.Error);
+                SHLogger.LogError(message);
 #pragma warning restore CS0162 // Unreachable code detected
         }
     }

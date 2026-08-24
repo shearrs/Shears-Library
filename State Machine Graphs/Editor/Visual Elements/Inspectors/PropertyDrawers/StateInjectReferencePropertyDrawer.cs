@@ -30,14 +30,14 @@ namespace Shears.StateMachineGraphs.Editor
 
             if (graphData == null)
             {
-                SHLogger.Log("Could not find graph with ID: " + reference.GraphID, SHLogLevels.Error);
+                SHLogger.LogError("Could not find graph with ID: " + reference.GraphID);
                 return root;
             }
 
             var valueField = new ObjectField
             {
                 label = reference.FieldType.PrettyName,
-                objectType = reference.FieldType
+                objectType = reference.FieldType,
             };
 
             valueField.BindProperty(property.FindPropertyRelative("value"));

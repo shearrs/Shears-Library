@@ -38,9 +38,8 @@ namespace Shears.DataManagement
             if (map.TryGetValue(type, out var data))
                 return data;
 
-            this.Log(
-                $"{GetType().Name.PascalSpace()} does not contain data for type {type.Name.PascalSpace()}!",
-                SHLogLevels.Error
+            this.LogError(
+                $"{GetType().Name.PascalSpace()} does not contain data for type {type.Name.PascalSpace()}!"
             );
 
             return default;
@@ -51,10 +50,7 @@ namespace Shears.DataManagement
             if (nameMap.TryGetValue(name, out var type))
                 return GetData(type);
 
-            this.Log(
-                $"{GetType().Name.PascalSpace()} does not contain data for name {name}!",
-                SHLogLevels.Error
-            );
+            this.LogError($"{GetType().Name.PascalSpace()} does not contain data for name {name}!");
 
             return default;
         }
@@ -64,10 +60,7 @@ namespace Shears.DataManagement
             if (nameMap.TryGetValue(name, out var type))
                 return type;
 
-            this.Log(
-                $"{GetType().Name.PascalSpace()} does not contain data for name {name}!",
-                SHLogLevels.Error
-            );
+            this.LogError($"{GetType().Name.PascalSpace()} does not contain data for name {name}!");
 
             return default;
         }
@@ -85,9 +78,8 @@ namespace Shears.DataManagement
 
             if (randomChoices.Count == 0)
             {
-                this.Log(
-                    $"{GetType().Name.PascalSpace()} has no {typeof(TData).Name.PascalSpace()} to choose from!",
-                    SHLogLevels.Error
+                this.LogError(
+                    $"{GetType().Name.PascalSpace()} has no {typeof(TData).Name.PascalSpace()} to choose from!"
                 );
                 return null;
             }

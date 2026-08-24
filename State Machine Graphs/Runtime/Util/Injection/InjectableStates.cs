@@ -17,9 +17,8 @@ namespace Shears.StateMachineGraphs
             if (dependency is T tDependency)
                 Inject(tDependency);
             else
-                Log(
-                    $"Failed to inject dependency of type {dependency.GetType()} into state {GetType()}. Expected type: {typeof(T)}.",
-                    SHLogLevels.Error
+                LogError(
+                    $"Failed to inject dependency of type {dependency.GetType()} into state {GetType()}. Expected type: {typeof(T)}."
                 );
         }
 
@@ -64,9 +63,8 @@ namespace Shears.StateMachineGraphs
                     Inject(this.dependency1, this.dependency2);
             }
             else
-                Log(
-                    $"Failed to inject dependency of type {dependency.GetType()} into state {GetType()}. Expected type: {typeof(T1)} or {typeof(T2)}.",
-                    SHLogLevels.Error
+                LogError(
+                    $"Failed to inject dependency of type {dependency.GetType()} into state {GetType()}. Expected type: {typeof(T1)} or {typeof(T2)}."
                 );
         }
 
@@ -114,9 +112,8 @@ namespace Shears.StateMachineGraphs
                     Inject(this.dependency1, this.dependency2, this.dependency3);
             }
             else
-                Log(
-                    $"Failed to inject dependency of type {dependency.GetType()} into state {GetType()}. Expected type: {typeof(T1)}, {typeof(T2)}, or {typeof(T3)}.",
-                    SHLogLevels.Error
+                LogError(
+                    $"Failed to inject dependency of type {dependency.GetType()} into state {GetType()}. Expected type: {typeof(T1)}, {typeof(T2)}, or {typeof(T3)}."
                 );
         }
 
@@ -176,9 +173,8 @@ namespace Shears.StateMachineGraphs
                     Inject(this.dependency1, this.dependency2, this.dependency3, this.dependency4);
             }
             else
-                Log(
-                    $"Failed to inject dependency of type {dependency.GetType()} into state {GetType()}. Expected type: {typeof(T1)}, {typeof(T2)}, or {typeof(T3)}.",
-                    SHLogLevels.Error
+                LogError(
+                    $"Failed to inject dependency of type {dependency.GetType()} into state {GetType()}. Expected type: {typeof(T1)}, {typeof(T2)}, or {typeof(T3)}."
                 );
         }
 

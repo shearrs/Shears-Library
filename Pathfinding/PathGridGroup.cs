@@ -159,7 +159,7 @@ namespace Shears.Pathfinding
         {
             if (x >= GridSize.x || y >= GridSize.y || z >= GridSize.z || x < 0 || y < 0 || z < 0)
             {
-                SHLogger.Log($"Invalid coordinates for node: ({x}, {y}, {z})", SHLogLevels.Error);
+                SHLogger.LogError($"Invalid coordinates for node: ({x}, {y}, {z})");
                 return null;
             }
 
@@ -189,10 +189,7 @@ namespace Shears.Pathfinding
 
             if (index >= Nodes.Count)
             {
-                this.Log(
-                    $"Node position is outside of grid bounds: ({x}, {y}, {z}).",
-                    SHLogLevels.Error
-                );
+                this.LogError($"Node position is outside of grid bounds: ({x}, {y}, {z}).");
                 return;
             }
 
@@ -225,7 +222,7 @@ namespace Shears.Pathfinding
 
             if (grid.Nodes.Count == 0)
             {
-                SHLogger.Log("Grid has no nodes to add!", SHLogLevels.Warning);
+                SHLogger.LogWarning("Grid has no nodes to add!");
                 return;
             }
             else if (Nodes.Count == 0)
@@ -321,7 +318,7 @@ namespace Shears.Pathfinding
         {
             if (Nodes.Count == 0)
             {
-                this.Log("Grid has no nodes to shift.", SHLogLevels.Warning);
+                this.LogWarning("Grid has no nodes to shift.");
                 return;
             }
 

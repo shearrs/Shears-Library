@@ -64,7 +64,7 @@ namespace Shears.Pathfinding.Editor
             else if (grid is PathGridGroup pGridGroup)
                 gridSO = new SerializedObject(pGridGroup);
             else
-                SHLogger.Log($"Failed to resolve {nameof(PathGrid)} type!", SHLogLevels.Error);
+                SHLogger.LogError($"Failed to resolve {nameof(PathGrid)} type!");
 
             var settingsProp = editorSO.FindProperty("settings");
             nodeDataProp = settingsProp.FindPropertyRelative("nodeData");

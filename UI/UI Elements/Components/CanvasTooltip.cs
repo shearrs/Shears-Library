@@ -70,7 +70,7 @@ namespace Shears.UI
         {
             if (parent == null)
             {
-                Log("Cannot bind null parent!", SHLogLevels.Error);
+                LogError("Cannot bind null parent!");
                 return;
             }
 
@@ -129,10 +129,7 @@ namespace Shears.UI
                 return false;
             }
 
-            Log(
-                $"{nameof(CanvasTooltip)} does not support type {typeof(T).Name}!",
-                SHLogLevels.Error
-            );
+            LogError($"{nameof(CanvasTooltip)} does not support type {typeof(T).Name}!");
             return false;
         }
 

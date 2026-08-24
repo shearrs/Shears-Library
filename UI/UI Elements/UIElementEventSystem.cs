@@ -491,9 +491,8 @@ namespace Shears.UI
 
             if (camera == null)
             {
-                SHLogger.Log(
-                    $"{nameof(UIElementEventSystem)} requires a MainCamera in the scene to raycast!",
-                    SHLogLevels.Error
+                SHLogger.LogError(
+                    $"{nameof(UIElementEventSystem)} requires a MainCamera in the scene to raycast!"
                 );
                 Instance.gameObject.SetActive(false);
                 return;

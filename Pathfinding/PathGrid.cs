@@ -219,7 +219,7 @@ namespace Shears.Pathfinding
         {
             if (x >= GridSize.x || y >= GridSize.y || z >= GridSize.z || x < 0 || y < 0 || z < 0)
             {
-                SHLogger.Log($"Invalid coordinates for node: ({x}, {y}, {z})", SHLogLevels.Error);
+                SHLogger.LogError($"Invalid coordinates for node: ({x}, {y}, {z})");
                 return null;
             }
 

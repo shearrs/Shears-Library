@@ -34,10 +34,7 @@ namespace Shears.DataManagement
                 return true;
             }
 
-            SHLogger.Log(
-                $"{nameof(DataMap)} does not contain type {type.Name}!",
-                SHLogLevels.Warning
-            );
+            SHLogger.LogWarning($"{nameof(DataMap)} does not contain type {type.Name}!");
 
             data = default;
             return false;

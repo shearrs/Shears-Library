@@ -1,7 +1,7 @@
-using Shears.Editor;
-using Shears.Logging;
 using System;
 using System.Collections.Generic;
+using Shears.Editor;
+using Shears.Logging;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -49,11 +49,20 @@ namespace Shears.GraphViews.Editor
         {
             private readonly VisualElement element;
 
-            public Vector3 Position { get => element.resolvedStyle.translate; set => element.style.translate = new Translate(value.x, value.y); }
-            public Vector3 Scale { get => element.resolvedStyle.scale.value; set => element.style.scale = new Scale(value); }
+            public Vector3 Position
+            {
+                get => element.resolvedStyle.translate;
+                set => element.style.translate = new Translate(value.x, value.y);
+            }
+            public Vector3 Scale
+            {
+                get => element.resolvedStyle.scale.value;
+                set => element.style.scale = new Scale(value);
+            }
             public Quaternion Rotation
             {
-                get => Quaternion.Euler(0, 0, element.resolvedStyle.rotate.angle.value); set
+                get => Quaternion.Euler(0, 0, element.resolvedStyle.rotate.angle.value);
+                set
                 {
                     value.ToAngleAxis(out float angle, out Vector3 _);
 
@@ -179,10 +188,7 @@ namespace Shears.GraphViews.Editor
 
         private void CreateRootContainer()
         {
-            rootContainer = new VisualElement
-            {
-                name = "rootContainer"
-            };
+            rootContainer = new VisualElement { name = "rootContainer" };
 
             rootContainer.AddToClassList(GraphViewEditorUtil.RootContainerClassName);
             Add(rootContainer);
@@ -190,10 +196,7 @@ namespace Shears.GraphViews.Editor
 
         private void CreateBodyContainer()
         {
-            bodyContainer = new VisualElement
-            {
-                name = "bodyContainer"
-            };
+            bodyContainer = new VisualElement { name = "bodyContainer" };
 
             bodyContainer.AddToClassList(GraphViewEditorUtil.BodyContainerClassName);
             rootContainer.Add(bodyContainer);
@@ -201,10 +204,7 @@ namespace Shears.GraphViews.Editor
 
         private void CreateGraphViewContainer()
         {
-            graphViewContainer = new()
-            {
-                name = "graphViewContainer"
-            };
+            graphViewContainer = new() { name = "graphViewContainer" };
 
             graphViewContainer.AddToClassList(GraphViewEditorUtil.GraphViewContainerClassName);
             bodyContainer.Add(graphViewContainer);
@@ -215,7 +215,7 @@ namespace Shears.GraphViews.Editor
             contentViewContainer = new()
             {
                 name = "contentViewContainer",
-                pickingMode = PickingMode.Ignore
+                pickingMode = PickingMode.Ignore,
             };
 
             contentViewContainer.AddToClassList(GraphViewEditorUtil.ContentViewContainerClassName);
@@ -259,7 +259,11 @@ namespace Shears.GraphViews.Editor
         #region Keybinds
         private void OnKeyDown(KeyDownEvent evt)
         {
-            if (evt.keyCode == KeyCode.R && evt.modifiers.HasFlag(EventModifiers.Shift) && evt.modifiers.HasFlag(EventModifiers.Control))
+            if (
+                evt.keyCode == KeyCode.R
+                && evt.modifiers.HasFlag(EventModifiers.Shift)
+                && evt.modifiers.HasFlag(EventModifiers.Control)
+            )
             {
                 ClearGraphData();
                 return;
@@ -276,9 +280,17 @@ namespace Shears.GraphViews.Editor
                 FocusCamera(GetSelection());
             else if (hasSelection && evt.keyCode == KeyCode.Return)
                 TryOpenSelection();
-            else if (hasSelection && evt.keyCode == KeyCode.C && evt.modifiers.HasFlag(EventModifiers.Control))
+            else if (
+                hasSelection
+                && evt.keyCode == KeyCode.C
+                && evt.modifiers.HasFlag(EventModifiers.Control)
+            )
                 CopySelectionToClipboard();
-            else if (hasSelection && evt.keyCode == KeyCode.X && evt.modifiers.HasFlag(EventModifiers.Control))
+            else if (
+                hasSelection
+                && evt.keyCode == KeyCode.X
+                && evt.modifiers.HasFlag(EventModifiers.Control)
+            )
                 CutSelectionToClipboard();
             else if (evt.keyCode == KeyCode.V && evt.modifiers.HasFlag(EventModifiers.Control))
                 PasteFromClipboard();
@@ -436,7 +448,7 @@ namespace Shears.GraphViews.Editor
         {
             if (!graphData.TryGetData(id, out GraphNodeData data))
             {
-                SHLogger.Log("Could not find node data for id: " + id, SHLogLevels.Error);
+                SHLogger.LogError("Could not find node data for id: " + id);
                 return null;
             }
 
@@ -522,7 +534,7 @@ namespace Shears.GraphViews.Editor
         {
             if (!graphData.TryGetData(id, out GraphEdgeData data))
             {
-                SHLogger.Log("Could not find edge data for id: " + id, SHLogLevels.Error);
+                SHLogger.LogError("Could not find edge data for id: " + id);
                 return null;
             }
 
@@ -534,7 +546,10 @@ namespace Shears.GraphViews.Editor
             return edges[edgeData];
         }
 
-        protected void BeginPlacingEdge(IEdgeAnchorable anchor, Action<IEdgeAnchorable, IEdgeAnchorable> tryPlaceCallback)
+        protected void BeginPlacingEdge(
+            IEdgeAnchorable anchor,
+            Action<IEdgeAnchorable, IEdgeAnchorable> tryPlaceCallback
+        )
         {
             edgePlacer.BeginPlacing(anchor);
             edgePlacer.TryPlaceEdgeCallback = tryPlaceCallback;

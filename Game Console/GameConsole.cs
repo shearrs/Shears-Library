@@ -148,10 +148,7 @@ namespace Shears.GameConsole
         {
             if (!storedSingletons.TryGetValue(typeof(T), out var singleton))
             {
-                SHLogger.Log(
-                    $"Could not retrieve singleton of type: {typeof(T).Name}!",
-                    SHLogLevels.Error
-                );
+                SHLogger.LogError($"Could not retrieve singleton of type: {typeof(T).Name}!");
                 return default;
             }
 
@@ -222,7 +219,7 @@ namespace Shears.GameConsole
         private void ConsoleError(string text)
         {
             ConsoleMessage(text, ERROR_COLOR);
-            SHLogger.Log(text, SHLogLevels.Error);
+            SHLogger.LogError(text);
         }
 
         private void ConsoleMessage(string text) => ConsoleMessage(text, Color.white);

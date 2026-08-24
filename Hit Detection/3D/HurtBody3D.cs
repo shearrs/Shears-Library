@@ -1,6 +1,6 @@
-using Shears.Logging;
 using System;
 using System.Collections.Generic;
+using Shears.Logging;
 using UnityEngine;
 
 namespace Shears.HitDetection
@@ -15,15 +15,31 @@ namespace Shears.HitDetection
         [SerializeField, Tooltip("Whether or not this HurtBody3D blocks hits.")]
         private bool isBlocking = false;
 
-        [SerializeField, Tooltip("An optional provider for logic on when to block hits."), ShowIf(nameof(isBlocking))]
+        [
+            SerializeField,
+            Tooltip("An optional provider for logic on when to block hits."),
+            ShowIf(nameof(isBlocking))
+        ]
         private InterfaceReference<IBlockProvider> blockProvider;
 
         [SerializeField, Tooltip("The colliders for receiving hits.")]
         private List<Collider> colliders;
 
-        public bool IsBlocking { get => isBlocking; set => isBlocking = value; }
-        public IBlockProvider BlockProvider { get => blockProvider.Value; set => blockProvider.Value = value; }
-        public List<Collider> Colliders { get => colliders; set => colliders = value; }
+        public bool IsBlocking
+        {
+            get => isBlocking;
+            set => isBlocking = value;
+        }
+        public IBlockProvider BlockProvider
+        {
+            get => blockProvider.Value;
+            set => blockProvider.Value = value;
+        }
+        public List<Collider> Colliders
+        {
+            get => colliders;
+            set => colliders = value;
+        }
 
         public event Action<HitData3D> HitReceived;
 
@@ -39,7 +55,7 @@ namespace Shears.HitDetection
 
         internal void OnHitReceived(HitData3D data)
         {
-            this.Log("HurtBody3D received a hit.", SHLogLevels.Verbose);
+            this.LogVerbose("HurtBody3D received a hit.");
             HitReceived?.Invoke(data);
         }
     }

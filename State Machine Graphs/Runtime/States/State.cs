@@ -78,7 +78,7 @@ namespace Shears.StateMachineGraphs
         {
             if (state == this)
             {
-                Log("State cannot be a substate of itself!", SHLogLevels.Error);
+                LogError("State cannot be a substate of itself!");
                 return;
             }
 
@@ -176,34 +176,85 @@ namespace Shears.StateMachineGraphs
             parameterProvider.SetParameter(id, value);
         }
 
-        /// <summary>
-        /// Logs a message to the current <see cref="ISHLogger"/>.
-        /// </summary>
-        /// <param name="message">The log to send.</param>
-        /// <param name="context">The context associated with this log. If the <see cref="SHLogger"/>'s <see cref="LogType"/> is set to <see cref="LogType.UnityConsole"/>, the context will be highlighted upon selecting the log.</param>
-        /// <param name="prefix">A custom prefix for this log.</param>
-        /// <param name="level">The severity/level of this log.</param>
-        /// <param name="color">A custom <see cref="Color"/> for this log.</param>
-        /// <param name="formatter">The formatter for this log. Defaults to the current <see cref="ISHLogger.Formatter"/>.</param>
-        /// <param name="callerFilePath">The file path of the class who called this. Should not be set manually.</param>
-        /// <param name="callerLineNumber">The line number of the class who called this. Should not be set manually.</param>
+        /// <inheritdoc cref="ISHLoggableLogger.Log"/>
         [HideInCallstack]
         protected void Log(
-            string message,
-            SHLogLevels level = SHLogLevels.Log,
+            object message,
             UnityEngine.Object context = null,
-            Color color = default,
             string prefix = "",
+            Color color = default,
             ISHLogFormatter formatter = default,
             [CallerFilePath] string callerFilePath = "",
             [CallerLineNumber] long callerLineNumber = 0
         ) =>
             ((ISHLoggable)this).Log(
                 message,
-                level,
                 context,
-                color,
                 prefix,
+                color,
+                formatter,
+                callerFilePath,
+                callerLineNumber
+            );
+
+        /// <inheritdoc cref="ISHLoggableLogger.LogVerbose"/>
+        [HideInCallstack]
+        protected void LogVerbose(
+            object message,
+            UnityEngine.Object context = null,
+            string prefix = "",
+            Color? color = null,
+            ISHLogFormatter formatter = default,
+            [CallerFilePath] string callerFilePath = "",
+            [CallerLineNumber] long callerLineNumber = 0
+        ) =>
+            ((ISHLoggable)this).LogVerbose(
+                message,
+                context,
+                prefix,
+                color,
+                formatter,
+                callerFilePath,
+                callerLineNumber
+            );
+
+        /// <inheritdoc cref="ISHLoggableLogger.LogWarning"/>
+        [HideInCallstack]
+        protected void LogWarning(
+            object message,
+            UnityEngine.Object context = null,
+            string prefix = "",
+            Color? color = null,
+            ISHLogFormatter formatter = default,
+            [CallerFilePath] string callerFilePath = "",
+            [CallerLineNumber] long callerLineNumber = 0
+        ) =>
+            ((ISHLoggable)this).LogWarning(
+                message,
+                context,
+                prefix,
+                color,
+                formatter,
+                callerFilePath,
+                callerLineNumber
+            );
+
+        /// <inheritdoc cref="ISHLoggableLogger.LogError"/>
+        [HideInCallstack]
+        protected void LogError(
+            object message,
+            UnityEngine.Object context = null,
+            string prefix = "",
+            Color? color = null,
+            ISHLogFormatter formatter = default,
+            [CallerFilePath] string callerFilePath = "",
+            [CallerLineNumber] long callerLineNumber = 0
+        ) =>
+            ((ISHLoggable)this).LogError(
+                message,
+                context,
+                prefix,
+                color,
                 formatter,
                 callerFilePath,
                 callerLineNumber

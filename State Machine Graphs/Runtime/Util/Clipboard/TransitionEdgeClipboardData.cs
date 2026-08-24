@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using Shears.GraphViews;
 using Shears.Logging;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Shears.StateMachineGraphs
@@ -17,7 +17,8 @@ namespace Shears.StateMachineGraphs
         [SerializeReference]
         private List<TransitionData> transitionData = new();
 
-        public TransitionEdgeClipboardData(TransitionEdgeData transition) : base(transition.ID)
+        public TransitionEdgeClipboardData(TransitionEdgeData transition)
+            : base(transition.ID)
         {
             fromID = transition.FromID;
             toID = transition.ToID;
@@ -39,16 +40,20 @@ namespace Shears.StateMachineGraphs
 
             if (from is not ITransitionable transitionableFrom)
             {
-                SHLogger.Log($"'From' does not implement {nameof(ITransitionable)}!", SHLogLevels.Error);
+                SHLogger.LogError($"'From' does not implement {nameof(ITransitionable)}!");
                 return null;
             }
             if (to is not ITransitionable transitionableTo)
             {
-                SHLogger.Log($"'To' does not implement {nameof(ITransitionable)}!", SHLogLevels.Error);
+                SHLogger.LogError($"'To' does not implement {nameof(ITransitionable)}!");
                 return null;
             }
 
-            var transition = stateGraph.CreateTransitionEdgeData(transitionableFrom, transitionableTo, false);
+            var transition = stateGraph.CreateTransitionEdgeData(
+                transitionableFrom,
+                transitionableTo,
+                false
+            );
 
             foreach (var tData in transitionData)
                 transition.AddTransitionData(tData);

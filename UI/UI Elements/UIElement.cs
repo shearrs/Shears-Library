@@ -490,7 +490,7 @@ namespace Shears.UI
         {
             if (refBindings.ContainsKey(refVar))
             {
-                Log($"{nameof(UIElement)} already has binding for ${refVar}!", SHLogLevels.Warning);
+                LogWarning($"{nameof(UIElement)} already has binding for ${refVar}!");
                 return;
             }
 
@@ -501,10 +501,7 @@ namespace Shears.UI
         {
             if (rawRefBindings.ContainsKey(refVar))
             {
-                Log(
-                    $"{nameof(UIElement)} already has raw binding for ${refVar}!",
-                    SHLogLevels.Warning
-                );
+                LogWarning($"{nameof(UIElement)} already has raw binding for ${refVar}!");
                 return;
             }
 
