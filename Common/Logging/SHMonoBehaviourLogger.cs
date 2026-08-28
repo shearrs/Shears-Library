@@ -49,7 +49,7 @@ namespace Shears.Logging
             [CallerFilePath] string callerFilePath = "",
             [CallerLineNumber] long callerLineNumber = 0
         ) =>
-            ISHLoggableLogger.Log(
+            ISHLoggableLogger.LogVerbose(
                 this,
                 message,
                 context,
@@ -71,7 +71,7 @@ namespace Shears.Logging
             [CallerFilePath] string callerFilePath = "",
             [CallerLineNumber] long callerLineNumber = 0
         ) =>
-            ISHLoggableLogger.Log(
+            ISHLoggableLogger.LogWarning(
                 this,
                 message,
                 context,
@@ -93,7 +93,7 @@ namespace Shears.Logging
             [CallerFilePath] string callerFilePath = "",
             [CallerLineNumber] long callerLineNumber = 0
         ) =>
-            ISHLoggableLogger.Log(
+            ISHLoggableLogger.LogError(
                 this,
                 message,
                 context,
@@ -115,7 +115,7 @@ namespace Shears.Logging
             [CallerFilePath] string callerFilePath = "",
             [CallerLineNumber] long callerLineNumber = 0
         ) =>
-            ISHLoggableLogger.Log(
+            ISHLoggableLogger.LogFatal(
                 this,
                 message,
                 context,
