@@ -14,14 +14,11 @@ namespace Shears
         public static readonly SerializableType Empty = new(null);
 
         [SerializeField]
-        private string name;
-
-        [SerializeField]
         private string assemblyQualifiedName;
 
         private Type systemType;
 
-        public string Name => name;
+        public string Name => SystemType?.Name;
         public string AssemblyQualifiedName => assemblyQualifiedName;
         public string PrettyName => Name.PascalSpace();
         public Type SystemType
@@ -40,14 +37,12 @@ namespace Shears
             if (type == null)
             {
                 systemType = null;
-                name = string.Empty;
                 assemblyQualifiedName = string.Empty;
 
                 return;
             }
 
             systemType = type;
-            name = type.Name;
             assemblyQualifiedName = type.AssemblyQualifiedName;
         }
 
@@ -97,7 +92,7 @@ namespace Shears
 
         public override string ToString()
         {
-            return name;
+            return SystemType?.Name;
         }
 
         public static bool operator ==(SerializableType a, SerializableType b)
