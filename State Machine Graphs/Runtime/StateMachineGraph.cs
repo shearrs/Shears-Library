@@ -129,9 +129,9 @@ namespace Shears.StateMachineGraphs
 
             foreach (var stateNode in stateNodes)
             {
-                var State = CreateState(stateNode);
+                var state = CreateState(stateNode);
 
-                stateIDs.Add(stateNode.ID, State);
+                stateIDs.Add(stateNode.ID, state);
 
                 // TODO: prevent cyclic dependencies
                 if (stateNode is ExternalStateMachineNodeData externalNode)
@@ -143,12 +143,12 @@ namespace Shears.StateMachineGraphs
 
                     var compileData = graphData.GetData(true);
                     var parameterProvider = new LocalParameterProvider(
-                        State.Name,
+                        state.Name,
                         compileData.ParameterNames
                     );
                     parameterProviders.Add(parameterProvider);
 
-                    State.ParameterProvider = parameterProvider;
+                    state.ParameterProvider = parameterProvider;
 
                     // this mode of unique key can still lead to duplicates
                     // we should make it include the full path of the node
@@ -160,10 +160,10 @@ namespace Shears.StateMachineGraphs
                         subState.ParameterProvider = parameterProvider;
 
                         stateIDs.Add(key, subState);
-                        subState.ParentState ??= State;
+                        subState.ParentState ??= state;
                     }
 
-                    State.DefaultSubState = compileData.DefaultState;
+                    state.DefaultSubState = compileData.DefaultState;
                 }
             }
 
@@ -201,10 +201,10 @@ namespace Shears.StateMachineGraphs
 
         private State CreateState(IStateNodeData data)
         {
-            var State = data.CreateStateInstance();
-            State.Name = data.Name;
+            var state = data.CreateStateInstance();
+            state.Name = data.Name;
 
-            return State;
+            return state;
         }
 
         private void CreateTransitions(

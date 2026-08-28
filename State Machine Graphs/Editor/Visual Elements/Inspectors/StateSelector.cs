@@ -14,13 +14,11 @@ namespace Shears.StateMachineGraphs.Editor
         private static readonly Type EXTERNAL_STATE_TYPE = typeof(ExternalGraphState);
 
         private readonly SerializedProperty stateTypeProp;
-        private readonly SerializedProperty stateNameProp;
         private readonly Button button;
 
         public StateSelector(SerializedProperty stateTypeProp)
         {
             this.stateTypeProp = stateTypeProp;
-            stateNameProp = stateTypeProp.FindPropertyRelative("prettyName");
 
             AddToClassList(SMEditorUtil.StateSelectorClassName);
 
@@ -35,14 +33,15 @@ namespace Shears.StateMachineGraphs.Editor
 
             SetButtonText(stateButton);
 
-            stateButton.TrackPropertyValue(stateTypeProp, (prop) => SetButtonText(stateButton));
+            stateButton.TrackPropertyValue(stateTypeProp, _ => SetButtonText(stateButton));
 
             return stateButton;
         }
 
         private void SetButtonText(Button button)
         {
-            button.text = stateNameProp.stringValue;
+            var type = stateTypeProp.boxedValue as SerializableType;
+            button.text = type.PrettyName;
         }
 
         // CREATE SUB MENUS OUT OF HIERARCHY CHAINS (OR MAYBE EVEN ASSEMBLY DEFINITIONS)
