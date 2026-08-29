@@ -62,10 +62,24 @@ namespace Shears
             return ONE_THIRD * (v.x + v.y + v.z);
         }
 
-        public static void Deconstruct(this Vector2 self, out float x, out float y)
+        public static void Deconstruct(this Vector2 v, out float x, out float y)
         {
-            x = self.x;
-            y = self.y;
+            x = v.x;
+            y = v.y;
+        }
+
+        public static void Deconstruct(this Vector3 v, out float x, out float y, out float z)
+        {
+            x = v.x;
+            y = v.y;
+            z = v.z;
+        }
+
+        public static void Deconstruct(this Vector3Int v, out int x, out int y, out int z)
+        {
+            x = v.x;
+            y = v.y;
+            z = v.z;
         }
 
         public static Vector3 Deg2Rad(this Vector3 self)
@@ -86,36 +100,6 @@ namespace Shears
             );
         }
 
-        public static Vector3 X(this Vector3 v)
-        {
-            return new(v.x, 0.0f, 0.0f);
-        }
-
-        public static Vector3 Y(this Vector3 v)
-        {
-            return new(0.0f, v.y, 0.0f);
-        }
-
-        public static Vector3 Z(this Vector3 v)
-        {
-            return new(0.0f, 0.0f, v.z);
-        }
-
-        public static Vector3 XY(this Vector3 v)
-        {
-            return new(v.x, v.y, 0.0f);
-        }
-
-        public static Vector3 XZ(this Vector3 v)
-        {
-            return new(v.x, 0.0f, v.z);
-        }
-
-        public static Vector3 YZ(this Vector3 v)
-        {
-            return new(0.0f, v.y, v.z);
-        }
-
         public static Vector3 With(
             this Vector3 v,
             float? x = null,
@@ -123,46 +107,21 @@ namespace Shears
             float? z = null
         )
         {
-            return new(
-                x == null ? v.x : x.Value,
-                y == null ? v.y : y.Value,
-                z == null ? v.z : z.Value
-            );
+            return new(x ?? v.x, y ?? v.y, z ?? v.z);
         }
 
-        public static Vector3Int RoundToInt(this Vector3 v)
+        /// <summary>
+        /// Round a <see cref="Vector3"/> to a <see cref="Vector3Int"/>.
+        /// </summary>
+        /// <param name="vector">The vector to round.</param>
+        /// <returns>The rounded integer vector.</returns>
+        public static Vector3Int RoundToInt(this Vector3 vector)
         {
-            return new(Mathf.RoundToInt(v.x), Mathf.RoundToInt(v.y), Mathf.RoundToInt(v.z));
-        }
+            var x = Mathf.RoundToInt(vector.x);
+            var y = Mathf.RoundToInt(vector.y);
+            var z = Mathf.RoundToInt(vector.z);
 
-        public static Vector3Int X(this Vector3Int v)
-        {
-            return new(v.x, 0, 0);
-        }
-
-        public static Vector3Int Y(this Vector3Int v)
-        {
-            return new(0, v.y, 0);
-        }
-
-        public static Vector3Int Z(this Vector3Int v)
-        {
-            return new(0, 0, v.z);
-        }
-
-        public static Vector3Int XY(this Vector3Int v)
-        {
-            return new(v.x, v.y, 0);
-        }
-
-        public static Vector3Int XZ(this Vector3Int v)
-        {
-            return new(v.x, 0, v.z);
-        }
-
-        public static Vector3Int YZ(this Vector3Int v)
-        {
-            return new(0, v.y, v.z);
+            return new(x, y, z);
         }
 
         public static Vector3Int With(
@@ -172,112 +131,24 @@ namespace Shears
             int? z = null
         )
         {
-            return new(
-                x == null ? v.x : x.Value,
-                y == null ? v.y : y.Value,
-                z == null ? v.z : z.Value
-            );
+            return new(x ?? v.x, y ?? v.y, z ?? v.z);
         }
 
-        public static bool WithinRange(this Vector3Int value, Vector3Int min, Vector3Int max)
+        /// <summary>
+        /// Check if a position is within a range.
+        /// </summary>
+        /// <param name="position">The position to check.</param>
+        /// <param name="min">The minimum bounds.</param>
+        /// <param name="max">The maximum bounds.</param>
+        /// <returns>Whether or not the position is within the passed range.</returns>
+        public static bool WithinRange(Vector3Int position, Vector3Int min, Vector3Int max)
         {
-            return value.x >= min.x
-                && value.x <= max.x
-                && value.y >= min.y
-                && value.y <= max.y
-                && value.z >= min.z
-                && value.z <= max.z;
-        }
-
-        public static void Min(
-            out int xMin,
-            out int yMin,
-            out int zMin,
-            params Vector3Int[] vectors
-        )
-        {
-            xMin = MathUtil.MinSelector(vectors, v => v.x);
-            yMin = MathUtil.MinSelector(vectors, v => v.y);
-            zMin = MathUtil.MinSelector(vectors, v => v.z);
-        }
-
-        public static void Max(
-            out int xMax,
-            out int yMax,
-            out int zMax,
-            params Vector3Int[] vectors
-        )
-        {
-            xMax = MathUtil.MaxSelector(vectors, v => v.x);
-            yMax = MathUtil.MaxSelector(vectors, v => v.y);
-            zMax = MathUtil.MaxSelector(vectors, v => v.z);
-        }
-
-        public static void MinMax(
-            out int xMin,
-            out int xMax,
-            out int yMin,
-            out int yMax,
-            out int zMin,
-            out int zMax,
-            params Vector3Int[] vectors
-        )
-        {
-            MathUtil.MinMax(out xMin, out xMax, vectors, v => v.x, v => v.x);
-            MathUtil.MinMax(out yMin, out yMax, vectors, v => v.y, v => v.y);
-            MathUtil.MinMax(out zMin, out zMax, vectors, v => v.z, v => v.z);
-        }
-
-        public static void MinMax<T>(
-            out int xMin,
-            out int xMax,
-            out int yMin,
-            out int yMax,
-            out int zMin,
-            out int zMax,
-            IReadOnlyList<T> list,
-            Func<T, Vector3Int> minSelector,
-            Func<T, Vector3Int> maxSelector
-        )
-        {
-            if (list.Count == 0)
-            {
-                xMin = xMax = yMin = yMax = zMin = zMax = -1;
-
-                return;
-            }
-
-            xMin = minSelector(list[0]).x;
-            xMax = maxSelector(list[0]).x;
-            yMin = minSelector(list[0]).y;
-            yMax = maxSelector(list[0]).y;
-            zMin = minSelector(list[0]).z;
-            zMax = maxSelector(list[0]).z;
-
-            for (int i = 1; i < list.Count; i++)
-            {
-                int xMinCandidate = minSelector(list[i]).x;
-                int xMaxCandidate = maxSelector(list[i]).x;
-                int yMinCandidate = minSelector(list[i]).y;
-                int yMaxCandidate = maxSelector(list[i]).y;
-                int zMinCandidate = minSelector(list[i]).z;
-                int zMaxCandidate = maxSelector(list[i]).z;
-
-                if (xMinCandidate < xMin)
-                    xMin = xMinCandidate;
-                if (xMaxCandidate > xMax)
-                    xMax = xMaxCandidate;
-
-                if (yMinCandidate < yMin)
-                    yMin = yMinCandidate;
-                if (yMaxCandidate > yMax)
-                    yMax = yMaxCandidate;
-
-                if (zMinCandidate < zMin)
-                    zMin = zMinCandidate;
-                if (zMaxCandidate > zMax)
-                    zMax = zMaxCandidate;
-            }
+            return position.x >= min.x
+                && position.y >= min.y
+                && position.z >= min.z
+                && position.x <= max.x
+                && position.y <= max.y
+                && position.z <= max.z;
         }
 
         public static Vector3 EulerMap(this Vector3 v)
@@ -294,110 +165,157 @@ namespace Shears
             return v;
         }
 
-        public static void Min(
-            out float xMin,
-            out float yMin,
-            out float zMin,
-            params Vector3[] vectors
-        )
+        /// <summary>
+        /// Calculate a vector with the minimum values of all passed in vectors component-wise.
+        /// </summary>
+        /// <param name="vectors">The vectors to consider.</param>
+        /// <returns>A vector with components equal to the minimum component of each passed vector.</returns>
+        public static Vector3 Min(params Vector3[] vectors)
         {
-            xMin = MathUtil.MinSelector(vectors, v => v.x);
-            yMin = MathUtil.MinSelector(vectors, v => v.y);
-            zMin = MathUtil.MinSelector(vectors, v => v.z);
+            if (vectors.Length == 0)
+                return Vector3.zero;
+
+            var min = vectors[0];
+
+            for (int i = 1; i < vectors.Length; i++)
+            {
+                var vector = vectors[i];
+
+                if (vector.x < min.x)
+                    min.x = vector.x;
+                if (vector.y < min.y)
+                    min.y = vector.y;
+                if (vector.z < min.z)
+                    min.z = vector.z;
+            }
+
+            return min;
         }
 
-        public static void Max(
-            out float xMax,
-            out float yMax,
-            out float zMax,
-            params Vector3[] vectors
-        )
+        /// <summary>
+        /// Calculate a vector with the maximum values of all passed in vectors component-wise.
+        /// </summary>
+        /// <param name="vectors">The vectors to consider.</param>
+        /// <returns>A vector with components equal to the maximum component of each passed vector.</returns>
+        public static Vector3 Max(params Vector3[] vectors)
         {
-            xMax = MathUtil.MaxSelector(vectors, v => v.x);
-            yMax = MathUtil.MaxSelector(vectors, v => v.y);
-            zMax = MathUtil.MaxSelector(vectors, v => v.z);
+            if (vectors.Length == 0)
+                return Vector3.zero;
+
+            var max = vectors[0];
+
+            for (int i = 1; i < vectors.Length; i++)
+            {
+                var vector = vectors[i];
+
+                if (vector.x > max.x)
+                    max.x = vector.x;
+                if (vector.y > max.y)
+                    max.y = vector.y;
+                if (vector.z > max.z)
+                    max.z = vector.z;
+            }
+
+            return max;
         }
 
-        public static void MinMax(
-            out float xMin,
-            out float xMax,
-            out float yMin,
-            out float yMax,
-            out float zMin,
-            out float zMax,
-            params Vector3[] vectors
-        )
+        /// <inheritdoc cref="Min(Vector3[])"/>
+        public static Vector3Int Min(params Vector3Int[] vectors)
         {
-            MathUtil.MinMax(out xMin, out xMax, vectors, v => v.x, v => v.x);
-            MathUtil.MinMax(out yMin, out yMax, vectors, v => v.y, v => v.y);
-            MathUtil.MinMax(out zMin, out zMax, vectors, v => v.z, v => v.z);
+            if (vectors.Length == 0)
+                return Vector3Int.zero;
+
+            var min = vectors[0];
+
+            for (int i = 1; i < vectors.Length; i++)
+            {
+                var vector = vectors[i];
+
+                if (vector.x < min.x)
+                    min.x = vector.x;
+                if (vector.y < min.y)
+                    min.y = vector.y;
+                if (vector.z < min.z)
+                    min.z = vector.z;
+            }
+
+            return min;
         }
 
-        public static void MinMax(
-            out float xMin,
-            out float xMax,
-            out float yMin,
-            out float yMax,
-            out float zMin,
-            out float zMax,
-            IReadOnlyList<Vector3> vectors
-        )
+        /// <inheritdoc cref="Max(Vector3[])"/>
+        public static Vector3Int Max(params Vector3Int[] vectors)
         {
-            MathUtil.MinMax(out xMin, out xMax, vectors, v => v.x, v => v.x);
-            MathUtil.MinMax(out yMin, out yMax, vectors, v => v.y, v => v.y);
-            MathUtil.MinMax(out zMin, out zMax, vectors, v => v.z, v => v.z);
+            if (vectors.Length == 0)
+                return Vector3Int.zero;
+
+            var max = vectors[0];
+
+            for (int i = 1; i < vectors.Length; i++)
+            {
+                var vector = vectors[i];
+
+                if (vector.x > max.x)
+                    max.x = vector.x;
+                if (vector.y > max.y)
+                    max.y = vector.y;
+                if (vector.z > max.z)
+                    max.z = vector.z;
+            }
+
+            return max;
         }
 
         public static void MinMax<T>(
-            out float xMin,
-            out float xMax,
-            out float yMin,
-            out float yMax,
-            out float zMin,
-            out float zMax,
+            out Vector3Int min,
+            out Vector3Int max,
             IReadOnlyList<T> list,
-            Func<T, Vector3> minSelector,
-            Func<T, Vector3> maxSelector
+            Func<T, Vector3Int> minSelector,
+            Func<T, Vector3Int> maxSelector
         )
         {
-            if (list.Count == 0)
-            {
-                xMin = xMax = yMin = yMax = zMin = zMax = -1;
-
-                return;
-            }
-
-            xMin = minSelector(list[0]).x;
-            xMax = maxSelector(list[0]).x;
-            yMin = minSelector(list[0]).y;
-            yMax = maxSelector(list[0]).y;
-            zMin = minSelector(list[0]).z;
-            zMax = maxSelector(list[0]).z;
+            min = minSelector(list[0]);
+            max = maxSelector(list[0]);
 
             for (int i = 1; i < list.Count; i++)
             {
-                float xMinCandidate = minSelector(list[i]).x;
-                float xMaxCandidate = maxSelector(list[i]).x;
-                float yMinCandidate = minSelector(list[i]).y;
-                float yMaxCandidate = maxSelector(list[i]).y;
-                float zMinCandidate = minSelector(list[i]).z;
-                float zMaxCandidate = maxSelector(list[i]).z;
+                var currentMin = minSelector(list[i]);
+                var currentMax = maxSelector(list[i]);
 
-                if (xMinCandidate < xMin)
-                    xMin = xMinCandidate;
-                if (xMaxCandidate > xMax)
-                    xMax = xMaxCandidate;
+                if (currentMin.x < min.x)
+                    min.x = currentMin.x;
+                if (currentMin.y < min.y)
+                    min.y = currentMin.y;
+                if (currentMin.z < min.z)
+                    min.z = currentMin.z;
 
-                if (yMinCandidate < yMin)
-                    yMin = yMinCandidate;
-                if (yMaxCandidate > yMax)
-                    yMax = yMaxCandidate;
-
-                if (zMinCandidate < zMin)
-                    zMin = zMinCandidate;
-                if (zMaxCandidate > zMax)
-                    zMax = zMaxCandidate;
+                if (currentMax.x > max.x)
+                    max.x = currentMax.x;
+                if (currentMax.y > max.y)
+                    max.y = currentMax.y;
+                if (currentMax.z > max.z)
+                    max.z = currentMax.z;
             }
+        }
+
+        /// <summary>
+        /// Get the axis direction most aligned with this vector.
+        /// </summary>
+        /// <param name="vector">The vector to calculate with.</param>
+        /// <returns>The most aligned axis.</returns>
+        public static Vector3 GetMostAlignedAxis(this Vector3 vector)
+        {
+            var normalized = vector.normalized;
+
+            float absX = Mathf.Abs(normalized.x);
+            float absY = Mathf.Abs(normalized.y);
+            float absZ = Mathf.Abs(normalized.z);
+
+            if (absX > absY && absX > absZ)
+                return normalized.x > 0 ? Vector3.right : Vector3.left;
+            else if (absY > absX && absY > absZ)
+                return normalized.y > 0 ? Vector3.up : Vector3.down;
+            else
+                return normalized.z > 0 ? Vector3.forward : Vector3.back;
         }
     }
 }

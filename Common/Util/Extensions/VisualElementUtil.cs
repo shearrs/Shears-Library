@@ -1,3 +1,4 @@
+using Shears.Logging;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -5,33 +6,48 @@ namespace Shears
 {
     public static class VisualElementUtil
     {
+        /// <summary>
+        /// Add a <see cref="StyleSheet"/> to a <see cref="VisualElement"/>.
+        /// </summary>
+        /// <param name="element">The element to style.</param>
+        /// <param name="styleSheet">The <see cref="StyleSheet"/> to add.</param>
         public static void AddStyleSheet(this VisualElement element, StyleSheet styleSheet)
         {
             if (styleSheet == null)
             {
-                Debug.LogWarning($"Style sheet is null for {element.name}!");
+                SHLogger.LogWarning($"Style sheet is null for {element.name}!");
                 return;
             }
 
             element.styleSheets.Add(styleSheet);
         }
 
-        public static void AddStyleSheetFromPath(this VisualElement element, string path)
+        /// <summary>
+        /// Add a <see cref="StyleSheet"/> from a resource path.
+        /// </summary>
+        /// <param name="element">The element to style.</param>
+        /// <param name="path">The resource path to load the <see cref="StyleSheet"/> from.</param>
+        public static void AddStyleSheet(this VisualElement element, string path)
         {
             var styleSheet = Resources.Load<StyleSheet>(path);
 
             if (styleSheet == null)
             {
-                Debug.LogWarning($"Style sheet for {element.name} not found at path: {path}");
+                SHLogger.LogWarning($"Style sheet for {element.name} not found at path: {path}");
                 return;
             }
 
             element.AddStyleSheet(styleSheet);
         }
 
-        public static void AddAll(this VisualElement element, params VisualElement[] elements)
+        /// <summary>
+        /// Add a variable amount of <see cref="VisualElement"/>s to a <see cref="VisualElement"/>.
+        /// </summary>
+        /// <param name="element">The parent to add to.</param>
+        /// <param name="children">The children to add.</param>
+        public static void AddAll(this VisualElement element, params VisualElement[] children)
         {
-            foreach (var elem in elements)
+            foreach (var elem in children)
                 element.Add(elem);
         }
 
@@ -40,7 +56,7 @@ namespace Shears
         /// </summary>
         /// <param name="element">The element to pad.</param>
         /// <param name="padding">The amount of padding for all sides.</param>
-        public static void SetAllPadding(this VisualElement element, int padding)
+        public static void SetAllPadding(this VisualElement element, StyleLength padding)
         {
             element.style.paddingTop = padding;
             element.style.paddingBottom = padding;
@@ -58,10 +74,10 @@ namespace Shears
         /// <param name="paddingLeft">The amount of left padding.</param>
         public static void SetAllPadding(
             this VisualElement element,
-            int paddingTop,
-            int paddingRight,
-            int paddingBottom,
-            int paddingLeft
+            StyleLength paddingTop,
+            StyleLength paddingRight,
+            StyleLength paddingBottom,
+            StyleLength paddingLeft
         )
         {
             element.style.paddingTop = paddingTop;
@@ -75,7 +91,7 @@ namespace Shears
         /// </summary>
         /// <param name="element">The element to set borders for.</param>
         /// <param name="border">The size of borders in pixels.</param>
-        public static void SetAllBorders(this VisualElement element, int border)
+        public static void SetAllBorders(this VisualElement element, StyleFloat border)
         {
             element.style.borderTopWidth = border;
             element.style.borderBottomWidth = border;
@@ -101,7 +117,7 @@ namespace Shears
         /// </summary>
         /// <param name="element">The element to set border radius for.</param>
         /// <param name="radius">The radius to make the border.</param>
-        public static void SetAllBorderRadius(this VisualElement element, float radius)
+        public static void SetAllBorderRadii(this VisualElement element, StyleLength radius)
         {
             element.style.borderTopLeftRadius = radius;
             element.style.borderTopRightRadius = radius;
@@ -114,7 +130,7 @@ namespace Shears
         /// </summary>
         /// <param name="element">The element to set margins for.</param>
         /// <param name="margin">The size of margins in pixels.</param>
-        public static void SetAllMargins(this VisualElement element, int margin)
+        public static void SetAllMargins(this VisualElement element, StyleLength margin)
         {
             element.style.marginTop = margin;
             element.style.marginBottom = margin;
@@ -129,10 +145,10 @@ namespace Shears
         /// <param name="margin">The size of margins in pixels.</param>
         public static void SetAllMargins(
             this VisualElement element,
-            int marginTop,
-            int marginRight,
-            int marginBottom,
-            int marginLeft
+            StyleLength marginTop,
+            StyleLength marginRight,
+            StyleLength marginBottom,
+            StyleLength marginLeft
         )
         {
             element.style.marginTop = marginTop;

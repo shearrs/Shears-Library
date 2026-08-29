@@ -208,7 +208,7 @@ namespace Shears.Pathfinding.Editor
         {
             foreach (var node in Grid.Nodes)
             {
-                Vector2Int flatPosition = (Vector2Int)node.GridPosition.XY();
+                var flatPosition = (Vector2Int)node.GridPosition.With(z: 0);
 
                 if (nodeHandleRows.TryGetValue(flatPosition, out var row))
                 {
@@ -337,7 +337,7 @@ namespace Shears.Pathfinding.Editor
 
             if (settings.DrawAllDepths)
             {
-                Vector2Int flatPosition = (Vector2Int)node.GridPosition.XY();
+                var flatPosition = (Vector2Int)node.GridPosition.With(z: 0);
 
                 if (!nodeHandleRows.TryGetValue(flatPosition, out var row))
                 {

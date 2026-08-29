@@ -76,7 +76,6 @@
 	background-color: rgba(70, 70, 70, 1);
 	padding-top: 4px;
 	padding-bottom: 4px;
-	margin-top: 4px;
 }
 
 .addComparisonButton

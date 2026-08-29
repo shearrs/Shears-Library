@@ -147,11 +147,6 @@ namespace Shears.Editor
             return root;
         }
 
-        public override void OnInspectorGUI()
-        {
-            VisualElementEditorUtil.CreateDefaultFieldsIMGUI(serializedObject);
-        }
-
         private bool TryGetAttribute(Type type, out CustomWrapperAttribute attribute)
         {
             attribute = type.GetCustomAttribute<CustomWrapperAttribute>();

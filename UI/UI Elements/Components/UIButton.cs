@@ -28,7 +28,7 @@ namespace Shears.UI
         public bool IsHovered => isHovered.Value;
         public bool Selectable
         {
-            get => selectable;
+            get => selectable.Value;
             set => SetSelectable(value);
         }
 
@@ -43,7 +43,7 @@ namespace Shears.UI
             graphicHandler.BindSelectable(selectable);
             graphicHandler.BindIsFocused(IsFocusedRef);
 
-            if (!selectable)
+            if (!selectable.Value)
                 graphicHandler.InitializeNotSelectable();
         }
 
@@ -86,12 +86,12 @@ namespace Shears.UI
 
         public void BindSelectable(Ref<bool> value)
         {
-            BindRaw(value, SetSelectable);
+            Bind(value, SetSelectable);
         }
 
         public void UnbindSelectable(Ref<bool> value)
         {
-            UnbindRaw(value, SetSelectable);
+            Unbind(value, SetSelectable);
         }
 
         private void OnHoverEnter(HoverEnterEvent evt)
@@ -110,7 +110,7 @@ namespace Shears.UI
         {
             evt.PreventDefault();
 
-            if (!selectable)
+            if (!selectable.Value)
                 return;
 
             isPressed.Value = true;
@@ -130,7 +130,7 @@ namespace Shears.UI
         {
             evt.PreventDefault();
 
-            if (!selectable || clickOnMouseDown)
+            if (!selectable.Value || clickOnMouseDown)
                 return;
 
             OnClickedImplementation();

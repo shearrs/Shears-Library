@@ -1,0 +1,20 @@
+{
+    "name": "Shears.Grids.Editor",
+    "rootNamespace": "Shears.Grids.Editor",
+    "references": [
+        "GUID:b28a31c08beef024d83a7aa1ec3f2f6d",
+        "GUID:b8ce35fbba9686d4a8094487b762ff16",
+        "GUID:b90be03a93cf27d428087b24a38be450"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

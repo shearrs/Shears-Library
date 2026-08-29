@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Shears
 {
-    public static class RectTransformExtensions
+    public static class RectTransformUtil
     {
         // From Alenya: https://discussions.unity.com/t/convert-recttransform-rect-to-rect-world/153391/4
         public static Rect GetWorldRect(this RectTransform transform)

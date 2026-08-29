@@ -1,9 +1,12 @@
 using System.Linq;
+using System.Reflection;
+using Shears.Logging;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Cursor = UnityEngine.UIElements.Cursor;
 
 namespace Shears.Editor
 {
@@ -40,16 +43,18 @@ namespace Shears.Editor
         }
 
         /// <summary>
-        /// Creates a header similar to the Unity default for use in a custom inspector.
+        /// Create a <see cref="Label"/> styled like a default UnityEditor header.
         /// </summary>
-        /// <param name="text">The text in the header.</param>
-        /// <returns>A header <see cref="VisualElement"/>.</returns>
-        public static VisualElement CreateHeader(string text)
+        /// <returns>A header <see cref="Label"/>.</returns>
+        public static Label CreateHeader(string text)
         {
-            var header = new Label(text);
-
-            header.AddStyleSheet(ShearsStyles.InspectorStyles);
-            header.AddToClassList(ShearsStyles.HeaderClass);
+            var header = new Label(text)
+            {
+                name = "Header",
+                style = { unityFontStyleAndWeight = FontStyle.Bold },
+            };
+            header.AddHeaderClass();
+            header.AddBaseFieldLabelClass();
 
             return header;
         }
@@ -58,6 +63,8 @@ namespace Shears.Editor
         /// Iterates through all visible properties of a <see cref="SerializedObject"/> and creates a <see cref="PropertyField"/> for each one.
         /// </summary>
         /// <param name="serializedObject">The <see cref="SerializedObject"/> to create fields for.</param>
+        /// <param name="includeScript">Whether or not to draw the default script field.</param>
+        /// <param name="excludedFields">Names of fields to exclude.</param>
         /// <returns>A <see cref="VisualElement"/> with all default <see cref="PropertyField"/>s for the passed <see cref="SerializedObject"/>.</returns>
         public static VisualElement CreateDefaultFields(
             SerializedObject serializedObject,
@@ -95,67 +102,60 @@ namespace Shears.Editor
             return container;
         }
 
-        public static VisualElement CreateDefaultFields(SerializedProperty serializedProperty)
+        /// <summary>
+        /// Create the default fields for a generic <see cref="SerializedProperty"/>.
+        /// </summary>
+        /// <param name="property">The property to create fields for.</param>
+        /// <param name="excludedFields">Names of fields to exclude.</param>
+        /// <returns>A container <see cref="VisualElement"/> with <see cref="PropertyField"/>s for each field.</returns>
+        public static VisualElement CreateDefaultFields(
+            SerializedProperty property,
+            params string[] excludedFields
+        )
         {
             var container = new VisualElement { name = "Default Fields" };
 
-            var iterator = serializedProperty.Copy();
+            var iterator = property.Copy();
             bool isNext = iterator.Next(true);
 
             if (!isNext)
                 return container;
 
-            int pathIndex = iterator.Copy().propertyPath.Count(c => c == '.');
+            var firstProp = iterator.Copy();
 
-            do
-            {
-                var prop = iterator.Copy();
-                int currentPathIndex = prop.propertyPath.Count(c => c == '.');
+            if (firstProp.depth - 1 != property.depth)
+                return container;
 
-                if (currentPathIndex != pathIndex)
-                    break;
+            var firstField = new PropertyField(firstProp) { name = firstProp.name };
+            firstField.Bind(property.serializedObject);
 
-                var field = new PropertyField(prop) { name = prop.name };
-                field.Bind(prop.serializedObject);
-
-                if (prop.name == "m_Script")
-                    field.SetEnabled(false);
-
-                container.Add(field);
-            } while (iterator.NextVisible(false));
-
-            return container;
-        }
-
-        public static void CreateDefaultFieldsIMGUI(
-            SerializedObject serializedObject,
-            bool includeScript = true
-        )
-        {
-            var iterator = serializedObject.GetIterator();
-            bool isNext = iterator.Next(true);
-
-            if (!isNext)
-                return;
+            container.Add(firstField);
 
             while (iterator.NextVisible(false))
             {
                 var prop = iterator.Copy();
 
-                if (prop.name == "m_Script" && !includeScript)
+                if (prop.depth < firstProp.depth)
+                    break;
+
+                if (excludedFields.Contains(prop.name))
                     continue;
 
-                if (prop.name == "m_Script")
-                    EditorGUI.BeginDisabledGroup(true);
+                var field = new PropertyField(prop) { name = prop.name };
+                field.Bind(prop.serializedObject);
 
-                EditorGUILayout.PropertyField(prop);
-
-                if (prop.name == "m_Script")
-                    EditorGUI.EndDisabledGroup();
+                container.Add(field);
             }
+
+            return container;
         }
 
-        public static VisualElement CreateScriptField(SerializedObject serializedObject)
+        /// <summary>
+        /// Create the default UnityEditor inspector script field.
+        /// </summary>
+        /// <param name="serializedObject">The target <see cref="SerializedObject"/>.</param>
+        /// <returns>A <see cref="PropertyField"/> for the <see cref="Object"/> script field.</returns>
+        public static PropertyField CreateScriptField(SerializedObject serializedObject)
         {
             var scriptProp = serializedObject.FindProperty("m_Script");
             var scriptField = new PropertyField(scriptProp) { name = "m_Script" };
@@ -166,7 +166,12 @@ namespace Shears.Editor
             return scriptField;
         }
 
-        // from user "SisusCo": https://discussions.unity.com/t/add-maximum-window-size-to-advanceddropdown-control/753671/3
+        /// <summary>
+        /// Overload for <see cref="AdvancedDropdown.Show(Rect)"/>. Clamps dropdown height to a max height.
+        /// </summary>
+        /// <param name="dropdown">The dropdown to show.</param>
+        /// <param name="buttonRect">The rect of the dropdown's button.</param>
+        /// <param name="maxHeight">The maximum height of dropdown menu.</param>
         public static void Show(this AdvancedDropdown dropdown, Rect buttonRect, float maxHeight)
         {
             dropdown.Show(buttonRect);
@@ -175,13 +180,13 @@ namespace Shears.Editor
 
             if (window == null)
             {
-                Debug.LogWarning("EditorWindow.focusedWindow was null.");
+                SHLogger.LogWarning("EditorWindow.focusedWindow was null.");
                 return;
             }
 
             if (!string.Equals(window.GetType().Namespace, typeof(AdvancedDropdown).Namespace))
             {
-                Debug.LogWarning(
+                SHLogger.LogWarning(
                     "EditorWindow.focusedWindow "
                         + EditorWindow.focusedWindow.GetType().FullName
                         + " was not in expected namespace."
@@ -198,6 +203,77 @@ namespace Shears.Editor
             window.maxSize = rect.size;
             window.position = rect;
             window.ShowAsDropDown(GUIUtility.GUIToScreenRect(buttonRect), rect.size);
+        }
+
+        /// <summary>
+        /// Set the cursor style when hovered.
+        /// </summary>
+        /// <param name="element">The element to set.</param>
+        /// <param name="cursor">The style of the cursor when hovered.</param>
+        public static void SetCursor(this VisualElement element, MouseCursor cursor)
+        {
+            object objCursor = new Cursor();
+            var fields = typeof(Cursor).GetProperty(
+                "defaultCursorId",
+                BindingFlags.NonPublic | BindingFlags.Instance
+            );
+            fields.SetValue(objCursor, (int)cursor);
+
+            element.style.cursor = new StyleCursor((Cursor)objCursor);
+        }
+
+        /// <summary>
+        /// Adds the default UnityEditor styling for a <see cref="BaseField{T}"/>.
+        /// </summary>
+        /// <param name="element"></param>
+        public static void AddBaseFieldClass(this VisualElement element)
+        {
+            element.AddToClassList(BaseField<Object>.ussClassName);
+        }
+
+        /// <summary>
+        /// Adds the default UnityEditor styling for aligning a <see cref="BaseField{T}"/>.
+        /// </summary>
+        /// <param name="element">The element to style.</param>
+        public static void AddBaseFieldAlignClass(this VisualElement element)
+        {
+            element.AddToClassList(BaseField<Object>.alignedFieldUssClassName);
+        }
+
+        /// <summary>
+        /// Adds the default UnityEngine styling for a <see cref="PropertyField"/> <see cref="Label"/>.
+        /// </summary>
+        /// <param name="element"></param>
+        public static void AddPropertyFieldLabelClass(this VisualElement element)
+        {
+            element.AddToClassList(PropertyField.labelUssClassName);
+        }
+
+        /// <summary>
+        /// Adds the default UnityEditor styling for a <see cref="BaseField{T}"/> <see cref="Label"/>.
+        /// </summary>
+        /// <param name="element">The element to style.</param>
+        public static void AddBaseFieldLabelClass(this VisualElement element)
+        {
+            element.AddToClassList(BaseField<Object>.labelUssClassName);
+        }
+
+        /// <summary>
+        /// Adds the default UnityEditor styling for a <see cref="PropertyField"/>'s input.
+        /// </summary>
+        /// <param name="element">The element to style.</param>
+        public static void AddPropertyFieldInputClass(this VisualElement element)
+        {
+            element.AddToClassList(PropertyField.inputUssClassName);
+        }
+
+        /// <summary>
+        /// Adds the default UnityEditor styling for a header.
+        /// </summary>
+        /// <param name="label">The element to style.</param>
+        public static void AddHeaderClass(this Label label)
+        {
+            label.AddToClassList("unity-header-drawer__label");
         }
     }
 }

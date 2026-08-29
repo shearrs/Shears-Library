@@ -1,113 +1,207 @@
 using System;
-using System.Reflection;
 using UnityEditor;
-using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Shears.Editor
 {
+    /// <summary>
+    /// <see cref="VisualElement"/> for selecting a <see cref="SerializableType"/>.<br/><br/>
+    /// Creates a dropdown display to select all types that either:<br/>
+    /// - Inherit from a specified <see cref="Type"/>, or<br/>
+    /// - Have a specified <see cref="Attribute"/>
+    /// </summary>
     public class TypeSelector : VisualElement
     {
-        public enum SelectionType
-        {
-            Attribute,
-            Inheritance,
-        }
-
+        /// <summary>
+        /// The default <see cref="Type"/> of the selector.
+        /// </summary>
         private readonly SerializableType defaultType;
+
+        /// <summary>
+        /// The <see cref="Type"/> to search for.
+        /// </summary>
         private readonly SerializableType searchType;
-        private readonly SelectionType selectionType;
+
+        /// <summary>
+        /// The mode of the selector.
+        /// </summary>
+        private readonly TypeSelectionMode selectionType;
+
+        /// <summary>
+        /// The selector's property <see cref="Label"/>.
+        /// </summary>
         private readonly Label label;
+
+        /// <summary>
+        /// The selector's dropdown <see cref="Button"/>.
+        /// </summary>
         private readonly Button button;
+
+        /// <summary>
+        /// Whether or not the selector is searchable.
+        /// </summary>
         private readonly bool isSearchable;
+
+        /// <summary>
+        /// The <see cref="GenericMenu"/> implementation (for non-searchable selector).
+        /// </summary>
         private readonly GenericMenu genericMenu;
+
+        /// <summary>
+        /// The <see cref="TypeDropdown"/> implementation (for searchable selector).
+        /// </summary>
         private readonly TypeDropdown typeDropdown;
+
+        /// <summary>
+        /// An optional predicate for deciding if a type should be included.
+        /// </summary>
+        private readonly Func<Type, bool> predicate;
+
+        /// <summary>
+        /// The bound <see cref="SerializableType"/> property.
+        /// </summary>
         private SerializedProperty boundProperty;
 
+        /// <summary>
+        /// Event for when the selected type changes.
+        /// </summary>
         public event Action<SerializableType> TypeChanged;
 
+        /// <summary>
+        /// Create a selector for selecting <see cref="Type"/>s that have a specified <see cref="Attribute"/>.
+        /// </summary>
+        /// <typeparam name="T">The relative <see cref="Type"/> to select.</typeparam>
+        /// <param name="defaultType">The default <see cref="Type"/> for the menu to select.</param>
+        /// <param name="isSearchable">Whether or not the menu will include a search bar.</param>
+        /// <returns>A new <see cref="TypeSelector"/> instance.</returns>
         public static TypeSelector CreateAttributeSelector<T>(
             SerializableType defaultType = null,
-            bool isSearchable = false
+            bool isSearchable = false,
+            Func<Type, bool> predicate = null,
+            string label = "Type"
         )
-            where T : Attribute
-        {
-            var selector = new TypeSelector(
-                SelectionType.Attribute,
-                defaultType,
-                typeof(T),
-                isSearchable
-            );
+            where T : Attribute =>
+            CreateAttributeSelector(typeof(T), defaultType, isSearchable, predicate, label);
 
-            return selector;
-        }
-
-        public static TypeSelector CreateInheritanceSelector<T>(
+        /// <inheritdoc cref="CreateAttributeSelector{T}(SerializableType, bool)"/>
+        /// <param name="type">The relative type to select.</param>
+        public static TypeSelector CreateAttributeSelector(
+            SerializableType type,
             SerializableType defaultType = null,
-            bool isSearchable = false
-        ) => CreateInheritanceSelector(typeof(T), defaultType, isSearchable);
-
-        public static TypeSelector CreateInheritanceSelector(
-            Type type,
-            SerializableType defaultType = null,
-            bool isSearchable = false
+            bool isSearchable = false,
+            Func<Type, bool> predicate = null,
+            string label = "Type"
         )
         {
-            var selector = new TypeSelector(
-                SelectionType.Inheritance,
+            return new TypeSelector(
+                TypeSelectionMode.Attribute,
                 defaultType,
                 type,
-                isSearchable
+                isSearchable,
+                predicate,
+                label
             );
+        }
 
-            return selector;
+        /// <summary>
+        /// Create a selector for selecting <see cref="Type"/> that inherit from a specified <see cref="Type"/>.
+        /// </summary>
+        /// <typeparam name="T">The relative <see cref="Type"/> to select.</typeparam>
+        /// <param name="defaultType">The default <see cref="Type"/> for the menu to select.<see cref=""/></param>
+        /// <param name="isSearchable">Whether or not the menu will include a search bar.</param>
+        /// <returns>A new <see cref="TypeSelector"/> instance.</returns>
+        public static TypeSelector CreateInheritanceSelector<T>(
+            SerializableType defaultType = null,
+            bool isSearchable = false,
+            Func<Type, bool> predicate = null,
+            string label = "Type"
+        ) => CreateInheritanceSelector(typeof(T), defaultType, isSearchable, predicate, label);
+
+        /// <inheritdoc cref="CreateInheritanceSelector{T}(SerializableType, bool)"/>
+        /// <param name="type">The relative <see cref="Type"/> to select.</param>
+        public static TypeSelector CreateInheritanceSelector(
+            SerializableType type,
+            SerializableType defaultType = null,
+            bool isSearchable = false,
+            Func<Type, bool> predicate = null,
+            string label = "Type"
+        )
+        {
+            return new TypeSelector(
+                TypeSelectionMode.Inheritance,
+                defaultType,
+                type,
+                isSearchable,
+                predicate,
+                label
+            );
         }
 
         private TypeSelector(
-            SelectionType selectionType,
+            TypeSelectionMode selectionType,
             SerializableType defaultType,
             SerializableType searchType,
-            bool isSearchable
+            bool isSearchable,
+            Func<Type, bool> predicate,
+            string label
         )
         {
-            defaultType = defaultType ?? SerializableType.Empty;
-
             this.selectionType = selectionType;
-            this.defaultType = defaultType;
+            this.defaultType = defaultType is null ? SerializableType.Empty : defaultType;
             this.searchType = searchType;
             this.isSearchable = isSearchable;
+            this.predicate = predicate;
 
-            var container = new VisualElement() { name = "Type Selector Container" };
+            var container = new VisualElement();
             container.style.flexDirection = FlexDirection.Row;
-            container.SetAllMargins(2, -2, 1, 3);
+            container.style.marginTop = 2;
+            container.style.marginRight = -2;
+            container.style.marginBottom = 1;
+            container.style.marginLeft = 3;
             container.style.overflow = Overflow.Hidden;
             container.style.fontSize = 12;
 
-            label = new Label("Type");
-            label.style.unityTextAlign = TextAnchor.MiddleLeft;
-            label.style.minWidth = 119.8f;
-            label.style.width = Length.Percent(40);
+            if (!string.IsNullOrEmpty(label))
+            {
+                this.label = new(label);
+                this.label.AddBaseFieldLabelClass();
+                this.label.AddPropertyFieldLabelClass();
+                container.Add(this.label);
+            }
 
-            button = new Button(ShowContextMenu)
+            button = new Button(ShowMenu)
             {
                 text =
-                    (defaultType is null || !defaultType.IsValid())
+                    (this.defaultType is null || !this.defaultType.IsValid())
                         ? "None"
-                        : defaultType.PrettyName,
+                        : this.defaultType.PrettyName,
             };
             button.style.flexGrow = 1;
             button.style.marginLeft = StyleKeyword.Auto;
+            button.AddBaseFieldAlignClass();
+
+            container.Add(button);
+            Add(container);
 
             if (!isSearchable)
                 genericMenu = CreateUnsearchableMenu();
             else
-                typeDropdown = CreateSearchableMenu();
-
-            container.AddAll(label, button);
-            Add(container);
+                typeDropdown = new(
+                    selectionType,
+                    searchType,
+                    this.defaultType,
+                    SetType,
+                    this.predicate,
+                    new()
+                );
         }
 
+        /// <summary>
+        /// Bind a <see cref="SerializedProperty"/> to this menu. Only works with <see cref="SerializableType"/> properties. Causes the selected type to be applied to the property.
+        /// </summary>
+        /// <param name="prop">The property to bind.</param>
+        /// <param name="initializeType">Whether or not the menu should initialize the property to be the default type.</param>
         public void BindProperty(SerializedProperty prop, bool initializeType = false)
         {
             if (prop.boxedValue is not SerializableType propValue)
@@ -118,7 +212,7 @@ namespace Shears.Editor
 
             boundProperty = prop;
 
-            if (initializeType && (propValue is null || !propValue.IsValid()))
+            if (initializeType && propValue is null)
             {
                 prop.boxedValue = defaultType;
                 prop.serializedObject.ApplyModifiedProperties();
@@ -126,10 +220,15 @@ namespace Shears.Editor
 
             button.text =
                 (propValue is null || !propValue.IsValid()) ? "None" : propValue.PrettyName;
-            label.text = prop.displayName;
+
+            if (label != null)
+                label.text = prop.displayName.PascalSpace();
         }
 
-        private void ShowContextMenu()
+        /// <summary>
+        /// Show the menu relative to the searchable setting.
+        /// </summary>
+        private void ShowMenu()
         {
             if (!isSearchable)
                 genericMenu.ShowAsContext();
@@ -137,39 +236,21 @@ namespace Shears.Editor
                 typeDropdown.Show(button.worldBound, 300);
         }
 
-        private void TryAddMenuItem(GenericMenu menu, Type type)
-        {
-            var attribute = type.GetCustomAttribute<TypeSelectorItemAttribute>();
-            string path =
-                attribute != null ? attribute.MenuPath : StringUtil.PascalSpace(type.Name);
-
-            menu.AddItem(new GUIContent(path), false, () => SetType(type));
-        }
-
-        private void SetType(SerializableType type)
-        {
-            if (boundProperty != null)
-            {
-                boundProperty.boxedValue = type;
-                boundProperty.serializedObject.ApplyModifiedProperties();
-            }
-
-            button.text = (type is null || !type.IsValid()) ? "None" : type.PrettyName;
-
-            TypeChanged?.Invoke(type);
-        }
-
+        /// <summary>
+        /// Create the <see cref="GenericMenu"/> for unsearchable menus.
+        /// </summary>
+        /// <returns>An unsearchable menu.</returns>
         private GenericMenu CreateUnsearchableMenu()
         {
             var menu = new GenericMenu();
 
             string defaultText =
                 (defaultType is null || !defaultType.IsValid()) ? "None" : defaultType.PrettyName;
-
             menu.AddItem(new GUIContent(defaultText), false, () => SetType(defaultType));
+
             TypeCache.TypeCollection types;
 
-            if (selectionType == SelectionType.Attribute)
+            if (selectionType == TypeSelectionMode.Attribute)
                 types = TypeCache.GetTypesWithAttribute(searchType);
             else
                 types = TypeCache.GetTypesDerivedFrom(searchType);
@@ -179,95 +260,42 @@ namespace Shears.Editor
                 if (type.IsAbstract)
                     continue;
 
+                if (predicate != null && !predicate(type))
+                    continue;
+
                 TryAddMenuItem(menu, type);
             }
 
             return menu;
         }
 
-        private TypeDropdown CreateSearchableMenu()
+        /// <summary>
+        /// Shorthand method for adding an item to the unsearchable menu.
+        /// </summary>
+        /// <param name="menu">The menu to add to.</param>
+        /// <param name="type">The <see cref="Type"/> to add.</param>
+        private void TryAddMenuItem(GenericMenu menu, SerializableType type)
         {
-            var menu = new TypeDropdown(
-                selectionType,
-                searchType,
-                defaultType,
-                SetType,
-                new AdvancedDropdownState()
-            );
+            string path = type.PrettyName;
 
-            return menu;
+            menu.AddItem(new GUIContent(path), false, () => SetType(type));
         }
 
-        private class TypeDropdown : AdvancedDropdown
+        /// <summary>
+        /// Set the selected type..
+        /// </summary>
+        /// <param name="type">The selected <see cref="Type"/>.</param>
+        public void SetType(SerializableType type)
         {
-            private readonly SelectionType selectionType;
-            private readonly SerializableType searchType;
-            private readonly SerializableType defaultType;
-            private readonly Action<SerializableType> setType;
-
-            public TypeDropdown(
-                SelectionType selectionType,
-                SerializableType searchType,
-                SerializableType defaultType,
-                Action<SerializableType> setType,
-                AdvancedDropdownState state
-            )
-                : base(state)
+            if (boundProperty != null)
             {
-                this.selectionType = selectionType;
-                this.searchType = searchType;
-                this.defaultType = defaultType;
-                this.setType = setType;
+                boundProperty.boxedValue = type;
+                boundProperty.serializedObject.ApplyModifiedProperties();
             }
 
-            protected override AdvancedDropdownItem BuildRoot()
-            {
-                var root = new AdvancedDropdownItem($"{searchType.PrettyName}");
-                TypeCache.TypeCollection types;
+            button.text = (type is null | !type.IsValid()) ? "None" : type.PrettyName;
 
-                string defaultText =
-                    (defaultType is null || !defaultType.IsValid())
-                        ? "None"
-                        : defaultType.PrettyName;
-
-                root.AddChild(new TypeItem(defaultText, () => setType(defaultType)));
-
-                if (selectionType == SelectionType.Attribute)
-                    types = TypeCache.GetTypesWithAttribute(searchType);
-                else
-                    types = TypeCache.GetTypesDerivedFrom(searchType);
-
-                foreach (var type in types)
-                {
-                    if (type.IsAbstract)
-                        continue;
-
-                    var attribute = type.GetCustomAttribute<TypeSelectorItemAttribute>();
-                    string path =
-                        attribute != null ? attribute.MenuPath : StringUtil.PascalSpace(type.Name);
-
-                    root.AddChild(new TypeItem(path, () => setType(type)));
-                }
-
-                return root;
-            }
-
-            protected override void ItemSelected(AdvancedDropdownItem item)
-            {
-                if (item is TypeItem typeItem)
-                    typeItem.setType();
-            }
-
-            private class TypeItem : AdvancedDropdownItem
-            {
-                public readonly Action setType;
-
-                public TypeItem(string name, Action setType)
-                    : base(name)
-                {
-                    this.setType = setType;
-                }
-            }
+            TypeChanged?.Invoke(type);
         }
     }
 }

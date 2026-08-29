@@ -41,7 +41,7 @@ namespace Shears.UI
         public bool IsEnabled => isActiveAndEnabled;
         public bool IsFocused
         {
-            get => isFocused;
+            get => isFocused.Value;
             internal set => isFocused.Value = value;
         }
         public IReadOnlyRef<bool> IsFocusedRef => isFocused;
@@ -486,18 +486,7 @@ namespace Shears.UI
         public void Blur() => UIElementEventSystem.Focus(null);
 
         #region Binding Events
-        protected void Bind<T>(IReadOnlyRef<T> refVar, RefChangeEvent<T> action)
-        {
-            if (refBindings.ContainsKey(refVar))
-            {
-                LogWarning($"{nameof(UIElement)} already has binding for ${refVar}!");
-                return;
-            }
-
-            refVar.Bind(action);
-        }
-
-        protected void BindRaw<T>(IReadOnlyRef<T> refVar, Action<T> action)
+        protected void Bind<T>(IReadOnlyRef<T> refVar, Action<T> action)
         {
             if (rawRefBindings.ContainsKey(refVar))
             {
@@ -505,7 +494,7 @@ namespace Shears.UI
                 return;
             }
 
-            refVar.BindRaw(action);
+            refVar.Bind(action);
         }
 
         protected void Unbind()
@@ -519,16 +508,9 @@ namespace Shears.UI
             refBindings.Clear();
         }
 
-        protected void Unbind<T>(IReadOnlyRef<T> refVar, RefChangeEvent<T> action)
+        protected void Unbind<T>(IReadOnlyRef<T> refVar, Action<T> action)
         {
             refVar.Changed -= action;
-
-            refBindings.Remove(refVar);
-        }
-
-        protected void UnbindRaw<T>(IReadOnlyRef<T> refVar, Action<T> action)
-        {
-            refVar.ChangedRaw -= action;
 
             rawRefBindings.Remove(refVar);
         }

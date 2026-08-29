@@ -230,23 +230,11 @@ namespace Shears.Pathfinding
 
             newNodes.Clear();
 
-            VectorUtil.Min(
-                out var xMin,
-                out var yMin,
-                out var zMin,
-                transform.position,
-                grid.transform.position
-            );
+            var (xMin, yMin, zMin) = VectorUtil.Min(transform.position, grid.transform.position);
 
             var maxPos = Nodes.Count > 0 ? Nodes[^1].WorldPosition : transform.position;
 
-            VectorUtil.Max(
-                out var xMax,
-                out var yMax,
-                out var zMax,
-                maxPos,
-                grid.Nodes[^1].WorldPosition
-            );
+            var (xMax, yMax, zMax) = VectorUtil.Max(maxPos, grid.Nodes[^1].WorldPosition);
 
             var newGridSize =
                 new Vector3(xMax - xMin, yMax - yMin, zMax - zMin).RoundToInt() + Vector3Int.one;
@@ -328,8 +316,8 @@ namespace Shears.Pathfinding
             var offsetStart = rangeStart + directionOffset;
             var offsetEnd = rangeEnd + Vector3Int.one + directionOffset;
 
-            VectorUtil.Min(out var xMin, out var yMin, out var zMin, Vector3Int.zero, offsetStart);
-            VectorUtil.Max(out var xMax, out var yMax, out var zMax, GridSize, offsetEnd);
+            var (xMin, yMin, zMin) = VectorUtil.Min(Vector3Int.zero, offsetStart);
+            var (xMax, yMax, zMax) = VectorUtil.Max(GridSize, offsetEnd);
 
             var newGridSize = new Vector3Int(xMax - xMin, yMax - yMin, zMax - zMin);
             var minOffset = new Vector3Int(xMin, yMin, zMin);
@@ -361,7 +349,8 @@ namespace Shears.Pathfinding
                             if (ignoreNodes != null && ignoreNodes.Contains(node))
                             {
                                 if (
-                                    gridPosition.WithinRange(
+                                    VectorUtil.WithinRange(
+                                        gridPosition,
                                         Vector3Int.zero,
                                         gridSize - Vector3Int.one
                                     )
