@@ -178,6 +178,23 @@ namespace Shears.Grids
 #endif
         }
 
+        public GridNode Clone()
+        {
+            var clone = new GridNode(gridPosition);
+            clone.data.Copy(data);
+            clone.nodeObject = nodeObject;
+
+            return clone;
+        }
+
+        public void DrawHandles(ShearsGrid grid)
+        {
+            var context = new GridNodeHandleContext(grid, GridPosition, grid.NodeSize);
+
+            foreach (var nodeData in data.Data)
+                nodeData.DrawHandles(context);
+        }
+
         private void SetGridPosition(Vector3Int gridPosition)
         {
             this.gridPosition = gridPosition;

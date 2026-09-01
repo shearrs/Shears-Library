@@ -4,12 +4,9 @@ using UnityEngine;
 
 namespace Shears.Grids
 {
-    public class ShearsGrid : MonoBehaviour, ISHLoggable
+    public class ShearsGrid : ShearsBehaviour
     {
-        [field: Header("Logging")]
-        [field: SerializeField]
-        public SHLogLevels LogLevels { get; set; } = SHLogUtil.Default;
-
+        [Header("Grid Settings")]
         [SerializeField]
         private Vector3Int size = Vector3Int.one;
 
@@ -31,6 +28,7 @@ namespace Shears.Grids
         }
         public Vector3 MinExtent => transform.position;
         public Vector3 MaxExtent => nodes.Count > 0 ? GetWorldPosition(nodes[^1]) : MinExtent;
+        public Vector3Int MinGridExtent => Vector3Int.zero;
         public Vector3Int MaxGridExtent =>
             nodes.Count > 0 ? nodes[^1].GridPosition : Vector3Int.zero;
         public IReadOnlyList<GridNode> Nodes => nodes;
@@ -54,6 +52,24 @@ namespace Shears.Grids
             return nodes[index];
         }
 
+        public bool TryGetNodeForWorldPosition(Vector3 worldPosition, out GridNode node)
+        {
+            var localPosition = transform.InverseTransformPoint(worldPosition);
+            var gridPosition = localPosition.RoundToInt();
+
+            return TryGetNode(gridPosition, out node);
+        }
+
+        public GridNode GetNodeForWorldPosition(Vector3 worldPosition)
+        {
+            var localPosition = transform.InverseTransformPoint(worldPosition);
+            var gridPosition = localPosition.RoundToInt();
+
+            int index = GetNodeIndex(gridPosition);
+
+            return nodes[index];
+        }
+
         public Vector3 GetWorldPosition(GridNode node)
         {
             return transform.TransformPoint(nodeSize * (Vector3)node.GridPosition);
@@ -72,6 +88,80 @@ namespace Shears.Grids
         public int GetNodeIndex(Vector3Int gridPosition)
         {
             return (gridPosition.z * size.y * size.x) + (gridPosition.y * size.x) + gridPosition.x;
+        }
+
+        public void InsertGrid(ShearsGrid grid, List<GridNode> clonedNodes = null)
+        {
+            clonedNodes?.Clear();
+
+            if (grid.Nodes.Count == 0)
+            {
+                LogWarning("Grid has no nodes to add!");
+                return;
+            }
+
+            CollectionUtil.GetPooled(out List<GridNode> newNodes);
+
+            var min = VectorUtil.Min(MinExtent, grid.MinExtent);
+            var max = VectorUtil.Max(MaxExtent, grid.MaxExtent);
+
+            var newGridSize = (max - min).RoundToInt() + Vector3Int.one;
+            var previousPosition = transform.position;
+
+            transform.position = min;
+
+            var offset = transform.position - previousPosition;
+
+            for (int z = 0; z < newGridSize.z; z++)
+            {
+                for (int y = 0; y < newGridSize.y; y++)
+                {
+                    for (int x = 0; x < newGridSize.x; x++)
+                    {
+                        var gridPosition = new Vector3Int(x, y, z);
+                        var worldPosition = new Vector3(
+                            min.x + x * nodeSize,
+                            min.y + y * nodeSize,
+                            min.z + z * nodeSize
+                        );
+                        bool currentGridNode = false;
+
+                        grid.TryGetNodeForWorldPosition(worldPosition, out var node);
+
+                        if (size.sqrMagnitude > 0 && (node == null || node.DataCount == 0))
+                            currentGridNode = TryGetNodeForWorldPosition(
+                                worldPosition + offset,
+                                out node
+                            );
+
+                        if (node == null)
+                            node = new(gridPosition);
+                        else
+                        {
+                            if (!currentGridNode)
+                            {
+                                node = node.Clone();
+                                clonedNodes?.Add(node);
+                            }
+
+                            node.GridPosition = gridPosition;
+                        }
+
+                        if (node.NodeObject != null)
+                        {
+                            node.NodeObject.Grid = this;
+                            node.NodeObject.GridPosition = gridPosition;
+                        }
+
+                        newNodes.Add(node);
+                    }
+                }
+            }
+
+            size = newGridSize;
+            nodes.Clear();
+            nodes.AddRange(newNodes);
+            CollectionUtil.ReleasePooled(newNodes);
         }
 
         public void SetNode(Vector3 worldPosition, GridNode node) =>
@@ -238,22 +328,17 @@ namespace Shears.Grids
             var currentMin = Vector3Int.zero;
             var currentMax = MaxGridExtent;
 
-            var minX = Mathf.Min(minBounds.x, currentMin.x);
-            var minY = Mathf.Min(minBounds.y, currentMin.y);
-            var minZ = Mathf.Min(minBounds.z, currentMin.z);
-            var maxX = Mathf.Max(maxBounds.x, currentMax.x);
-            var maxY = Mathf.Max(maxBounds.y, currentMax.y);
-            var maxZ = Mathf.Max(maxBounds.z, currentMax.z);
+            var min = VectorUtil.Min(minBounds, currentMin);
+            var max = VectorUtil.Max(maxBounds, currentMax);
 
-            var newMin = new Vector3Int(minX, minY, minZ);
-            var newMax = new Vector3Int(maxX, maxY, maxZ);
-
-            return Resize(newMin, newMax);
+            return Resize(min, max);
         }
 
         private Vector3Int Resize(Vector3Int min, Vector3Int max)
         {
             if (min == Vector3Int.zero && nodes.Count > 0 && max == nodes[^1].GridPosition)
+                return Vector3Int.zero;
+            else if (min == Vector3Int.zero && max == Vector3Int.zero)
                 return Vector3Int.zero;
 
             CollectionUtil.GetPooled(out List<GridNode> newNodes);

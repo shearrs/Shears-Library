@@ -147,6 +147,8 @@ namespace Shears.Grids.Editor
                         Handles.DrawWireCube(localPosition, size);
                     }
 
+                    node.DrawHandles(Grid);
+
                     break;
             }
         }
@@ -268,6 +270,7 @@ namespace Shears.Grids.Editor
 
                     Handles.color = color;
                     Handles.DrawWireCube(localPosition, size);
+                    node.DrawHandles(Grid);
 
                     break;
             }

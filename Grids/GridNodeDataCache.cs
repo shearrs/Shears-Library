@@ -23,6 +23,7 @@ namespace Shears.Grids
         }
 #endif
 
+        public IReadOnlyList<GridNodeData> Data => data;
         public int DataCount => data.Count;
 
         public GridNodeDataCache() { }

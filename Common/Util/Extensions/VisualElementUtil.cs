@@ -91,7 +91,7 @@ namespace Shears
         /// </summary>
         /// <param name="element">The element to set borders for.</param>
         /// <param name="border">The size of borders in pixels.</param>
-        public static void SetAllBorders(this VisualElement element, StyleFloat border)
+        public static void SetAllBorderWidths(this VisualElement element, StyleFloat border)
         {
             element.style.borderTopWidth = border;
             element.style.borderBottomWidth = border;
@@ -113,7 +113,7 @@ namespace Shears
         }
 
         /// <summary>
-        /// Shorthand function for setting all border radius on a <see cref="VisualElement"/>.
+        /// Shorthand function for setting all border radii on a <see cref="VisualElement"/>.
         /// </summary>
         /// <param name="element">The element to set border radius for.</param>
         /// <param name="radius">The radius to make the border.</param>
@@ -123,6 +123,25 @@ namespace Shears
             element.style.borderTopRightRadius = radius;
             element.style.borderBottomLeftRadius = radius;
             element.style.borderBottomRightRadius = radius;
+        }
+
+        /// <inheritdoc cref="SetAllBorderRadii(VisualElement, StyleLength)"/>
+        /// <param name="top">The top radius.</param>
+        /// <param name="right">The right radius.</param>
+        /// <param name="bottom">The bottom radius.</param>
+        /// <param name="left">The left radius.</param>
+        public static void SetAllBorderRadii(
+            this VisualElement element,
+            StyleLength top,
+            StyleLength right,
+            StyleLength bottom,
+            StyleLength left
+        )
+        {
+            element.style.borderTopLeftRadius = top;
+            element.style.borderTopRightRadius = right;
+            element.style.borderBottomLeftRadius = bottom;
+            element.style.borderBottomRightRadius = left;
         }
 
         /// <summary>

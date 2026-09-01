@@ -102,12 +102,41 @@ namespace Shears
 
         public static void GetPooled<T>(out List<T> list)
         {
-            list = ListPool<T>.Get();
+            ListPool<T>.Get(out list);
         }
 
         public static void ReleasePooled<T>(List<T> list)
         {
+            if (list == null)
+                return;
+
             ListPool<T>.Release(list);
+        }
+
+        public static void GetPooled<TKey, TValue>(out Dictionary<TKey, TValue> dictionary)
+        {
+            DictionaryPool<TKey, TValue>.Get(out dictionary);
+        }
+
+        public static void ReleasePooled<TKey, TValue>(Dictionary<TKey, TValue> dictionary)
+        {
+            if (dictionary == null)
+                return;
+
+            DictionaryPool<TKey, TValue>.Release(dictionary);
+        }
+
+        public static void GetPooled<T>(out HashSet<T> set)
+        {
+            HashSetPool<T>.Get(out set);
+        }
+
+        public static void ReleasePooled<T>(HashSet<T> set)
+        {
+            if (set == null)
+                return;
+
+            HashSetPool<T>.Release(set);
         }
     }
 }

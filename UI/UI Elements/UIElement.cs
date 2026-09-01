@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Shears.UI
 {
     [DisallowMultipleComponent]
-    public class UIElement : SHMonoBehaviourLogger, IColorTweenable
+    public class UIElement : ShearsBehaviour, IColorTweenable
     {
         #region Variables
         [Header("UIElement")]

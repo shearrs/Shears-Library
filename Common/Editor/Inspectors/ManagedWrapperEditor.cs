@@ -85,6 +85,9 @@ namespace Shears.Editor
                     var displayFieldsContainer = new VisualElement();
                     RemoveChildWithName("m_Script", wrappedFields);
 
+                    var header = VisualElementEditorUtil.CreateHeader("Wrapped Values");
+                    displayFieldsContainer.Add(header);
+
                     for (int i = 0; i < attribute.DisplayFields.Length; i++)
                     {
                         string fieldName = attribute.DisplayFields[i];

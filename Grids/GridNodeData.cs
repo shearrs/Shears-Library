@@ -15,5 +15,12 @@ namespace Shears.Grids
         internal void Dispose() { }
 
         protected virtual void OnDetached() { }
+
+        internal void DrawHandles(GridNodeHandleContext context)
+        {
+            OnDrawHandles(context);
+        }
+
+        protected virtual void OnDrawHandles(GridNodeHandleContext context) { }
     }
 }

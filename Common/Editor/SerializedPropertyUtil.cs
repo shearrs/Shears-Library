@@ -25,9 +25,7 @@ namespace Shears.Editor
         {
             var propertyPaths = serializedProperty.propertyPath.Split('.');
             if (propertyPaths.Length <= 1)
-            {
                 return default;
-            }
 
             var parentSerializedProperty = serializedProperty.serializedObject.FindProperty(
                 propertyPaths.First()
@@ -65,6 +63,18 @@ namespace Shears.Editor
             return parentSerializedProperty;
         }
 
+        /// <summary>
+        /// Get the generic arguments from a generic (as in &lt;T&gt;) <see cref="SerializedProperty"/>.
+        /// </summary>
+        /// <param name="property">The property to read.</param>
+        /// <returns>The collection of generic arguments.</returns>
+        public static Type[] GetGenericArguments(this SerializedProperty property)
+        {
+            var fieldInfo = property.GetFieldInfo();
+
+            return fieldInfo.FieldType.GetGenericArguments();
+        }
+
         public static Type GetCollectionElementType(this SerializedProperty property)
         {
             if (property == null)
@@ -86,50 +96,80 @@ namespace Shears.Editor
             return null;
         }
 
+        /// <summary>
+        /// Get the reflected <see cref="FieldInfo"/> of a <see cref="SerializedProperty"/>.
+        /// </summary>
+        /// <param name="property">The property to read.</param>
+        /// <returns>The property's <see cref="FieldInfo"/>.</returns>
         public static FieldInfo GetFieldInfo(this SerializedProperty property)
         {
             if (property == null)
                 return null;
 
-            Type currentType = property.serializedObject.targetObject.GetType();
+            var targetType = property.serializedObject.targetObject.GetType();
             string[] pathSteps = property.propertyPath.Split('.');
+            var currentProperty = property.serializedObject.FindProperty(pathSteps[0]);
             FieldInfo fieldInfo = null;
 
             for (int i = 0; i < pathSteps.Length; i++)
             {
                 string step = pathSteps[i];
 
-                if (
-                    step == "Array"
-                    && i + 1 < pathSteps.Length
-                    && pathSteps[i + 1].StartsWith("data[")
-                )
+                if (step == "Array")
                 {
-                    if (currentType.IsArray)
-                        currentType = currentType.GetElementType();
-                    else if (
-                        currentType.IsGenericType
-                        && currentType.GetGenericTypeDefinition()
-                            == typeof(System.Collections.Generic.List<>)
-                    )
-                        currentType = currentType.GetGenericArguments()[0];
-
                     i++;
+
+                    if (fieldInfo != null && fieldInfo.FieldType.IsGenericType)
+                        targetType = fieldInfo.FieldType.GetGenericArguments()[0];
+                    else if (fieldInfo != null && fieldInfo.FieldType.IsArray)
+                        targetType = fieldInfo.FieldType.GetElementType();
+
+                    if (currentProperty.arraySize == 0)
+                        currentProperty = null;
+                    else
+                    {
+                        var indexStep = pathSteps[i];
+                        int index = int.Parse(indexStep.Substring(indexStep.IndexOf('[') + 1, 1));
+
+                        currentProperty = currentProperty.GetArrayElementAtIndex(index);
+                    }
 
                     continue;
                 }
 
-                fieldInfo = GetFieldIncludingBaseTypes(currentType, step);
+                if (i > 0 && currentProperty != null)
+                    currentProperty = currentProperty.FindPropertyRelative(step);
 
-                if (fieldInfo == null)
-                    return null;
+                if (
+                    currentProperty != null
+                    && currentProperty.propertyType == SerializedPropertyType.ManagedReference
+                )
+                {
+                    if (currentProperty.managedReferenceValue == null)
+                        return null;
+                    else
+                        targetType = currentProperty.managedReferenceValue.GetType();
+                }
+                else
+                {
+                    fieldInfo = GetFieldIncludingBaseTypes(targetType, step);
 
-                currentType = fieldInfo.FieldType;
+                    if (fieldInfo == null)
+                        return null;
+
+                    targetType = fieldInfo.FieldType;
+                }
             }
 
             return fieldInfo;
         }
 
+        /// <summary>
+        /// Get the reflected <see cref="FieldInfo"/> of a field on a given <see cref="Type"/>.
+        /// </summary>
+        /// <param name="type">The type to search for the field.</param>
+        /// <param name="fieldName">The name of the field to search for.</param>
+        /// <returns>The <see cref="FieldInfo"/> of the passed field.</returns>
         private static FieldInfo GetFieldIncludingBaseTypes(Type type, string fieldName)
         {
             const BindingFlags flags =
@@ -145,6 +185,20 @@ namespace Shears.Editor
                 type = type.BaseType;
             }
             return null;
+        }
+
+        /// <summary>
+        /// Get a custom attribute type from a <see cref="SerializedProperty"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of attribute to get.</typeparam>
+        /// <param name="property">The property to search.</param>
+        /// <returns>The custom attribute if it exists.</returns>
+        public static T GetAttribute<T>(this SerializedProperty property)
+            where T : Attribute
+        {
+            var fieldInfo = property.GetFieldInfo();
+
+            return fieldInfo?.GetCustomAttribute<T>(true);
         }
 
         public static T ReflectProperty<T>(this SerializedProperty serializedProperty, string name)

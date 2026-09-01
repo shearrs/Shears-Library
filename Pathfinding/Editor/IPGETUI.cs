@@ -125,7 +125,7 @@ namespace Shears.Pathfinding.Editor
             root.SetAllPadding(4);
             root.style.backgroundColor = new Color(0.2f, 0.2f, 0.2f, 0.8f);
             root.SetAllBorderColors(new Color(0.1f, 0.1f, 0.1f, 0.8f));
-            root.SetAllBorders(1);
+            root.SetAllBorderWidths(1);
 
             var depthSlider = new SliderInt("Z Depth", 0, Grid.GridSize.z - 1)
             {

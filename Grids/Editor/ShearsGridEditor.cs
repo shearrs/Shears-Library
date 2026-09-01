@@ -2,7 +2,6 @@ using Shears.Editor;
 using UnityEditor;
 using UnityEditor.EditorTools;
 using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Shears.Grids.Editor
@@ -43,14 +42,16 @@ namespace Shears.Grids.Editor
         {
             var root = new VisualElement() { name = "Shears Grid Editor" };
 
+            var logProp = serializedObject.FindProperty("logLevels");
             var sizeProp = serializedObject.FindProperty("size");
 
             ValidateSize(sizeProp);
 
             var scriptField = VisualElementEditorUtil.CreateScriptField(serializedObject);
+            var logField = new PropertyField(logProp);
             var sizeField = new PropertyField(sizeProp);
 
-            root.AddAll(scriptField, sizeField);
+            root.AddAll(scriptField, logField, sizeField);
 
             return root;
         }

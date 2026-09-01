@@ -6,20 +6,29 @@ using UnityEngine;
 namespace Shears
 {
     /// <summary>
-    /// A serializable entry in a <see cref="SerializableDictionaryEntry{TKey, TValue}"/>.
+    /// An entry in a <see cref="SerializableDictionary{TKey, TValue}"/>.
     /// </summary>
-    /// <typeparam name="TKey">The type of the dictionary's keys.</typeparam>
-    /// <typeparam name="TValue">The type of the dictionary's values.</typeparam>
+    /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
+    /// <typeparam name="TValue">The type of the values in the dictionary.</typeparam>
     [Serializable]
     public struct SerializableDictionaryEntry<TKey, TValue>
     {
         [SerializeField]
+        [Tooltip("The key value.")]
         private TKey key;
 
         [SerializeField]
+        [Tooltip("The value.")]
         private TValue value;
 
+        /// <summary>
+        /// The key value.
+        /// </summary>
         public readonly TKey Key => key;
+
+        /// <summary>
+        /// The value.
+        /// </summary>
         public readonly TValue Value => value;
 
         public SerializableDictionaryEntry(TKey key, TValue value)
@@ -30,90 +39,50 @@ namespace Shears
     }
 
     /// <summary>
-    /// A serializable dictionary that can be used in the Unity Inspector.
+    /// A serializable version of a standard C# <see cref="Dictionary{TKey, TValue}"/>. Can be used just like a normal dictionary, but compatible with serialization.
     /// </summary>
-    /// <typeparam name="TKey">The type of the dictionary's keys.</typeparam>
-    /// <typeparam name="TValue">The type of the dictionary's values.</typeparam>
+    /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
+    /// <typeparam name="TValue">The type of the values in the dictionary.</typeparam>
     [Serializable]
     public class SerializableDictionary<TKey, TValue>
         : Dictionary<TKey, TValue>,
             ISerializationCallbackReceiver
     {
         [SerializeField]
+        [Tooltip("The entries of this dictionary.")]
         private List<SerializableDictionaryEntry<TKey, TValue>> entries = new();
+
+#if UNITY_EDITOR
+        [SerializeField]
+        [Tooltip("Invalid values in this dictionary.")]
+        private List<SerializableDictionaryEntry<TKey, TValue>> invalidEntries = new();
+#endif
 
         void ISerializationCallbackReceiver.OnBeforeSerialize()
         {
-            for (int i = 0; i < entries.Count; i++)
-            {
-                var entry = entries[i];
-
-                if (entry.Key != null && !ContainsKey(entry.Key))
-                {
-                    entries.Remove(entry);
-                    i--;
-                }
-            }
+            entries.Clear();
 
             foreach (var pair in this)
             {
-                bool hasEntry = false;
-
-                foreach (var entryPair in entries)
-                {
-                    if (EqualityComparer<TKey>.Default.Equals(pair.Key, entryPair.Key))
-                    {
-                        hasEntry = true;
-                        break;
-                    }
-                }
-
-                if (hasEntry)
-                    continue;
-
                 var entry = new SerializableDictionaryEntry<TKey, TValue>(pair.Key, pair.Value);
                 entries.Add(entry);
             }
+
+            entries.AddRange(invalidEntries);
         }
 
         void ISerializationCallbackReceiver.OnAfterDeserialize()
         {
             Clear();
+            invalidEntries.Clear();
 
-            int entryCount = entries.Count;
-
-            for (int i = 0; i < entryCount; i++)
+            foreach (var entry in entries)
             {
-                var entry = entries[i];
                 var key = entry.Key;
 
-                if (key == null)
-                    continue;
-
-                if (ContainsKey(key))
+                if (key == null || ContainsKey(key))
                 {
-                    if (typeof(TKey) == typeof(string))
-                    {
-                        key = (TKey)(Guid.NewGuid().ToString() as object);
-                        entries[i] = new(key, entry.Value);
-                    }
-                    else
-                    {
-                        key = default;
-                        entries[i] = new(key, entry.Value);
-                    }
-                }
-
-                if (key == null)
-                    continue;
-
-                if (ContainsKey(key))
-                {
-                    string keyName = typeof(UnityEngine.Object).IsAssignableFrom(typeof(TKey))
-                        ? "Unity Object"
-                        : key.ToString();
-
-                    Debug.LogWarning($"Dictionary already contains key: {keyName}");
+                    invalidEntries.Add(entry);
                     continue;
                 }
 
@@ -127,7 +96,7 @@ namespace Shears
     /// </summary>
     /// <typeparam name="TKey">The type of the dictionary's keys.</typeparam>
     /// <typeparam name="TValue">The type of the dictionary's values.</typeparam>
-    [System.Serializable]
+    [Serializable]
     public class SerializableReferenceDictionary<TKey, TValue>
         : Dictionary<TKey, TValue>,
             ISerializationCallbackReceiver

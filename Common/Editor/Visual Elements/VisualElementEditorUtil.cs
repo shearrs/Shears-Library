@@ -51,7 +51,7 @@ namespace Shears.Editor
             var header = new Label(text)
             {
                 name = "Header",
-                style = { unityFontStyleAndWeight = FontStyle.Bold },
+                style = { unityFontStyleAndWeight = FontStyle.Bold, marginTop = 13 },
             };
             header.AddHeaderClass();
             header.AddBaseFieldLabelClass();

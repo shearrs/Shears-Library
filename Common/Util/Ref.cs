@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Shears
@@ -14,7 +15,9 @@ namespace Shears
             get => value;
             set
             {
-                var oldValue = this.value;
+                if (EqualityComparer<T>.Default.Equals(this.value, value))
+                    return;
+
                 this.value = value;
 
                 Changed?.Invoke(value);

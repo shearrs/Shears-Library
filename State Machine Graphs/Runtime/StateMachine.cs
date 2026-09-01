@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Shears.StateMachineGraphs
 {
     [DefaultExecutionOrder(-100)]
-    public class StateMachine : SHMonoBehaviourLogger, IParameterProvider
+    public class StateMachine : ShearsBehaviour, IParameterProvider
     {
         [Header("State Machine")]
         [SerializeField]

@@ -13,7 +13,7 @@ namespace Shears
                 return gameObject.AddComponent<T>();
         }
 
-        public static T GetOrAdd<T>(this MonoBehaviour monoBehaviour)
+        public static T GetOrAdd<T>(this Component monoBehaviour)
             where T : Component
         {
             if (monoBehaviour.TryGetComponent(out T component))
@@ -22,7 +22,7 @@ namespace Shears
                 return monoBehaviour.gameObject.AddComponent<T>();
         }
 
-        public static T LazyGet<T>(this MonoBehaviour monoBehaviour, ref T value)
+        public static T LazyGet<T>(this Component monoBehaviour, ref T value)
         {
             value ??= monoBehaviour.GetComponent<T>();
 

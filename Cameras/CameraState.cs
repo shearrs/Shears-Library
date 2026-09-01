@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Shears.Cameras
 {
-    public abstract class CameraState : SHMonoBehaviourLogger
+    public abstract class CameraState : ShearsBehaviour
     {
         protected Transform CameraTransform { get; private set; }
         protected CameraData GlobalData { get; private set; }
