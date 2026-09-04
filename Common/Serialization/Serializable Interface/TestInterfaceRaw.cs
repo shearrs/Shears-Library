@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Shears
 {
     [System.Serializable]
-    public class TestInterfaceRaw : ITestInterface, IInterfaceSerializer
+    public class TestInterfaceRaw : ITestInterface, IInterfaceSerializable
     {
         [SerializeField]
         private string message;
@@ -14,7 +14,7 @@ namespace Shears
         [SerializeReference]
         private InterfaceDictionary __interfaceEntries = new();
 
-        InterfaceDictionary IInterfaceSerializer.InterfaceEntries => __interfaceEntries;
+        InterfaceDictionary IInterfaceSerializable.InterfaceEntries => __interfaceEntries;
 
         public string Message
         {

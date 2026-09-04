@@ -1,23 +1,28 @@
 Shader "Custom/WhiteMask"
 {
+    Properties
+    {
+        _StencilRef ("Stencil Reference", Integer) = 1
+        [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("ZTest", Integer) = 4
+    }
     SubShader
     {
         Tags { "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" }
+
+        ZTest [_ZTest]
+        ZWrite Off
 
         Pass
         {
             Name "StencilMask"
 
             Stencil {
-                Ref 2
-                Comp NotEqual
+                Ref [_StencilRef]
+                Comp Greater
                 Pass Replace
             }
 
             ColorMask 0
-            Cull Off
-            ZWrite Off
-            ZTest LEqual
             Blend Zero One
 
             HLSLPROGRAM
@@ -41,13 +46,13 @@ Shader "Custom/WhiteMask"
         }
         Pass
         {
+            Name "WhiteMask"
+
             Stencil {
-                Ref 2
+                Ref [_StencilRef]
                 Comp Equal
                 Pass Keep
             }
-
-            Name "WhiteMask"
 
             HLSLPROGRAM
             #pragma vertex vert
@@ -60,19 +65,12 @@ Shader "Custom/WhiteMask"
                 float4 positionOS : POSITION;
             };
 
-            struct Varyings
+            float4 vert(Attributes IN) : SV_POSITION
             {
-                float4 positionHCS : SV_POSITION;
-            };
-
-            Varyings vert(Attributes IN)
-            {
-                Varyings OUT;
-                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
-                return OUT;
+                return TransformObjectToHClip(IN.positionOS.xyz);
             }
 
-            float frag(Varyings IN) : SV_Target
+            float frag() : SV_Target
             {
                 return 1.0;
             }

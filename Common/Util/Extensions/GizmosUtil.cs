@@ -77,10 +77,10 @@ namespace Shears
             Gizmos.color = currentColor;
         }
 
-        public static void DrawText(Vector3 position, string text)
+        public static void DrawText(Vector3 position, object text)
         {
 #if UNITY_EDITOR
-            Handles.Label(position, new GUIContent(text), EditorStyles.boldLabel);
+            Handles.Label(position, new GUIContent(text.ToString()), EditorStyles.boldLabel);
 #endif
         }
     }

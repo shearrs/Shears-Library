@@ -1,10 +1,11 @@
-using System.Collections.Generic;
+using System;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Shears.Grids
 {
-    [System.Serializable]
+    [Serializable]
     public class GridNode
     {
 #if UNITY_EDITOR
@@ -45,6 +46,20 @@ namespace Shears.Grids
         }
         public int DataCount => data.DataCount;
 
+        public event Action<NodeUpdateData> Updated;
+
+        public readonly struct NodeUpdateData
+        {
+            public GridNode Node { get; }
+            public GridNodeData Data { get; }
+
+            public NodeUpdateData(GridNode node, GridNodeData data)
+            {
+                Node = node;
+                Data = data;
+            }
+        }
+
         public GridNode() { }
 
         public GridNode(GridNodeDefinition definition)
@@ -68,9 +83,25 @@ namespace Shears.Grids
         }
 
         public T AddData<T>()
-            where T : GridNodeData, new() => data.AddData<T>();
+            where T : GridNodeData, new()
+        {
+            var newData = data.AddData<T>();
 
-        public bool RemoveData<T>() => data.RemoveData<T>();
+            newData.Updated += OnDataUpdated;
+
+            return newData;
+        }
+
+        public bool RemoveData<T>()
+            where T : GridNodeData
+        {
+            if (!data.TryGetData<T>(out var targetData))
+                return false;
+
+            targetData.Updated -= OnDataUpdated;
+
+            return data.RemoveData(targetData);
+        }
 
         public bool TryGetData<T>(out T targetData)
             where T : GridNodeData => data.TryGetData(out targetData);
@@ -201,6 +232,11 @@ namespace Shears.Grids
 
             if (nodeObject != null)
                 nodeObject.GridPosition = gridPosition;
+        }
+
+        private void OnDataUpdated(GridNodeData data)
+        {
+            Updated?.Invoke(new(this, data));
         }
     }
 }

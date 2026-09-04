@@ -9,7 +9,7 @@ namespace Shears.Grids
         public Vector3Int SurfaceGridPosition { get; }
         public Vector3 SurfaceNormal { get; }
         public Direction SurfaceDirection { get; }
-        public bool IsWalkable => surfaceData.IsWalkable;
+        public bool IsWalkable => !surfaceData.IsBlocked;
         public bool IsSlope => surfaceData.IsSlope;
         public SurfaceNodeData.SlopeDirection SlopeDirection => surfaceData.SlopingDirection;
 
@@ -17,6 +17,7 @@ namespace Shears.Grids
             GridNode node,
             Vector3Int gridPosition,
             Vector3 worldPosition,
+            GridNode surfaceNode,
             Vector3Int surfaceGridPosition,
             Vector3 surfaceNormal,
             Direction surfaceDirection,
@@ -28,6 +29,8 @@ namespace Shears.Grids
             SurfaceNormal = surfaceNormal;
             SurfaceDirection = surfaceDirection;
             this.surfaceData = surfaceData;
+
+            RegisterUpdateNode(surfaceNode);
         }
     }
 }

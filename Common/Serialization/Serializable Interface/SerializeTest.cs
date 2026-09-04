@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Shears
 {
-    public class SerializeTest : MonoBehaviour, IInterfaceSerializer
+    public class SerializeTest : MonoBehaviour, IInterfaceSerializable
     {
         [SerializeField]
         private MonoBehaviour normalField;
@@ -19,7 +19,7 @@ namespace Shears
         [SerializeField]
         private InterfaceDictionary __interfaceEntries = new();
 
-        InterfaceDictionary IInterfaceSerializer.InterfaceEntries => __interfaceEntries;
+        InterfaceDictionary IInterfaceSerializable.InterfaceEntries => __interfaceEntries;
 
         [ContextMenu("Test")]
         private void Test()

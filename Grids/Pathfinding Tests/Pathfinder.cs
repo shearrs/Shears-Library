@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using static Shears.Grids.EntityPosition;
 
 namespace Shears.Grids
 {
@@ -9,9 +10,16 @@ namespace Shears.Grids
         private const int DIAGONAL_COST = 14;
 
         [SerializeField]
+        private bool drawGizmos = true;
+
+        [SerializeField]
         private PathGrid grid;
 
-        private IPathEntity entity; // CHANGE TO ENEMY
+        [SerializeField]
+        private IPathEntity entity;
+
+        [SerializeField]
+        private IPathWeightBehaviour weightBehaviour;
 
         private readonly Heap<PathEntry> openSet = new(32);
         private Dictionary<EntityPosition, PathEntry> openSetMap;
@@ -20,6 +28,7 @@ namespace Shears.Grids
         private List<EntityPosition> entityPath;
         private List<PathPosition> path;
         private List<EntityPosition> registeredPositions;
+        private Dictionary<EntityPosition, int> entityPathCountMap;
         private EntityPosition currentTarget;
 
         private bool CanWalkOnWalls => false; // need to get this from the enemy
@@ -58,16 +67,41 @@ namespace Shears.Grids
             CollectionUtil.GetPooled(out entityPath);
             CollectionUtil.GetPooled(out path);
             CollectionUtil.GetPooled(out registeredPositions);
+            CollectionUtil.GetPooled(out entityPathCountMap);
         }
 
         private void OnDestroy()
         {
+            UnregisterPositions();
+
             CollectionUtil.ReleasePooled(openSetMap);
             CollectionUtil.ReleasePooled(closedSet);
             CollectionUtil.ReleasePooled(neighbors);
             CollectionUtil.ReleasePooled(entityPath);
             CollectionUtil.ReleasePooled(path);
             CollectionUtil.ReleasePooled(registeredPositions);
+            CollectionUtil.ReleasePooled(entityPathCountMap);
+        }
+
+        public void RemoveTopPathPosition()
+        {
+            if (path.Count == 0)
+                return;
+
+            var position = path[0];
+            var entityPosition = position.EntityPosition;
+
+            path.RemoveAt(0);
+
+            if (!entityPathCountMap.TryGetValue(entityPosition, out int pathCount))
+                return;
+
+            pathCount--;
+
+            if (pathCount == 0)
+                UnregisterPosition(entityPosition);
+            else
+                entityPathCountMap[entityPosition] = pathCount;
         }
 
         public void CalculatePath(EntityPosition start, EntityPosition target)
@@ -82,68 +116,30 @@ namespace Shears.Grids
                 LogError($"Invalid path request! Start = {start}, Target = {target}.");
                 return;
             }
+
+            currentTarget = target;
+
+            Clear();
+            UpdateEntityPath(start, target);
+            UpdatePath(start);
+            RegisterPositions();
+        }
+
+        private void UpdateEntityPath(EntityPosition start, EntityPosition target)
+        {
+            if (start == null || target == null)
+            {
+                LogWarning($"Invalid path request! Start: {start}, Target: {target}.");
+                return;
+            }
             else if (start == target)
             {
-                path.Clear();
+                currentTarget = target;
 
                 return;
             }
 
-            foreach (var position in registeredPositions)
-                position?.UnregisterEntity(entity);
-
-            registeredPositions.Clear();
-
-            UpdatePath(start, target);
-
-            if (entityPath.Count > 0)
-            {
-                foreach (var position in entityPath)
-                {
-                    position.RegisterEntity(entity);
-                    registeredPositions.Add(position);
-                }
-
-                var initialTarget = entityPath[0];
-
-                if (
-                    initialTarget is SurfaceEntityPosition initialSurface
-                    && start is SurfaceEntityPosition startSurface
-                )
-                {
-                    if (startSurface.IsSlope)
-                    {
-                        var slopeOffset = GetSlopeOffset(startSurface, 0.01f);
-                        var slopePosition = startSurface.WorldPosition;
-                        var connectingPosition = slopePosition + slopeOffset;
-                        var targetSurface = initialSurface.WorldPosition;
-                        var currentSqrDistance = (targetSurface - EntityPosition).sqrMagnitude;
-                        var sqrSlopeDistance = (targetSurface - slopePosition).sqrMagnitude;
-                        var sqrConnectingDistance = (
-                            targetSurface - connectingPosition
-                        ).sqrMagnitude;
-
-                        if (sqrSlopeDistance < currentSqrDistance)
-                        {
-                            path.Add(new(slopePosition, startSurface.SurfaceNormal));
-                            path.Add(new(connectingPosition, startSurface.SurfaceNormal));
-                        }
-                        else if (sqrConnectingDistance < currentSqrDistance)
-                            path.Add(new(connectingPosition, startSurface.SurfaceNormal));
-                    }
-                }
-            }
-        }
-
-        private void UpdatePath(EntityPosition start, EntityPosition target)
-        {
             PathEntry fallbackTarget = null;
-
-            entityPath.Clear();
-            path.Clear();
-            openSet.Clear();
-            openSetMap.Clear();
-            closedSet.Clear();
 
             var startEntry = new PathEntry(start);
             openSet.Enqueue(startEntry);
@@ -174,7 +170,7 @@ namespace Shears.Grids
                 )
                 {
                     if (
-                        grid.TryGetGroundPosition(
+                        grid.TryGetSurfacePosition(
                             doorData.ConnectedGridPosition,
                             out var doorPosition
                         )
@@ -218,6 +214,62 @@ namespace Shears.Grids
                 RetracePath(startEntry, fallbackTarget);
             else
                 entityPath.Clear();
+        }
+
+        private void UpdatePath(EntityPosition start)
+        {
+            if (entityPath.Count == 0)
+                return;
+
+            var initialTarget = entityPath[0];
+
+            if (
+                initialTarget is SurfaceEntityPosition initialSurface
+                && start is SurfaceEntityPosition startSurface
+            )
+            {
+                if (startSurface.IsSlope)
+                {
+                    var slopeOffset = GetSlopeOffset(startSurface, 0.01f);
+                    var slopePosition = startSurface.WorldPosition;
+                    var connectingPosition = slopePosition + slopeOffset;
+                    var targetSurface = initialSurface.WorldPosition;
+                    var currentSqrDistance = (targetSurface - EntityPosition).sqrMagnitude;
+                    var sqrSlopeDistance = (targetSurface - slopePosition).sqrMagnitude;
+                    var sqrConnectingDistance = (targetSurface - connectingPosition).sqrMagnitude;
+
+                    if (sqrSlopeDistance < currentSqrDistance)
+                    {
+                        AddPathPosition(new(start, slopePosition, startSurface.SurfaceNormal));
+                        AddPathPosition(new(start, connectingPosition, startSurface.SurfaceNormal));
+                    }
+                    else if (sqrConnectingDistance < currentSqrDistance)
+                        AddPathPosition(new(start, connectingPosition, startSurface.SurfaceNormal));
+                }
+
+                if (startSurface.SurfaceDirection != initialSurface.SurfaceDirection)
+                {
+                    if (startSurface.SurfaceGridPosition == initialSurface.SurfaceGridPosition)
+                    {
+                        var bridgingOffset = GetBridgingOffset(startSurface);
+                        AddPathPosition(
+                            new(
+                                initialTarget,
+                                initialSurface.WorldPosition + bridgingOffset,
+                                initialSurface.SurfaceNormal
+                            )
+                        );
+                    }
+                }
+            }
+
+            for (int i = 0; i < entityPath.Count; i++)
+            {
+                var current = entityPath[i];
+                var previous = i == 0 ? start : entityPath[i - 1];
+
+                CreatePathPositions(previous, current);
+            }
         }
 
         private void RetracePath(PathEntry startEntry, PathEntry targetEntry)
@@ -375,10 +427,11 @@ namespace Shears.Grids
                 return CARDINAL_COST;
         }
 
-        // TODO: replace with weight behaviour
         private int GetWeight(EntityPosition currentPosition, EntityPosition targetPosition)
         {
-            return 0;
+            weightBehaviour ??= new DefaultWeightBehaviour();
+
+            return weightBehaviour.GetWeight(new(currentPosition, targetPosition, entity));
         }
 
         private Vector3 GetBridgingOffset(SurfaceEntityPosition previousPosition)
@@ -398,6 +451,224 @@ namespace Shears.Grids
                 SurfaceNodeData.SlopeDirection.DownRight => new Vector3(nodeSize, -nodeSize, 0),
                 _ => Vector3.zero,
             };
+        }
+
+        private void CreatePathPositions(
+            EntityPosition previousPosition,
+            EntityPosition currentPosition
+        )
+        {
+            if (currentPosition is not SurfaceEntityPosition currentSurface)
+            {
+                AddPathPosition(
+                    new(
+                        currentPosition,
+                        currentPosition.WorldPosition,
+                        grid.transform.TransformDirection(Vector3.up)
+                    )
+                );
+                return;
+            }
+
+            if (previousPosition is not SurfaceEntityPosition previousSurface)
+            {
+                AddPathPosition(
+                    new(currentPosition, currentSurface.WorldPosition, currentSurface.SurfaceNormal)
+                );
+                return;
+            }
+
+            if (!currentSurface.IsSlope)
+            {
+                if (previousSurface.IsSlope)
+                {
+                    var slopeOffset = GetSlopeOffset(previousSurface, 0.01f);
+                    var slopePosition = previousSurface.WorldPosition + slopeOffset;
+
+                    AddPathPosition(
+                        new(previousPosition, slopePosition, previousSurface.SurfaceNormal)
+                    );
+                }
+                else if (previousSurface.SurfaceDirection != currentSurface.SurfaceDirection)
+                {
+                    if (previousSurface.SurfaceGridPosition == currentSurface.SurfaceGridPosition)
+                    {
+                        var bridgingOffset = GetBridgingOffset(previousSurface);
+                        AddPathPosition(
+                            new(
+                                currentPosition,
+                                currentSurface.WorldPosition + bridgingOffset,
+                                currentSurface.SurfaceNormal
+                            )
+                        );
+                    }
+                }
+
+                AddPathPosition(
+                    new(currentPosition, currentSurface.WorldPosition, currentSurface.SurfaceNormal)
+                );
+                return;
+            }
+
+            var offset = GetSlopeOffset(currentSurface);
+
+            if (
+                !previousSurface.IsSlope
+                || previousSurface.SlopeDirection != currentSurface.SlopeDirection
+            )
+                AddPathPosition(
+                    new(
+                        currentPosition,
+                        currentSurface.WorldPosition - offset,
+                        currentSurface.SurfaceNormal
+                    )
+                );
+
+            AddPathPosition(
+                new(currentPosition, currentSurface.WorldPosition, currentSurface.SurfaceNormal)
+            );
+        }
+
+        private void AddPathPosition(PathPosition pathPosition)
+        {
+            var entityPosition = pathPosition.EntityPosition;
+
+            path.Add(pathPosition);
+
+            if (entityPathCountMap.TryGetValue(entityPosition, out int count))
+                entityPathCountMap[entityPosition] = count + 1;
+            else
+                entityPathCountMap[entityPosition] = 1;
+        }
+
+        private void Clear()
+        {
+            UnregisterPositions();
+
+            entityPath.Clear();
+            registeredPositions.Clear();
+            entityPathCountMap.Clear();
+            path.Clear();
+            openSet.Clear();
+            openSetMap.Clear();
+            closedSet.Clear();
+        }
+
+        private void RegisterPositions()
+        {
+            foreach (var position in entityPath)
+            {
+                position.RegisterEntity(entity);
+                position.Updated += OnPositionUpdated;
+                registeredPositions.Add(position);
+            }
+        }
+
+        private void UnregisterPositions()
+        {
+            if (registeredPositions == null)
+                return;
+
+            for (int i = 0; i < registeredPositions.Count; i++)
+                UnregisterPosition(registeredPositions[0]);
+        }
+
+        private void UnregisterPosition(EntityPosition position)
+        {
+            if (position == null)
+                return;
+
+            position.UnregisterEntity(entity);
+            registeredPositions.Remove(position);
+            entityPathCountMap.Remove(position);
+        }
+
+        private void OnPositionUpdated(EntityPositionUpdateData data)
+        {
+            if (currentTarget == null)
+            {
+                UnregisterPositions();
+                return;
+            }
+
+            if (data.Data is not PathNodeData pathData)
+                return;
+
+            if (pathData.IsBlocked)
+            {
+                int target;
+
+                for (target = 0; target < entityPath.Count; target++)
+                {
+                    var position = entityPath[target];
+
+                    if (position == data.Position)
+                        break;
+                }
+
+                while (entityPath.Count > target)
+                {
+                    var position = entityPath[^1];
+
+                    position.UnregisterEntity(entity);
+                    position.Updated -= OnPositionUpdated;
+
+                    entityPath.RemoveAt(entityPath.Count - 1);
+                }
+            }
+            else
+            {
+                var position = entity.EntityPosition;
+
+                // need the ability to get the current position of the entity
+                // CalculatePath(currentPosition, currentTarget);
+            }
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            if (!drawGizmos || grid == null)
+                return;
+
+            Gizmos.color = Color.magenta;
+
+            var offset = 0.5f * grid.NodeSize * grid.transform.up;
+
+            if (grid.TryGetPosition(entity.Position + offset, out var position))
+                Gizmos.DrawWireCube(position.WorldPosition, Vector3.one);
+
+            if (entityPath.Count == 0 || path.Count == 0)
+                return;
+
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireCube(entityPath[^1].WorldPosition, Vector3.one);
+
+            for (int i = 0; i < path.Count; i++)
+            {
+                if (i == path.Count - 1)
+                    break;
+
+                var current = path[i];
+                var nextPosition = path[i + 1];
+
+                if (
+                    current.TryGetData(out DoorwayNodeData doorData)
+                    && nextPosition.GridPosition == doorData.ConnectedGridPosition
+                )
+                    Gizmos.color = Color.yellow.With(a: 0.45f);
+                else
+                    Gizmos.color = Color.red;
+
+                Gizmos.DrawLine(nextPosition.Position, current.Position);
+
+                if (openSetMap.TryGetValue(current.EntityPosition, out var entry))
+                {
+                    int weight =
+                        entry.FCost
+                        + GetWeight(current.EntityPosition, nextPosition.EntityPosition);
+                    GizmosUtil.DrawText(current.Position, weight);
+                }
+            }
         }
     }
 }

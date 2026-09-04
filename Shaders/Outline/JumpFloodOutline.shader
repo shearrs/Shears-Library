@@ -2,8 +2,12 @@ Shader "Hidden/JumpFloodOutline"
 {
     Properties
     {
+        _StencilRef ("Stencil Reference", Integer) = 1
         _OutlineWidth("Outline Width", Float) = 4.0
-        _OutlineColor("Outline Color", Color) = (1, 1, 1, 1)
+        _FirstOutlineColor("Outline Color", Color) = (1, 1, 1, 1)
+        _SecondOutlineColor("Second Outline Color", Color) = (1, 1, 1, 1)
+        _ThirdOutlineColor("Third Outline Color", Color) = (1, 1, 1, 1)
+        _OutlineHardness("Outline Hardness", Range(0, 1)) = 1.0
     }
     SubShader
     {
@@ -120,7 +124,7 @@ Shader "Hidden/JumpFloodOutline"
             Name "Outline"
 
             Stencil {
-                Ref 2
+                Ref [_StencilRef]
                 Comp NotEqual
                 Pass Zero
                 Fail Zero
@@ -132,10 +136,18 @@ Shader "Hidden/JumpFloodOutline"
             #pragma vertex Vert
             #pragma fragment Frag
 
+            #pragma multi_compile_local _ IGNORE_DEPTH
+            #pragma multi_compile_local _ SECOND_COLOR THIRD_COLOR
+
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
 
-            float4 _OutlineColor;
+            CBUFFER_START(UnityPerMaterial)
+            float4 _FirstOutlineColor;
+            float4 _SecondOutlineColor;
+            float4 _ThirdOutlineColor;
             float _OutlineWidth;
+            float _OutlineHardness;
+            CBUFFER_END
 
             float4 Frag (Varyings input) : SV_Target
             {
@@ -145,20 +157,46 @@ Shader "Hidden/JumpFloodOutline"
 
                 if (encodedPosition.y == FLOOD_NULL_POSITION.y)
                     return float4(0, 0, 0, 0);
-               
+                
                 float2 nearestPosition = DECODE(encodedPosition);
                 float distance = length(nearestPosition - positionCS);
-                float2 nearestUV = nearestPosition / _BlitTexture_TexelSize.zw;
 
+                float2 nearestUV = nearestPosition / _ScreenParams.xy;
+                float nearestDepth = SampleSceneDepth(nearestUV);
+                float linearNearestDepth = LinearEyeDepth(nearestDepth, _ZBufferParams);
+                float hardness;
+                float outlineWidth;
 
-                float rawDepth = SampleSceneDepth(nearestUV);
-                float linearDepth = LinearEyeDepth(rawDepth, _ZBufferParams);
+                #if IGNORE_DEPTH
+                hardness = _OutlineHardness / (0.05 * _OutlineWidth);
+                outlineWidth = _OutlineWidth;
+                #else
+                hardness = (_OutlineHardness * linearNearestDepth) / (0.05 *_OutlineWidth);
+                outlineWidth = _OutlineWidth / linearNearestDepth;
+                #endif
 
-                float outline = saturate(((_OutlineWidth / linearDepth) - distance + 1.0));
+                float outline = saturate(hardness * (outlineWidth - distance + 1.0));
 
-                float4 color = _OutlineColor;
+                float4 outlineColor;
+
+                #if THIRD_COLOR
+                float t = distance / outlineWidth;
+                
+                if (t <= 0.5)
+                    outlineColor = lerp(_FirstOutlineColor, _SecondOutlineColor, t * 2.0);
+                else
+                    outlineColor = lerp(_SecondOutlineColor, _ThirdOutlineColor, (t - 0.5) * 2.0);
+                #elif SECOND_COLOR
+                float t = distance / outlineWidth;
+
+                outlineColor = lerp(_FirstOutlineColor, _SecondOutlineColor, t);
+                #else
+                outlineColor = _FirstOutlineColor;
+                #endif
+                
+                float4 color = outlineColor;
                 color.a *= outline;
-
+                
                 return color;
             }
             ENDHLSL

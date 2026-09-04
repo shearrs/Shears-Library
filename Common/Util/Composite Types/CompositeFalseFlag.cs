@@ -18,9 +18,9 @@ namespace Shears
             return reasonID++;
         }
 
-        public void RemoveReason(int reason)
+        public bool RemoveReason(int reason)
         {
-            reasons.Remove(reason);
+            return reasons.Remove(reason);
         }
 
         public static implicit operator bool(CompositeFalseFlag other) => other.Value;

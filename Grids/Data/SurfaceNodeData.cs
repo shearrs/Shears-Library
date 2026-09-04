@@ -6,40 +6,17 @@ namespace Shears.Grids
 {
     [System.Serializable]
     [DisallowMultipleComponent]
-    public class SurfaceNodeData : GridNodeData
+    public class SurfaceNodeData : PathNodeData
     {
-        [SerializeField]
-        private bool isDefaultWalkable = true;
-
         [SerializeField]
         private bool isSlope = false;
 
         [SerializeField, ShowIf(nameof(isSlope))]
         private SlopeDirection slopeDirection;
 
-        private readonly CompositeFalseFlag isWalkable = new();
-        private readonly HashSet<IPathEntity> entities = new();
-        private int walkableReason = -1;
-
-        protected override Color EditorColor => isDefaultWalkable ? Color.yellowNice : Color.red;
-        public CompositeFalseFlag IsWalkable
-        {
-            get
-            {
-                if (!isDefaultWalkable && isWalkable.ReasonCount == 0)
-                    walkableReason = isWalkable.AddReason();
-                else if (isDefaultWalkable && walkableReason != -1)
-                {
-                    isWalkable.RemoveReason(walkableReason);
-                    walkableReason = -1;
-                }
-
-                return isWalkable;
-            }
-        }
+        protected override Color EditorColor => Color.yellowNice;
         public bool IsSlope => isSlope;
         public SlopeDirection SlopingDirection => slopeDirection;
-        public int EntityCount => entities.Count;
 
         public enum SlopeDirection
         {

@@ -2,5 +2,5 @@ using UnityEngine;
 
 namespace Shears.Grids
 {
-    public interface IPathEntity { }
+    public interface IPathfindingBehaviour { }
 }

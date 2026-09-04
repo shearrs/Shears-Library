@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Shears
 {
-    public abstract class ShearsBehaviour : MonoBehaviour, ISHLoggable, IInterfaceSerializer
+    public abstract class ShearsBehaviour : MonoBehaviour, ISHLoggable, IInterfaceSerializable
     {
         [Header("Logging")]
         [SerializeField, Tooltip("The log levels to log. Anything not selected will be stripped.")]
@@ -19,7 +19,7 @@ namespace Shears
             get => logLevels;
             set => logLevels = value;
         }
-        InterfaceDictionary IInterfaceSerializer.InterfaceEntries => __interfaceEntries;
+        InterfaceDictionary IInterfaceSerializable.InterfaceEntries => __interfaceEntries;
 
         /// <inheritdoc cref="ISHLoggableLogger.Log"/>
         [HideInCallstack]

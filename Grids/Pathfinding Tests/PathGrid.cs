@@ -31,6 +31,14 @@ namespace Shears.Grids
                 Right = right;
             }
 
+            public void Dispose()
+            {
+                Top?.Dispose();
+                Bottom?.Dispose();
+                Left?.Dispose();
+                Right?.Dispose();
+            }
+
             public EntityPosition GetClosestPositionFromOriginDirection(Direction direction)
             {
                 static EntityPosition firstValid(
@@ -70,9 +78,40 @@ namespace Shears.Grids
             UpdateSurfaces();
         }
 
-        public bool TryGetGroundPosition(
+        public bool TryGetPosition(
+            Vector3 worldPosition,
+            out EntityPosition position,
+            Direction surfaceBias = Direction.Down
+        )
+        {
+            if (TryGetSurfacePosition(worldPosition, out var surfacePosition, surfaceBias))
+            {
+                position = surfacePosition;
+                return true;
+            }
+
+            if (!grid.TryGetNodeForWorldPosition(worldPosition, out var node))
+            {
+                LogWarning($"Could not get node for world position: {worldPosition}.");
+                position = null;
+                return false;
+            }
+
+            if (!nodePositions.TryGetValue(node, out var group))
+            {
+                LogVerbose($"Position is obstructed for node: {node}.");
+                position = null;
+                return false;
+            }
+
+            position = group.GetClosestPositionFromOriginDirection(surfaceBias);
+            return position != null;
+        }
+
+        public bool TryGetSurfacePosition(
             Vector3Int gridPosition,
-            out SurfaceEntityPosition groundPosition
+            out SurfaceEntityPosition groundPosition,
+            Direction direction = Direction.Down
         )
         {
             if (!grid.TryGetNode(gridPosition, out var node))
@@ -82,12 +121,13 @@ namespace Shears.Grids
                 return false;
             }
 
-            return TryGetGroundPosition(node, out groundPosition);
+            return TryGetSurfacePosition(node, out groundPosition, direction);
         }
 
-        public bool TryGetGroundPosition(
+        public bool TryGetSurfacePosition(
             Vector3 worldPosition,
-            out SurfaceEntityPosition groundPosition
+            out SurfaceEntityPosition groundPosition,
+            Direction direction = Direction.Down
         )
         {
             if (!grid.TryGetNodeForWorldPosition(worldPosition, out var node))
@@ -97,12 +137,13 @@ namespace Shears.Grids
                 return false;
             }
 
-            return TryGetGroundPosition(node, out groundPosition);
+            return TryGetSurfacePosition(node, out groundPosition, direction);
         }
 
-        public bool TryGetGroundPosition(
+        public bool TryGetSurfacePosition(
             EntityPosition position,
-            out SurfaceEntityPosition groundPosition
+            out SurfaceEntityPosition groundPosition,
+            Direction direction = Direction.Down
         )
         {
             if (!grid.TryGetNode(position.GridPosition, out var node))
@@ -112,7 +153,7 @@ namespace Shears.Grids
                 return false;
             }
 
-            return TryGetGroundPosition(node, out groundPosition);
+            return TryGetSurfacePosition(node, out groundPosition, direction);
         }
 
         public void GetNeighbors(EntityPosition position, List<EntityPosition> neighbors)
@@ -169,7 +210,11 @@ namespace Shears.Grids
             return false;
         }
 
-        private bool TryGetGroundPosition(GridNode node, out SurfaceEntityPosition groundPosition)
+        private bool TryGetSurfacePosition(
+            GridNode node,
+            out SurfaceEntityPosition groundPosition,
+            Direction direction
+        )
         {
             groundPosition = null;
 
@@ -180,7 +225,9 @@ namespace Shears.Grids
                 return false;
             }
 
-            if (group.Bottom != null && group.Bottom is SurfaceEntityPosition surface)
+            var position = group.GetClosestPositionFromOriginDirection(direction);
+
+            if (position is SurfaceEntityPosition surface)
                 groundPosition = surface;
 
             return true;
@@ -302,6 +349,9 @@ namespace Shears.Grids
 
         private void UpdateSurfaces()
         {
+            foreach (var position in nodePositions.Values)
+                position.Dispose();
+
             nodePositions.Clear();
 
             foreach (var node in grid.Nodes)
@@ -332,7 +382,8 @@ namespace Shears.Grids
                     node,
                     gridPosition,
                     worldPosition,
-                    node.GridPosition,
+                    node,
+                    gridPosition,
                     surface.SlopingDirection.GetNormal(grid),
                     Direction.Up,
                     surface
@@ -354,6 +405,7 @@ namespace Shears.Grids
                         node,
                         gridPosition,
                         surfacePosition,
+                        upNode,
                         upNode.GridPosition,
                         normal,
                         Direction.Up,
@@ -377,6 +429,7 @@ namespace Shears.Grids
                         node,
                         gridPosition,
                         surfacePosition,
+                        downNode,
                         downNode.GridPosition,
                         normal,
                         Direction.Down,
@@ -404,6 +457,7 @@ namespace Shears.Grids
                         node,
                         gridPosition,
                         surfacePosition,
+                        leftNode,
                         leftNode.GridPosition,
                         normal,
                         Direction.Left,
@@ -431,6 +485,7 @@ namespace Shears.Grids
                         node,
                         gridPosition,
                         surfacePosition,
+                        rightNode,
                         rightNode.GridPosition,
                         normal,
                         Direction.Right,

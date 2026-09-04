@@ -68,6 +68,11 @@ namespace Shears.Grids
             return false;
         }
 
+        public bool RemoveData(GridNodeData targetData)
+        {
+            return data.Remove(targetData);
+        }
+
         public bool TryGetData<T>(out T targetData)
             where T : GridNodeData
         {

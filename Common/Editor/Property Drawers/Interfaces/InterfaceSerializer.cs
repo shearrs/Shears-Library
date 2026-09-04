@@ -9,11 +9,11 @@ using UnityEngine.UIElements;
 
 namespace Shears.Editor
 {
-    public class IInterfaceSerializerEditor
+    public class InterfaceSerializer
     {
         public static VisualElement SerializeFields(SerializedObject serializedObject)
         {
-            var root = new VisualElement() { name = $"{nameof(IInterfaceSerializer)} Editor" };
+            var root = new VisualElement() { name = $"{nameof(IInterfaceSerializable)} Editor" };
             var defaultFields = VisualElementEditorUtil.CreateDefaultFields(
                 serializedObject,
                 true,
@@ -70,7 +70,7 @@ namespace Shears.Editor
 
         public static VisualElement SerializeFields(SerializedProperty property)
         {
-            var root = new VisualElement() { name = $"{nameof(IInterfaceSerializer)} Editor" };
+            var root = new VisualElement() { name = $"{nameof(IInterfaceSerializable)} Editor" };
             var defaultFields = VisualElementEditorUtil.CreateDefaultFields(
                 property,
                 "__interfaceEntries"

@@ -163,10 +163,20 @@ namespace Shears.Editor
             var icon = CreateIcon();
             container.Add(icon);
 
+            string fieldName = entry.FieldName.PascalSpace();
+            string typeName = rawProp.managedReferenceValue.GetType().Name;
+            string fieldLabel = fieldName;
+
+            if (fieldName.Length + typeName.Length < 24)
+                fieldLabel += $" ({typeName})";
+            else
+                fieldLabel += $" (...)";
+
             var propertyField = new PropertyField(rawProp)
             {
-                label = entry.FieldName.PascalSpace(),
+                label = fieldLabel,
                 style = { marginLeft = 30, flexGrow = 1 },
+                tooltip = $"{fieldName} is an interface field with type {typeName}.",
             };
             var foldout = new Foldout()
             {
@@ -188,10 +198,10 @@ namespace Shears.Editor
 
                 var value = property.managedReferenceValue;
 
-                if (value is IInterfaceSerializer)
+                if (value is IInterfaceSerializable)
                 {
                     foldout.Clear();
-                    var fields = IInterfaceSerializerEditor.SerializeFields(property);
+                    var fields = InterfaceSerializer.SerializeFields(property);
 
                     foldout.Add(fields);
                     currentField = foldout;

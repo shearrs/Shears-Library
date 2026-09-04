@@ -58,8 +58,8 @@ namespace Shears.Editor
 
         public override VisualElement CreateInspectorGUI()
         {
-            if (target is IInterfaceSerializer)
-                return IInterfaceSerializerEditor.SerializeFields(serializedObject);
+            if (target is IInterfaceSerializable)
+                return InterfaceSerializer.SerializeFields(serializedObject);
             else
             {
                 var defaultFieldsContainer = VisualElementEditorUtil.CreateDefaultFields(

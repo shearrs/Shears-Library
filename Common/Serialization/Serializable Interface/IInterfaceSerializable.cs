@@ -8,7 +8,7 @@ using Object = UnityEngine.Object;
 
 namespace Shears
 {
-    public interface IInterfaceSerializer : ISerializationCallbackReceiver
+    public interface IInterfaceSerializable : ISerializationCallbackReceiver
     {
         private static readonly Dictionary<Type, FieldInfo[]> interfaceFieldCache = new();
 
