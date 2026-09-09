@@ -10,10 +10,10 @@ namespace Shears.Shaders
 {
     public class OutlineRendererFeature : ScriptableRendererFeature
     {
-        [SerializeField]
+        [SerializeField, HideInInspector]
         private Shader _whiteMaskShader;
 
-        [SerializeField]
+        [SerializeField, HideInInspector]
         private Shader _jumpFloodShader;
 
         [SerializeField]
@@ -67,8 +67,12 @@ namespace Shears.Shaders
             for (int i = 0; i < _passes.Count; i++)
             {
                 var pass = _passes[i];
+                var group = _groups[i];
 
-                pass.Group = _groups[i];
+                if (!group.Enabled)
+                    continue;
+
+                pass.Group = group;
                 pass.Group.WhiteMaskShader = _whiteMaskShader;
                 pass.Group.JumpFloodShader = _jumpFloodShader;
                 pass.Group.UpdateMaterialProperties(renderingData.cameraData);
@@ -85,7 +89,14 @@ namespace Shears.Shaders
             private const int INITIALIZE_BUFFER_PASS = 0;
             private const int JUMP_FLOOD_PASS = 1;
             private const int OUTLINE_PASS = 2;
-            private static readonly ShaderTagId UNIVERSAL_FORWARD = new("UniversalForward");
+            private static readonly List<ShaderTagId> SHADER_TAGS = new()
+            {
+                new("Universal2D"),
+                new("UniversalForward"),
+                new("Sprite-Lit-Default"),
+                new("SpritesDefault"),
+                new("SRPDefaultUnlit"),
+            };
             private static readonly int AXIS_WIDTH_ID = Shader.PropertyToID("_AxisWidth");
 
             public OutlineGroup Group { get; set; }
@@ -324,7 +335,7 @@ namespace Shears.Shaders
             {
                 var sortingCriteria = cameraData.defaultOpaqueSortFlags;
                 var drawingSettings = CreateDrawingSettings(
-                    UNIVERSAL_FORWARD,
+                    SHADER_TAGS,
                     renderingData,
                     cameraData,
                     lightData,

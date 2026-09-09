@@ -9,7 +9,7 @@ namespace Shears.Grids
 
         public int GetWeight(IPathWeightBehaviour.ExecuteData data)
         {
-            throw new System.NotImplementedException();
+            return GetWeightStatic(data);
         }
 
         public static int GetWeightStatic(IPathWeightBehaviour.ExecuteData data)

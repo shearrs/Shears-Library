@@ -22,6 +22,7 @@ namespace Shears.Grids
         private readonly Dictionary<GameObject, int> objectLayers = new();
 
         internal GridNode ConnectedNode { get; set; }
+        protected override Color EditorColor => Color.cyan;
         public bool IsExit => isExit;
         public Vector3 TravelOffset => travelOffset;
         public Vector3 ExitOffset => exitOffset;
@@ -75,7 +76,7 @@ namespace Shears.Grids
             var nodeSize = context.NodeSize;
 
 #if UNITY_EDITOR
-            var startPosition = nodePosition + 0.5f * context.Grid.NodeSize * Vector3.up;
+            var startPosition = nodePosition + 0.5f * context.Grid.NodeSize * Vector3.down;
 
             var color = Color.yellow;
             color.a = 0.85f;
@@ -106,7 +107,7 @@ namespace Shears.Grids
 
                 Handles.DrawLine(
                     startPosition + travelOffset + exitOffset,
-                    connectedPosition + (0.5f * nodeSize * Vector3.up),
+                    connectedPosition + (0.5f * nodeSize * Vector3.down),
                     0.15f
                 );
             }

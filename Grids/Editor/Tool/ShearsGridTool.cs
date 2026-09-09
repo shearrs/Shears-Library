@@ -117,8 +117,11 @@ namespace Shears.Grids.Editor
                 grid.gameObject,
                 $"Paint Node at {node.GridPosition}"
             );
+
             node.SetDefinition(State.SelectedDefinition);
             node.CreateNodeObject(grid);
+
+            Undo.RegisterCompleteObjectUndo(grid, $"Paint Node at {node.GridPosition}");
             EditorUtility.SetDirty(grid);
         }
 
@@ -130,8 +133,11 @@ namespace Shears.Grids.Editor
                 grid.gameObject,
                 $"Paint Automatic Node at {gridPosition}"
             );
+
             grid.SetNode(gridPosition, node);
             node.CreateNodeObject(grid);
+
+            Undo.RegisterCompleteObjectUndo(grid, $"Paint Automatic Node at {gridPosition}");
             EditorUtility.SetDirty(grid);
         }
 
@@ -140,7 +146,7 @@ namespace Shears.Grids.Editor
             if (node == null)
                 return;
 
-            Undo.RecordObject(grid, $"Erase Node at {node.GridPosition}");
+            Undo.RegisterFullObjectHierarchyUndo(grid, $"Erase Node at {node.GridPosition}");
             node.SetDefinition(null);
             EditorUtility.SetDirty(grid);
         }
@@ -153,8 +159,11 @@ namespace Shears.Grids.Editor
             var fillDefinition = node.Definition;
             var newDefinition = State.SelectedFillDefinition;
 
-            Undo.RegisterCompleteObjectUndo(grid, "Fill Grid");
+            Undo.RegisterFullObjectHierarchyUndo(grid, "Fill Grid");
+
             FillRecursive(node, fillDefinition, newDefinition);
+
+            Undo.RegisterCompleteObjectUndo(grid, "Fill Grid");
             EditorUtility.SetDirty(grid);
         }
 
@@ -167,6 +176,7 @@ namespace Shears.Grids.Editor
             if (node.Definition == newDefinition || node.Definition != fillDefinition)
                 return;
 
+            Undo.RegisterCompleteObjectUndo(grid, "Fill Grid Node");
             node.SetDefinition(newDefinition);
             node.CreateNodeObject(grid);
             var gridPos = node.GridPosition;

@@ -1,5 +1,4 @@
 using System;
-using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -142,7 +141,7 @@ namespace Shears.Grids
         {
 #if UNITY_EDITOR
             if (nodeObject != null)
-                UnityEditor.Undo.DestroyObjectImmediate(nodeObject.gameObject);
+                Object.DestroyImmediate(nodeObject.gameObject);
 
             if (definition == null || definition.NodeObject == null)
                 return;
@@ -161,6 +160,8 @@ namespace Shears.Grids
                 Quaternion.identity
             );
 
+            UnityEditor.Undo.RegisterCreatedObjectUndo(instance, "Create Node Object");
+
             nodeObject = instance;
 #endif
         }
@@ -173,7 +174,7 @@ namespace Shears.Grids
             if (!Application.isPlaying)
             {
 #if UNITY_EDITOR
-                Undo.DestroyObjectImmediate(NodeObject.gameObject);
+                UnityEditor.Undo.DestroyObjectImmediate(NodeObject.gameObject);
 #endif
             }
             else

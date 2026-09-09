@@ -13,7 +13,11 @@ namespace Shears.Grids.Editor
         {
             EditorApplication.delayCall += () =>
             {
-                if (target is ShearsGrid)
+                if (
+                    target is ShearsGrid
+                    && Selection.activeGameObject != null
+                    && Selection.activeGameObject.TryGetComponent(out ShearsGrid _)
+                )
                     ToolManager.SetActiveTool<ShearsGridTool>();
             };
         }

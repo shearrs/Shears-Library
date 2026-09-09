@@ -2,6 +2,7 @@ Shader "Custom/WhiteMask"
 {
     Properties
     {
+        [MainTexture] _MainTex ("Sprite Texture", 2D) = "white" {}
         _StencilRef ("Stencil Reference", Integer) = 1
         [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("ZTest", Integer) = 4
     }
@@ -34,14 +35,34 @@ Shader "Custom/WhiteMask"
             struct Attributes
             {
                 float4 positionOS : POSITION;
+                float2 uv : TEXCOORD0;
             };
 
-            float4 vert(Attributes IN) : SV_POSITION
+            struct Varyings
             {
-                return TransformObjectToHClip(IN.positionOS.xyz);
+                float4 positionCS : SV_POSITION;
+                float2 uv : TEXCOORD0;
+            };
+
+            TEXTURE2D(_MainTex);
+            SAMPLER(sampler_MainTex);
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+
+                OUT.positionCS = TransformObjectToHClip(IN.positionOS.xyz);
+                OUT.uv = IN.uv;
+
+                return OUT;
             }
 
-            void frag() {}
+            void frag(Varyings IN)
+            {
+                float4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv);
+
+                clip(color.a - 0.1);
+            }
             ENDHLSL
         }
         Pass

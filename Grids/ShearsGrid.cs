@@ -33,6 +33,35 @@ namespace Shears.Grids
             nodes.Count > 0 ? nodes[^1].GridPosition : Vector3Int.zero;
         public IReadOnlyList<GridNode> Nodes => nodes;
 
+        public bool TryGetNodeData<T>(out GridNodeInfo<T> info)
+            where T : GridNodeData
+        {
+            info = default;
+
+            foreach (var node in nodes)
+            {
+                if (node.TryGetData(out T data))
+                {
+                    info = new(data, node.GridPosition);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public void GetAllNodeData<T>(List<GridNodeInfo<T>> info)
+            where T : GridNodeData
+        {
+            info.Clear();
+
+            foreach (var node in nodes)
+            {
+                if (node.TryGetData(out T data))
+                    info.Add(new(data, node.GridPosition));
+            }
+        }
+
         public bool TryGetNode(Vector3Int gridPosition, out GridNode node)
         {
             node = null;

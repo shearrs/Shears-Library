@@ -8,6 +8,8 @@ Shader "Hidden/JumpFloodOutline"
         _SecondOutlineColor("Second Outline Color", Color) = (1, 1, 1, 1)
         _ThirdOutlineColor("Third Outline Color", Color) = (1, 1, 1, 1)
         _OutlineHardness("Outline Hardness", Range(0, 1)) = 1.0
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Source Blend", Integer) = 5
+        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend("Destination Blend", Integer) = 10
     }
     SubShader
     {
@@ -130,7 +132,8 @@ Shader "Hidden/JumpFloodOutline"
                 Fail Zero
             }
 
-            Blend SrcAlpha OneMinusSrcAlpha
+            Blend [_SrcBlend] [_DstBlend]
+            ZTest Always
 
             HLSLPROGRAM
             #pragma vertex Vert
@@ -141,13 +144,61 @@ Shader "Hidden/JumpFloodOutline"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
 
+            #define BLEND_ADD (_SrcBlend == 1 && _DstBlend == 1) || (_SrcBlend == 4 && _DstBlend == 1)
+            #define BLEND_MULTIPLY (_SrcBlend == 2 && _DstBlend == 0)
+            #define NOISE_OCTAVES 5
+
             CBUFFER_START(UnityPerMaterial)
             float4 _FirstOutlineColor;
             float4 _SecondOutlineColor;
             float4 _ThirdOutlineColor;
             float _OutlineWidth;
             float _OutlineHardness;
+            int _SrcBlend;
+            int _DstBlend;
             CBUFFER_END
+
+            float Hash(float2 p)
+            {
+                return frac(sin(dot(p, float2(12.9898, 78.233))) * 43758.5453123);
+            }
+
+            float Noise(float2 p)
+            {
+                float2 i = floor(p);
+                float2 f = frac(p);
+
+                float2 u = f * f * (3.0 - 2.0 * f);
+
+                return lerp(lerp(Hash(i + float2(0.0, 0.0)), 
+                                Hash(i + float2(1.0, 0.0)), u.x),
+                            lerp(Hash(i + float2(0.0, 1.0)), 
+                                Hash(i + float2(1.0, 1.0)), u.x), u.y);
+            }
+            
+            float FractalBrownianMotion(float2 p)
+            {
+                float value = 0.0;
+                float amplitude = 0.5;
+                float frequency = 1.0;
+
+                for (int i = 0; i < NOISE_OCTAVES; i++)
+                {
+                    value += amplitude * Noise(p * frequency);
+                    frequency *= 2.0;
+                    amplitude *= 0.5;
+                }
+
+                return value;
+            }
+
+            float2 CartesianToPolar(float2 cartesianCoordinates)
+            {
+                float radius = sqrt(cartesianCoordinates.x * cartesianCoordinates.x + cartesianCoordinates.y * cartesianCoordinates.y);
+                float theta = atan(cartesianCoordinates.y / cartesianCoordinates.x);
+
+                return float2(radius, theta);
+            }
 
             float4 Frag (Varyings input) : SV_Target
             {
@@ -156,7 +207,7 @@ Shader "Hidden/JumpFloodOutline"
                 float2 encodedPosition = _BlitTexture.Load(int3(pixel, 0)).xy;
 
                 if (encodedPosition.y == FLOOD_NULL_POSITION.y)
-                    return float4(0, 0, 0, 0);
+                    return BLEND_MULTIPLY ? float4(1, 1, 1, 1) : float4(0, 0, 0, 0);
                 
                 float2 nearestPosition = DECODE(encodedPosition);
                 float distance = length(nearestPosition - positionCS);
@@ -175,7 +226,28 @@ Shader "Hidden/JumpFloodOutline"
                 outlineWidth = _OutlineWidth / linearNearestDepth;
                 #endif
 
-                float outline = saturate(hardness * (outlineWidth - distance + 1.0));
+                float noise = 1;
+
+                // FIRE EFFECT
+                // float2 uv = input.texcoord;
+                // float3 worldPos = ComputeWorldSpacePosition(uv, nearestDepth, UNITY_MATRIX_I_VP);      
+
+                // float2 noiseUV = 4.0 * worldPos.xy;
+                // noiseUV.y -= 3.0 * _Time.y;
+
+                // noise = FractalBrownianMotion(noiseUV);
+
+                // float freq = .5;
+                // noise = step(0.5, sin(positionCS.x * freq) * sin(positionCS.y * freq));
+
+                // can also do this with screen position
+                // float dashCount = 100;
+                // float dashUV = sin(uv.x) * sin(uv.y);
+                // float dashPattern = sin(dashUV * dashCount);
+                // float dashMask = step(0.0, dashPattern);
+                // noise = dashMask;
+
+                float outline = saturate(hardness * (outlineWidth * noise - (distance + 1.0)));
 
                 float4 outlineColor;
 
@@ -195,8 +267,14 @@ Shader "Hidden/JumpFloodOutline"
                 #endif
                 
                 float4 color = outlineColor;
-                color.a *= outline;
-                
+
+                if (BLEND_ADD)
+                    color *= outline;
+                else if (BLEND_MULTIPLY)
+                    color = lerp(float4(1, 1, 1, 1), color, outline);
+                else
+                    color.a *= outline;
+
                 return color;
             }
             ENDHLSL

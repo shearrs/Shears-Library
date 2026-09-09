@@ -104,6 +104,29 @@ namespace Shears.Grids
                 entityPathCountMap[entityPosition] = pathCount;
         }
 
+        public void CalculatePath(Vector3 start, Vector3 target)
+        {
+            if (grid == null)
+            {
+                LogError("Grid is null!");
+                return;
+            }
+
+            if (!grid.TryGetPosition(start, out var startPosition))
+            {
+                LogError($"Could not find starting position at: {start}.");
+                return;
+            }
+
+            if (!grid.TryGetPosition(target, out var targetPosition))
+            {
+                LogError($"Could not find target position at: {target}.");
+                return;
+            }
+
+            CalculatePath(startPosition, targetPosition);
+        }
+
         public void CalculatePath(EntityPosition start, EntityPosition target)
         {
             if (grid == null)
@@ -134,8 +157,8 @@ namespace Shears.Grids
             }
             else if (start == target)
             {
+                LogWarning("Start is the same as target.");
                 currentTarget = target;
-
                 return;
             }
 
@@ -175,12 +198,19 @@ namespace Shears.Grids
                             out var doorPosition
                         )
                     )
+                    {
                         neighbors.Add(doorPosition);
+                        Log("add door neighbor");
+                    }
                 }
 
                 foreach (var neighbor in neighbors)
                 {
-                    if (closedSet.Contains(neighbor) || !IsValidMove(currentPosition, neighbor))
+                    if (
+                        neighbor == null
+                        || closedSet.Contains(neighbor)
+                        || !IsValidMove(currentPosition, neighbor)
+                    )
                         continue;
 
                     int totalMovementCost =
@@ -201,7 +231,7 @@ namespace Shears.Grids
                         if (fallbackTarget == null || neighborEntry.HCost < fallbackTarget.HCost)
                             fallbackTarget = neighborEntry;
 
-                        if (inOpenSet)
+                        if (!inOpenSet)
                         {
                             openSet.Enqueue(neighborEntry);
                             openSetMap[neighbor] = neighborEntry;
@@ -627,21 +657,22 @@ namespace Shears.Grids
 
         private void OnDrawGizmosSelected()
         {
-            if (!drawGizmos || grid == null)
+            if (!drawGizmos || grid == null || entityPath == null || path == null)
                 return;
 
             Gizmos.color = Color.magenta;
 
-            var offset = 0.5f * grid.NodeSize * grid.transform.up;
-
-            if (grid.TryGetPosition(entity.Position + offset, out var position))
-                Gizmos.DrawWireCube(position.WorldPosition, Vector3.one);
+            if (grid.TryGetPosition(entity.Position, out var position))
+                GizmosUtil.DrawWireDisc(position.WorldPosition, Vector3.up, 0.25f);
 
             if (entityPath.Count == 0 || path.Count == 0)
                 return;
 
             Gizmos.color = Color.green;
-            Gizmos.DrawWireCube(entityPath[^1].WorldPosition, Vector3.one);
+            GizmosUtil.DrawWireDisc(entityPath[^1].WorldPosition, Vector3.up, 0.25f);
+
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(entityPath[^1].WorldPosition, position.WorldPosition);
 
             for (int i = 0; i < path.Count; i++)
             {

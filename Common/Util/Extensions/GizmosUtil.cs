@@ -77,6 +77,14 @@ namespace Shears
             Gizmos.color = currentColor;
         }
 
+        public static void DrawWireDisc(Vector3 position, Vector3 normal, float radius)
+        {
+#if UNITY_EDITOR
+            Handles.color = Gizmos.color;
+            Handles.DrawWireDisc(position, normal, radius);
+#endif
+        }
+
         public static void DrawText(Vector3 position, object text)
         {
 #if UNITY_EDITOR

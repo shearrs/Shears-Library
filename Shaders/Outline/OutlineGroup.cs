@@ -2,15 +2,17 @@ using System;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityBlendMode = UnityEngine.Rendering.BlendMode;
 
 namespace Shears.Shaders
 {
     [Serializable]
     public class OutlineGroup
     {
-        private const string IGNORE_DEPTH_KEYWORD = "IGNORE_DEPTH";
-        private const string SECOND_COLOR_KEYWORD = "SECOND_COLOR";
-        private const string THIRD_COLOR_KEYWORD = "THIRD_COLOR";
+        #region Variables
+        #region Shader Properties
+        private static readonly int SRC_BLEND_ID = Shader.PropertyToID("_SrcBlend");
+        private static readonly int DST_BLEND_ID = Shader.PropertyToID("_DstBlend");
         private static readonly int STENCIL_ID = Shader.PropertyToID("_StencilRef");
         private static readonly int Z_TEST_ID = Shader.PropertyToID("_ZTest");
         private static readonly int FIRST_COLOR_ID = Shader.PropertyToID("_FirstOutlineColor");
@@ -18,6 +20,11 @@ namespace Shears.Shaders
         private static readonly int THIRD_COLOR_ID = Shader.PropertyToID("_ThirdOutlineColor");
         private static readonly int OUTLINE_WIDTH_ID = Shader.PropertyToID("_OutlineWidth");
         private static readonly int OUTLINE_HARDNESS_ID = Shader.PropertyToID("_OutlineHardness");
+        #endregion
+
+        #region Serialized Fields
+        [SerializeField]
+        private bool _enabled;
 
         [Header("Render Targets")]
         [SerializeField]
@@ -40,13 +47,16 @@ namespace Shears.Shaders
         private bool _ignoreDepthForWidth;
 
         [Header("Line Settings")]
-        [SerializeField]
+        [SerializeField, Min(0)]
         private float _outlineWidth;
 
         [SerializeField, Range(0, 1)]
         private float _outlineHardness;
 
         [Header("Color Settings")]
+        [SerializeField]
+        private OutlineBlendMode _blendMode;
+
         [SerializeField, Range(1, 3)]
         private int _colorCount = 1;
 
@@ -58,7 +68,9 @@ namespace Shears.Shaders
 
         [SerializeField]
         private Color _thirdOutlineColor;
+        #endregion
 
+        #region Tracker Fields
         [NonSerialized]
         private int _previousStencil;
 
@@ -75,6 +87,9 @@ namespace Shears.Shaders
         private float _previousOutlineHardness;
 
         [NonSerialized]
+        private OutlineBlendMode _previousBlendMode;
+
+        [NonSerialized]
         private Color _previousFirstColor;
 
         [NonSerialized]
@@ -82,17 +97,24 @@ namespace Shears.Shaders
 
         [NonSerialized]
         private Color? _previousThirdColor;
+        #endregion
 
         private Material _whiteMaskMaterial;
         private Material _jumpFloodMaterial;
 
-        private LocalKeyword IgnoreDepthKeyword => new(JumpFloodShader, IGNORE_DEPTH_KEYWORD);
-        private LocalKeyword SecondColorKeyword => new(JumpFloodShader, SECOND_COLOR_KEYWORD);
-        private LocalKeyword ThirdColorKeyword => new(JumpFloodShader, THIRD_COLOR_KEYWORD);
+        #region Properties
+        private LocalKeyword IgnoreDepthKeyword => new(JumpFloodShader, "IGNORE_DEPTH");
+        private LocalKeyword SecondColorKeyword => new(JumpFloodShader, "SECOND_COLOR");
+        private LocalKeyword ThirdColorKeyword => new(JumpFloodShader, "THIRD_COLOR");
         internal Shader WhiteMaskShader { get; set; }
         internal Shader JumpFloodShader { get; set; }
         internal Material WhiteMaskMaterial => _whiteMaskMaterial;
         internal Material JumpFloodMaterial => _jumpFloodMaterial;
+        public bool Enabled
+        {
+            get => _enabled;
+            set => _enabled = value;
+        }
         public int Stencil
         {
             get => _stencil;
@@ -112,6 +134,11 @@ namespace Shears.Shaders
         {
             get => _outlineHardness;
             set => _outlineHardness = Mathf.Clamp01(value);
+        }
+        public OutlineBlendMode BlendMode
+        {
+            get => _blendMode;
+            set => _blendMode = value;
         }
         public Color OutlineColor
         {
@@ -133,6 +160,16 @@ namespace Shears.Shaders
             get => _renderLayerMask;
             set => _renderLayerMask = value;
         }
+        #endregion
+        #endregion
+
+        public enum OutlineBlendMode
+        {
+            Alpha,
+            Add,
+            SoftAdd,
+            Multiply,
+        }
 
         public OutlineGroup(
             int stencil = 1,
@@ -144,6 +181,7 @@ namespace Shears.Shaders
             RenderingLayerMask? renderLayerMask = null
         )
         {
+            _enabled = true;
             _stencil = stencil;
             _zTest = zTest;
             _outlineWidth = outlineWidth;
@@ -155,12 +193,13 @@ namespace Shears.Shaders
 
         public void InitializeDefaultValues()
         {
+            _enabled = true;
             _stencil = 1;
             _zTest = CompareFunction.LessEqual;
             _ignoreDepthForWidth = false;
             _outlineWidth = 24.0f;
             _outlineHardness = 1.0f;
-            _colorCount = 1;
+            _blendMode = OutlineBlendMode.Alpha;
             _firstOutlineColor = Color.white;
             _secondOutlineColor = Color.white;
             _thirdOutlineColor = Color.white;
@@ -189,6 +228,15 @@ namespace Shears.Shaders
             if (maskChanged || floodChanged)
                 ResetTrackers();
 
+            UpdateDepthFields();
+            UpdateLineFields(cameraData);
+            UpdateColorFields();
+        }
+
+        public bool IsValid() => WhiteMaskMaterial != null && JumpFloodMaterial != null;
+
+        private void UpdateDepthFields()
+        {
             if (_stencil != _previousStencil)
             {
                 _previousStencil = _stencil;
@@ -202,6 +250,15 @@ namespace Shears.Shaders
                 WhiteMaskMaterial.SetInteger(Z_TEST_ID, (int)_zTest);
             }
 
+            if (_ignoreDepthForWidth != _previousIgnoreDepthForWidth)
+            {
+                _previousIgnoreDepthForWidth = _ignoreDepthForWidth;
+                JumpFloodMaterial.SetKeyword(IgnoreDepthKeyword, _ignoreDepthForWidth);
+            }
+        }
+
+        private void UpdateLineFields(CameraData cameraData)
+        {
             float renderScale = cameraData.renderScale;
             float outlineWidth = _outlineWidth * renderScale;
 
@@ -211,11 +268,16 @@ namespace Shears.Shaders
                 JumpFloodMaterial.SetFloat(OUTLINE_WIDTH_ID, outlineWidth);
             }
 
-            if (_ignoreDepthForWidth != _previousIgnoreDepthForWidth)
+            if (_outlineHardness != _previousOutlineHardness)
             {
-                _previousIgnoreDepthForWidth = _ignoreDepthForWidth;
-                JumpFloodMaterial.SetKeyword(IgnoreDepthKeyword, _ignoreDepthForWidth);
+                _previousOutlineHardness = _outlineHardness;
+                JumpFloodMaterial.SetFloat(OUTLINE_HARDNESS_ID, _outlineHardness);
             }
+        }
+
+        private void UpdateColorFields()
+        {
+            UpdateBlendMode();
 
             if (_firstOutlineColor != _previousFirstColor)
             {
@@ -259,15 +321,41 @@ namespace Shears.Shaders
                 _previousThirdColor = _thirdOutlineColor;
                 _jumpFloodMaterial.SetColor(THIRD_COLOR_ID, _thirdOutlineColor);
             }
-
-            if (_outlineHardness != _previousOutlineHardness)
-            {
-                _previousOutlineHardness = _outlineHardness;
-                JumpFloodMaterial.SetFloat(OUTLINE_HARDNESS_ID, _outlineHardness);
-            }
         }
 
-        public bool IsValid() => WhiteMaskMaterial != null && JumpFloodMaterial != null;
+        private void UpdateBlendMode()
+        {
+            if (_previousBlendMode == _blendMode)
+                return;
+
+            _previousBlendMode = _blendMode;
+
+            switch (_blendMode)
+            {
+                case OutlineBlendMode.Alpha:
+                    _jumpFloodMaterial.SetInteger(SRC_BLEND_ID, (int)UnityBlendMode.SrcAlpha);
+                    _jumpFloodMaterial.SetInteger(
+                        DST_BLEND_ID,
+                        (int)UnityBlendMode.OneMinusSrcAlpha
+                    );
+                    break;
+                case OutlineBlendMode.Add:
+                    _jumpFloodMaterial.SetInteger(SRC_BLEND_ID, (int)UnityBlendMode.One);
+                    _jumpFloodMaterial.SetInteger(DST_BLEND_ID, (int)UnityBlendMode.One);
+                    break;
+                case OutlineBlendMode.SoftAdd:
+                    _jumpFloodMaterial.SetInteger(
+                        SRC_BLEND_ID,
+                        (int)UnityBlendMode.OneMinusDstColor
+                    );
+                    _jumpFloodMaterial.SetInteger(DST_BLEND_ID, (int)UnityBlendMode.One);
+                    break;
+                case OutlineBlendMode.Multiply:
+                    _jumpFloodMaterial.SetInteger(SRC_BLEND_ID, (int)UnityBlendMode.DstColor);
+                    _jumpFloodMaterial.SetInteger(DST_BLEND_ID, (int)UnityBlendMode.Zero);
+                    break;
+            }
+        }
 
         private bool ReallocateMaterialIfNeeded(ref Material material, Shader shader)
         {
@@ -296,6 +384,7 @@ namespace Shears.Shaders
             _previousIgnoreDepthForWidth = false;
             _previousOutlineWidth = -1;
             _previousOutlineHardness = -1;
+            _previousBlendMode = OutlineBlendMode.Alpha;
             _previousFirstColor = Color.clear;
             _previousSecondColor = null;
             _previousThirdColor = null;
