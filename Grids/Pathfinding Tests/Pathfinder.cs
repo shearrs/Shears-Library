@@ -31,7 +31,6 @@ namespace Shears.Grids
         private Dictionary<EntityPosition, int> entityPathCountMap;
         private EntityPosition currentTarget;
 
-        private bool CanWalkOnWalls => false; // need to get this from the enemy
         private Vector3 EntityPosition => Vector3.zero; // need to get enemy position
 
         private class PathEntry : IHeapItem<PathEntry>
@@ -198,10 +197,7 @@ namespace Shears.Grids
                             out var doorPosition
                         )
                     )
-                    {
                         neighbors.Add(doorPosition);
-                        Log("add door neighbor");
-                    }
                 }
 
                 foreach (var neighbor in neighbors)
@@ -379,7 +375,7 @@ namespace Shears.Grids
                 return sameDirection || currentGridPosition == targetGridPosition;
             else
             {
-                return CanWalkOnWalls
+                return entity.CanWalkOnWalls
                     && currentPosition.SurfaceGridPosition == targetPosition.SurfaceGridPosition
                     && currentGridPosition.z == targetGridPosition.z;
             }
@@ -389,7 +385,7 @@ namespace Shears.Grids
         {
             return position.IsSlope
                 || position.SurfaceDirection == Direction.Down
-                || CanWalkOnWalls;
+                || entity.CanWalkOnWalls;
         }
 
         private bool IsValidFall(EntityPosition currentPosition, EntityPosition targetPosition)

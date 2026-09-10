@@ -99,6 +99,7 @@ namespace Shears.Grids
             GetAllNodeData(info);
 
             info[0].Data.ConnectedNode = Grid.GetNode(info[1].GridPosition);
+            info[2].Data.ConnectedNode = Grid.GetNode(info[3].GridPosition);
         }
 
         public bool TryGetNodeData<T>(out GridNodeInfo<T> info)
