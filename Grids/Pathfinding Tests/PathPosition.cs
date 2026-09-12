@@ -5,14 +5,14 @@ namespace Shears.Grids
     public readonly struct PathPosition
     {
         internal EntityPosition EntityPosition { get; }
-        public Vector3 Position { get; }
+        public Vector3 WorldPosition { get; }
         public Vector3 Normal { get; }
         public Vector3 GridPosition => EntityPosition.GridPosition;
 
         public PathPosition(EntityPosition entityPosition, Vector3 position, Vector3 normal)
         {
             this.EntityPosition = entityPosition;
-            Position = position;
+            WorldPosition = position;
             Normal = normal;
         }
 

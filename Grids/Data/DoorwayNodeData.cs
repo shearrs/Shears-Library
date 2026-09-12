@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -21,6 +22,7 @@ namespace Shears.Grids
 
         private readonly Dictionary<GameObject, int> objectLayers = new();
 
+        [field: NonSerialized]
         internal GridNode ConnectedNode { get; set; }
         protected override Color EditorColor => Color.cyan;
         public bool IsExit => isExit;
@@ -103,7 +105,7 @@ namespace Shears.Grids
             if (IsConnected)
             {
                 Handles.color = Color.green;
-                var connectedPosition = context.Grid.GetWorldPosition(ConnectedNode);
+                var connectedPosition = context.Grid.GetLocalPosition(ConnectedNode);
 
                 Handles.DrawLine(
                     startPosition + travelOffset + exitOffset,

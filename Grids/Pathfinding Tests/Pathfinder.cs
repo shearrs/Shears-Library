@@ -115,7 +115,11 @@ namespace Shears.Grids
                 entityPathCountMap[entityPosition] = pathCount;
         }
 
-        public void CalculatePath(Vector3 start, Vector3 target)
+        public void CalculatePath(
+            Vector3 start,
+            Vector3 target,
+            Direction surfaceDirection = Direction.Down
+        )
         {
             if (grid == null)
             {
@@ -124,16 +128,57 @@ namespace Shears.Grids
                 return;
             }
 
-            if (!grid.TryGetPosition(start, out var startPosition))
+            if (!grid.TryGetPositionGroup(start, out var positionGroup))
             {
                 LogError($"Could not find starting position at: {start}.");
                 Clear();
                 return;
             }
 
-            if (!grid.TryGetPosition(target, out var targetPosition))
+            if (!grid.TryGetPositionGroup(target, out var targetPositionGroup))
             {
                 LogError($"Could not find target position at: {target}.");
+                Clear();
+                return;
+            }
+
+            EntityPosition startPosition;
+
+            if (!positionGroup.TryGetPositionInDirection(surfaceDirection, out var startSurface))
+            {
+                if (entity.CanWalkOnWalls)
+                {
+                    if (positionGroup.Down != null)
+                        startPosition = positionGroup.Down;
+                    else if (positionGroup.Left != null)
+                        startPosition = positionGroup.Left;
+                    else if (positionGroup.Right != null)
+                        startPosition = positionGroup.Right;
+                    else if (positionGroup.Up != null)
+                        startPosition = positionGroup.Up;
+                    else
+                        startPosition = positionGroup.Center;
+                }
+                else if (positionGroup.Center != null)
+                    startPosition = positionGroup.Center;
+                else
+                {
+                    LogError($"Could not find valid starting position at {start}.");
+                    Clear();
+                    return;
+                }
+            }
+            else
+                startPosition = startSurface;
+
+            if (
+                !targetPositionGroup.TryGetPositionInDirection(
+                    Direction.Down,
+                    out var targetPosition
+                )
+            )
+            {
+                LogError($"Could not find floor position for target at: {target}.");
                 Clear();
                 return;
             }
@@ -196,34 +241,22 @@ namespace Shears.Grids
                     return;
                 }
 
-                grid.GetNeighbors(currentPosition, neighbors);
-
-                if (
-                    neighbors[1] == null
-                    && grid.TryGetClosestFloorPosition(currentPosition, out var downNeighbor)
-                )
-                    neighbors[1] = downNeighbor;
+                GetNeighbors(currentPosition, neighbors);
 
                 if (
                     currentPosition.TryGetData(out DoorwayNodeData doorData) && doorData.IsConnected
                 )
                 {
-                    if (
-                        grid.TryGetSurfacePosition(
-                            doorData.ConnectedGridPosition,
-                            out var doorPosition
-                        )
-                    )
-                        neighbors.Add(doorPosition);
+                    if (grid.TryGetPositionGroup(doorData.ConnectedGridPosition, out var group))
+                    {
+                        if (group.Down is SurfaceEntityPosition exitPosition)
+                            neighbors.Add(exitPosition);
+                    }
                 }
 
                 foreach (var neighbor in neighbors)
                 {
-                    if (
-                        neighbor == null
-                        || closedSet.Contains(neighbor)
-                        || !IsValidMove(currentPosition, neighbor)
-                    )
+                    if (neighbor == null || closedSet.Contains(neighbor))
                         continue;
 
                     int totalMovementCost =
@@ -334,27 +367,59 @@ namespace Shears.Grids
             entityPath.Reverse();
         }
 
-        private bool IsValidMove(EntityPosition currentPosition, EntityPosition targetPosition)
+        private void GetNeighbors(EntityPosition currentPosition, List<EntityPosition> neighbors)
         {
-            if (
-                currentPosition.TryGetData(out DoorwayNodeData door)
-                && door.IsConnected
-                && door.ConnectedGridPosition == targetPosition.GridPosition
-            )
-                return true;
+            neighbors.Clear();
 
             if (entity.CanWalkOnWalls)
-                return IsValidMoveCanWalkOnWalls(currentPosition, targetPosition);
+                GetNeighborsCanWalkOnWalls(currentPosition, neighbors);
             else
-                return IsValidMoveDefault(currentPosition, targetPosition);
+                GetNeighborsDefault(currentPosition, neighbors);
         }
 
-        private bool IsValidMoveDefault(
+        private void GetNeighborsDefault(
             EntityPosition currentPosition,
-            EntityPosition targetPosition
+            List<EntityPosition> neighbors
         )
         {
-            var offset = targetPosition.GridPosition - currentPosition.GridPosition;
+            var gridPosition = currentPosition.GridPosition;
+
+            if (!grid.TryGetPositionGroup(gridPosition, out var group))
+                return;
+
+            void addNeighbor(EntityPosition neighbor)
+            {
+                if (neighbor != null)
+                    neighbors.Add(neighbor);
+            }
+
+            bool isValidSlope(EntityPosition position, SlopeDirection direction)
+            {
+                return position is SurfaceEntityPosition surface
+                    && surface.IsSlope
+                    && surface.SlopeDirection == direction;
+            }
+
+            bool tryGetGroup(Direction direction, out EntityPositionGroup targetGroup)
+            {
+                targetGroup = default;
+
+                if (
+                    group.TryGetPositionInDirection(direction, out var localPosition)
+                    && localPosition is SurfaceEntityPosition
+                )
+                    return false;
+
+                return grid.TryGetPositionGroup(
+                    gridPosition + direction.ToVectorInt(),
+                    out targetGroup
+                );
+            }
+
+            bool tryGetGroupFromOffset(Vector3Int offset, out EntityPositionGroup targetGroup)
+            {
+                return grid.TryGetPositionGroup(gridPosition + offset, out targetGroup);
+            }
 
             if (currentPosition is SurfaceEntityPosition currentSurface)
             {
@@ -362,91 +427,121 @@ namespace Shears.Grids
                 {
                     if (currentSurface.SlopeDirection == SlopeDirection.UpRight)
                     {
-                        if (targetPosition is SurfaceEntityPosition targetSurface)
+                        if (tryGetGroup(Direction.Left, out var leftGroup))
                         {
-                            if (offset == LEFT && targetSurface.SurfaceDirection == Direction.Down)
-                                return true;
-                            else if (
-                                offset == UP_RIGHT
-                                && targetSurface.SurfaceDirection == Direction.Down
-                            )
-                                return true;
-                            else
-                                return false;
+                            addNeighbor(leftGroup.Down);
+
+                            if (isValidSlope(leftGroup.Center, SlopeDirection.UpLeft))
+                                addNeighbor(leftGroup.Center);
                         }
-                        else
+
+                        if (tryGetGroupFromOffset(UP_RIGHT, out var upRightGroup))
                         {
-                            if (offset == LEFT)
-                                return true;
-                            else if (offset == UP_RIGHT)
-                                return true;
-                            else
-                                return false;
+                            addNeighbor(upRightGroup.Down);
+
+                            if (isValidSlope(upRightGroup.Center, SlopeDirection.UpRight))
+                                addNeighbor(upRightGroup.Center);
                         }
                     }
                     else if (currentSurface.SlopeDirection == SlopeDirection.UpLeft)
                     {
-                        if (targetPosition is SurfaceEntityPosition targetSurface)
+                        if (tryGetGroup(Direction.Right, out var rightGroup))
                         {
-                            if (offset == RIGHT && targetSurface.SurfaceDirection == Direction.Down)
-                                return true;
-                            else if (
-                                offset == UP_LEFT
-                                && targetSurface.SurfaceDirection == Direction.Down
-                            )
-                                return true;
-                            else
-                                return false;
+                            addNeighbor(rightGroup.Down);
+
+                            if (isValidSlope(rightGroup.Center, SlopeDirection.UpRight))
+                                addNeighbor(rightGroup.Center);
                         }
-                        else
+
+                        if (tryGetGroupFromOffset(UP_LEFT, out var upLeftGroup))
                         {
-                            if (offset == RIGHT)
-                                return true;
-                            else if (offset == UP_LEFT)
-                                return true;
-                            else
-                                return false;
+                            addNeighbor(upLeftGroup.Down);
+
+                            if (isValidSlope(upLeftGroup.Center, SlopeDirection.UpLeft))
+                                addNeighbor(upLeftGroup.Center);
                         }
                     }
-                    else
-                        return false;
                 }
                 else
                 {
-                    if (targetPosition is SurfaceEntityPosition targetSurface)
+                    if (tryGetGroup(Direction.Left, out var leftGroup))
                     {
-                        if (targetSurface.SurfaceDirection != Direction.Down)
-                            return false;
-                        else
-                        {
-                            Log($"here: ({offset})" + IsHorizontalOffset(offset));
-                            return IsHorizontalOffset(offset);
-                        }
+                        addNeighbor(leftGroup.Down);
+
+                        if (isValidSlope(leftGroup.Center, SlopeDirection.UpLeft))
+                            addNeighbor(leftGroup.Center);
                     }
-                    else
-                        return IsHorizontalOffset(offset);
+
+                    if (tryGetGroup(Direction.Right, out var rightGroup))
+                    {
+                        addNeighbor(rightGroup.Down);
+
+                        if (isValidSlope(rightGroup.Center, SlopeDirection.UpRight))
+                            addNeighbor(rightGroup.Center);
+                    }
+
+                    if (tryGetGroup(Direction.Forward, out var forwardGroup))
+                        addNeighbor(forwardGroup.Down);
+
+                    if (tryGetGroup(Direction.Back, out var backGroup))
+                        addNeighbor(backGroup.Down);
                 }
             }
             else
             {
-                if (targetPosition is SurfaceEntityPosition targetSurface)
+                if (group.Down != null)
+                    addNeighbor(group.Down);
+                else if (tryGetGroup(Direction.Down, out var downGroup))
                 {
-                    if (offset == DOWN && targetSurface.SurfaceDirection == Direction.Down)
-                        return true;
-                    else
-                        return false;
+                    addNeighbor(downGroup.Down);
+                    addNeighbor(downGroup.Center);
                 }
-                else
-                    return offset == DOWN;
             }
         }
 
-        private bool IsValidMoveCanWalkOnWalls(
+        private void GetNeighborsCanWalkOnWalls(
             EntityPosition currentPosition,
-            EntityPosition targetPosition
+            List<EntityPosition> neighbors
         )
         {
-            var offset = targetPosition.GridPosition - currentPosition.GridPosition;
+            var gridPosition = currentPosition.GridPosition;
+
+            if (!grid.TryGetPositionGroup(gridPosition, out var group))
+                return;
+
+            void addNeighbor(EntityPosition neighbor)
+            {
+                if (neighbor != null)
+                    neighbors.Add(neighbor);
+            }
+
+            bool isValidSlope(EntityPosition position, SlopeDirection direction)
+            {
+                return position is SurfaceEntityPosition surface
+                    && surface.IsSlope
+                    && surface.SlopeDirection == direction;
+            }
+
+            bool tryGetGroup(Direction direction, out EntityPositionGroup targetGroup)
+            {
+                targetGroup = default;
+
+                if (
+                    group.TryGetPositionInDirection(direction, out var localPosition)
+                    && localPosition is not null
+                )
+                    return false;
+
+                return grid.TryGetPositionGroup(
+                    gridPosition + direction.ToVectorInt(),
+                    out targetGroup
+                );
+            }
+
+            bool tryGetGroupFromOffset(Vector3Int offset, out EntityPositionGroup targetGroup)
+            {
+                return grid.TryGetPositionGroup(gridPosition + offset, out targetGroup);
+            }
 
             if (currentPosition is SurfaceEntityPosition currentSurface)
             {
@@ -454,180 +549,238 @@ namespace Shears.Grids
                 {
                     if (currentSurface.SlopeDirection == SlopeDirection.UpRight)
                     {
-                        if (targetPosition is SurfaceEntityPosition targetSurface)
+                        if (tryGetGroup(Direction.Left, out var leftGroup))
                         {
-                            if (offset == LEFT && targetSurface.SurfaceDirection == Direction.Down)
-                                return true;
-                            else if (
-                                offset == ZERO
-                                && targetSurface.SurfaceDirection == Direction.Left
-                            )
-                                return true;
-                            else if (
-                                offset == UP_RIGHT
-                                && targetSurface.SurfaceDirection == Direction.Down
-                            )
-                                return true;
-                            else if (
-                                offset == UP
-                                && targetSurface.SurfaceDirection == Direction.Right
-                            )
-                                return true;
-                            else
-                                return false;
+                            addNeighbor(leftGroup.Down);
+
+                            if (isValidSlope(leftGroup.Center, SlopeDirection.UpLeft))
+                                addNeighbor(leftGroup.Center);
                         }
-                        else
+
+                        if (tryGetGroupFromOffset(UP_RIGHT, out var upRightGroup))
                         {
-                            if (offset == LEFT)
-                                return true;
-                            else if (offset == UP_RIGHT)
-                                return true;
-                            else
-                                return false;
+                            addNeighbor(upRightGroup.Down);
+
+                            if (isValidSlope(upRightGroup.Center, SlopeDirection.UpRight))
+                                addNeighbor(upRightGroup.Center);
                         }
+
+                        if (tryGetGroup(Direction.Up, out var upGroup))
+                            addNeighbor(upGroup.Right);
                     }
                     else if (currentSurface.SlopeDirection == SlopeDirection.UpLeft)
                     {
-                        if (targetPosition is SurfaceEntityPosition targetSurface)
+                        if (tryGetGroup(Direction.Right, out var rightGroup))
                         {
-                            if (offset == RIGHT && targetSurface.SurfaceDirection == Direction.Down)
-                                return true;
-                            else if (
-                                offset == ZERO
-                                && targetSurface.SurfaceDirection == Direction.Right
-                            )
-                                return true;
-                            else if (
-                                offset == UP_LEFT
-                                && targetSurface.SurfaceDirection == Direction.Down
-                            )
-                                return true;
-                            else if (
-                                offset == UP
-                                && targetSurface.SurfaceDirection == Direction.Left
-                            )
-                                return true;
-                            else
-                                return false;
+                            addNeighbor(rightGroup.Down);
+
+                            if (isValidSlope(rightGroup.Center, SlopeDirection.UpRight))
+                                addNeighbor(rightGroup.Center);
                         }
-                        else
+
+                        if (tryGetGroupFromOffset(UP_LEFT, out var upLeftGroup))
                         {
-                            if (offset == RIGHT)
-                                return true;
-                            else if (offset == UP_LEFT)
-                                return true;
-                            else
-                                return false;
+                            addNeighbor(upLeftGroup.Down);
+
+                            if (isValidSlope(upLeftGroup.Center, SlopeDirection.UpLeft))
+                                addNeighbor(upLeftGroup.Center);
                         }
+
+                        if (tryGetGroup(Direction.Up, out var upGroup))
+                            addNeighbor(upGroup.Left);
                     }
                     else if (currentSurface.SlopeDirection == SlopeDirection.DownRight)
                     {
-                        if (targetPosition is SurfaceEntityPosition targetSurface)
+                        if (tryGetGroup(Direction.Left, out var leftGroup))
                         {
-                            if (offset == LEFT && targetSurface.SurfaceDirection == Direction.Up)
-                                return true;
-                            else if (
-                                offset == ZERO
-                                && targetSurface.SurfaceDirection == Direction.Left
-                            )
-                                return true;
-                            else if (
-                                offset == DOWN_RIGHT
-                                && targetSurface.SurfaceDirection == Direction.Up
-                            )
-                                return true;
-                            else if (
-                                offset == DOWN
-                                && targetSurface.SurfaceDirection == Direction.Right
-                            )
-                                return true;
-                            else
-                                return false;
+                            addNeighbor(leftGroup.Up);
+
+                            if (isValidSlope(leftGroup.Center, SlopeDirection.DownLeft))
+                                addNeighbor(leftGroup.Center);
                         }
-                        else
+
+                        if (tryGetGroupFromOffset(DOWN_RIGHT, out var downRightGroup))
                         {
-                            if (offset == LEFT)
-                                return true;
-                            else if (offset == DOWN_RIGHT)
-                                return true;
-                            else
-                                return false;
+                            addNeighbor(downRightGroup.Up);
+
+                            if (isValidSlope(downRightGroup.Center, SlopeDirection.DownRight))
+                                addNeighbor(downRightGroup.Center);
                         }
+
+                        if (tryGetGroup(Direction.Down, out var downGroup))
+                            addNeighbor(downGroup.Right);
                     }
                     else if (currentSurface.SlopeDirection == SlopeDirection.DownLeft)
                     {
-                        if (targetPosition is SurfaceEntityPosition targetSurface)
+                        if (tryGetGroup(Direction.Right, out var rightGroup))
                         {
-                            if (offset == RIGHT && targetSurface.SurfaceDirection == Direction.Up)
-                                return true;
-                            else if (
-                                offset == ZERO
-                                && targetSurface.SurfaceDirection == Direction.Right
-                            )
-                                return true;
-                            else if (
-                                offset == DOWN_LEFT
-                                && targetSurface.SurfaceDirection == Direction.Up
-                            )
-                                return true;
-                            else if (
-                                offset == DOWN
-                                && targetSurface.SurfaceDirection == Direction.Left
-                            )
-                                return true;
-                            else
-                                return false;
+                            addNeighbor(rightGroup.Up);
+
+                            if (isValidSlope(rightGroup.Center, SlopeDirection.DownRight))
+                                addNeighbor(rightGroup.Center);
                         }
-                        else
+
+                        if (tryGetGroupFromOffset(DOWN_LEFT, out var downLeftGroup))
                         {
-                            if (offset == RIGHT)
-                                return true;
-                            else if (offset == DOWN_LEFT)
-                                return true;
-                            else
-                                return false;
+                            addNeighbor(downLeftGroup.Up);
+
+                            if (isValidSlope(downLeftGroup.Center, SlopeDirection.DownLeft))
+                                addNeighbor(downLeftGroup.Center);
                         }
                     }
-                    else
-                        return false;
                 }
                 else
                 {
-                    if (targetPosition is SurfaceEntityPosition targetSurface)
+                    void addLocalLeftAndRightSurfaces(
+                        Direction left,
+                        Direction right,
+                        SlopeDirection localUpLeft,
+                        SlopeDirection localUpRight,
+                        SlopeDirection localDownLeft,
+                        SlopeDirection localDownRight,
+                        Vector3Int downLeftOffset,
+                        Vector3Int downRightOffset
+                    )
                     {
-                        if (currentSurface.SurfaceDirection == targetSurface.SurfaceDirection)
-                            return true;
-                        else if (offset == ZERO)
-                            return Is90DegreeDifference(
-                                currentSurface.SurfaceDirection,
-                                targetSurface.SurfaceDirection
+                        if (group.TryGetPositionInDirection(left, out var leftPosition))
+                            addNeighbor(leftPosition);
+                        else if (tryGetGroup(left, out var leftGroup))
+                        {
+                            if (isValidSlope(leftGroup.Center, localUpLeft))
+                                addNeighbor(leftGroup.Center);
+
+                            if (
+                                leftGroup.TryGetPositionInDirection(
+                                    currentSurface.SurfaceDirection,
+                                    out var leftSurface
+                                )
+                            )
+                                addNeighbor(leftSurface);
+                        }
+
+                        if (group.TryGetPositionInDirection(right, out var rightPosition))
+                            addNeighbor(rightPosition);
+                        else if (tryGetGroup(right, out var rightGroup))
+                        {
+                            if (isValidSlope(rightGroup.Center, localUpRight))
+                                addNeighbor(rightGroup.Center);
+
+                            if (
+                                rightGroup.TryGetPositionInDirection(
+                                    currentSurface.SurfaceDirection,
+                                    out var rightSurface
+                                )
+                            )
+                                addNeighbor(rightSurface);
+                        }
+
+                        if (tryGetGroupFromOffset(downLeftOffset, out var downLeftGroup))
+                        {
+                            if (isValidSlope(downLeftGroup.Center, localDownLeft))
+                                addNeighbor(downLeftGroup.Center);
+                            else if (
+                                downLeftGroup.TryGetPositionInDirection(
+                                    right,
+                                    out var downLeftRightPosition
+                                )
+                            )
+                                addNeighbor(downLeftRightPosition);
+                        }
+
+                        if (tryGetGroupFromOffset(downRightOffset, out var downRightGroup))
+                        {
+                            if (isValidSlope(downRightGroup.Center, localDownRight))
+                                addNeighbor(downRightGroup.Center);
+                            else if (
+                                downRightGroup.TryGetPositionInDirection(
+                                    left,
+                                    out var downRightLeftPosition
+                                )
+                            )
+                                addNeighbor(downRightLeftPosition);
+                        }
+                    }
+
+                    switch (currentSurface.SurfaceDirection)
+                    {
+                        case Direction.Up:
+                            addLocalLeftAndRightSurfaces(
+                                Direction.Right,
+                                Direction.Left,
+                                SlopeDirection.DownRight,
+                                SlopeDirection.DownLeft,
+                                SlopeDirection.UpRight,
+                                SlopeDirection.UpLeft,
+                                UP_RIGHT,
+                                UP_LEFT
                             );
-                        else
-                            return false;
+                            break;
+                        case Direction.Down:
+                            addLocalLeftAndRightSurfaces(
+                                Direction.Left,
+                                Direction.Right,
+                                SlopeDirection.UpLeft,
+                                SlopeDirection.UpRight,
+                                SlopeDirection.DownLeft,
+                                SlopeDirection.DownRight,
+                                DOWN_LEFT,
+                                DOWN_RIGHT
+                            );
+                            break;
+                        case Direction.Left:
+                            addLocalLeftAndRightSurfaces(
+                                Direction.Up,
+                                Direction.Down,
+                                SlopeDirection.DownLeft,
+                                SlopeDirection.UpLeft,
+                                SlopeDirection.DownRight,
+                                SlopeDirection.UpRight,
+                                UP_LEFT,
+                                DOWN_LEFT
+                            );
+                            break;
+                        case Direction.Right:
+                            addLocalLeftAndRightSurfaces(
+                                Direction.Down,
+                                Direction.Up,
+                                SlopeDirection.UpRight,
+                                SlopeDirection.DownRight,
+                                SlopeDirection.UpLeft,
+                                SlopeDirection.DownLeft,
+                                DOWN_RIGHT,
+                                UP_RIGHT
+                            );
+                            break;
                     }
-                    else
-                    {
-                        if (IsHorizontalOffset(offset))
-                            return true;
-                        else
-                            return false;
-                    }
+
+                    if (
+                        tryGetGroup(Direction.Forward, out var forwardGroup)
+                        && forwardGroup.TryGetPositionInDirection(
+                            currentSurface.SurfaceDirection,
+                            out var forwardSurface
+                        )
+                    )
+                        addNeighbor(forwardSurface);
+
+                    if (
+                        tryGetGroup(Direction.Back, out var backGroup)
+                        && backGroup.TryGetPositionInDirection(
+                            currentSurface.SurfaceDirection,
+                            out var backSurface
+                        )
+                    )
+                        addNeighbor(backSurface);
                 }
             }
             else
             {
-                if (targetPosition is SurfaceEntityPosition targetSurface)
+                if (group.Down != null)
+                    addNeighbor(group.Down);
+                else if (tryGetGroup(Direction.Down, out var downGroup))
                 {
-                    if (
-                        targetSurface.SurfaceDirection != Direction.Up
-                        && (offset == DOWN || offset == ZERO)
-                    )
-                        return true;
-                    else
-                        return false;
+                    addNeighbor(downGroup.Down);
+                    addNeighbor(downGroup.Center);
                 }
-                else
-                    return offset == DOWN;
             }
         }
 
@@ -862,31 +1015,28 @@ namespace Shears.Grids
             {
                 var position = entity.EntityPosition;
 
-                if (position == null && !grid.TryGetPosition(entity.Position, out position))
+                if (position == null)
                 {
-                    LogError($"Could not find starting position at: {entity.Position}.");
-                    return;
+                    if (!grid.TryGetPositionGroup(entity.Position, out var positionGroup))
+                    {
+                        LogError($"Could not find starting position at: {entity.Position}.");
+                        return;
+                    }
+                    else if (positionGroup.Down != null)
+                        position = positionGroup.Down;
+                    else if (positionGroup.Center != null)
+                        position = positionGroup.Center;
+                    else
+                    {
+                        LogError(
+                            $"Could not find valid position direction in group at: {entity.Position}."
+                        );
+                        return;
+                    }
                 }
 
                 CalculatePath(position, currentTarget);
             }
-        }
-
-        private bool Is90DegreeDifference(Direction first, Direction second)
-        {
-            return first switch
-            {
-                Direction.Up => second == Direction.Left || second == Direction.Right,
-                Direction.Down => second == Direction.Left || second == Direction.Right,
-                Direction.Left => second == Direction.Up || second == Direction.Down,
-                Direction.Right => second == Direction.Up || second == Direction.Down,
-                _ => false,
-            };
-        }
-
-        private bool IsHorizontalOffset(Vector3Int offset)
-        {
-            return offset == LEFT || offset == RIGHT || offset == FORWARD || offset == BACK;
         }
 
         private void OnDrawGizmosSelected()
@@ -896,17 +1046,32 @@ namespace Shears.Grids
 
             Gizmos.color = Color.magenta;
 
-            if (grid.TryGetPosition(entity.Position, out var position))
-                GizmosUtil.DrawWireDisc(position.WorldPosition, Vector3.up, 0.25f);
+            if (grid.TryGetPositionGroup(entity.Position, out var positionGroup))
+            {
+                var currentEntityPosition = positionGroup.Center;
+
+                if (!entity.CanWalkOnWalls && positionGroup.Down != null)
+                    currentEntityPosition = positionGroup.Down;
+                else if (entity.CanWalkOnWalls)
+                    positionGroup.TryGetClosestPosition(entity.Position, out currentEntityPosition);
+
+                if (currentEntityPosition != null)
+                {
+                    GizmosUtil.DrawWireDisc(currentEntityPosition.WorldPosition, Vector3.up, 0.25f);
+
+                    if (path.Count > 0)
+                    {
+                        Gizmos.color = Color.red;
+                        Gizmos.DrawLine(currentEntityPosition.WorldPosition, path[0].WorldPosition);
+                    }
+                }
+            }
 
             if (entityPath.Count == 0 || path.Count == 0)
                 return;
 
             Gizmos.color = Color.green;
             GizmosUtil.DrawWireDisc(entityPath[^1].WorldPosition, Vector3.up, 0.25f);
-
-            Gizmos.color = Color.red;
-            Gizmos.DrawLine(entityPath[^1].WorldPosition, position.WorldPosition);
 
             for (int i = 0; i < path.Count; i++)
             {
@@ -924,14 +1089,14 @@ namespace Shears.Grids
                 else
                     Gizmos.color = Color.red;
 
-                Gizmos.DrawLine(nextPosition.Position, current.Position);
+                Gizmos.DrawLine(nextPosition.WorldPosition, current.WorldPosition);
 
                 if (openSetMap.TryGetValue(current.EntityPosition, out var entry))
                 {
                     int weight =
                         entry.FCost
                         + GetWeight(current.EntityPosition, nextPosition.EntityPosition);
-                    GizmosUtil.DrawText(current.Position, weight);
+                    GizmosUtil.DrawText(current.WorldPosition, weight);
                 }
             }
         }

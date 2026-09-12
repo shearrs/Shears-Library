@@ -6,6 +6,7 @@ namespace Shears.Grids
     public class DefaultWeightBehaviour : IPathWeightBehaviour
     {
         private const int ENTITY_COST = 5;
+        private const int AIR_COST = 100;
 
         public int GetWeight(IPathWeightBehaviour.ExecuteData data)
         {
@@ -17,14 +18,20 @@ namespace Shears.Grids
             if (data.TargetPosition.TryGetData(out DoorwayNodeData _))
                 return 0;
 
-            int count = data.TargetPosition.EntityCount;
+            int weight;
+            int entityCount = data.TargetPosition.EntityCount;
 
             if (data.TargetPosition.ContainsEntity(data.Entity))
-                count--;
+                entityCount--;
 
-            count = Mathf.Min(count, 100);
+            entityCount = Mathf.Min(entityCount, 100);
 
-            return ENTITY_COST * count;
+            weight = ENTITY_COST * entityCount;
+
+            if (data.TargetPosition is AirEntityPosition)
+                weight += AIR_COST;
+
+            return weight;
         }
     }
 }
