@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using static Shears.Grids.EntityPosition;
+using static Shears.Grids.SurfaceNodeData;
 
 namespace Shears.Grids
 {
@@ -8,6 +9,17 @@ namespace Shears.Grids
     {
         private const int CARDINAL_COST = 10;
         private const int DIAGONAL_COST = 14;
+        private static readonly Vector3Int ZERO = Vector3Int.zero;
+        private static readonly Vector3Int UP = Direction.Up.ToVectorInt();
+        private static readonly Vector3Int DOWN = Direction.Down.ToVectorInt();
+        private static readonly Vector3Int LEFT = Direction.Left.ToVectorInt();
+        private static readonly Vector3Int RIGHT = Direction.Right.ToVectorInt();
+        private static readonly Vector3Int FORWARD = Direction.Forward.ToVectorInt();
+        private static readonly Vector3Int BACK = Direction.Back.ToVectorInt();
+        private static readonly Vector3Int UP_RIGHT = UP + RIGHT;
+        private static readonly Vector3Int UP_LEFT = UP + LEFT;
+        private static readonly Vector3Int DOWN_RIGHT = DOWN + RIGHT;
+        private static readonly Vector3Int DOWN_LEFT = DOWN + LEFT;
 
         [SerializeField]
         private bool drawGizmos = true;
@@ -108,18 +120,21 @@ namespace Shears.Grids
             if (grid == null)
             {
                 LogError("Grid is null!");
+                Clear();
                 return;
             }
 
             if (!grid.TryGetPosition(start, out var startPosition))
             {
                 LogError($"Could not find starting position at: {start}.");
+                Clear();
                 return;
             }
 
             if (!grid.TryGetPosition(target, out var targetPosition))
             {
                 LogError($"Could not find target position at: {target}.");
+                Clear();
                 return;
             }
 
@@ -131,11 +146,13 @@ namespace Shears.Grids
             if (grid == null)
             {
                 LogError("Grid is null!");
+                Clear();
                 return;
             }
             else if (start == null || target == null)
             {
                 LogError($"Invalid path request! Start = {start}, Target = {target}.");
+                Clear();
                 return;
             }
 
@@ -319,100 +336,299 @@ namespace Shears.Grids
 
         private bool IsValidMove(EntityPosition currentPosition, EntityPosition targetPosition)
         {
-            if (targetPosition is not SurfaceEntityPosition targetSurface)
-                return IsValidFall(currentPosition, targetPosition);
-
-            bool validTarget = IsValidGround(targetSurface);
-
-            if (!validTarget)
-                return false;
-
-            if (currentPosition is SurfaceEntityPosition currentSurface)
-                return IsValidDirection(currentSurface, targetSurface);
-            else
-                return IsValidFall(currentPosition, targetPosition);
-        }
-
-        private bool IsValidDirection(
-            SurfaceEntityPosition currentPosition,
-            SurfaceEntityPosition targetPosition
-        )
-        {
-            if (currentPosition == null || targetPosition == null)
-                return false;
-
             if (
-                currentPosition.TryGetData(out DoorwayNodeData doorData)
-                && doorData.IsConnected
-                && doorData.ConnectedGridPosition == targetPosition.GridPosition
+                currentPosition.TryGetData(out DoorwayNodeData door)
+                && door.IsConnected
+                && door.ConnectedGridPosition == targetPosition.GridPosition
             )
                 return true;
 
-            var currentGridPosition = currentPosition.GridPosition;
-            var targetGridPosition = targetPosition.GridPosition;
-            bool sameDirection =
-                currentPosition.SurfaceDirection == targetPosition.SurfaceDirection;
-            bool slopesInvolved = currentPosition.IsSlope || targetPosition.IsSlope;
+            if (entity.CanWalkOnWalls)
+                return IsValidMoveCanWalkOnWalls(currentPosition, targetPosition);
+            else
+                return IsValidMoveDefault(currentPosition, targetPosition);
+        }
 
-            if (slopesInvolved) // TODO: definitely not right, but good enough for now
-                return true;
+        private bool IsValidMoveDefault(
+            EntityPosition currentPosition,
+            EntityPosition targetPosition
+        )
+        {
+            var offset = targetPosition.GridPosition - currentPosition.GridPosition;
 
-            bool isDiagonal =
-                (
-                    currentGridPosition.x != targetGridPosition.x
-                    && currentGridPosition.y != targetGridPosition.y
-                )
-                || (
-                    currentGridPosition.x != targetGridPosition.x
-                    && currentGridPosition.z != targetGridPosition.z
-                )
-                || (
-                    currentGridPosition.y != targetGridPosition.y
-                    && currentGridPosition.z != targetGridPosition.z
-                );
-
-            if (!isDiagonal)
-                return sameDirection || currentGridPosition == targetGridPosition;
+            if (currentPosition is SurfaceEntityPosition currentSurface)
+            {
+                if (currentSurface.IsSlope)
+                {
+                    if (currentSurface.SlopeDirection == SlopeDirection.UpRight)
+                    {
+                        if (targetPosition is SurfaceEntityPosition targetSurface)
+                        {
+                            if (offset == LEFT && targetSurface.SurfaceDirection == Direction.Down)
+                                return true;
+                            else if (
+                                offset == UP_RIGHT
+                                && targetSurface.SurfaceDirection == Direction.Down
+                            )
+                                return true;
+                            else
+                                return false;
+                        }
+                        else
+                        {
+                            if (offset == LEFT)
+                                return true;
+                            else if (offset == UP_RIGHT)
+                                return true;
+                            else
+                                return false;
+                        }
+                    }
+                    else if (currentSurface.SlopeDirection == SlopeDirection.UpLeft)
+                    {
+                        if (targetPosition is SurfaceEntityPosition targetSurface)
+                        {
+                            if (offset == RIGHT && targetSurface.SurfaceDirection == Direction.Down)
+                                return true;
+                            else if (
+                                offset == UP_LEFT
+                                && targetSurface.SurfaceDirection == Direction.Down
+                            )
+                                return true;
+                            else
+                                return false;
+                        }
+                        else
+                        {
+                            if (offset == RIGHT)
+                                return true;
+                            else if (offset == UP_LEFT)
+                                return true;
+                            else
+                                return false;
+                        }
+                    }
+                    else
+                        return false;
+                }
+                else
+                {
+                    if (targetPosition is SurfaceEntityPosition targetSurface)
+                    {
+                        if (targetSurface.SurfaceDirection != Direction.Down)
+                            return false;
+                        else
+                        {
+                            Log($"here: ({offset})" + IsHorizontalOffset(offset));
+                            return IsHorizontalOffset(offset);
+                        }
+                    }
+                    else
+                        return IsHorizontalOffset(offset);
+                }
+            }
             else
             {
-                return entity.CanWalkOnWalls
-                    && currentPosition.SurfaceGridPosition == targetPosition.SurfaceGridPosition
-                    && currentGridPosition.z == targetGridPosition.z;
+                if (targetPosition is SurfaceEntityPosition targetSurface)
+                {
+                    if (offset == DOWN && targetSurface.SurfaceDirection == Direction.Down)
+                        return true;
+                    else
+                        return false;
+                }
+                else
+                    return offset == DOWN;
             }
         }
 
-        private bool IsValidGround(SurfaceEntityPosition position)
+        private bool IsValidMoveCanWalkOnWalls(
+            EntityPosition currentPosition,
+            EntityPosition targetPosition
+        )
         {
-            return position.IsSlope
-                || position.SurfaceDirection == Direction.Down
-                || entity.CanWalkOnWalls;
-        }
+            var offset = targetPosition.GridPosition - currentPosition.GridPosition;
 
-        private bool IsValidFall(EntityPosition currentPosition, EntityPosition targetPosition)
-        {
-            if (
-                currentPosition.TryGetData(out DoorwayNodeData doorData)
-                && doorData.IsConnected
-                && doorData.ConnectedGridPosition == targetPosition.GridPosition
-            )
-                return true;
-
-            var currentGridPosition = currentPosition.GridPosition;
-            var targetGridPosition = targetPosition.GridPosition;
-            var heightDifference = currentGridPosition.y - targetGridPosition.y;
-
-            if (
-                targetGridPosition.y > currentGridPosition.y
-                || targetGridPosition.x != currentGridPosition.x
-                || targetGridPosition.z != currentGridPosition.z
-            )
-                return false;
-            else if (heightDifference <= 1)
-                return true;
-            else if (currentPosition is SurfaceEntityPosition surface)
-                return surface.SurfaceDirection == Direction.Up;
+            if (currentPosition is SurfaceEntityPosition currentSurface)
+            {
+                if (currentSurface.IsSlope)
+                {
+                    if (currentSurface.SlopeDirection == SlopeDirection.UpRight)
+                    {
+                        if (targetPosition is SurfaceEntityPosition targetSurface)
+                        {
+                            if (offset == LEFT && targetSurface.SurfaceDirection == Direction.Down)
+                                return true;
+                            else if (
+                                offset == ZERO
+                                && targetSurface.SurfaceDirection == Direction.Left
+                            )
+                                return true;
+                            else if (
+                                offset == UP_RIGHT
+                                && targetSurface.SurfaceDirection == Direction.Down
+                            )
+                                return true;
+                            else if (
+                                offset == UP
+                                && targetSurface.SurfaceDirection == Direction.Right
+                            )
+                                return true;
+                            else
+                                return false;
+                        }
+                        else
+                        {
+                            if (offset == LEFT)
+                                return true;
+                            else if (offset == UP_RIGHT)
+                                return true;
+                            else
+                                return false;
+                        }
+                    }
+                    else if (currentSurface.SlopeDirection == SlopeDirection.UpLeft)
+                    {
+                        if (targetPosition is SurfaceEntityPosition targetSurface)
+                        {
+                            if (offset == RIGHT && targetSurface.SurfaceDirection == Direction.Down)
+                                return true;
+                            else if (
+                                offset == ZERO
+                                && targetSurface.SurfaceDirection == Direction.Right
+                            )
+                                return true;
+                            else if (
+                                offset == UP_LEFT
+                                && targetSurface.SurfaceDirection == Direction.Down
+                            )
+                                return true;
+                            else if (
+                                offset == UP
+                                && targetSurface.SurfaceDirection == Direction.Left
+                            )
+                                return true;
+                            else
+                                return false;
+                        }
+                        else
+                        {
+                            if (offset == RIGHT)
+                                return true;
+                            else if (offset == UP_LEFT)
+                                return true;
+                            else
+                                return false;
+                        }
+                    }
+                    else if (currentSurface.SlopeDirection == SlopeDirection.DownRight)
+                    {
+                        if (targetPosition is SurfaceEntityPosition targetSurface)
+                        {
+                            if (offset == LEFT && targetSurface.SurfaceDirection == Direction.Up)
+                                return true;
+                            else if (
+                                offset == ZERO
+                                && targetSurface.SurfaceDirection == Direction.Left
+                            )
+                                return true;
+                            else if (
+                                offset == DOWN_RIGHT
+                                && targetSurface.SurfaceDirection == Direction.Up
+                            )
+                                return true;
+                            else if (
+                                offset == DOWN
+                                && targetSurface.SurfaceDirection == Direction.Right
+                            )
+                                return true;
+                            else
+                                return false;
+                        }
+                        else
+                        {
+                            if (offset == LEFT)
+                                return true;
+                            else if (offset == DOWN_RIGHT)
+                                return true;
+                            else
+                                return false;
+                        }
+                    }
+                    else if (currentSurface.SlopeDirection == SlopeDirection.DownLeft)
+                    {
+                        if (targetPosition is SurfaceEntityPosition targetSurface)
+                        {
+                            if (offset == RIGHT && targetSurface.SurfaceDirection == Direction.Up)
+                                return true;
+                            else if (
+                                offset == ZERO
+                                && targetSurface.SurfaceDirection == Direction.Right
+                            )
+                                return true;
+                            else if (
+                                offset == DOWN_LEFT
+                                && targetSurface.SurfaceDirection == Direction.Up
+                            )
+                                return true;
+                            else if (
+                                offset == DOWN
+                                && targetSurface.SurfaceDirection == Direction.Left
+                            )
+                                return true;
+                            else
+                                return false;
+                        }
+                        else
+                        {
+                            if (offset == RIGHT)
+                                return true;
+                            else if (offset == DOWN_LEFT)
+                                return true;
+                            else
+                                return false;
+                        }
+                    }
+                    else
+                        return false;
+                }
+                else
+                {
+                    if (targetPosition is SurfaceEntityPosition targetSurface)
+                    {
+                        if (currentSurface.SurfaceDirection == targetSurface.SurfaceDirection)
+                            return true;
+                        else if (offset == ZERO)
+                            return Is90DegreeDifference(
+                                currentSurface.SurfaceDirection,
+                                targetSurface.SurfaceDirection
+                            );
+                        else
+                            return false;
+                    }
+                    else
+                    {
+                        if (IsHorizontalOffset(offset))
+                            return true;
+                        else
+                            return false;
+                    }
+                }
+            }
             else
-                return false;
+            {
+                if (targetPosition is SurfaceEntityPosition targetSurface)
+                {
+                    if (
+                        targetSurface.SurfaceDirection != Direction.Up
+                        && (offset == DOWN || offset == ZERO)
+                    )
+                        return true;
+                    else
+                        return false;
+                }
+                else
+                    return offset == DOWN;
+            }
         }
 
         private int GetDistance(EntityPosition a, EntityPosition b)
@@ -646,9 +862,31 @@ namespace Shears.Grids
             {
                 var position = entity.EntityPosition;
 
-                // need the ability to get the current position of the entity
-                // CalculatePath(currentPosition, currentTarget);
+                if (position == null && !grid.TryGetPosition(entity.Position, out position))
+                {
+                    LogError($"Could not find starting position at: {entity.Position}.");
+                    return;
+                }
+
+                CalculatePath(position, currentTarget);
             }
+        }
+
+        private bool Is90DegreeDifference(Direction first, Direction second)
+        {
+            return first switch
+            {
+                Direction.Up => second == Direction.Left || second == Direction.Right,
+                Direction.Down => second == Direction.Left || second == Direction.Right,
+                Direction.Left => second == Direction.Up || second == Direction.Down,
+                Direction.Right => second == Direction.Up || second == Direction.Down,
+                _ => false,
+            };
+        }
+
+        private bool IsHorizontalOffset(Vector3Int offset)
+        {
+            return offset == LEFT || offset == RIGHT || offset == FORWARD || offset == BACK;
         }
 
         private void OnDrawGizmosSelected()

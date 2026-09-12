@@ -57,7 +57,7 @@ namespace Shears.Grids
                 return position != null;
             }
 
-            public EntityPosition GetClosestSurfaceFromOriginDirection(Direction direction)
+            public SurfaceEntityPosition GetClosestSurfaceFromOriginDirection(Direction direction)
             {
                 return direction switch
                 {
@@ -71,21 +71,21 @@ namespace Shears.Grids
                 };
             }
 
-            private static EntityPosition FirstValid(
+            private static SurfaceEntityPosition FirstValid(
                 EntityPosition p0,
                 EntityPosition p1,
                 EntityPosition p2,
                 EntityPosition p3
             )
             {
-                if (p0 is SurfaceEntityPosition)
-                    return p0;
-                else if (p1 is SurfaceEntityPosition)
-                    return p1;
-                else if (p2 is SurfaceEntityPosition)
-                    return p2;
-                else if (p3 is SurfaceEntityPosition)
-                    return p3;
+                if (p0 is SurfaceEntityPosition s0)
+                    return s0;
+                else if (p1 is SurfaceEntityPosition s1)
+                    return s1;
+                else if (p2 is SurfaceEntityPosition s2)
+                    return s2;
+                else if (p3 is SurfaceEntityPosition s3)
+                    return s3;
                 else
                     return null;
             }
@@ -114,7 +114,8 @@ namespace Shears.Grids
         public bool TryGetPosition(
             Vector3 worldPosition,
             out EntityPosition position,
-            Direction surfaceBias = Direction.Down
+            Direction surfaceBias = Direction.Down,
+            bool anySurfaceDirection = false
         )
         {
             if (TryGetSurfacePosition(worldPosition, out var surfacePosition, surfaceBias))
@@ -137,7 +138,11 @@ namespace Shears.Grids
                 return false;
             }
 
-            position = group.GetClosestSurfaceFromOriginDirection(surfaceBias);
+            if (anySurfaceDirection)
+                position = group.GetClosestSurfaceFromOriginDirection(surfaceBias);
+            else
+                position = group.Center;
+
             return position != null;
         }
 
@@ -154,7 +159,7 @@ namespace Shears.Grids
                 return false;
             }
 
-            return TryGetSurfacePosition(node, out groundPosition, direction);
+            return TryGetSurfacePosition(node, direction, out groundPosition);
         }
 
         public bool TryGetSurfacePosition(
@@ -170,23 +175,7 @@ namespace Shears.Grids
                 return false;
             }
 
-            return TryGetSurfacePosition(node, out groundPosition, direction);
-        }
-
-        public bool TryGetSurfacePosition(
-            EntityPosition position,
-            out SurfaceEntityPosition groundPosition,
-            Direction direction = Direction.Down
-        )
-        {
-            if (!Grid.TryGetNode(position.GridPosition, out var node))
-            {
-                LogWarning($"Could not get node for Grid position: {position.GridPosition}.");
-                groundPosition = null;
-                return false;
-            }
-
-            return TryGetSurfacePosition(node, out groundPosition, direction);
+            return TryGetSurfacePosition(node, direction, out groundPosition);
         }
 
         public void GetNeighbors(EntityPosition position, List<EntityPosition> neighbors)
@@ -245,8 +234,8 @@ namespace Shears.Grids
 
         private bool TryGetSurfacePosition(
             GridNode node,
-            out SurfaceEntityPosition groundPosition,
-            Direction direction
+            Direction direction,
+            out SurfaceEntityPosition groundPosition
         )
         {
             groundPosition = null;
@@ -302,10 +291,18 @@ namespace Shears.Grids
             neighbors.Add(right);
             neighbors.Add(forward);
             neighbors.Add(back);
-            neighbors.Add(upLeft);
-            neighbors.Add(upRight);
-            neighbors.Add(downLeft);
-            neighbors.Add(downRight);
+
+            if (up is not SurfaceEntityPosition || left is not SurfaceEntityPosition)
+                neighbors.Add(upLeft);
+
+            if (up is not SurfaceEntityPosition || right is not SurfaceEntityPosition)
+                neighbors.Add(upRight);
+
+            if (down is not SurfaceEntityPosition || left is not SurfaceEntityPosition)
+                neighbors.Add(downLeft);
+
+            if (down is not SurfaceEntityPosition || right is not SurfaceEntityPosition)
+                neighbors.Add(downRight);
         }
 
         private bool TryGetPositionInDirection(
@@ -343,6 +340,7 @@ namespace Shears.Grids
             }
 
             position = nextGroup.GetClosestSurfaceFromOriginDirection(direction);
+            position ??= nextGroup.Center;
 
             return position != null;
         }

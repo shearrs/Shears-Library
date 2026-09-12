@@ -29,10 +29,10 @@ namespace Shears.Grids
 
     public static class SlopeUtil
     {
-        private static readonly Vector3 UP_LEFT_NORMAL = new Vector3(-1, 1, 0).normalized;
-        private static readonly Vector3 UP_RIGHT_NORMAL = new Vector3(1, 1, 0).normalized;
-        private static readonly Vector3 DOWN_LEFT_NORMAL = new Vector3(-1, -1, 0).normalized;
-        private static readonly Vector3 DOWN_RIGHT_NORMAL = new Vector3(1, -1, 0).normalized;
+        private static readonly Vector3 UP_LEFT_NORMAL = new Vector3(1, 1, 0).normalized;
+        private static readonly Vector3 UP_RIGHT_NORMAL = new Vector3(-1, 1, 0).normalized;
+        private static readonly Vector3 DOWN_LEFT_NORMAL = new Vector3(1, -1, 0).normalized;
+        private static readonly Vector3 DOWN_RIGHT_NORMAL = new Vector3(-1, -1, 0).normalized;
 
         public static bool IsUpwardSlope(this SlopeDirection direction)
         {

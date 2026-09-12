@@ -17,7 +17,7 @@ namespace Shears.Grids
         public EntityPosition EntityPosition { get; private set; }
         public bool CanWalkOnWalls => canWalkOnWalls;
 
-        private void Start()
+        private void Update()
         {
             if (testGrid.TryGetNodeData<TargetNodeData>(out var info))
             {
