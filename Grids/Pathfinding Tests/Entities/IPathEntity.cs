@@ -6,6 +6,5 @@ namespace Shears.Grids
     {
         public Vector3 Position { get; }
         public EntityPosition EntityPosition { get; }
-        public bool CanWalkOnWalls { get; }
     }
 }
