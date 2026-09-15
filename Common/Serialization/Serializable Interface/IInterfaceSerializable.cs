@@ -1,22 +1,29 @@
 using System;
-using System.Collections.Generic;
-using System.Reflection;
-using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Profiling;
 using Object = UnityEngine.Object;
 
 namespace Shears
 {
+    /// <summary>
+    /// Implement this to enable interface serialization.<br/>
+    /// IMPORTANT: <see cref="Entries"/> needs to point to a serialized <see cref="InterfaceDictionary"/> field named "__interfaceEntries" (CASE SENSITIVE).<br/><br/>
+    ///
+    /// If the target object has its own custom editor, then that editor will need to call InterfaceSerializer.SerializeFields.
+    /// </summary>
     public interface IInterfaceSerializable : ISerializationCallbackReceiver
     {
-        private static readonly Dictionary<Type, FieldInfo[]> interfaceFieldCache = new();
-
+        /// <summary>
+        /// A serialized mapping of interface values.
+        /// </summary>
         protected InterfaceDictionary InterfaceEntries { get; }
 
+        /// <summary>
+        /// Serialize interface field values into <see cref="InterfaceEntry"/>.
+        /// </summary>
         void ISerializationCallbackReceiver.OnBeforeSerialize()
         {
-            var fields = GetCachedInterfaceFields(GetType());
+            var fields = InterfaceFieldCache.GetCachedInterfaceFields(GetType());
 
             InterfaceEntries.Clear();
 
@@ -40,6 +47,9 @@ namespace Shears
             }
         }
 
+        /// <summary>
+        /// Deserialize <see cref="InterfaceEntry"/>s into C# interface values.
+        /// </summary>
         void ISerializationCallbackReceiver.OnAfterDeserialize()
         {
             Profiler.BeginSample("Interface Deserialization");
@@ -48,7 +58,7 @@ namespace Shears
                 return;
 
             Profiler.BeginSample("Get Cached Interface Fields");
-            var fields = GetCachedInterfaceFields(GetType());
+            var fields = InterfaceFieldCache.GetCachedInterfaceFields(GetType());
             Profiler.EndSample();
 
             Profiler.BeginSample("Set Field Values");
@@ -75,33 +85,11 @@ namespace Shears
 
             Profiler.EndSample();
         }
-
-        private static FieldInfo[] GetCachedInterfaceFields(Type type)
-        {
-            if (!interfaceFieldCache.TryGetValue(type, out var fields))
-            {
-                var allFields = type.GetFields(
-                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
-                );
-
-                var filteredList = new List<FieldInfo>();
-
-                foreach (var field in allFields)
-                {
-                    if (
-                        field.FieldType.IsInterface && field.IsDefined(typeof(SerializeField), true)
-                    )
-                        filteredList.Add(field);
-                }
-
-                fields = filteredList.ToArray();
-                interfaceFieldCache[type] = fields;
-            }
-
-            return fields;
-        }
     }
 
+    /// <summary>
+    /// Wrapper type for a string -> <see cref="InterfaceEntry"/> dictionary.
+    /// </summary>
     [Serializable]
     public class InterfaceDictionary : SerializableDictionary<string, InterfaceEntry> { }
 }

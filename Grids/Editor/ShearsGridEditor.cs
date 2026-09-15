@@ -9,19 +9,6 @@ namespace Shears.Grids.Editor
     [CustomEditor(typeof(ShearsGrid))]
     public class ShearsGridEditor : UnityEditor.Editor
     {
-        private void OnEnable()
-        {
-            EditorApplication.delayCall += () =>
-            {
-                if (
-                    target is ShearsGrid
-                    && Selection.activeGameObject != null
-                    && Selection.activeGameObject.TryGetComponent(out ShearsGrid _)
-                )
-                    ToolManager.SetActiveTool<ShearsGridTool>();
-            };
-        }
-
         [MenuItem("CONTEXT/" + nameof(ShearsGrid) + "/Sync Definitions")]
         private static void SyncDefinitions(MenuCommand command)
         {
@@ -42,6 +29,19 @@ namespace Shears.Grids.Editor
             EditorUtility.SetDirty(grid);
         }
 
+        private void OnEnable()
+        {
+            EditorApplication.delayCall += () =>
+            {
+                if (
+                    target is ShearsGrid
+                    && Selection.activeGameObject != null
+                    && Selection.activeGameObject.TryGetComponent(out ShearsGrid _)
+                )
+                    ToolManager.SetActiveTool<ShearsGridTool>();
+            };
+        }
+
         public override VisualElement CreateInspectorGUI()
         {
             var root = new VisualElement() { name = "Shears Grid Editor" };
@@ -54,6 +54,8 @@ namespace Shears.Grids.Editor
             var scriptField = VisualElementEditorUtil.CreateScriptField(serializedObject);
             var logField = new PropertyField(logProp);
             var sizeField = new PropertyField(sizeProp);
+
+            sizeField.RegisterValueChangeCallback(evt => ValidateSize(evt.changedProperty));
 
             root.AddAll(scriptField, logField, sizeField);
 

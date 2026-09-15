@@ -38,8 +38,6 @@ namespace Shears.Grids
         private Dictionary<EntityPosition, int> entityPathCountMap;
         private EntityPosition currentTarget;
 
-        private Vector3 EntityPosition => Vector3.zero; // need to get enemy position
-
         private class PathEntry : IHeapItem<PathEntry>
         {
             public EntityPosition EntityPosition { get; }
@@ -264,7 +262,7 @@ namespace Shears.Grids
                     var slopePosition = startSurface.WorldPosition;
                     var connectingPosition = slopePosition + slopeOffset;
                     var targetSurface = initialSurface.WorldPosition;
-                    var currentSqrDistance = (targetSurface - EntityPosition).sqrMagnitude;
+                    var currentSqrDistance = (targetSurface - entity.Position).sqrMagnitude;
                     var sqrSlopeDistance = (targetSurface - slopePosition).sqrMagnitude;
                     var sqrConnectingDistance = (targetSurface - connectingPosition).sqrMagnitude;
 

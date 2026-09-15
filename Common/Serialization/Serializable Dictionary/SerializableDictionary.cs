@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -74,7 +73,10 @@ namespace Shears
         void ISerializationCallbackReceiver.OnAfterDeserialize()
         {
             Clear();
+
+#if UNITY_EDITOR
             invalidEntries.Clear();
+#endif
 
             foreach (var entry in entries)
             {
@@ -82,7 +84,9 @@ namespace Shears
 
                 if (key == null || ContainsKey(key))
                 {
+#if UNITY_EDITOR
                     invalidEntries.Add(entry);
+#endif
                     continue;
                 }
 

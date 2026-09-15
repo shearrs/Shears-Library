@@ -7,7 +7,7 @@ namespace Shears.Grids
     public class ShearsGrid : ShearsBehaviour
     {
         [Header("Grid Settings")]
-        [SerializeField]
+        [SerializeField, ReadOnly]
         private Vector3Int size = Vector3Int.one;
 
         [SerializeField, Min(0.01f)]

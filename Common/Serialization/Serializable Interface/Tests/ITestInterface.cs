@@ -4,6 +4,6 @@ namespace Shears
 {
     public interface ITestInterface
     {
-        public void LogMessage();
+        public string GetMessage();
     }
 }
