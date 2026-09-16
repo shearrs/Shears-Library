@@ -11,6 +11,7 @@ namespace Shears.Grids
         private ShearsGrid grid;
 
         private ShearsGrid Grid => this.LazyGet(ref grid);
+        public Vector3Int Size => grid.Size;
         public float NodeSize => Grid.NodeSize;
 
         private void Awake()
@@ -29,6 +30,32 @@ namespace Shears.Grids
 
         public void GetAllNodeData<T>(List<GridNodeInfo<T>> info)
             where T : GridNodeData => Grid.GetAllNodeData(info);
+
+        public Vector3 GetCenter() => Grid.GetCenter();
+
+        public void GetPositionsInBounds(Bounds worldBounds, List<EntityPosition> positions)
+        {
+            CollectionUtil.GetPooled(out List<GridNode> nodes);
+
+            Grid.GetNodesInBounds(worldBounds, nodes);
+
+            foreach (var node in nodes)
+            {
+                if (!nodePositions.TryGetValue(node, out var group))
+                    continue;
+
+                positions.Add(group.Up);
+                positions.Add(group.Down);
+                positions.Add(group.Left);
+                positions.Add(group.Right);
+                positions.Add(group.Center);
+            }
+
+            CollectionUtil.ReleasePooled(nodes);
+        }
+
+        public void GetNodesInBounds(Bounds worldBounds, List<GridNode> nodes) =>
+            Grid.GetNodesInBounds(worldBounds, nodes);
 
         public Vector3 GridToWorld(Vector3Int gridPosition) =>
             Grid.transform.TransformPoint(NodeSize * (Vector3)gridPosition);

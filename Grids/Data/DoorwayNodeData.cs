@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Shears.Grids
 {
-    [System.Serializable]
+    [Serializable]
     [DisallowMultipleComponent]
     public class DoorwayNodeData : GridNodeData
     {
@@ -22,9 +22,8 @@ namespace Shears.Grids
 
         private readonly Dictionary<GameObject, int> objectLayers = new();
 
-        [field: NonSerialized]
-        internal GridNode ConnectedNode { get; set; }
         protected override Color EditorColor => Color.cyan;
+        public GridNode ConnectedNode { get; set; }
         public bool IsExit => isExit;
         public Vector3 TravelOffset => travelOffset;
         public Vector3 ExitOffset => exitOffset;

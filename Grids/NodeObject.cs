@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Shears.Grids
@@ -18,8 +19,30 @@ namespace Shears.Grids
         public ShearsGrid Grid
         {
             get => grid;
-            internal set => grid = value;
+            internal set
+            {
+                if (grid != null)
+                    grid.NodesChanged -= OnNodesChanged;
+
+                grid = value;
+
+                if (grid != null)
+                    grid.NodesChanged += OnNodesChanged;
+            }
         }
         public GridNode Node => grid.GetNode(gridPosition);
+
+        public event Action GridChanged;
+
+        private void OnDestroy()
+        {
+            if (grid != null)
+                grid.NodesChanged -= OnNodesChanged;
+        }
+
+        private void OnNodesChanged()
+        {
+            GridChanged?.Invoke();
+        }
     }
 }

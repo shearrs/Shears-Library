@@ -34,20 +34,20 @@ namespace Shears
             return v;
         }
 
-        public static Vector3Int ClampMin(this Vector3Int v, int min)
+        public static Vector3Int ClampMax(this Vector3Int v, int Max)
         {
-            v.x = Mathf.Min(v.x, min);
-            v.y = Mathf.Min(v.y, min);
-            v.z = Mathf.Min(v.z, min);
+            v.x = Mathf.Min(v.x, Max);
+            v.y = Mathf.Min(v.y, Max);
+            v.z = Mathf.Min(v.z, Max);
 
             return v;
         }
 
-        public static Vector3Int ClampMax(this Vector3Int v, int max)
+        public static Vector3Int ClampMin(this Vector3Int v, int min)
         {
-            v.x = Mathf.Max(v.x, max);
-            v.y = Mathf.Max(v.y, max);
-            v.z = Mathf.Max(v.z, max);
+            v.x = Mathf.Max(v.x, min);
+            v.y = Mathf.Max(v.y, min);
+            v.z = Mathf.Max(v.z, min);
 
             return v;
         }

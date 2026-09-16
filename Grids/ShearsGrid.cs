@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Shears.Logging;
 using UnityEngine;
@@ -32,6 +33,8 @@ namespace Shears.Grids
         public Vector3Int MaxGridExtent =>
             nodes.Count > 0 ? nodes[^1].GridPosition : Vector3Int.zero;
         public IReadOnlyList<GridNode> Nodes => nodes;
+
+        public event Action NodesChanged;
 
         public bool TryGetNodeData<T>(out GridNodeInfo<T> info)
             where T : GridNodeData
@@ -191,6 +194,8 @@ namespace Shears.Grids
             nodes.Clear();
             nodes.AddRange(newNodes);
             CollectionUtil.ReleasePooled(newNodes);
+
+            NodesChanged?.Invoke();
         }
 
         public void SetNode(Vector3 worldPosition, GridNode node) =>
@@ -211,6 +216,8 @@ namespace Shears.Grids
                 var offset = ExpandToFit(gridPosition, gridPosition);
                 SetNodeInternal(gridPosition - offset, node);
             }
+
+            NodesChanged?.Invoke();
         }
 
         public Vector3Int CropToContent()
@@ -263,7 +270,7 @@ namespace Shears.Grids
         {
             if (nodes.Count == 0)
             {
-                this.LogWarning($"Can not shift grid with no nodes.");
+                LogWarning($"Can not shift grid with no nodes.");
                 return;
             }
 
@@ -339,6 +346,8 @@ namespace Shears.Grids
             }
 
             CollectionUtil.ReleasePooled(newNodes);
+
+            NodesChanged?.Invoke();
         }
 
         public bool WithinBounds(Vector3 worldPosition) => WithinBounds(WorldToGrid(worldPosition));
@@ -350,6 +359,28 @@ namespace Shears.Grids
             var z = gridPosition.z;
 
             return x < size.x && y < size.y && z < size.z && x >= 0 && y >= 0 && z >= 0;
+        }
+
+        public void GetNodesInBounds(Bounds worldBounds, List<GridNode> nodes)
+        {
+            var worldMin = worldBounds.min;
+            var worldMax = worldBounds.max;
+            var localMin = transform.InverseTransformPoint(worldMin);
+            var localMax = transform.InverseTransformPoint(worldMax);
+            var gridMin = localMin.RoundToInt().ClampMin(0);
+            var gridMax = localMax.RoundToInt().ClampMin(0);
+
+            for (int z = gridMin.z; z < gridMax.z; z++)
+            {
+                for (int y = gridMin.y; y < gridMax.y; y++)
+                {
+                    for (int x = gridMin.x; x < gridMax.x; x++)
+                    {
+                        if (TryGetNode(new(x, y, z), out var node))
+                            nodes.Add(node);
+                    }
+                }
+            }
         }
 
         private Vector3Int ExpandToFit(Vector3Int minBounds, Vector3Int maxBounds)
