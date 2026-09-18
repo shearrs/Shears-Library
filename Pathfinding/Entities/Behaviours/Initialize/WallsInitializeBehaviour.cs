@@ -1,0 +1,51 @@
+using UnityEngine;
+
+namespace Shears.Pathfinding
+{
+    [System.Serializable]
+    public class WallsInitializeBehaviour : IPathInitializeBehaviour
+    {
+        [SerializeField]
+        private IPathEntity entity;
+
+        public bool TryGetStartPosition(
+            IPathInitializeBehaviour.ExecuteData data,
+            out EntityPosition startPosition
+        )
+        {
+            var grid = data.Grid;
+            var worldPosition = data.WorldPosition;
+            var surfaceDirection = entity.DesiredSurfaceDirection;
+
+            startPosition = null;
+
+            if (!grid.TryGetPositionGroup(worldPosition, out var positionGroup))
+                return false;
+
+            if (!positionGroup.TryGetPositionInDirection(surfaceDirection, out var startSurface))
+            {
+                if (positionGroup.Down != null)
+                    startPosition = positionGroup.Down;
+                else if (positionGroup.Left != null)
+                    startPosition = positionGroup.Left;
+                else if (positionGroup.Right != null)
+                    startPosition = positionGroup.Right;
+                else if (positionGroup.Up != null)
+                    startPosition = positionGroup.Up;
+                else if (positionGroup.Center != null)
+                    startPosition = positionGroup.Center;
+                else
+                    return false;
+            }
+            else
+                startPosition = startSurface;
+
+            return true;
+        }
+
+        public bool TryGetTargetPosition(
+            IPathInitializeBehaviour.ExecuteData data,
+            out EntityPosition targetPosition
+        ) => DefaultInitializeBehaviour.StaticTryGetTargetPosition(data, out targetPosition);
+    }
+}

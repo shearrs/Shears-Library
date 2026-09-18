@@ -112,6 +112,18 @@ namespace Shears.Grids
             return nodeSize * (Vector3)node.GridPosition;
         }
 
+        public Vector3Int WorldToGrid(Vector3 worldPosition)
+        {
+            var localPosition = worldPosition - transform.position;
+
+            return localPosition.RoundToInt();
+        }
+
+        public Vector3 GridToWorld(Vector3Int gridPosition)
+        {
+            return transform.TransformPoint(NodeSize * (Vector3)gridPosition);
+        }
+
         public Vector3 GetCenter()
         {
             return transform.TransformPoint(0.5f * (Vector3)MaxGridExtent);
@@ -205,7 +217,7 @@ namespace Shears.Grids
         {
             if (node == null)
             {
-                this.LogError($"Tried to set null node!");
+                LogError($"Tried to set null node!");
                 return;
             }
 
@@ -444,13 +456,6 @@ namespace Shears.Grids
 
             node.GridPosition = gridPosition;
             nodes[index] = node;
-        }
-
-        private Vector3Int WorldToGrid(Vector3 worldPosition)
-        {
-            var localPosition = worldPosition - transform.position;
-
-            return localPosition.RoundToInt();
         }
     }
 }
