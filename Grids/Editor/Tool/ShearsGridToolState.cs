@@ -81,6 +81,8 @@ namespace Shears.Grids.Editor
             ViewDepthProperty = stateSO.FindProperty(nameof(viewDepth));
             SelectedDefinitionProperty = stateSO.FindProperty(nameof(selectedDefinition));
             SelectedFillDefinitionProperty = stateSO.FindProperty(nameof(selectedFillDefinition));
+
+            ClampViewDepth();
         }
 
         public void SetTool(GridTool tool)
@@ -120,6 +122,22 @@ namespace Shears.Grids.Editor
             }
 
             return nodesProperty.GetArrayElementAtIndex(index);
+        }
+
+        private void ClampViewDepth()
+        {
+            int max = viewAxis switch
+            {
+                Axis.X => Grid.Size.x,
+                Axis.Y => Grid.Size.y,
+                Axis.Z => Grid.Size.z,
+                _ => 0,
+            };
+
+            max--;
+
+            ViewDepthProperty.intValue = Mathf.Min(ViewDepthProperty.intValue, max);
+            ViewDepthProperty.serializedObject.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private GridNode GetSelectedNode()

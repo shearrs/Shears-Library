@@ -32,6 +32,8 @@ namespace Shears.Pathfinding
         public void GetAllNodeData<T>(List<GridNodeInfo<T>> info)
             where T : GridNodeData => Grid.GetAllNodeData(info);
 
+        public Vector3Int WorldToGrid(Vector3 worldPosition) => Grid.WorldToGrid(worldPosition);
+
         public Vector3 GridToWorld(Vector3Int gridPosition) => Grid.GridToWorld(gridPosition);
 
         public Vector3 GetCenter() => Grid.GetCenter();
@@ -59,6 +61,9 @@ namespace Shears.Pathfinding
 
         public void GetNodesInBounds(Bounds worldBounds, List<GridNode> nodes) =>
             Grid.GetNodesInBounds(worldBounds, nodes);
+
+        public bool TryGetNode(Vector3Int gridPosition, out GridNode node) =>
+            Grid.TryGetNode(gridPosition, out node);
 
         public bool TryGetPositionGroup(Vector3 worldPosition, out EntityPositionGroup group)
         {

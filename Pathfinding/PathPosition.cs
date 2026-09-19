@@ -5,7 +5,7 @@ namespace Shears.Pathfinding
 {
     public class PathPosition
     {
-        internal EntityPosition EntityPosition { get; }
+        public EntityPosition EntityPosition { get; }
         public Vector3 WorldPosition { get; }
         public Vector3 Normal { get; }
         public Vector3 GridPosition => EntityPosition.GridPosition;
