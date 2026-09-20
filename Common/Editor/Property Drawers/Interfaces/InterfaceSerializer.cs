@@ -31,7 +31,7 @@ namespace Shears.Editor
             var entryDictionaryProp = serializedObject.FindProperty(INTERFACE_ENTRIES_FIELD_NAME);
             var targetType = serializedObject.targetObject.GetType();
 
-            SerializeFields(defaultFields, entryDictionaryProp, targetType);
+            SerializeFields(defaultFields, entryDictionaryProp, targetType, 1);
 
             root.Add(defaultFields);
 
@@ -74,10 +74,12 @@ namespace Shears.Editor
         /// <param name="fieldsContainer">The container for the fields.</param>
         /// <param name="entryDictionaryProp">The <see cref="SerializedProperty"/> for the <see cref="InterfaceDictionary"/>.</param>
         /// <param name="targetType">The target <see cref="Type"/> to serialize.</param>
+        /// <param name="indexOffset">An offset to the sorting indices of the interface fields. This is needed for the MonoBehaviour "m_Script" field to not mess up sorting order.</param>
         private static void SerializeFields(
             VisualElement fieldsContainer,
             SerializedProperty entryDictionaryProp,
-            Type targetType
+            Type targetType,
+            int indexOffset = 0
         )
         {
             var entriesProp = entryDictionaryProp.FindPropertyRelative("entries");
@@ -107,7 +109,11 @@ namespace Shears.Editor
 
                 foreach (var field in fields)
                 {
-                    if (field.IsDefined(typeof(SerializeField), true))
+                    if (
+                        field.IsDefined(typeof(SerializeField), true)
+                        && !field.IsDefined(typeof(HideInInspector), true)
+                        && field.Name != INTERFACE_ENTRIES_FIELD_NAME
+                    )
                         serializedFields.Add(field);
                 }
             }
@@ -149,7 +155,7 @@ namespace Shears.Editor
                     valueContainer = container;
                 }
 
-                fieldsContainer.Insert(index, valueContainer);
+                fieldsContainer.Insert(index + indexOffset, valueContainer);
             }
 
             CollectionUtil.ReleasePooled(types);

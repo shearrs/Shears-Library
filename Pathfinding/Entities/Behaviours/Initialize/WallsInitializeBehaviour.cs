@@ -3,8 +3,9 @@ using UnityEngine;
 namespace Shears.Pathfinding
 {
     [System.Serializable]
-    public class WallsInitializeBehaviour : IPathInitializeBehaviour
+    public class WallsInitializeBehaviour : ShearsClass, IPathInitializeBehaviour
     {
+        [Header("Wall Behaviour")]
         [SerializeField]
         private IPathEntity entity;
 

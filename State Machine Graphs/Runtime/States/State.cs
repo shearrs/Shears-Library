@@ -182,8 +182,8 @@ namespace Shears.StateMachineGraphs
             object message,
             UnityEngine.Object context = null,
             string prefix = "",
-            Color color = default,
-            ISHLogFormatter formatter = default,
+            Color? color = null,
+            ISHLogFormatter formatter = null,
             [CallerFilePath] string callerFilePath = "",
             [CallerLineNumber] long callerLineNumber = 0
         ) =>

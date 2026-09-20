@@ -235,6 +235,7 @@ namespace Shears.Editor
                 {
                     foldout.Clear();
                     var fields = InterfaceSerializer.SerializeFields(property);
+                    fields.style.paddingBottom = 8;
 
                     foldout.Add(fields);
                     currentField = foldout;
