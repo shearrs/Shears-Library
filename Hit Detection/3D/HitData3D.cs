@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Shears.HitDetection
 {
-    public readonly struct HitData3D
+    public class HitData3D
     {
         private readonly HitShape3D hitShape;
         private readonly HitBody3D hitBody;
@@ -13,12 +13,12 @@ namespace Shears.HitDetection
         private readonly int dataCount;
         private readonly bool blocked;
 
-        public readonly HitShape3D HitShape => hitShape;
-        public readonly HitBody3D HitBody => hitBody;
-        public readonly HurtBody3D HurtBody => hurtBody;
-        public readonly HitResult3D Result => result;
-        public readonly int DataCount => dataCount;
-        public readonly bool Blocked => blocked;
+        public HitShape3D HitShape => hitShape;
+        public HitBody3D HitBody => hitBody;
+        public HurtBody3D HurtBody => hurtBody;
+        public HitResult3D Result => result;
+        public int DataCount => dataCount;
+        public bool Blocked => blocked;
 
         internal HitData3D(
             HitShape3D hitShape,
@@ -49,9 +49,9 @@ namespace Shears.HitDetection
             blocked = false;
         }
 
-        public readonly IHitSubdata GetDataAt(int index) => data.ElementAt(index);
+        public IHitSubdata GetDataAt(int index) => data.ElementAt(index);
 
-        public readonly bool TryGetData<T>(out T data)
+        public bool TryGetData<T>(out T data)
             where T : IHitSubdata
         {
             if (this.data == null)
