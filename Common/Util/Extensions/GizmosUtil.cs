@@ -91,5 +91,17 @@ namespace Shears
             Handles.Label(position, new GUIContent(text.ToString()), EditorStyles.boldLabel);
 #endif
         }
+
+        public static void DrawSolidHandleBox(
+            Vector3 position,
+            Vector3 size,
+            Color faceColor,
+            Color outlineColor
+        )
+        {
+#if UNITY_EDITOR
+            //Handles.DrawSolidRectangleWithOutline()
+#endif
+        }
     }
 }

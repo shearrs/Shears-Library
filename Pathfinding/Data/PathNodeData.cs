@@ -7,9 +7,9 @@ namespace Shears.Pathfinding
     [DisallowMultipleComponent]
     public abstract class PathNodeData : GridNodeData
     {
-        private readonly CompositeFalseFlag isBlocked = new();
+        private readonly CompositeFalseFlag isBlocked = new(false);
 
-        public bool IsBlocked => isBlocked.Value;
+        public virtual bool IsBlocked => isBlocked.Value;
 
         public int AddBlockedReason()
         {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Shears;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -128,6 +129,20 @@ namespace Shears.Grids.Editor
 
                         hovered = true;
                     }
+                    else if (
+                        State.BrushSize != Vector3Int.one
+                        && nodeHandles.TryGetValue(HandleUtility.nearestControl, out var nearest)
+                    )
+                    {
+                        if (
+                            VectorUtil.WithinRange(
+                                node.GridPosition,
+                                nearest.GridPosition,
+                                nearest.GridPosition + (State.BrushSize - Vector3Int.one)
+                            )
+                        )
+                            hovered = true;
+                    }
 
                     if (hovered)
                     {
@@ -243,9 +258,29 @@ namespace Shears.Grids.Editor
                             if (AutomaticRaycast(node, size, out var targetPosition))
                             {
                                 var offset = targetPosition - node.GridPosition;
+                                var gridPosition = Grid.LocalToGrid(localPosition);
+                                var previewPosition = gridPosition + offset;
+                                var brushMax = previewPosition + State.BrushSize;
 
-                                Handles.color = PREVIEW_COLOR;
-                                Handles.DrawWireCube(localPosition + offset, size);
+                                if (State.BrushSize == Vector3Int.one)
+                                {
+                                    Handles.color = PREVIEW_COLOR;
+                                    Handles.DrawWireCube(previewPosition, size);
+                                }
+                                else
+                                {
+                                    for (int z = previewPosition.z; z < brushMax.z; z++)
+                                    {
+                                        for (int y = previewPosition.y; y < brushMax.y; y++)
+                                        {
+                                            for (int x = previewPosition.x; x < brushMax.x; x++)
+                                            {
+                                                Handles.color = PREVIEW_COLOR;
+                                                Handles.DrawWireCube(new(x, y, z), size);
+                                            }
+                                        }
+                                    }
+                                }
 
                                 if (isMouseDown && timeOffset >= AUTOMATIC_DELAY)
                                 {

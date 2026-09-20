@@ -8,8 +8,14 @@ namespace Shears
         private readonly List<int> reasons = new();
         private int reasonID = 0;
 
-        public bool Value => reasons.Count == 0;
+        public bool ZeroIsTrue { get; set; } = true;
+        public bool Value => (reasons.Count == 0) == ZeroIsTrue;
         public int ReasonCount => reasons.Count;
+
+        public CompositeFalseFlag(bool zeroIsTrue = true)
+        {
+            ZeroIsTrue = zeroIsTrue;
+        }
 
         public int AddReason()
         {

@@ -119,6 +119,8 @@ namespace Shears.Grids
             return localPosition.RoundToInt();
         }
 
+        public Vector3Int LocalToGrid(Vector3 localPosition) => localPosition.RoundToInt();
+
         public Vector3 GridToWorld(Vector3Int gridPosition)
         {
             return transform.TransformPoint(NodeSize * (Vector3)gridPosition);
@@ -134,9 +136,9 @@ namespace Shears.Grids
             return (gridPosition.z * size.y * size.x) + (gridPosition.y * size.x) + gridPosition.x;
         }
 
-        public void InsertGrid(ShearsGrid grid, List<GridNode> clonedNodes = null)
+        public void InsertGrid(ShearsGrid grid, List<GridNode> nodesInBounds = null)
         {
-            clonedNodes?.Clear();
+            nodesInBounds?.Clear();
 
             if (grid.Nodes.Count == 0)
             {
@@ -183,10 +185,7 @@ namespace Shears.Grids
                         else
                         {
                             if (!currentGridNode)
-                            {
                                 node = node.Clone();
-                                clonedNodes?.Add(node);
-                            }
 
                             node.GridPosition = gridPosition;
                         }
@@ -196,6 +195,9 @@ namespace Shears.Grids
                             node.NodeObject.Grid = this;
                             node.NodeObject.GridPosition = gridPosition;
                         }
+
+                        if (grid.WithinBounds(worldPosition))
+                            nodesInBounds?.Add(node);
 
                         newNodes.Add(node);
                     }
@@ -381,12 +383,24 @@ namespace Shears.Grids
             var localMax = transform.InverseTransformPoint(worldMax);
             var gridMin = localMin.RoundToInt().ClampMin(0);
             var gridMax = localMax.RoundToInt().ClampMin(0);
+            var gridSize = gridMax - gridMin;
 
-            for (int z = gridMin.z; z < gridMax.z; z++)
+            GetNodesInBounds(
+                new BoundsInt(gridMin.x, gridMin.y, gridMin.z, gridSize.x, gridSize.y, gridSize.z),
+                nodes
+            );
+        }
+
+        public void GetNodesInBounds(BoundsInt gridBounds, List<GridNode> nodes)
+        {
+            var min = gridBounds.min;
+            var max = gridBounds.max;
+
+            for (int z = min.z; z < max.z; z++)
             {
-                for (int y = gridMin.y; y < gridMax.y; y++)
+                for (int y = min.y; y < max.y; y++)
                 {
-                    for (int x = gridMin.x; x < gridMax.x; x++)
+                    for (int x = min.x; x < max.x; x++)
                     {
                         if (TryGetNode(new(x, y, z), out var node))
                             nodes.Add(node);
@@ -395,7 +409,7 @@ namespace Shears.Grids
             }
         }
 
-        private Vector3Int ExpandToFit(Vector3Int minBounds, Vector3Int maxBounds)
+        public Vector3Int ExpandToFit(Vector3Int minBounds, Vector3Int maxBounds)
         {
             var currentMin = Vector3Int.zero;
             var currentMax = MaxGridExtent;

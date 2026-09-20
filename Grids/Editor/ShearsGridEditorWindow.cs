@@ -260,9 +260,43 @@ namespace Shears.Grids.Editor
             var header = VisualElementEditorUtil.CreateHeader("Paint Settings");
 
             var definitionField = new PropertyField();
-            definitionField.BindProperty(State.SelectedDefinitionProperty);
+            var brushSizeField = new PropertyField(State.BrushSizeProperty);
 
-            paintContainer.AddAll(header, definitionField);
+            definitionField.BindProperty(State.SelectedDefinitionProperty);
+            brushSizeField.BindProperty(State.BrushSizeProperty);
+
+            brushSizeField.RegisterValueChangeCallback(evt =>
+            {
+                var prop = evt.changedProperty;
+                var value = prop.vector3IntValue;
+                bool changed = false;
+
+                if (value.x <= 0)
+                {
+                    value.x = 1;
+                    changed = true;
+                }
+
+                if (value.y <= 0)
+                {
+                    value.y = 1;
+                    changed = true;
+                }
+
+                if (value.z <= 0)
+                {
+                    value.z = 1;
+                    changed = true;
+                }
+
+                if (changed)
+                {
+                    prop.vector3IntValue = value;
+                    prop.serializedObject.ApplyModifiedPropertiesWithoutUndo();
+                }
+            });
+
+            paintContainer.AddAll(header, definitionField, brushSizeField);
         }
 
         private void InitializeFillContainer()

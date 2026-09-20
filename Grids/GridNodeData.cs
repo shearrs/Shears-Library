@@ -17,8 +17,6 @@ namespace Shears.Grids
 
         internal void Dispose() { }
 
-        protected virtual void OnDetached() { }
-
         protected void BroadcastUpdate()
         {
             Updated?.Invoke(this);

@@ -26,6 +26,9 @@ namespace Shears.Grids.Editor
         private int viewDepth = 0;
 
         [SerializeField]
+        private Vector3Int brushSize = Vector3Int.one;
+
+        [SerializeField]
         private GridNodeDefinition selectedDefinition;
 
         [SerializeField]
@@ -37,6 +40,7 @@ namespace Shears.Grids.Editor
         public ViewMode ViewingMode => viewMode;
         public Axis ViewAxis => viewAxis;
         public int ViewDepth => viewDepth;
+        public Vector3Int BrushSize => brushSize;
         public ShearsGrid Grid { get; private set; }
         public IReadOnlyRef<GridTool> CurrentTool => currentTool;
         public GridNode SelectedNode => GetSelectedNode();
@@ -49,6 +53,7 @@ namespace Shears.Grids.Editor
         public SerializedProperty ViewModeProperty { get; private set; }
         public SerializedProperty ViewAxisProperty { get; private set; }
         public SerializedProperty ViewDepthProperty { get; private set; }
+        public SerializedProperty BrushSizeProperty { get; private set; }
         public SerializedProperty SelectedDefinitionProperty { get; private set; }
         public SerializedProperty SelectedFillDefinitionProperty { get; private set; }
 
@@ -79,6 +84,7 @@ namespace Shears.Grids.Editor
             ViewModeProperty = stateSO.FindProperty(nameof(viewMode));
             ViewAxisProperty = stateSO.FindProperty(nameof(viewAxis));
             ViewDepthProperty = stateSO.FindProperty(nameof(viewDepth));
+            BrushSizeProperty = stateSO.FindProperty(nameof(brushSize));
             SelectedDefinitionProperty = stateSO.FindProperty(nameof(selectedDefinition));
             SelectedFillDefinitionProperty = stateSO.FindProperty(nameof(selectedFillDefinition));
 

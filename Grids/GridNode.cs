@@ -212,7 +212,7 @@ namespace Shears.Grids
 
         public GridNode Clone()
         {
-            var clone = new GridNode(gridPosition);
+            var clone = new GridNode(gridPosition) { definition = definition };
             clone.data.Copy(data);
             clone.nodeObject = nodeObject;
 

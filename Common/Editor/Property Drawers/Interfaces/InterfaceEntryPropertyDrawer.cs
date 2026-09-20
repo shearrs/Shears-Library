@@ -6,20 +6,32 @@ using UnityEngine.UIElements;
 
 namespace Shears.Editor
 {
+    /// <summary>
+    /// Property drawer for <see cref="InterfaceEntry"/>s. Draws either a Unity Object field or a raw object depending on selected type.
+    /// </summary>
     [CustomPropertyDrawer(typeof(InterfaceEntry))]
     public class InterfaceEntryPropertyDrawer : PropertyDrawer
     {
+        /// <summary>
+        /// The resource path to load the interface icon from.
+        /// </summary>
         private const string SETTINGS_ICON_PATH = "Shears Interface Serialization/Interface Icon";
 
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
-            var root = new VisualElement() { name = $"{nameof(InterfaceEntry)} Property Drawer" };
+            var root = new VisualElement()
+            {
+                name = $"{nameof(InterfaceEntry)} Property Drawer",
+                style = { marginLeft = 3 },
+            };
+            root.AddBaseFieldAlignClass();
 
             var entry = property.boxedValue as InterfaceEntry;
             var typeProp = property.FindPropertyRelative("fieldType");
             var rawProp = property.FindPropertyRelative("rawObject");
             var unityObjectProp = property.FindPropertyRelative("unityObject");
 
+            // Create the type selector dropdown for selecting what concrete implementation to use.
             var dropdown = new TypeDropdown(
                 TypeSelectionMode.Inheritance,
                 entry.FieldType,
@@ -31,9 +43,11 @@ namespace Shears.Editor
                 new()
             );
 
+            // Create the Unity Object field persistently, the raw field is created when needed.
             var unityField = CreateObjectField(property, dropdown);
             VisualElement rawField = null;
 
+            // Callback to swap out what field is currently drawn depending on the current value.
             void updateField(SerializedProperty prop)
             {
                 if (rawProp.managedReferenceValue == null)
@@ -57,11 +71,22 @@ namespace Shears.Editor
             return root;
         }
 
+        /// <summary>
+        /// Show the type dropdown.
+        /// </summary>
+        /// <param name="bounds">A callback to get bounds with.</param>
+        /// <param name="dropdown">The dropdown to show.</param>
         private void ShowDropdown(Func<Rect> bounds, TypeDropdown dropdown)
         {
             dropdown.Show(bounds(), 300);
         }
 
+        /// <summary>
+        /// Callback when a type is selected in the <see cref="TypeDropdown"/>. Assigns the selected type value to the actual target property.
+        /// </summary>
+        /// <param name="rawProp">The raw C# object property.</param>
+        /// <param name="unityObjectProp">The Unity Object property.</param>
+        /// <param name="type">The selected type.</param>
         private void OnTypeSelected(
             SerializedProperty rawProp,
             SerializedProperty unityObjectProp,
@@ -94,6 +119,12 @@ namespace Shears.Editor
             EditorUtility.SetDirty(rawProp.serializedObject.targetObject);
         }
 
+        /// <summary>
+        /// Create a Unity Object field.
+        /// </summary>
+        /// <param name="property">The target <see cref="InterfaceEntry"/> property.</param>
+        /// <param name="dropdown">The <see cref="TypeDropdown"/>.</param>
+        /// <returns>A <see cref="VisualElement"/> containing a Unity Object field.</returns>
         private VisualElement CreateObjectField(SerializedProperty property, TypeDropdown dropdown)
         {
             var entry = property.boxedValue as InterfaceEntry;
@@ -149,6 +180,13 @@ namespace Shears.Editor
             return container;
         }
 
+        /// <summary>
+        /// Create a serialized field for a raw C# object.
+        /// </summary>
+        /// <param name="rawProp">The raw object property.</param>
+        /// <param name="dropdown">The <see cref="TypeDropdown"/>.</param>
+        /// <param name="entry">The concrete entry for this property.</param>
+        /// <returns>A <see cref="VisualElement"/> containing a raw C# object property field.</returns>
         private VisualElement CreateRawField(
             SerializedProperty rawProp,
             TypeDropdown dropdown,
@@ -160,29 +198,26 @@ namespace Shears.Editor
                 name = "Raw Field Container",
                 style = { flexDirection = FlexDirection.Row, width = StyleKeyword.Auto },
             };
+            container.AddBaseFieldAlignClass();
             var icon = CreateIcon();
             container.Add(icon);
 
             string fieldName = entry.FieldName.PascalSpace();
             string typeName = rawProp.managedReferenceValue.GetType().Name;
-            string fieldLabel = fieldName;
+            string fieldLabel = $"{fieldName} <color=#8E8E8E>({typeName})</color>";
 
-            if (fieldName.Length + typeName.Length < 24)
-                fieldLabel += $" ({typeName})";
-            else
-                fieldLabel += $" (...)";
-
-            var propertyField = new PropertyField(rawProp)
+            var propertyField = new PropertyField()
             {
                 label = fieldLabel,
-                style = { marginLeft = 30, flexGrow = 1 },
-                tooltip = $"{fieldName} is an interface field with type {typeName}.",
+                style = { marginLeft = 14, flexGrow = 1 },
+                tooltip = $"{fieldName} is an interface field with concrete type '{typeName}'",
             };
             var foldout = new Foldout()
             {
                 name = "Interface Serializer Foldout",
-                text = entry.FieldName.PascalSpace(),
+                text = fieldLabel,
                 style = { marginLeft = 30, flexGrow = 1 },
+                tooltip = $"{fieldName} is an interface field with concrete type '{typeName}'",
             };
 
             VisualElement currentField = null;
@@ -193,8 +228,6 @@ namespace Shears.Editor
 
                 if (property.managedReferenceValue == null)
                     return;
-
-                currentField?.RemoveFromHierarchy();
 
                 var value = property.managedReferenceValue;
 
@@ -208,7 +241,7 @@ namespace Shears.Editor
                 }
                 else
                 {
-                    propertyField.BindProperty(rawProp);
+                    propertyField.BindProperty(property);
                     currentField = propertyField;
                 }
 
@@ -237,6 +270,10 @@ namespace Shears.Editor
             return container;
         }
 
+        /// <summary>
+        /// Create a selectable interface icon for opening the <see cref="TypeSelector"/>.
+        /// </summary>
+        /// <returns>A selectable interface icon.</returns>
         private Image CreateIcon()
         {
             var settingsTexture = Resources.Load<Texture2D>(SETTINGS_ICON_PATH);

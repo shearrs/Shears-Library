@@ -9,12 +9,16 @@ namespace Shears.Pathfinding
     public class SurfaceNodeData : PathNodeData
     {
         [SerializeField]
+        private bool isBlocked = false;
+
+        [SerializeField, ShowIf("!isBlocked")]
         private bool isSlope = false;
 
-        [SerializeField, ShowIf(nameof(isSlope))]
+        [SerializeField, ShowIf(nameof(isSlope), "!isBlocked")]
         private SlopeDirection slopeDirection;
 
-        protected override Color EditorColor => Color.yellowNice;
+        protected override Color EditorColor => IsBlocked ? Color.red : Color.yellowNice;
+        public override bool IsBlocked => isBlocked || base.IsBlocked;
         public bool IsSlope => isSlope;
         public SlopeDirection SlopingDirection => slopeDirection;
 

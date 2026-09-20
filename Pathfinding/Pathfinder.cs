@@ -9,6 +9,7 @@ namespace Shears.Pathfinding
         private const int CARDINAL_COST = 10;
         private const int DIAGONAL_COST = 14;
 
+        [Header("Pathfinding")]
         [SerializeField]
         private bool drawGizmos = true;
 
@@ -18,6 +19,7 @@ namespace Shears.Pathfinding
         [SerializeField]
         private IPathEntity entity;
 
+        [Header("Behaviours")]
         [SerializeField]
         private IPathInitializeBehaviour initializeBehaviour = new DefaultInitializeBehaviour();
 
@@ -37,6 +39,11 @@ namespace Shears.Pathfinding
         private Dictionary<EntityPosition, int> entityPathCountMap;
         private EntityPosition currentTarget;
 
+        public PathGrid Grid
+        {
+            get => grid;
+            set => grid = value;
+        }
         public IReadOnlyList<PathPosition> Path => path;
 
         private class PathEntry : IHeapItem<PathEntry>

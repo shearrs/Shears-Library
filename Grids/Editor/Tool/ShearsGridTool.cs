@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.EditorTools;
 using UnityEngine;
@@ -110,6 +111,37 @@ namespace Shears.Grids.Editor
 
         private void PaintNode(GridNode node)
         {
+            if (State.BrushSize == Vector3Int.one)
+                PaintNodeSingle(node);
+            else
+            {
+                var min = node.GridPosition;
+                var max = node.GridPosition + State.BrushSize;
+                var size = max - min;
+                CollectionUtil.GetPooled(out List<GridNode> nodes);
+
+                grid.GetNodesInBounds(
+                    new BoundsInt(min.x, min.y, min.z, size.x, size.y, size.z),
+                    nodes
+                );
+
+                Undo.RegisterFullObjectHierarchyUndo(
+                    grid.gameObject,
+                    $"Paint Nodes at {min}-{max}"
+                );
+
+                foreach (var boundsNode in nodes)
+                    PaintNodeImplementation(boundsNode);
+
+                Undo.RegisterCompleteObjectUndo(grid, $"Paint Nodes at {min}-{max}");
+                EditorUtility.SetDirty(grid);
+
+                CollectionUtil.ReleasePooled(nodes);
+            }
+        }
+
+        private void PaintNodeSingle(GridNode node)
+        {
             if (node == null)
                 return;
 
@@ -118,37 +150,122 @@ namespace Shears.Grids.Editor
                 $"Paint Node at {node.GridPosition}"
             );
 
-            node.SetDefinition(State.SelectedDefinition);
-            node.CreateNodeObject(grid);
+            PaintNodeImplementation(node);
 
             Undo.RegisterCompleteObjectUndo(grid, $"Paint Node at {node.GridPosition}");
             EditorUtility.SetDirty(grid);
         }
 
+        private void PaintNodeImplementation(GridNode node)
+        {
+            if (node == null)
+                return;
+
+            node.SetDefinition(State.SelectedDefinition);
+            node.CreateNodeObject(grid);
+        }
+
         private void PaintAutomaticNode(Vector3Int gridPosition)
         {
-            var node = new GridNode(State.SelectedDefinition);
+            if (State.BrushSize == Vector3Int.one)
+                PaintAutomaticNodeSingle(gridPosition);
+            else
+            {
+                var min = gridPosition;
+                var max = gridPosition + State.BrushSize;
 
+                Undo.RegisterFullObjectHierarchyUndo(
+                    grid.gameObject,
+                    $"Paint Automatic Nodes at {min}-{max}"
+                );
+
+                var offset = grid.ExpandToFit(min, max);
+
+                for (int z = min.z; z < max.z; z++)
+                {
+                    for (int y = min.y; y < max.y; y++)
+                    {
+                        for (int x = min.x; x < max.x; x++)
+                        {
+                            var position = new Vector3Int(x, y, z) - offset;
+
+                            PaintAutomaticNodeImplementation(position);
+                        }
+                    }
+                }
+
+                Undo.RegisterCompleteObjectUndo(grid, $"Paint Automatic Nodes at {min}-{max}");
+                EditorUtility.SetDirty(grid);
+            }
+        }
+
+        private void PaintAutomaticNodeSingle(Vector3Int gridPosition)
+        {
             Undo.RegisterFullObjectHierarchyUndo(
                 grid.gameObject,
                 $"Paint Automatic Node at {gridPosition}"
             );
 
-            grid.SetNode(gridPosition, node);
-            node.CreateNodeObject(grid);
+            PaintAutomaticNodeImplementation(gridPosition);
 
             Undo.RegisterCompleteObjectUndo(grid, $"Paint Automatic Node at {gridPosition}");
             EditorUtility.SetDirty(grid);
         }
 
+        private void PaintAutomaticNodeImplementation(Vector3Int gridPosition)
+        {
+            var node = new GridNode(State.SelectedDefinition);
+            grid.SetNode(gridPosition, node);
+            node.CreateNodeObject(grid);
+        }
+
         private void EraseNode(GridNode node)
+        {
+            if (State.BrushSize == Vector3Int.one)
+                EraseNodeSingle(node);
+            else
+            {
+                var min = node.GridPosition;
+                var max = node.GridPosition + State.BrushSize;
+                var size = max - min;
+                CollectionUtil.GetPooled(out List<GridNode> nodes);
+
+                grid.GetNodesInBounds(
+                    new BoundsInt(min.x, min.y, min.z, size.x, size.y, size.z),
+                    nodes
+                );
+
+                Undo.RegisterFullObjectHierarchyUndo(
+                    grid.gameObject,
+                    $"Erase Nodes at {min}-{max}"
+                );
+
+                foreach (var boundsNode in nodes)
+                    EraseNodeImplementation(boundsNode);
+
+                EditorUtility.SetDirty(grid);
+                CollectionUtil.ReleasePooled(nodes);
+            }
+        }
+
+        private void EraseNodeSingle(GridNode node)
         {
             if (node == null)
                 return;
 
             Undo.RegisterFullObjectHierarchyUndo(grid, $"Erase Node at {node.GridPosition}");
-            node.SetDefinition(null);
+
+            EraseNodeImplementation(node);
+
             EditorUtility.SetDirty(grid);
+        }
+
+        private void EraseNodeImplementation(GridNode node)
+        {
+            if (node == null)
+                return;
+
+            node.SetDefinition(null);
         }
 
         private void Fill(GridNode node)

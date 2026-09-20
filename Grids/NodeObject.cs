@@ -19,30 +19,14 @@ namespace Shears.Grids
         public ShearsGrid Grid
         {
             get => grid;
-            internal set
-            {
-                if (grid != null)
-                    grid.NodesChanged -= OnNodesChanged;
-
-                grid = value;
-
-                if (grid != null)
-                    grid.NodesChanged += OnNodesChanged;
-            }
+            internal set => grid = value;
         }
         public GridNode Node => grid.GetNode(gridPosition);
 
-        public event Action GridChanged;
-
-        private void OnDestroy()
+        public event Action GridChanged
         {
-            if (grid != null)
-                grid.NodesChanged -= OnNodesChanged;
-        }
-
-        private void OnNodesChanged()
-        {
-            GridChanged?.Invoke();
+            add => Grid.NodesChanged += value;
+            remove => Grid.NodesChanged -= value;
         }
     }
 }

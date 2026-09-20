@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -11,35 +12,110 @@ namespace Shears.Editor
 {
     public class InterfaceSerializer
     {
+        private const string INTERFACE_ENTRIES_FIELD_NAME = "__interfaceEntries";
+
+        /// <summary>
+        /// Serialize the fields of the passed <see cref="SerializedObject"/>. Serializes fields normally, but also serializes interface fields.
+        /// </summary>
+        /// <param name="serializedObject">The target to serialize.</param>
+        /// <returns>A <see cref="VisualElement"/> containing all of the serialized fields.</returns>
         public static VisualElement SerializeFields(SerializedObject serializedObject)
         {
             var root = new VisualElement() { name = $"{nameof(IInterfaceSerializable)} Editor" };
             var defaultFields = VisualElementEditorUtil.CreateDefaultFields(
                 serializedObject,
                 true,
-                "__interfaceEntries"
+                INTERFACE_ENTRIES_FIELD_NAME
             );
 
-            var entryDictionaryProp = serializedObject.FindProperty("__interfaceEntries");
+            var entryDictionaryProp = serializedObject.FindProperty(INTERFACE_ENTRIES_FIELD_NAME);
+            var targetType = serializedObject.targetObject.GetType();
+
+            SerializeFields(defaultFields, entryDictionaryProp, targetType);
+
+            root.Add(defaultFields);
+
+            return root;
+        }
+
+        /// <summary>
+        /// Serialize the fields of the passed <see cref="SerializedProperty"/>. Serializes fields normally, but also serializes interface fields.
+        /// </summary>
+        /// <param name="property">The target to serialize.</param>
+        /// <returns>A <see cref="VisualElement"/> containing all of the serialized fields.</returns>
+        public static VisualElement SerializeFields(SerializedProperty property)
+        {
+            var root = new VisualElement() { name = $"{nameof(IInterfaceSerializable)} Editor" };
+
+            if (
+                property.propertyType == SerializedPropertyType.ManagedReference
+                && property.managedReferenceValue == null
+            )
+                return root;
+
+            var defaultFields = VisualElementEditorUtil.CreateDefaultFields(
+                property,
+                INTERFACE_ENTRIES_FIELD_NAME
+            );
+
+            var entryDictionaryProp = property.FindPropertyRelative(INTERFACE_ENTRIES_FIELD_NAME);
+            var targetType = property.boxedValue.GetType();
+
+            SerializeFields(defaultFields, entryDictionaryProp, targetType);
+
+            root.Add(defaultFields);
+
+            return root;
+        }
+
+        /// <summary>
+        /// Serialize the entries in an <see cref="InterfaceDictionary"/> property and insert their fields into a <see cref="VisualElement"/>.
+        /// </summary>
+        /// <param name="fieldsContainer">The container for the fields.</param>
+        /// <param name="entryDictionaryProp">The <see cref="SerializedProperty"/> for the <see cref="InterfaceDictionary"/>.</param>
+        /// <param name="targetType">The target <see cref="Type"/> to serialize.</param>
+        private static void SerializeFields(
+            VisualElement fieldsContainer,
+            SerializedProperty entryDictionaryProp,
+            Type targetType
+        )
+        {
             var entriesProp = entryDictionaryProp.FindPropertyRelative("entries");
 
-            var targetType = serializedObject.targetObject.GetType();
-            var serializedFields = targetType
-                .GetFields(
-                    BindingFlags.Instance
-                        | BindingFlags.Public
-                        | BindingFlags.NonPublic
-                        | BindingFlags.FlattenHierarchy
-                )
-                .Where(field => field.IsDefined(typeof(SerializeField), true))
-                .ToArray();
-
+            CollectionUtil.GetPooled(out List<Type> types);
+            CollectionUtil.GetPooled(out List<FieldInfo> serializedFields);
             CollectionUtil.GetPooled(out Dictionary<string, int> fieldIndex);
 
-            for (int i = 0; i < serializedFields.Length; i++)
+            var currentType = targetType;
+            while (
+                currentType != null
+                && targetType != typeof(MonoBehaviour)
+                && targetType != typeof(ScriptableObject)
+            )
+            {
+                types.Add(currentType);
+                currentType = currentType.BaseType;
+            }
+
+            types.Reverse();
+
+            foreach (var type in types)
+            {
+                var fields = type.GetFields(
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
+                );
+
+                foreach (var field in fields)
+                {
+                    if (field.IsDefined(typeof(SerializeField), true))
+                        serializedFields.Add(field);
+                }
+            }
+
+            for (int i = 0; i < serializedFields.Count; i++)
             {
                 var field = serializedFields[i];
-                fieldIndex[field.Name] = i + 1;
+                fieldIndex[field.Name] = i;
             }
 
             for (int i = 0; i < entriesProp.arraySize; i++)
@@ -56,42 +132,29 @@ namespace Shears.Editor
                     continue;
                 }
 
-                index = Mathf.Min(index, defaultFields.childCount);
+                index = Mathf.Min(index, fieldsContainer.childCount);
 
-                defaultFields.Insert(index, valueField);
+                VisualElement valueContainer = valueField;
+                var field = serializedFields[index];
+                var header = field.GetCustomAttribute<HeaderAttribute>();
+
+                if (header != null)
+                {
+                    var container = new VisualElement() { name = "Interface Field Container" };
+                    container.AddBaseFieldAlignClass();
+                    var headerElement = VisualElementEditorUtil.CreateHeader(header.header);
+                    headerElement.style.marginLeft = 3;
+
+                    container.AddAll(headerElement, valueField);
+                    valueContainer = container;
+                }
+
+                fieldsContainer.Insert(index, valueContainer);
             }
 
+            CollectionUtil.ReleasePooled(types);
+            CollectionUtil.ReleasePooled(serializedFields);
             CollectionUtil.ReleasePooled(fieldIndex);
-
-            root.Add(defaultFields);
-
-            return root;
-        }
-
-        public static VisualElement SerializeFields(SerializedProperty property)
-        {
-            var root = new VisualElement() { name = $"{nameof(IInterfaceSerializable)} Editor" };
-            var defaultFields = VisualElementEditorUtil.CreateDefaultFields(
-                property,
-                "__interfaceEntries"
-            );
-
-            var entryDictionaryProp = property.FindPropertyRelative("__interfaceEntries");
-            var entriesProp = entryDictionaryProp.FindPropertyRelative("entries");
-
-            for (int i = 0; i < entriesProp.arraySize; i++)
-            {
-                var entryProp = entriesProp.GetArrayElementAtIndex(i);
-                var valueProp = entryProp.FindPropertyRelative("value");
-                var valueField = new PropertyField(valueProp);
-                valueField.BindProperty(valueProp);
-
-                defaultFields.Add(valueField);
-            }
-
-            root.Add(defaultFields);
-
-            return root;
         }
     }
 }

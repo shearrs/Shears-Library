@@ -18,12 +18,6 @@ namespace Shears.Pathfinding
         private void Awake()
         {
             UpdateSurfaces();
-
-            var info = new List<GridNodeInfo<DoorwayNodeData>>();
-            GetAllNodeData(info);
-
-            info[0].Data.ConnectedNode = Grid.GetNode(info[1].GridPosition);
-            info[2].Data.ConnectedNode = Grid.GetNode(info[3].GridPosition);
         }
 
         public bool TryGetNodeData<T>(out GridNodeInfo<T> info)
@@ -100,9 +94,9 @@ namespace Shears.Pathfinding
                 return true;
         }
 
-        public void InsertGrid(PathGrid Grid, List<GridNode> clonedNodes = null)
+        public void InsertGrid(PathGrid grid, List<GridNode> nodesInBounds = null)
         {
-            this.Grid.InsertGrid(Grid.Grid, clonedNodes);
+            Grid.InsertGrid(grid.Grid, nodesInBounds);
 
             UpdateSurfaces();
         }
