@@ -45,6 +45,7 @@ namespace Shears.Pathfinding
             set => grid = value;
         }
         public IReadOnlyList<PathPosition> Path => path;
+        public IPathInitializeBehaviour InitializeBehaviour => initializeBehaviour;
 
         private class PathEntry : IHeapItem<PathEntry>
         {
@@ -118,6 +119,8 @@ namespace Shears.Pathfinding
 
         public void CalculatePath(Vector3 start, Vector3 target)
         {
+            LogWarning("calculate path");
+
             if (grid == null)
             {
                 LogError("Grid is null!");
@@ -262,7 +265,7 @@ namespace Shears.Pathfinding
             {
                 if (startSurface.IsSlope)
                 {
-                    var slopeOffset = GetSlopeOffset(startSurface, 0.01f);
+                    var slopeOffset = GetSlopeOffset(startSurface);
                     var slopePosition = startSurface.WorldPosition;
                     var connectingPosition = slopePosition + slopeOffset;
                     var targetSurface = initialSurface.WorldPosition;
@@ -398,19 +401,36 @@ namespace Shears.Pathfinding
 
         private Vector3 GetBridgingOffset(SurfaceEntityPosition previousPosition)
         {
-            return 0.45f * previousPosition.SurfaceNormal;
+            return 0.499f * Grid.NodeSize * previousPosition.SurfaceNormal;
         }
 
-        private Vector3 GetSlopeOffset(SurfaceEntityPosition surface, float extraOffset = 0.0f)
+        private Vector3 GetSlopeOffset(SurfaceEntityPosition surface)
         {
-            var nodeSize = (0.5f + extraOffset) * grid.NodeSize;
+            var nodeSize = 0.5f * grid.NodeSize;
+            const float VERTICAL_BIAS = PathGrid.SurfaceBias;
 
             return surface.SlopeDirection switch
             {
-                SurfaceNodeData.SlopeDirection.UpLeft => new Vector3(-nodeSize, nodeSize, 0),
-                SurfaceNodeData.SlopeDirection.UpRight => new Vector3(nodeSize, nodeSize, 0),
-                SurfaceNodeData.SlopeDirection.DownLeft => new Vector3(-nodeSize, -nodeSize, 0),
-                SurfaceNodeData.SlopeDirection.DownRight => new Vector3(nodeSize, -nodeSize, 0),
+                SurfaceNodeData.SlopeDirection.UpLeft => new Vector3(
+                    -nodeSize,
+                    nodeSize + VERTICAL_BIAS,
+                    0
+                ),
+                SurfaceNodeData.SlopeDirection.UpRight => new Vector3(
+                    nodeSize,
+                    nodeSize + VERTICAL_BIAS,
+                    0
+                ),
+                SurfaceNodeData.SlopeDirection.DownLeft => new Vector3(
+                    -nodeSize,
+                    -nodeSize - VERTICAL_BIAS,
+                    0
+                ),
+                SurfaceNodeData.SlopeDirection.DownRight => new Vector3(
+                    nodeSize,
+                    -nodeSize - VERTICAL_BIAS,
+                    0
+                ),
                 _ => Vector3.zero,
             };
         }
@@ -444,7 +464,7 @@ namespace Shears.Pathfinding
             {
                 if (previousSurface.IsSlope)
                 {
-                    var slopeOffset = GetSlopeOffset(previousSurface, 0.01f);
+                    var slopeOffset = GetSlopeOffset(previousSurface);
                     var slopePosition = previousSurface.WorldPosition + slopeOffset;
 
                     AddPathPosition(
@@ -456,6 +476,7 @@ namespace Shears.Pathfinding
                     if (previousSurface.SurfaceGridPosition == currentSurface.SurfaceGridPosition)
                     {
                         var bridgingOffset = GetBridgingOffset(previousSurface);
+
                         AddPathPosition(
                             new(
                                 currentPosition,

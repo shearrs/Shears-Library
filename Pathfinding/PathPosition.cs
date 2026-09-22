@@ -8,7 +8,7 @@ namespace Shears.Pathfinding
         public EntityPosition EntityPosition { get; }
         public Vector3 WorldPosition { get; }
         public Vector3 Normal { get; }
-        public Vector3 GridPosition => EntityPosition.GridPosition;
+        public Vector3Int GridPosition => EntityPosition.GridPosition;
 
         public PathPosition(EntityPosition entityPosition, Vector3 position, Vector3 normal)
         {

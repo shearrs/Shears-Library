@@ -286,6 +286,28 @@ namespace Shears.Pathfinding
                         )
                     )
                         addNeighbor(backSurface);
+
+                    if (currentSurface.SurfaceDirection == Direction.Up)
+                    {
+                        var offset = Vector3Int.down;
+                        while (tryGetGroupFromOffset(offset, out var belowGroup))
+                        {
+                            if (belowGroup.Center != null && belowGroup.Down != null)
+                            {
+                                addNeighbor(belowGroup.Down);
+                                break;
+                            }
+
+                            if (
+                                belowGroup.Up != null
+                                || belowGroup.Down != null
+                                || belowGroup.Center is SurfaceEntityPosition
+                            )
+                                break;
+
+                            offset += Vector3Int.down;
+                        }
+                    }
                 }
             }
             else

@@ -16,15 +16,75 @@ namespace Shears.Pathfinding
         {
             var grid = data.Grid;
             var worldPosition = data.WorldPosition;
-            var surfaceDirection = entity.DesiredSurfaceDirection;
+            var desiredDirection = entity.DesiredSurfaceDirection;
+            var previousPosition = entity.PreviousPosition;
 
             startPosition = null;
 
             if (!grid.TryGetPositionGroup(worldPosition, out var positionGroup))
                 return false;
 
-            if (!positionGroup.TryGetPositionInDirection(surfaceDirection, out var startSurface))
+            if (!positionGroup.TryGetPositionInDirection(desiredDirection, out var startSurface))
             {
+                if (
+                    previousPosition != null
+                    && previousPosition.EntityPosition is SurfaceEntityPosition previousSurface
+                    && previousSurface.SurfaceDirection != desiredDirection
+                )
+                {
+                    var cornerCalculatePosition =
+                        worldPosition
+                        + (0.5f * grid.NodeSize * previousSurface.SurfaceDirection.ToVector())
+                        - 0.5f * grid.NodeSize * desiredDirection.ToVector();
+
+                    Log("try get corner position");
+                    if (
+                        grid.TryGetPositionGroup(cornerCalculatePosition, out var cornerGroup)
+                        && cornerGroup.TryGetPositionInDirection(
+                            desiredDirection,
+                            out var cornerPosition
+                        )
+                    )
+                    {
+                        startPosition = cornerPosition;
+                        return true;
+                    }
+
+                    cornerCalculatePosition =
+                        worldPosition
+                        + (0.5f * grid.NodeSize * previousSurface.SurfaceDirection.ToVector());
+
+                    if (
+                        grid.TryGetPositionGroup(cornerCalculatePosition, out cornerGroup)
+                        && cornerGroup.TryGetPositionInDirection(
+                            desiredDirection,
+                            out cornerPosition
+                        )
+                    )
+                    {
+                        startPosition = cornerPosition;
+                        return true;
+                    }
+
+                    Log("didn't get it...");
+                }
+
+                var belowCalculatePosition =
+                    worldPosition
+                    + (0.25f * grid.NodeSize * entity.DesiredSurfaceDirection.ToVector());
+
+                if (grid.TryGetPositionGroup(belowCalculatePosition, out var belowGroup))
+                {
+                    if (
+                        belowGroup.Center is SurfaceEntityPosition belowSurface
+                        && belowSurface.IsSlope
+                    )
+                    {
+                        startPosition = belowSurface;
+                        return true;
+                    }
+                }
+
                 if (positionGroup.Down != null)
                     startPosition = positionGroup.Down;
                 else if (positionGroup.Left != null)

@@ -8,6 +8,8 @@ namespace Shears.Pathfinding
     [RequireComponent(typeof(ShearsGrid))]
     public class PathGrid : ShearsBehaviour
     {
+        public const float SurfaceBias = 0.001f;
+
         private readonly Dictionary<GridNode, EntityPositionGroup> nodePositions = new();
         private ShearsGrid grid;
 
@@ -148,14 +150,17 @@ namespace Shears.Pathfinding
                 if (!surface.IsSlope)
                     return new(null, null, null, null, null);
 
+                var surfacePosition =
+                    worldPosition + SurfaceBias * surface.SlopingDirection.GetNormal(Grid);
+
                 center = new SurfaceEntityPosition(
                     node,
                     GridPosition,
-                    worldPosition,
+                    surfacePosition,
                     node,
                     GridPosition,
                     surface.SlopingDirection.GetNormal(Grid),
-                    Direction.Up,
+                    Direction.Down,
                     surface
                 );
 
@@ -177,8 +182,9 @@ namespace Shears.Pathfinding
                     else
                     {
                         var upWorldPosition = Grid.GetWorldPosition(upNode);
-                        var surfacePosition = 0.5f * (worldPosition + upWorldPosition);
                         var normal = Grid.transform.TransformDirection(Vector3.down);
+                        var surfacePosition =
+                            (0.5f * (worldPosition + upWorldPosition)) + (SurfaceBias * normal);
 
                         up = new SurfaceEntityPosition(
                             node,
@@ -210,8 +216,9 @@ namespace Shears.Pathfinding
                         down = null;
                     else
                     {
-                        var surfacePosition = 0.5f * (worldPosition + downWorldPosition);
                         var normal = Grid.transform.TransformDirection(Vector3.up);
+                        var surfacePosition =
+                            (0.5f * (worldPosition + downWorldPosition)) + (SurfaceBias * normal);
 
                         down = new SurfaceEntityPosition(
                             node,
@@ -243,8 +250,9 @@ namespace Shears.Pathfinding
                         left = null;
                     else
                     {
-                        var surfacePosition = 0.5f * (worldPosition + leftWorldPosition);
                         var normal = Grid.transform.TransformDirection(Vector3.right);
+                        var surfacePosition =
+                            (0.5f * (worldPosition + leftWorldPosition)) + (SurfaceBias * normal);
 
                         left = new SurfaceEntityPosition(
                             node,
@@ -276,8 +284,9 @@ namespace Shears.Pathfinding
                         right = null;
                     else
                     {
-                        var surfacePosition = 0.5f * (worldPosition + rightWorldPosition);
                         var normal = Grid.transform.TransformDirection(Vector3.left);
+                        var surfacePosition =
+                            (0.5f * (worldPosition + rightWorldPosition)) + (SurfaceBias * normal);
 
                         right = new SurfaceEntityPosition(
                             node,
