@@ -147,7 +147,7 @@ namespace Shears.Pathfinding
 
             if (node.TryGetData(out SurfaceNodeData surface))
             {
-                if (!surface.IsSlope)
+                if (!surface.IsSlope || surface.IsBlocked)
                     return new(null, null, null, null, null);
 
                 var surfacePosition =
@@ -169,7 +169,7 @@ namespace Shears.Pathfinding
 
             if (Grid.TryGetNode(GridPosition.With(y: GridPosition.y + 1), out var upNode))
             {
-                if (upNode.TryGetData(out SurfaceNodeData upSurface))
+                if (upNode.TryGetData(out SurfaceNodeData upSurface) && !upSurface.IsBlocked)
                 {
                     if (
                         upSurface.IsSlope
@@ -204,7 +204,7 @@ namespace Shears.Pathfinding
             {
                 var downWorldPosition = Grid.GetWorldPosition(downNode);
 
-                if (downNode.TryGetData(out SurfaceNodeData downSurface))
+                if (downNode.TryGetData(out SurfaceNodeData downSurface) && !downSurface.IsBlocked)
                 {
                     if (
                         downSurface.IsSlope
@@ -238,7 +238,7 @@ namespace Shears.Pathfinding
             {
                 var leftWorldPosition = Grid.GetWorldPosition(leftNode);
 
-                if (leftNode.TryGetData(out SurfaceNodeData leftSurface))
+                if (leftNode.TryGetData(out SurfaceNodeData leftSurface) && !leftSurface.IsBlocked)
                 {
                     if (
                         leftSurface.IsSlope
@@ -272,7 +272,10 @@ namespace Shears.Pathfinding
             {
                 var rightWorldPosition = Grid.GetWorldPosition(rightNode);
 
-                if (rightNode.TryGetData(out SurfaceNodeData rightSurface))
+                if (
+                    rightNode.TryGetData(out SurfaceNodeData rightSurface)
+                    && !rightSurface.IsBlocked
+                )
                 {
                     if (
                         rightSurface.IsSlope

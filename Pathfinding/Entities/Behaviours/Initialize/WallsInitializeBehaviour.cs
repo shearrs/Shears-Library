@@ -37,7 +37,6 @@ namespace Shears.Pathfinding
                         + (0.5f * grid.NodeSize * previousSurface.SurfaceDirection.ToVector())
                         - 0.5f * grid.NodeSize * desiredDirection.ToVector();
 
-                    Log("try get corner position");
                     if (
                         grid.TryGetPositionGroup(cornerCalculatePosition, out var cornerGroup)
                         && cornerGroup.TryGetPositionInDirection(
@@ -65,8 +64,6 @@ namespace Shears.Pathfinding
                         startPosition = cornerPosition;
                         return true;
                     }
-
-                    Log("didn't get it...");
                 }
 
                 var belowCalculatePosition =
@@ -99,7 +96,29 @@ namespace Shears.Pathfinding
                     return false;
             }
             else
+            {
+                if (
+                    previousPosition != null
+                    && previousPosition.EntityPosition is SurfaceEntityPosition previousSurface
+                    && previousSurface.SurfaceDirection != desiredDirection
+                )
+                {
+                    var previousSqrDistance = (
+                        previousPosition.WorldPosition - entity.WorldPosition
+                    ).sqrMagnitude;
+                    var nextSqrDistance = (
+                        startSurface.WorldPosition - entity.WorldPosition
+                    ).sqrMagnitude;
+
+                    if (previousSqrDistance < nextSqrDistance)
+                    {
+                        startPosition = previousSurface;
+                        return true;
+                    }
+                }
+
                 startPosition = startSurface;
+            }
 
             return true;
         }
@@ -107,6 +126,27 @@ namespace Shears.Pathfinding
         public bool TryGetTargetPosition(
             IPathInitializeBehaviour.ExecuteData data,
             out EntityPosition targetPosition
-        ) => DefaultInitializeBehaviour.StaticTryGetTargetPosition(data, out targetPosition);
+        )
+        {
+            var grid = data.Grid;
+            var worldPosition = data.WorldPosition;
+
+            targetPosition = null;
+
+            if (!grid.TryGetPositionGroup(worldPosition, out var positionGroup))
+                return false;
+
+            if (
+                positionGroup.TryGetPositionInDirection(
+                    entity.DesiredSurfaceDirection,
+                    out var targetSurface
+                )
+            )
+                targetPosition = targetSurface;
+            else if (positionGroup.TryGetPositionInDirection(Direction.Down, out targetSurface))
+                targetPosition = targetSurface;
+
+            return targetPosition != null;
+        }
     }
 }

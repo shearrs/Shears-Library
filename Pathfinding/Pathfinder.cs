@@ -119,8 +119,6 @@ namespace Shears.Pathfinding
 
         public void CalculatePath(Vector3 start, Vector3 target)
         {
-            LogWarning("calculate path");
-
             if (grid == null)
             {
                 LogError("Grid is null!");
@@ -177,7 +175,6 @@ namespace Shears.Pathfinding
             }
             else if (start == target)
             {
-                LogWarning("Start is the same as target.");
                 currentTarget = target;
                 return;
             }
@@ -269,7 +266,7 @@ namespace Shears.Pathfinding
                     var slopePosition = startSurface.WorldPosition;
                     var connectingPosition = slopePosition + slopeOffset;
                     var targetSurface = initialSurface.WorldPosition;
-                    var currentSqrDistance = (targetSurface - entity.Position).sqrMagnitude;
+                    var currentSqrDistance = (targetSurface - entity.WorldPosition).sqrMagnitude;
                     var sqrSlopeDistance = (targetSurface - slopePosition).sqrMagnitude;
                     var sqrConnectingDistance = (targetSurface - connectingPosition).sqrMagnitude;
 
@@ -399,9 +396,9 @@ namespace Shears.Pathfinding
             return weightBehaviour.GetWeight(new(currentPosition, targetPosition, entity));
         }
 
-        private Vector3 GetBridgingOffset(SurfaceEntityPosition previousPosition)
+        private Vector3 GetBridgingOffset(SurfaceEntityPosition currentPosition)
         {
-            return 0.499f * Grid.NodeSize * previousPosition.SurfaceNormal;
+            return 0.5f * Grid.NodeSize * currentPosition.SurfaceNormal;
         }
 
         private Vector3 GetSlopeOffset(SurfaceEntityPosition surface)
@@ -475,13 +472,13 @@ namespace Shears.Pathfinding
                 {
                     if (previousSurface.SurfaceGridPosition == currentSurface.SurfaceGridPosition)
                     {
-                        var bridgingOffset = GetBridgingOffset(previousSurface);
+                        var bridgingOffset = GetBridgingOffset(currentSurface);
 
                         AddPathPosition(
                             new(
-                                currentPosition,
-                                currentSurface.WorldPosition + bridgingOffset,
-                                currentSurface.SurfaceNormal
+                                previousPosition,
+                                previousPosition.WorldPosition + bridgingOffset,
+                                previousSurface.SurfaceNormal
                             )
                         );
                     }
@@ -601,9 +598,9 @@ namespace Shears.Pathfinding
             }
             else
             {
-                if (!TryGetStartPosition(entity.Position, out var startPosition))
+                if (!TryGetStartPosition(entity.WorldPosition, out var startPosition))
                 {
-                    LogError($"Could not find starting position at: {entity.Position}.");
+                    LogError($"Could not find starting position at: {entity.WorldPosition}.");
                     Clear();
                     return;
                 }
@@ -625,9 +622,22 @@ namespace Shears.Pathfinding
 
             Gizmos.color = Color.magenta;
 
-            if (TryGetStartPosition(entity.Position, out var currentEntityPosition))
+            var calculatePosition =
+                entity.WorldPosition
+                + (
+                    PathGrid.SurfaceBias
+                    * grid.NodeSize
+                    * -entity.DesiredSurfaceDirection.ToVector()
+                );
+
+            if (TryGetStartPosition(calculatePosition, out var currentEntityPosition))
             {
-                GizmosUtil.DrawWireDisc(currentEntityPosition.WorldPosition, Vector3.up, 0.25f);
+                var normal = Vector3.up;
+
+                if (currentEntityPosition is SurfaceEntityPosition currentSurface)
+                    normal = currentSurface.SurfaceNormal;
+
+                GizmosUtil.DrawWireDisc(currentEntityPosition.WorldPosition, normal, 0.25f);
 
                 if (path.Count > 0)
                 {
