@@ -1,5 +1,6 @@
 using Shears.Logging;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 
 namespace Shears.Pathfinding
 {
@@ -22,10 +23,31 @@ namespace Shears.Pathfinding
 
             if (!positionGroup.TryGetPositionInDirection(surfaceDirection, out var startSurface))
             {
-                if (positionGroup.Center != null)
-                    startPosition = positionGroup.Center;
-                else
-                    return false;
+                if (
+                    positionGroup.Center is SurfaceEntityPosition centerSurface
+                    && centerSurface.IsSlope
+                )
+                {
+                    startPosition = centerSurface;
+                    return true;
+                }
+
+                var belowCalculatePosition =
+                    worldPosition + (0.25f * grid.NodeSize * Direction.Down.ToVector());
+
+                if (grid.TryGetPositionGroup(belowCalculatePosition, out var belowGroup))
+                {
+                    if (
+                        belowGroup.Center is SurfaceEntityPosition belowSurface
+                        && belowSurface.IsSlope
+                    )
+                    {
+                        startPosition = belowSurface;
+                        return true;
+                    }
+                }
+
+                return false;
             }
             else
                 startPosition = startSurface;

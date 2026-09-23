@@ -39,6 +39,7 @@ namespace Shears.Editor
                 type => OnTypeSelected(rawProp, unityObjectProp, type),
                 t =>
                     !t.IsSubclassOf(typeof(MonoBehaviour))
+                    && !t.IsSubclassOf(typeof(ScriptableObject))
                     && (t.IsValueType || t.GetConstructor(Type.EmptyTypes) != null),
                 new()
             );
