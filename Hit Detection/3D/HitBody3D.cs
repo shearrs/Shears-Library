@@ -15,7 +15,12 @@ namespace Shears.HitDetection
         public SHLogLevels LogLevels { get; set; } = SHLogLevels.Log | SHLogUtil.Issues;
 
         [Header("Components")]
-        [SerializeField]
+        [
+            SerializeField,
+            Tooltip(
+                "The owner of this hit body. Only exists for logic that would want to know this."
+            )
+        ]
         private GameObject owner;
 
         [SerializeField, Tooltip("Optional provider for extra data to be sent with hits.")]
@@ -56,7 +61,7 @@ namespace Shears.HitDetection
         private List<HurtBody3D> unclearedHits;
         private List<HurtBody3D> foundHurtbodies;
         private Dictionary<HurtBody3D, MappedHit> finalHits;
-        private List<int> sortedHits = new();
+        private List<int> sortedHits;
 
         public GameObject Owner
         {
@@ -121,10 +126,10 @@ namespace Shears.HitDetection
         #region Initialization
         private void Awake()
         {
-            unclearedHits = ListPool<HurtBody3D>.Get();
-            foundHurtbodies = ListPool<HurtBody3D>.Get();
-            finalHits = DictionaryPool<HurtBody3D, MappedHit>.Get();
-            sortedHits = ListPool<int>.Get();
+            CollectionUtil.GetPooled(out unclearedHits);
+            CollectionUtil.GetPooled(out foundHurtbodies);
+            CollectionUtil.GetPooled(out finalHits);
+            CollectionUtil.GetPooled(out sortedHits);
 
             for (int i = 0; i < shapes.Count; i++)
                 shapes[i].Body = this;
@@ -138,10 +143,13 @@ namespace Shears.HitDetection
 
         private void OnDestroy()
         {
-            ListPool<HurtBody3D>.Release(unclearedHits);
-            ListPool<HurtBody3D>.Release(foundHurtbodies);
-            DictionaryPool<HurtBody3D, MappedHit>.Release(finalHits);
-            ListPool<int>.Release(sortedHits);
+            if (unclearedHits == null)
+                return;
+
+            CollectionUtil.ReleasePooled(unclearedHits);
+            CollectionUtil.ReleasePooled(foundHurtbodies);
+            CollectionUtil.ReleasePooled(finalHits);
+            CollectionUtil.ReleasePooled(sortedHits);
         }
 
         public void Enable()

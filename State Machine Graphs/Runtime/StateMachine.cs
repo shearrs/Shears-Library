@@ -110,6 +110,8 @@ namespace Shears.StateMachineGraphs
         {
             if (manualUpdate)
                 return;
+
+            UpdateStates();
         }
 
         public void ManualUpdate() => UpdateStates();
