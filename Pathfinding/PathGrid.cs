@@ -312,12 +312,12 @@ namespace Shears.Pathfinding
 
         private void OnDrawGizmosSelected()
         {
-            Gizmos.color = Color.blue;
-
             foreach (var node in Grid.Nodes)
             {
                 if (nodePositions.TryGetValue(node, out var group))
                 {
+                    Gizmos.color = Color.blue;
+
                     if (group.Up is SurfaceEntityPosition topSurface)
                         Gizmos.DrawRay(topSurface.WorldPosition, topSurface.SurfaceNormal);
 
@@ -329,6 +329,12 @@ namespace Shears.Pathfinding
 
                     if (group.Left is SurfaceEntityPosition leftSurface)
                         Gizmos.DrawRay(leftSurface.WorldPosition, leftSurface.SurfaceNormal);
+
+                    if (group.Center is AirEntityPosition air)
+                    {
+                        Gizmos.color = Color.yellow;
+                        Gizmos.DrawRay(air.WorldPosition, Vector3.forward);
+                    }
                 }
             }
         }

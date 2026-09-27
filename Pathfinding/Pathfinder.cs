@@ -128,14 +128,14 @@ namespace Shears.Pathfinding
 
             if (!TryGetStartPosition(start, out var startPosition))
             {
-                LogVerbose($"Could not find starting position at: {start}.");
+                LogError($"Could not find starting position at: {start}.");
                 Clear();
                 return;
             }
 
             if (!TryGetTargetPosition(target, out var targetPosition))
             {
-                LogVerbose($"Could not find target position at: {target}.");
+                LogError($"Could not find target position at: {target}.");
                 Clear();
                 return;
             }

@@ -35,16 +35,19 @@ namespace Shears.Pathfinding
                 var belowCalculatePosition =
                     worldPosition + (0.25f * grid.NodeSize * Direction.Down.ToVector());
 
-                if (grid.TryGetPositionGroup(belowCalculatePosition, out var belowGroup))
+                if (
+                    grid.TryGetPositionGroup(belowCalculatePosition, out var belowGroup)
+                    && belowGroup.Center is SurfaceEntityPosition belowSurface
+                    && belowSurface.IsSlope
+                )
                 {
-                    if (
-                        belowGroup.Center is SurfaceEntityPosition belowSurface
-                        && belowSurface.IsSlope
-                    )
-                    {
-                        startPosition = belowSurface;
-                        return true;
-                    }
+                    startPosition = belowSurface;
+                    return true;
+                }
+                else if (positionGroup.Center is AirEntityPosition airPosition)
+                {
+                    startPosition = airPosition;
+                    return true;
                 }
 
                 return false;
