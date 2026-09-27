@@ -7,7 +7,7 @@ using UnityEngine.Pool;
 
 namespace Shears.HitDetection
 {
-    public class HitBody3D : MonoBehaviour, ISHLoggable
+    public partial class HitBody3D : MonoBehaviour, ISHLoggable
     {
         #region Variables
         [field: Header("Logging")]
@@ -48,6 +48,10 @@ namespace Shears.HitDetection
         ]
         private bool multiHits;
 
+        [SerializeField, Tooltip("The duration of time in-between multi-hits.")]
+        [ShowIf(nameof(multiHits))]
+        private float multiHitTime = 0.1f;
+
         [SerializeField, Tooltip("Whether or not this HitBody3D is unblockable.")]
         private bool unblockable = false;
 
@@ -56,6 +60,9 @@ namespace Shears.HitDetection
 
         [SerializeField, Tooltip("An optional list of HurtBody3Ds to ignore detection for.")]
         protected List<HurtBody3D> ignoreList;
+
+        [AutoEvent(nameof(Timer.Completed), nameof(ClearHits))]
+        private readonly Timer multiHitTimer = TimerPool.Get();
 
         private bool isEnabled = false;
         private List<HurtBody3D> unclearedHits;
@@ -89,6 +96,11 @@ namespace Shears.HitDetection
         {
             get => multiHits;
             set => multiHits = value;
+        }
+        public float MultiHitTime
+        {
+            get => multiHitTime;
+            set => multiHitTime = value;
         }
         public bool Unblockable
         {
@@ -150,6 +162,7 @@ namespace Shears.HitDetection
             CollectionUtil.ReleasePooled(foundHurtbodies);
             CollectionUtil.ReleasePooled(finalHits);
             CollectionUtil.ReleasePooled(sortedHits);
+            TimerPool.Release(multiHitTimer);
         }
 
         public void Enable()
@@ -157,7 +170,7 @@ namespace Shears.HitDetection
             if (isEnabled)
                 return;
 
-            unclearedHits.Clear();
+            ClearHits();
             isEnabled = true;
             Enabled?.Invoke();
         }
@@ -168,6 +181,7 @@ namespace Shears.HitDetection
                 return;
 
             isEnabled = false;
+            multiHitTimer.Stop();
             Disabled?.Invoke();
         }
 
@@ -215,6 +229,12 @@ namespace Shears.HitDetection
             DeliverHits();
         }
 
+        internal void OnHitDelivered(HitData3D data)
+        {
+            this.LogVerbose("HitBody3D delivered a hit.");
+            HitDelivered?.Invoke(data);
+        }
+
         private void ValidateHits(
             HitShape3D shape,
             HitResult3D[] results,
@@ -250,7 +270,7 @@ namespace Shears.HitDetection
                     continue;
                 }
 
-                if (unclearedHits.Contains(hurtBody) && !multiHits)
+                if (unclearedHits.Contains(hurtBody))
                 {
                     this.LogVerbose($"Hit was uncleared: {hurtBody.name}.", hurtBody);
                     continue;
@@ -309,8 +329,13 @@ namespace Shears.HitDetection
                 hurtBody.OnHitReceived(hitData);
                 OnHitDelivered(hitData);
 
-                if (!multiHits && !hitData.Blocked) // we don't store blocking as they can continue blocking
+                if (!hitData.Blocked) // We don't store blocking as they can continue blocking.
+                {
                     unclearedHits.Add(hurtBody);
+
+                    if (unclearedHits.Count == 1)
+                        multiHitTimer.Start(multiHitTime);
+                }
 
                 if (!isEnabled)
                     break;
@@ -341,12 +366,6 @@ namespace Shears.HitDetection
             }
 
             return null;
-        }
-
-        internal void OnHitDelivered(HitData3D data)
-        {
-            this.LogVerbose("HitBody3D delivered a hit.");
-            HitDelivered?.Invoke(data);
         }
     }
 }
