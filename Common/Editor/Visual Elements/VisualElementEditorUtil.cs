@@ -51,10 +51,16 @@ namespace Shears.Editor
             var header = new Label(text)
             {
                 name = "Header",
-                style = { unityFontStyleAndWeight = FontStyle.Bold, marginTop = 13 },
+                style =
+                {
+                    unityFontStyleAndWeight = FontStyle.Bold,
+                    marginTop = 13,
+                    color = new Color(0.824f, 0.824f, 0.824f),
+                },
             };
             header.AddHeaderClass();
             header.AddBaseFieldLabelClass();
+            header.AddToClassList("unity-decorator-drawers-container");
 
             return header;
         }
