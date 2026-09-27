@@ -391,6 +391,12 @@ namespace Shears.StateMachineGraphs
 
         public T GetParameter<T>(SMID id)
         {
+            if (id == SMID.Empty)
+            {
+                LogError($"Could not get parameter for ID: ID is empty!");
+                return default;
+            }
+
             if (parameters.TryGetValue(id, out var parameter))
             {
                 if (parameter is Parameter<T> typedParameter)
