@@ -13,17 +13,19 @@ namespace Shears
             pool.Clear();
         }
 
-        public static Timer Get()
+        public static Timer Get(float time = 1.0f)
         {
             if (pool.Count > 0)
             {
                 var timer = pool[^1];
                 pool.RemoveAt(pool.Count - 1);
 
+                timer.Time = time;
+
                 return timer;
             }
             else
-                return new Timer();
+                return new Timer(time);
         }
 
         public static void Release(Timer timer)
