@@ -127,7 +127,7 @@ namespace Shears.Tweens
             ITweenData data = null
         )
         {
-            Quaternion start = transform.localRotation;
+            var start = transform.localRotation;
 
             Action<float> update;
 
@@ -145,6 +145,33 @@ namespace Shears.Tweens
 
                     transform.localRotation = Quaternion.AngleAxis(angle, targetAxis);
                 };
+            }
+
+            return CreateAutoDisposeTween(transform, update, data);
+        }
+
+        public static Tween DoRotateAxisLocalTween(
+            this Transform transform,
+            float startAngle,
+            float targetAngle,
+            Vector3 axis,
+            ITweenData data = null
+        ) => Do(GetRotateAxisLocalTween(transform, startAngle, targetAngle, axis, data));
+
+        public static Tween GetRotateAxisLocalTween(
+            this Transform transform,
+            float startAngle,
+            float targetAngle,
+            Vector3 axis,
+            ITweenData data = null
+        )
+        {
+            axis.Normalize();
+
+            void update(float t)
+            {
+                float currentAngle = Mathf.LerpUnclamped(startAngle, targetAngle, t);
+                transform.localRotation = Quaternion.AngleAxis(currentAngle, axis);
             }
 
             return CreateAutoDisposeTween(transform, update, data);
