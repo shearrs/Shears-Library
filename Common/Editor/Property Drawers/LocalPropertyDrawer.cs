@@ -19,7 +19,7 @@ namespace Shears.Editor
                 var stage = PrefabStageUtility.GetCurrentPrefabStage();
 
                 if (stage == null || target.gameObject != stage.prefabContentsRoot)
-                    field.style.display = DisplayStyle.None;
+                    field.enabledSelf = false;
             }
 
             return field;
