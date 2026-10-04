@@ -595,7 +595,7 @@ namespace Shears.UI
         )
             where EventType : UIEvent
         {
-            if (element == boundElement)
+            if (element == boundElement || element == null)
                 return;
 
             element.InvokeEvent(evt);

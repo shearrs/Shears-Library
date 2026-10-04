@@ -60,6 +60,13 @@ namespace Shears.UI
                 BindHover(hoverParent);
         }
 
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+
+            appearTimer.Stop();
+        }
+
         protected override void RegisterEvents()
         {
             RegisterEvent<HoverEnterEvent>(OnHoverEnter);
