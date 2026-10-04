@@ -231,7 +231,7 @@ namespace Shears.HitDetection
 
         internal void OnHitDelivered(HitData3D data)
         {
-            this.LogVerbose("HitBody3D delivered a hit.");
+            this.LogVerbose($"{nameof(HitBody3D)} delivered a hit to {data.HurtBody}.");
             HitDelivered?.Invoke(data);
         }
 

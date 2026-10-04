@@ -12,6 +12,7 @@ namespace Shears.Events
         [field: SerializeField]
         public SHLogLevels LogLevels { get; set; } = SHLogUtil.Default;
 
+        [Header("Listener")]
         [SerializeField]
         [Tooltip("The animator to set a parameter value for.")]
         private Animator animator;

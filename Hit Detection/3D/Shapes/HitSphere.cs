@@ -1,6 +1,7 @@
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using Shears.Logging;
 using UnityEngine;
 
 namespace Shears.HitDetection
