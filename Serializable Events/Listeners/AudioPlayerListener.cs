@@ -22,6 +22,7 @@ namespace Shears.Events
         private AudioClip clip;
 
         [SerializeField, Range(-3, 3)]
+        [Tooltip("The pitch of the sound clip.")]
         private float pitch = 1.0f;
 
         [SerializeField]
@@ -33,6 +34,7 @@ namespace Shears.Events
         private Range<float> randomPitchOffset = new(-0.15f, 0.15f);
 
         [SerializeField, Range(0, 1)]
+        [Tooltip("The volume of the sound clip.")]
         private float volume = 1.0f;
 
         public AudioSource Source
