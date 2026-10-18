@@ -333,7 +333,7 @@ namespace Shears.HitDetection
                 {
                     unclearedHits.Add(hurtBody);
 
-                    if (unclearedHits.Count == 1)
+                    if (unclearedHits.Count == 1 && multiHits)
                         multiHitTimer.Start(multiHitTime);
                 }
 
