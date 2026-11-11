@@ -31,7 +31,7 @@ namespace Shears.Editor
             var entryDictionaryProp = serializedObject.FindProperty(INTERFACE_ENTRIES_FIELD_NAME);
             var targetType = serializedObject.targetObject.GetType();
 
-            SerializeFields(defaultFields, entryDictionaryProp, targetType, 1);
+            Serialize(defaultFields, entryDictionaryProp, targetType, 1);
 
             root.Add(defaultFields);
 
@@ -61,7 +61,7 @@ namespace Shears.Editor
             var entryDictionaryProp = property.FindPropertyRelative(INTERFACE_ENTRIES_FIELD_NAME);
             var targetType = property.boxedValue.GetType();
 
-            SerializeFields(defaultFields, entryDictionaryProp, targetType);
+            Serialize(defaultFields, entryDictionaryProp, targetType);
 
             root.Add(defaultFields);
 
@@ -75,7 +75,7 @@ namespace Shears.Editor
         /// <param name="entryDictionaryProp">The <see cref="SerializedProperty"/> for the <see cref="InterfaceDictionary"/>.</param>
         /// <param name="targetType">The target <see cref="Type"/> to serialize.</param>
         /// <param name="indexOffset">An offset to the sorting indices of the interface fields. This is needed for the MonoBehaviour "m_Script" field to not mess up sorting order.</param>
-        private static void SerializeFields(
+        private static void Serialize(
             VisualElement fieldsContainer,
             SerializedProperty entryDictionaryProp,
             Type targetType,
@@ -155,7 +155,9 @@ namespace Shears.Editor
                     valueContainer = container;
                 }
 
-                fieldsContainer.Insert(index + indexOffset, valueContainer);
+                int insertIndex = Mathf.Min(index + indexOffset, fieldsContainer.childCount);
+
+                fieldsContainer.Insert(insertIndex, valueContainer);
             }
 
             CollectionUtil.ReleasePooled(types);

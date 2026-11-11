@@ -7,19 +7,36 @@ namespace Shears
     [Serializable]
     public sealed class Ref<T> : IReadOnlyRef<T>
     {
+        public static readonly bool SerializeByReference =
+            typeof(T).IsInterface || typeof(T).IsAbstract;
+
         [SerializeField]
         private T value;
 
-        public T Value
+        [SerializeField]
+        private T refValue;
+
+        private T SerializedValue
         {
-            get => value;
+            get => SerializeByReference ? refValue : value;
             set
             {
-                if (EqualityComparer<T>.Default.Equals(this.value, value))
+                if (SerializeByReference)
+                    refValue = value;
+                else
+                    this.value = value;
+            }
+        }
+
+        public T Value
+        {
+            get => SerializedValue;
+            set
+            {
+                if (EqualityComparer<T>.Default.Equals(SerializedValue, value))
                     return;
 
-                this.value = value;
-
+                SerializedValue = value;
                 Changed?.Invoke(value);
             }
         }
@@ -29,12 +46,12 @@ namespace Shears
 
         public Ref()
         {
-            value = default;
+            SerializedValue = default;
         }
 
         public Ref(T value)
         {
-            this.value = value;
+            SerializedValue = value;
         }
 
         public void Bind(Action<T> action)

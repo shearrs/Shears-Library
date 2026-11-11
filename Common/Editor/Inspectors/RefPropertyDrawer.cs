@@ -10,18 +10,14 @@ namespace Shears.Editor
     {
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
-            var root = new VisualElement();
-
             var valueProp = property.FindPropertyRelative("value");
             var valueField = new PropertyField(valueProp)
             {
+                name = "Ref Property Drawer",
                 label = $"*{property.displayName}",
-                tooltip = $"{property.displayName} is a Ref variable.",
             };
 
-            root.Add(valueField);
-
-            return root;
+            return valueField;
         }
     }
 }
