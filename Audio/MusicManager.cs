@@ -1,12 +1,16 @@
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.Pool;
 
 namespace Shears.Audio
 {
     public class MusicManager : ProtectedSingleton<MusicManager>
     {
+        [SerializeField, Required, Local]
+        private AudioMixerGroup mixerGroup;
+
         private readonly ObjectPool<AudioSource> audioSourcePool = new(
             CreateAudioSource,
             GetAudioSource,
@@ -171,6 +175,7 @@ namespace Shears.Audio
         {
             var gameObject = new GameObject($"Audio Source {Instance.audioSourcePool.CountAll}");
             var source = gameObject.AddComponent<AudioSource>();
+            source.outputAudioMixerGroup = Instance.mixerGroup;
 
             return source;
         }

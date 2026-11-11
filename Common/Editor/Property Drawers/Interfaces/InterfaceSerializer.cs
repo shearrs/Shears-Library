@@ -19,7 +19,7 @@ namespace Shears.Editor
         /// </summary>
         /// <param name="serializedObject">The target to serialize.</param>
         /// <returns>A <see cref="VisualElement"/> containing all of the serialized fields.</returns>
-        public static VisualElement SerializeFields(SerializedObject serializedObject)
+        public static VisualElement Serialize(SerializedObject serializedObject)
         {
             var root = new VisualElement() { name = $"{nameof(IInterfaceSerializable)} Editor" };
             var defaultFields = VisualElementEditorUtil.CreateDefaultFields(
@@ -43,7 +43,7 @@ namespace Shears.Editor
         /// </summary>
         /// <param name="property">The target to serialize.</param>
         /// <returns>A <see cref="VisualElement"/> containing all of the serialized fields.</returns>
-        public static VisualElement SerializeFields(SerializedProperty property)
+        public static VisualElement Serialize(SerializedProperty property)
         {
             var root = new VisualElement() { name = $"{nameof(IInterfaceSerializable)} Editor" };
 

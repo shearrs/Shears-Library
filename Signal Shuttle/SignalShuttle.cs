@@ -61,7 +61,7 @@ namespace Shears.Signals
             }
         }
 
-        public static void Emit<TSignal>(TSignal signal)
+        public static void Emit<TSignal>(in TSignal signal)
             where TSignal : struct, ISignal
         {
             if (signals.TryGetValue(typeof(TSignal), out var bindings))

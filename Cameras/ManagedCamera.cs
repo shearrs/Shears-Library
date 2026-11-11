@@ -25,7 +25,7 @@ namespace Shears.Cameras
             get => initializeOnAwake;
             set => initializeOnAwake = value;
         }
-        public Camera RawCamera => rawCamera;
+        public Camera RawCamera => this.LazyGet(ref rawCamera);
         public CameraData GlobalData => globalData;
 
         private void Awake()
@@ -54,8 +54,6 @@ namespace Shears.Cameras
 
         public void Initialize()
         {
-            rawCamera = GetComponent<Camera>();
-
             if (defaultLookInput != null && GlobalData.LookInput == null)
             {
                 defaultLookInput.action.Enable();

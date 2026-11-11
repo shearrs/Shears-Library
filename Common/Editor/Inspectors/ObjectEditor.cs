@@ -1,144 +1,85 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using KB.Editor;
 using UnityEditor;
+using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Shears.Editor
 {
-    [CustomEditor(typeof(UnityEngine.Object), true), CanEditMultipleObjects]
+    [CustomEditor(typeof(UnityEngine.Object), true, isFallback = true), CanEditMultipleObjects]
     public class ObjectEditor : UnityEditor.Editor
     {
-        private const BindingFlags FLAGS =
-            BindingFlags.Instance
-            | BindingFlags.Public
-            | BindingFlags.NonPublic
-            | BindingFlags.FlattenHierarchy;
-        private readonly Dictionary<string, FoldoutGroup> foldouts = new();
-        private CompositeFoldout currentFoldout;
+        private Component _wrappedValue;
 
-        private readonly struct FoldoutGroup
+        private void OnEnable()
         {
-            private readonly string name;
-            private readonly List<VisualElement> elements;
-            private readonly bool expanded;
+            if (target == null)
+                return;
 
-            public readonly string Name => name;
-            public readonly IReadOnlyList<VisualElement> Elements => elements;
-            public readonly bool Expanded => expanded;
+            var targetType = target.GetType();
 
-            public FoldoutGroup(string name, bool expanded)
+            if (TypeCache.GetTypesWithAttribute<WrapperAttribute>().Contains(targetType))
             {
-                this.name = name;
-                elements = new();
-                this.expanded = expanded;
-            }
+                var attribute = targetType.GetCustomAttribute<WrapperAttribute>();
+                var targetComponent = target as Component;
+                _wrappedValue = targetComponent.GetComponent(attribute.WrappedType);
 
-            public void Add(VisualElement element) => elements.Add(element);
+                WrapperSerializer.HideWrappedValue(target);
+            }
+            else
+                _wrappedValue = null;
         }
 
-        private struct CompositeFoldout
+        private void OnDestroy()
         {
-            private readonly string name;
-            private int fieldCount;
-
-            public readonly string Name => name;
-            public int FieldCount
-            {
-                readonly get => fieldCount;
-                set => fieldCount = value;
-            }
-
-            public CompositeFoldout(string name, int fieldCount)
-            {
-                this.name = name;
-                this.fieldCount = fieldCount;
-            }
+            if (_wrappedValue != null)
+                WrapperSerializer.OnDestroy(target, _wrappedValue);
         }
 
         public override VisualElement CreateInspectorGUI()
         {
-            if (target is IInterfaceSerializable)
-                return InterfaceSerializer.SerializeFields(serializedObject);
+            if (TrySerializeInterfaces(out var inspector))
+                return inspector;
+            else if (TrySerializeWrapper(out inspector))
+                return inspector;
             else
             {
-                var defaultFieldsContainer = VisualElementEditorUtil.CreateDefaultFields(
-                    serializedObject
-                );
+                inspector = new VisualElement();
 
-                var targetObject = serializedObject.targetObject;
+                InspectorElement.FillDefaultInspector(inspector, serializedObject, this);
 
-                if (targetObject == null)
-                    return defaultFieldsContainer;
-
-                for (int i = 0; i < defaultFieldsContainer.childCount; i++)
-                {
-                    var childField = defaultFieldsContainer[i];
-                    string propName = childField.name;
-
-                    if (currentFoldout.FieldCount > 0)
-                    {
-                        currentFoldout.FieldCount--;
-
-                        foldouts[currentFoldout.Name].Add(childField);
-
-                        continue;
-                    }
-
-                    var type = targetObject.GetType();
-                    var field = type.GetField(propName, FLAGS);
-
-                    FoldoutGroupAttribute attribute;
-
-                    try
-                    {
-                        attribute = field.GetCustomAttribute<FoldoutGroupAttribute>(true);
-                    }
-                    catch (ArgumentNullException)
-                    {
-                        continue;
-                    }
-
-                    if (attribute == null)
-                        continue;
-
-                    if (!foldouts.TryGetValue(attribute.Name, out var foldout))
-                    {
-                        foldout = new(attribute.Name, attribute.Expanded);
-                        foldout.Add(childField);
-
-                        foldouts[attribute.Name] = foldout;
-                    }
-                    else
-                        foldout.Add(childField);
-
-                    currentFoldout = new(attribute.Name, attribute.FieldCount - 1);
-                }
-
-                foreach (var foldoutGroup in foldouts.Values)
-                {
-                    var foldout = new Foldout
-                    {
-                        text = foldoutGroup.Name,
-                        name = foldoutGroup.Name,
-                        value = foldoutGroup.Expanded,
-                    };
-
-                    foldout.AddStyleSheet(ShearsStyles.InspectorStyles);
-                    foldout.AddToClassList(ShearsStyles.DarkFoldoutClass);
-
-                    int index = defaultFieldsContainer.IndexOf(foldoutGroup.Elements[0]);
-                    defaultFieldsContainer.Insert(index, foldout);
-
-                    foreach (var element in foldoutGroup.Elements)
-                    {
-                        defaultFieldsContainer.Remove(element);
-                        foldout.Add(element);
-                    }
-                }
-
-                return defaultFieldsContainer;
+                return inspector;
             }
+        }
+
+        private bool TrySerializeInterfaces(out VisualElement inspector)
+        {
+            if (target is IInterfaceSerializable)
+            {
+                inspector = InterfaceSerializer.Serialize(serializedObject);
+                return true;
+            }
+
+            inspector = null;
+            return false;
+        }
+
+        private bool TrySerializeWrapper(out VisualElement inspector)
+        {
+            var types = TypeCache.GetTypesWithAttribute<WrapperAttribute>();
+            var targetType = target.GetType();
+
+            if (types.Contains(targetType))
+            {
+                inspector = WrapperSerializer.Serialize(serializedObject, this);
+                return true;
+            }
+
+            inspector = null;
+            return false;
         }
     }
 }

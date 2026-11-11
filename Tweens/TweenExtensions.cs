@@ -232,6 +232,7 @@ namespace Shears.Tweens
 
             var tween = CreateAutoDisposeTween(transform, update, data);
             tween.AddOnComplete(() => transform.localPosition = start);
+            tween.AddOnStopped(() => transform.localPosition = start);
 
             return tween;
         }
