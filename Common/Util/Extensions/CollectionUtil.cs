@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -98,6 +99,16 @@ namespace Shears
                 return default;
             else
                 return array[UnityEngine.Random.Range(0, array.Length)];
+        }
+
+        public static void GetPooled<T>(int capacity, out T[] array)
+        {
+            array = ArrayPool<T>.Shared.Rent(capacity);
+        }
+
+        public static void ReleasePooled<T>(T[] array)
+        {
+            ArrayPool<T>.Shared.Return(array);
         }
 
         public static void GetPooled<T>(out List<T> list)
