@@ -14,8 +14,6 @@ namespace Shears.Editor
     [CustomPropertyDrawer(typeof(ShowIfAttribute))]
     public class ShowIfPropertyDrawer : PropertyDrawer
     {
-        private readonly List<Comparison> comparisons = new();
-
         private readonly struct Comparison
         {
             private readonly string propertyName;
@@ -62,10 +60,9 @@ namespace Shears.Editor
         public override VisualElement CreatePropertyGUI(SerializedProperty targetProperty)
         {
             var root = new VisualElement();
-
             var parentProperty = targetProperty.FindParentProperty();
 
-            GetComparisons(targetProperty);
+            var comparisons = GetComparisons(targetProperty);
 
             var propertyField = new PropertyField(targetProperty)
             {
@@ -143,7 +140,7 @@ namespace Shears.Editor
             GUIContent label
         )
         {
-            GetComparisons(targetProperty);
+            var comparisons = GetComparisons(targetProperty);
 
             bool isValid = true;
             var parentProperty = targetProperty.FindParentProperty();
@@ -199,11 +196,10 @@ namespace Shears.Editor
             return serializedObject.FindProperty(conditionName);
         }
 
-        private void GetComparisons(SerializedProperty targetProperty)
+        private List<Comparison> GetComparisons(SerializedProperty targetProperty)
         {
             var attribute = this.attribute as ShowIfAttribute;
-
-            comparisons.Clear();
+            var comparisons = new List<Comparison>();
 
             foreach (var condition in attribute.Conditions)
             {
@@ -220,11 +216,13 @@ namespace Shears.Editor
                     Debug.LogError(
                         $"Could not find property {name} in {targetProperty.displayName}!"
                     );
-                    return;
+                    return comparisons;
                 }
 
                 comparisons.Add(new(name, negate, condition.CompareValue));
             }
+
+            return comparisons;
         }
     }
 }

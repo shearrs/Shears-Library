@@ -1,39 +1,36 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Shears.HitDetection
 {
-    public delegate void HitEvent(in HitData data);
-
-    public class HurtBody : MonoBehaviour
+    public class HurtBody : ShearsBehaviour
     {
+        [Header("Hurt Body")]
         [SerializeField]
-        private Collider col;
+        private List<Collider> colliders = new();
 
         [SerializeField]
-        private bool isBlocking;
+        private IBlockProvider blockProvider;
 
-        public Collider Collider
-        {
-            get => col;
-            set => col = value;
-        }
-        public bool IsBlocking
-        {
-            get => isBlocking;
-            set => isBlocking = value;
-        }
+        public IReadOnlyList<Collider> Colliders => colliders;
 
         public event HitEvent HitReceived;
+        public event HitEvent HitBlocked;
 
         public void Hit(in HitData data)
         {
             HitReceived?.Invoke(data);
         }
 
-        public bool CanBlock(in HitData _)
+        public void BlockHit(in HitData data)
         {
-            return isBlocking;
+            HitBlocked?.Invoke(data);
+        }
+
+        public bool CanBlock(in HitData data)
+        {
+            return blockProvider != null && blockProvider.CanBlock(data);
         }
     }
 }

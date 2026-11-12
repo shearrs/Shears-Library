@@ -2,5 +2,5 @@ using UnityEngine;
 
 namespace Shears.HitDetection
 {
-    public class HitSubdata { }
+    public delegate void HitEvent(in HitData data);
 }
