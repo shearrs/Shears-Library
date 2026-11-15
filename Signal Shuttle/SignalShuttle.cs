@@ -10,22 +10,22 @@ namespace Shears.Signals
 
         private interface ISignalBindings { }
 
-        private sealed class SignalBindings<TSignal> : ISignalBindings
-            where TSignal : struct, ISignal
+        private sealed class SignalBindings<T> : ISignalBindings
+            where T : struct, ISignal
         {
-            private readonly List<Action<TSignal>> listeners = new();
+            private readonly List<SignalListener<T>> listeners = new();
 
-            public void AddListener(Action<TSignal> listener)
+            public void AddListener(SignalListener<T> listener)
             {
                 listeners.Add(listener);
             }
 
-            public void RemoveListener(Action<TSignal> listener)
+            public void RemoveListener(SignalListener<T> listener)
             {
                 listeners.Remove(listener);
             }
 
-            public void Invoke(in TSignal signal)
+            public void Invoke(in T signal)
             {
                 for (int i = 0; i < listeners.Count; i++)
                     listeners[i]?.Invoke(signal);
@@ -38,34 +38,34 @@ namespace Shears.Signals
             signals.Clear();
         }
 
-        public static void Register<TSignal>(Action<TSignal> listener)
-            where TSignal : struct, ISignal
+        public static void Register<T>(SignalListener<T> listener)
+            where T : struct, ISignal
         {
-            var type = typeof(TSignal);
+            var type = typeof(T);
 
             if (!signals.TryGetValue(type, out var bindings))
             {
-                bindings = new SignalBindings<TSignal>();
+                bindings = new SignalBindings<T>();
                 signals[type] = bindings;
             }
 
-            ((SignalBindings<TSignal>)bindings).AddListener(listener);
+            ((SignalBindings<T>)bindings).AddListener(listener);
         }
 
-        public static void Unregister<TSignal>(Action<TSignal> listener)
-            where TSignal : struct, ISignal
+        public static void Unregister<T>(SignalListener<T> listener)
+            where T : struct, ISignal
         {
-            if (signals.TryGetValue(typeof(TSignal), out var bindings))
+            if (signals.TryGetValue(typeof(T), out var bindings))
             {
-                ((SignalBindings<TSignal>)bindings).RemoveListener(listener);
+                ((SignalBindings<T>)bindings).RemoveListener(listener);
             }
         }
 
-        public static void Emit<TSignal>(in TSignal signal)
-            where TSignal : struct, ISignal
+        public static void Emit<T>(in T signal)
+            where T : struct, ISignal
         {
-            if (signals.TryGetValue(typeof(TSignal), out var bindings))
-                ((SignalBindings<TSignal>)bindings).Invoke(signal);
+            if (signals.TryGetValue(typeof(T), out var bindings))
+                ((SignalBindings<T>)bindings).Invoke(signal);
         }
     }
 }

@@ -14,33 +14,52 @@ namespace Shears.Tweens
 
         #region Variables
         [Header("Tween Data Settings")]
-        [SerializeField] private bool usesDataObject;
-        [SerializeField, ShowIf("usesDataObject")] private TweenDataObject tweenDataObject;
+        [SerializeField]
+        private bool usesDataObject;
+
+        [SerializeField, ShowIf("usesDataObject")]
+        private TweenDataObject tweenDataObject;
 
         [Header("Duration Settings")]
-        [SerializeField, ShowIf("!usesDataObject"), Min(0f)] private float duration = 1.0f;
-        [SerializeField, ShowIf("!usesDataObject")] private bool forceFinalValue = true;
-        [SerializeField, ShowIf("!usesDataObject")] private Tween.UpdateMode updateMode;
-        [SerializeField, ShowIf("!usesDataObject")] private bool unscaledTime = false;
+        [SerializeField, ShowIf("!usesDataObject"), Min(0f)]
+        private float duration = 1.0f;
+
+        [SerializeField, ShowIf("!usesDataObject")]
+        private bool forceFinalValue = true;
+
+        [SerializeField, ShowIf("!usesDataObject")]
+        private Tween.UpdateMode updateMode;
+
+        [SerializeField, ShowIf("!usesDataObject")]
+        private bool unscaledTime = false;
 
         [Header("Loop Settings")]
-        [SerializeField, ShowIf("!usesDataObject"), Min(-1)] private int loops = 0;
-        [SerializeField, ShowIf("!usesDataObject")] private LoopMode loopMode = LoopMode.None;
+        [SerializeField, ShowIf("!usesDataObject"), Min(-1)]
+        private int loops = 0;
+
+        [SerializeField, ShowIf("!usesDataObject")]
+        private LoopMode loopMode = LoopMode.None;
 
         [Header("Ease Settings")]
-        [SerializeField, ShowIf("!usesDataObject")] private bool usesCurve;
-        [SerializeField, ShowIf("!usesDataObject", "!usesCurve")] private TweenEase easingFunction = TweenEase.Linear;
-        [SerializeField, ShowIf("!usesDataObject", "usesCurve")] private AnimationCurve curve;
+        [SerializeField, ShowIf("!usesDataObject")]
+        private bool usesCurve;
+
+        [SerializeField, ShowIf("!usesDataObject", "!usesCurve")]
+        private TweenEase easingFunction = TweenEase.Linear;
+
+        [SerializeField, ShowIf("!usesDataObject", "usesCurve")]
+        private AnimationCurve curve;
 
         [Header("Events")]
-        [SerializeField] private List<TweenUnityEvent> unityEvents = new();
+        [SerializeField]
+        private List<TweenUnityEvent> unityEvents = new();
 
         private readonly List<TweenEventBase> events = new();
         private readonly List<TweenEventBase> totalEvents = new();
 
         public float Duration
         {
-            get => UsesDataObject()? tweenDataObject.Duration : duration;
+            get => UsesDataObject() ? tweenDataObject.Duration : duration;
             set => duration = value;
         }
 
@@ -63,7 +82,7 @@ namespace Shears.Tweens
         }
 
         public int Loops
-        { 
+        {
             get => UsesDataObject() ? tweenDataObject.Loops : loops;
             set => loops = value;
         }
@@ -109,17 +128,22 @@ namespace Shears.Tweens
         {
             duration = 1.0f;
             forceFinalValue = true;
+            updateMode = Tween.UpdateMode.Update;
+            unscaledTime = false;
             loops = 0;
             loopMode = LoopMode.None;
             easingFunction = TweenEase.Linear;
         }
 
         public TweenData(
-            float duration = 1.0f, bool forceFinalValue = true,
+            float duration = 1.0f,
+            bool forceFinalValue = true,
             Tween.UpdateMode updateMode = Tween.UpdateMode.Update,
-            bool unscaledTime = false, int loops = 0,
+            bool unscaledTime = false,
+            int loops = 0,
             LoopMode loopMode = LoopMode.None,
-            TweenEase easingFunction = TweenEase.Linear)
+            TweenEase easingFunction = TweenEase.Linear
+        )
         {
             this.duration = duration;
             this.forceFinalValue = forceFinalValue;

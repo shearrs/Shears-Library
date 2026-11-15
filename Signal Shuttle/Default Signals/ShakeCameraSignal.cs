@@ -8,7 +8,7 @@ namespace Shears.Signals
         public float ShakeDelay { get; }
         public float Duration { get; }
 
-        public ShakeCameraSignal(float strength, float shakeDelay = 0.0f, float duration = 0.5f)
+        public ShakeCameraSignal(float strength, float shakeDelay = 0.01f, float duration = 0.2f)
         {
             Strength = strength;
             ShakeDelay = shakeDelay;
