@@ -49,7 +49,7 @@ namespace Shears.HitDetection
         private bool multiHits;
 
         [SerializeField, Tooltip("The duration of time in-between multi-hits.")]
-        [ShowIf(nameof(multiHits))]
+        [ShowIf(nameof(multiHits)), Min(0)]
         private float multiHitTime = 0.1f;
 
         [SerializeField, Tooltip("Whether or not this HitBody3D is unblockable.")]
