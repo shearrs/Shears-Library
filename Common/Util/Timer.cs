@@ -46,6 +46,7 @@ namespace Shears
         }
         public bool IsDone => isDone;
         public bool IsPaused => isPaused;
+        public bool IsPlaying => !isDone && !isPaused;
 
         public event Action Completed;
 
