@@ -85,7 +85,7 @@ namespace Shears.Events
                 return;
             }
 
-            if (clips == null)
+            if (clips == null || clips.Length == 0)
             {
                 this.LogError(
                     $"{nameof(AudioPlayerListener)} has no assigned {nameof(AudioClip)}!"
