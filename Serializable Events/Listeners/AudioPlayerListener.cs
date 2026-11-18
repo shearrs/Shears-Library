@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Shears.Logging;
 using UnityEngine;
 
@@ -18,8 +20,12 @@ namespace Shears.Events
         private AudioSource source;
 
         [SerializeField]
-        [Tooltip("The audio clip to play.")]
-        private AudioClip clip;
+        [Tooltip("The audio clips to play.")]
+        private AudioClip[] clips = Array.Empty<AudioClip>();
+
+        [SerializeField]
+        [Tooltip("Whether or not the randomize which sound clip plays.")]
+        private bool randomizeClip = false;
 
         [SerializeField, Range(-3, 3)]
         [Tooltip("The pitch of the sound clip.")]
@@ -42,10 +48,11 @@ namespace Shears.Events
             get => source;
             set => source = value;
         }
-        public AudioClip Clip
+        public IReadOnlyList<AudioClip> Clips => clips;
+        public bool RandomizeClip
         {
-            get => clip;
-            set => clip = value;
+            get => randomizeClip;
+            set => randomizeClip = value;
         }
         public float Pitch
         {
@@ -78,7 +85,7 @@ namespace Shears.Events
                 return;
             }
 
-            if (clip == null)
+            if (clips == null)
             {
                 this.LogError(
                     $"{nameof(AudioPlayerListener)} has no assigned {nameof(AudioClip)}!"
@@ -86,7 +93,12 @@ namespace Shears.Events
                 return;
             }
 
-            source.clip = clip;
+            int clipIndex = 0;
+
+            if (randomizeClip)
+                clipIndex = UnityEngine.Random.Range(0, clips.Length);
+
+            source.clip = clips[clipIndex];
 
             float pitch = this.pitch;
 
