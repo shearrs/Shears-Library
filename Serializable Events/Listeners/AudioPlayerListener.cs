@@ -1,7 +1,7 @@
-using Shears.Logging;
-using Shears;
-using UnityEngine;
 using System;
+using System.Collections.Generic;
+using Shears.Logging;
+using UnityEngine;
 
 namespace Shears.Events
 {
@@ -20,14 +20,15 @@ namespace Shears.Events
         private AudioSource source;
 
         [SerializeField]
-        [Tooltip("The audio clip to play.")]
+        [Tooltip("The audio clips to play.")]
         private AudioClip[] clips = Array.Empty<AudioClip>();
 
         [SerializeField]
-        [Tooltip("Randomize the sound to play from the clips provided")]
-        private bool randomizeSound;
+        [Tooltip("Whether or not the randomize which sound clip plays.")]
+        private bool randomizeClip = false;
 
         [SerializeField, Range(-3, 3)]
+        [Tooltip("The pitch of the sound clip.")]
         private float pitch = 1.0f;
 
         [SerializeField]
@@ -39,24 +40,19 @@ namespace Shears.Events
         private Range<float> randomPitchOffset = new(-0.15f, 0.15f);
 
         [SerializeField, Range(0, 1)]
+        [Tooltip("The volume of the sound clip.")]
         private float volume = 1.0f;
-
-        private readonly Timer preventOverlapTimer = new();
 
         public AudioSource Source
         {
             get => source;
             set => source = value;
         }
-        public AudioClip[] Clip
+        public IReadOnlyList<AudioClip> Clips => clips;
+        public bool RandomizeClip
         {
-            get => clips;
-            set => clips = value;
-        }
-        public bool RandomizeSound
-        {
-            get => randomizeSound;
-            set => randomizeSound = value;
+            get => randomizeClip;
+            set => randomizeClip = value;
         }
         public float Pitch
         {
@@ -89,7 +85,7 @@ namespace Shears.Events
                 return;
             }
 
-            if (clips == null)
+            if (clips == null || clips.Length == 0)
             {
                 this.LogError(
                     $"{nameof(AudioPlayerListener)} has no assigned {nameof(AudioClip)}!"
@@ -97,13 +93,12 @@ namespace Shears.Events
                 return;
             }
 
-            int soundIndex = 0;
-            if (randomizeSound)
-            {
-                soundIndex = UnityEngine.Random.Range(0, clips.Length);
-            }
+            int clipIndex = 0;
 
-            source.clip = clips[soundIndex];
+            if (randomizeClip)
+                clipIndex = UnityEngine.Random.Range(0, clips.Length);
+
+            source.clip = clips[clipIndex];
 
             float pitch = this.pitch;
 
@@ -113,11 +108,7 @@ namespace Shears.Events
             source.pitch = pitch;
             source.volume = volume;
 
-            if (!preventOverlapTimer.IsPlaying)
-            {
-                source.PlayOneShot(clips[soundIndex]);
-                preventOverlapTimer.Start(.05f);
-            }
+            source.Play();
         }
     }
 }
