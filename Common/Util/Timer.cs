@@ -27,6 +27,7 @@ namespace Shears
 
         private CancellationTokenSource tokenSource;
         private bool isPaused = false;
+        private bool isPlaying = false;
 
         public float Time
         {
@@ -46,6 +47,7 @@ namespace Shears
         }
         public bool IsDone => isDone;
         public bool IsPaused => isPaused;
+        public bool IsPlaying => isPlaying;
 
         public event Action Completed;
 
@@ -78,6 +80,7 @@ namespace Shears
             tokenSource = CancellationTokenSource.CreateLinkedTokenSource(appToken);
 
             isPaused = false;
+            isPlaying = true;
             Time = time;
             RunAsync(time, tokenSource.Token);
         }
@@ -88,6 +91,7 @@ namespace Shears
         public void Pause()
         {
             isPaused = true;
+            isPlaying = false;
         }
 
         /// <summary>
@@ -96,6 +100,7 @@ namespace Shears
         public void Unpause()
         {
             isPaused = false;
+            isPlaying = true;
         }
 
         /// <summary>
@@ -109,6 +114,7 @@ namespace Shears
             tokenSource?.Cancel();
             isDone = true;
             isPaused = false;
+            isPlaying = false;
         }
 
         /// <summary>
@@ -162,6 +168,7 @@ namespace Shears
             }
 
             isDone = true;
+            isPlaying = false;
 
             if (token.IsCancellationRequested)
                 return;

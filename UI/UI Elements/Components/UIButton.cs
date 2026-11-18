@@ -33,6 +33,7 @@ namespace Shears.UI
         }
 
         public event Action Clicked;
+        public event Action HoverEntered;
 
         protected override void Awake()
         {
@@ -98,6 +99,7 @@ namespace Shears.UI
         {
             evt.PreventDefault();
             isHovered.Value = true;
+            HoverEntered?.Invoke();
         }
 
         private void OnHoverExit(HoverExitEvent evt)
