@@ -108,7 +108,7 @@ namespace Shears.Events
             source.pitch = pitch;
             source.volume = volume;
 
-            source.Play();
+            source.PlayOneShot(source.clip);
         }
     }
 }
