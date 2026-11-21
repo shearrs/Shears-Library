@@ -142,18 +142,24 @@ namespace Shears.Editor
 
                 VisualElement valueContainer = valueField;
                 var field = serializedFields[index];
-                var header = field.GetCustomAttribute<HeaderAttribute>();
+                var headerAttribute = field.GetCustomAttribute<HeaderAttribute>();
+                var readOnlyAttribute = field.GetCustomAttribute<ReadOnlyAttribute>();
 
-                if (header != null)
+                if (headerAttribute != null)
                 {
                     var container = new VisualElement() { name = "Interface Field Container" };
                     container.AddBaseFieldAlignClass();
-                    var headerElement = VisualElementEditorUtil.CreateHeader(header.header);
+                    var headerElement = VisualElementEditorUtil.CreateHeader(
+                        headerAttribute.header
+                    );
                     headerElement.style.marginLeft = 3;
 
                     container.AddAll(headerElement, valueField);
                     valueContainer = container;
                 }
+
+                if (readOnlyAttribute != null)
+                    valueContainer.enabledSelf = false;
 
                 int insertIndex = Mathf.Min(index + indexOffset, fieldsContainer.childCount);
 
