@@ -19,6 +19,7 @@ namespace Shears.Events
         [Tooltip("The audio source to play sounds from.")]
         private AudioSource source;
 
+        [Header("Clips")]
         [SerializeField]
         [Tooltip("The audio clips to play.")]
         private AudioClip[] clips = Array.Empty<AudioClip>();
@@ -27,6 +28,7 @@ namespace Shears.Events
         [Tooltip("Whether or not the randomize which sound clip plays.")]
         private bool randomizeClip = false;
 
+        [Header("Pitch")]
         [SerializeField, Range(-3, 3)]
         [Tooltip("The pitch of the sound clip.")]
         private float pitch = 1.0f;
@@ -39,6 +41,7 @@ namespace Shears.Events
         [Tooltip("The range of randomization to the pitch.")]
         private Range<float> randomPitchOffset = new(-0.15f, 0.15f);
 
+        [Header("Volume")]
         [SerializeField, Range(0, 1)]
         [Tooltip("The volume of the sound clip.")]
         private float volume = 1.0f;

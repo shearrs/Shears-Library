@@ -65,10 +65,7 @@ namespace Shears.UI
             string prefix = "",
             string suffix = "",
             ITweenData data = null
-        )
-        {
-            return textMesh.DoCounterTween(targetNumber, startNumber, prefix, suffix, data);
-        }
+        ) => TextMesh.DoCounterTween(targetNumber, startNumber, prefix, suffix, data);
 
         public Tween GetCounterTween(
             int targetNumber,
@@ -76,10 +73,7 @@ namespace Shears.UI
             string prefix = "",
             string suffix = "",
             ITweenData data = null
-        )
-        {
-            return textMesh.GetCounterTween(targetNumber, startNumber, prefix, suffix, data);
-        }
+        ) => TextMesh.GetCounterTween(targetNumber, startNumber, prefix, suffix, data);
 
         protected override void Repaint(StyleData data)
         {

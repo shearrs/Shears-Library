@@ -76,6 +76,7 @@ namespace Shears.UI.Editor
             var additiveProp = serializedObject.FindProperty("additiveModulate");
 
             var scriptField = VisualElementEditorUtil.CreateScriptField(serializedObject);
+            var header = VisualElementEditorUtil.CreateHeader("UI Image");
             var spriteField = new ObjectField("Sprite") { objectType = typeof(Sprite) };
             spriteField.BindProperty(spriteProp);
 
@@ -116,11 +117,12 @@ namespace Shears.UI.Editor
 
             root.AddAll(
                 scriptField,
+                header,
                 spriteField,
-                alphaField,
                 colorField,
                 modulateField,
                 additiveModulateField,
+                alphaField,
                 imageContainer
             );
 
