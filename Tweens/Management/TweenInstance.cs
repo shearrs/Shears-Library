@@ -116,7 +116,7 @@ namespace Shears.Tweens
             StopAllCoroutines();
 
             progress = 0;
-            StartCoroutine(IEPlay());
+            playCoroutine = StartCoroutine(IEPlay());
             coroutines.Add(playCoroutine);
         }
 
